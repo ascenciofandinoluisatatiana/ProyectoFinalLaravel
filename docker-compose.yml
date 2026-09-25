@@ -1,0 +1,91 @@
+# =============================================================
+# Portal Inmobiliario Global — Fase 1
+# Laravel 13 (API REST) + PostgreSQL + Redis
+# =============================================================
+# Pensado para que funcione igual sin importar el sistema operativo
+# o la configuración de cada persona: todos los valores variables
+# (puertos, credenciales) vienen del archivo .env de esta carpeta,
+# nunca están escritos a mano en este archivo.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: portal_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-portal_inmobiliario}
+      POSTGRES_USER: ${DB_USERNAME:-portal}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-portal_secret}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - portal_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-portal} -d ${DB_DATABASE:-portal_inmobiliario}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: portal_redis
+    restart: unless-stopped
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    networks:
+      - portal_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: ./docker/backend
+    container_name: portal_app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE:-portal_inmobiliario}
+      DB_USERNAME: ${DB_USERNAME:-portal}
+      DB_PASSWORD: ${DB_PASSWORD:-portal_secret}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      # Necesario para que "artisan serve --no-reload" corra varios workers
+      # y así el backend pueda atender varias peticiones a la vez.
+      PHP_CLI_SERVER_WORKERS: 4
+      RUN_MIGRATIONS: ${RUN_MIGRATIONS:-true}
+    volumes:
+      # El código se edita en tu máquina y se refleja al instante en el contenedor.
+      - ./backend:/var/www/html
+      # vendor/ vive SOLO dentro de Docker: cada quien instala sus propias
+      # dependencias de PHP al primer arranque, sin pisarse entre compañeros
+      # ni subir esa carpeta a Git.
+      - backend_vendor:/var/www/html/vendor
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    networks:
+      - portal_network
+
+networks:
+  portal_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  backend_vendor:

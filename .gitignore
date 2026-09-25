@@ -1,0 +1,10 @@
+# Entorno local (cada quien tiene el suyo, con sus propios puertos/claves)
+# backend/ trae su propio .gitignore (vendor/, .env, cachés, etc.) generado
+# por Laravel; aquí solo agregamos lo que aplica a la raíz del repositorio.
+.env
+
+# Sistema operativo / editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

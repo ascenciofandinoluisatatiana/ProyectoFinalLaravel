@@ -1,0 +1,11 @@
+# =============================================================
+# Sin esto, Git en Windows convierte los saltos de línea a CRLF
+# y los scripts de shell (entrypoint.sh) dejan de funcionar dentro
+# de Linux/Docker. Esta regla obliga a que TODO el texto se guarde
+# y se descargue siempre con salto de línea estilo Linux (LF),
+# sin importar el sistema operativo de quien clona o hace commit.
+# =============================================================
+* text=auto eol=lf
+
+# Los .sh además deben conservar el permiso de ejecución al clonar.
+*.sh text eol=lf

@@ -27,6 +27,7 @@ class HealthController extends Controller
             'status' => $healthy ? 'ok' : 'degraded',
             'checks' => $checks,
             'timestamp' => now()->toIso8601String(),
+            'verificado_por' => 'Tatiana',
         ], $healthy ? 200 : 503);
     }
 

@@ -37,7 +37,7 @@ prepare_project() {
     # 4) Dependencias PHP. vendor/ vive en un volumen de Docker (no en tu disco).
     #    Se reinstala solo si falta o si composer.json / composer.lock cambiaron.
     local stamp_now
-    stamp_now="$(cat composer.json composer.lock 2>/dev/null | md5sum | cut -d' ' -f1)"
+    stamp_now="$(cat composer.json composer.lock 2>/dev/null | md5sum | cut -d' ' -f1 || true)"
     if [ ! -f vendor/autoload.php ] || [ "$(cat vendor/.composer-stamp 2>/dev/null || true)" != "$stamp_now" ]; then
         log "Instalando dependencias con Composer (la primera vez tarda unos minutos)..."
         if ! composer install --no-interaction --no-progress --prefer-dist; then

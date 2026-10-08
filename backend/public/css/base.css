@@ -1,0 +1,87 @@
+/* =========================================================
+   UMBRAL — Estilos base
+   Aquí viven los colores del tema claro y oscuro.
+   Todas las páginas usan estas variables (var(--nombre)),
+   así cambiar de tema es cambiar un solo atributo.
+   ========================================================= */
+
+/* ---------- TEMA CLARO (por defecto) ---------- */
+:root,
+[data-theme="light"] {
+    --fondo: #f4f1fb;
+    --fondo-degradado: linear-gradient(180deg, #ede6fb 0%, #f8f5fc 55%, #fbf9f6 100%);
+    --tarjeta: rgba(255, 255, 255, 0.78);
+    --tarjeta-borde: rgba(99, 102, 241, 0.35);
+    --campo: #ffffff;
+    --campo-borde: #e3e1ee;
+    --texto: #111936;
+    --texto-suave: #5b6385;
+    --acento: #2563eb;
+    --acento-2: #7c3aed;
+    --boton-gradiente: linear-gradient(90deg, #2347e0 0%, #7c3aed 100%);
+    --boton-oscuro: #0f1a2e;
+    --boton-oscuro-texto: #ffffff;
+    --sombra: 0 20px 60px rgba(76, 60, 160, 0.18);
+    color-scheme: light;
+}
+
+/* ---------- TEMA OSCURO ---------- */
+[data-theme="dark"] {
+    --fondo: #060b1f;
+    --fondo-degradado: linear-gradient(180deg, #060b1f 0%, #0a1230 100%);
+    --tarjeta: rgba(13, 20, 46, 0.72);
+    --tarjeta-borde: rgba(56, 130, 246, 0.45);
+    --campo: rgba(255, 255, 255, 0.03);
+    --campo-borde: rgba(255, 255, 255, 0.10);
+    --texto: #f3f6ff;
+    --texto-suave: #9aa6cf;
+    --acento: #38a3f8;
+    --acento-2: #8b5cf6;
+    --boton-gradiente: linear-gradient(90deg, #2f55e8 0%, #8b3cf0 100%);
+    --boton-oscuro: rgba(255, 255, 255, 0.04);
+    --boton-oscuro-texto: #f3f6ff;
+    --sombra: 0 20px 60px rgba(0, 0, 0, 0.55);
+    color-scheme: dark;
+}
+
+/* ---------- Reinicio y base ---------- */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: 'Manrope', 'Segoe UI', Arial, sans-serif;
+    background: var(--fondo);
+    color: var(--texto);
+    line-height: 1.5;
+    min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Los títulos elegantes usan la fuente serif */
+.titulo-serif {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 500;
+}
+
+a { color: inherit; }
+button { font-family: inherit; cursor: pointer; }
+
+/* ---------- Soporte para idiomas de derecha a izquierda (árabe) ---------- */
+[dir="rtl"] body { text-align: right; }
+
+
+
+/* ---------- Ajustes para celulares ---------- */
+.btn { white-space: nowrap; }
+
+@media (max-width: 480px) {
+    .navbar { padding: 10px 16px; }
+    .navbar .marca { font-size: 1.1rem; letter-spacing: 1px; gap: 8px; }
+    .navbar .marca img { height: 36px; }
+    .btn { padding: 8px 14px; font-size: 0.9rem; }
+}

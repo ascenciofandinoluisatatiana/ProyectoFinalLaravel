@@ -12,7 +12,7 @@
             <img src="{{ asset('img/icono.png') }}" alt="Umbral">
             UMBRAL
         </a>
-        <a class="btn" href="#">Iniciar sesión</a>
+        <a class="btn" href="{{ route('login') }}">Iniciar sesión</a>
     </nav>
 
     <section class="hero">

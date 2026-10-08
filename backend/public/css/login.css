@@ -1,0 +1,191 @@
+/* =========================================================
+   UMBRAL — Pantalla de login
+   ========================================================= */
+
+.login-page {
+    position: relative;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr minmax(380px, 460px);
+    grid-template-areas:
+        "marca  marca"
+        "visual tarjeta";
+    grid-template-rows: auto 1fr;
+    gap: 24px clamp(24px, 6vw, 96px);
+    padding: clamp(16px, 3vw, 40px) clamp(16px, 5vw, 72px);
+    background: var(--fondo-degradado);   /* Paso 4: aquí irá la foto de la casa */
+    overflow: hidden;
+}
+
+/* ---------- Marca ---------- */
+.login-marca { grid-area: marca; }
+
+.login-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+}
+.login-logo img { height: 52px; width: auto; }
+.login-logo strong {
+    display: block;
+    font-size: 1.15rem;
+    letter-spacing: 0.35em;
+    font-weight: 700;
+}
+.login-logo em { display: block; font-size: 1rem; color: var(--acento-2); }
+
+[data-theme="dark"] .login-logo img { filter: brightness(1.9) saturate(1.1); }
+
+/* ---------- Lado izquierdo ---------- */
+.login-visual {
+    grid-area: visual;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 40px;
+}
+
+.insignia {
+    align-self: center;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 24px;
+    border-radius: 18px;
+    background: var(--tarjeta);
+    border: 1px solid var(--campo-borde);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+.insignia .punto { width: 10px; height: 10px; border-radius: 50%; background: var(--acento); box-shadow: 0 0 10px var(--acento); }
+.insignia strong { display: block; font-size: 1rem; }
+.insignia small { color: var(--texto-suave); letter-spacing: 0.15em; font-size: 0.8rem; }
+
+.login-mensaje { max-width: 560px; }
+.login-mensaje .pais {
+    display: inline-flex; align-items: center; gap: 14px;
+    color: var(--acento); font-size: 0.8rem; letter-spacing: 0.3em; font-weight: 600;
+}
+.login-mensaje .pais::before { content: ""; width: 48px; height: 1px; background: var(--acento); }
+.login-mensaje h2 {
+    margin: 16px 0;
+    font-size: clamp(2.4rem, 5vw, 4.2rem);
+    line-height: 1.05;
+}
+.login-mensaje h2 em { color: var(--acento); }
+.login-mensaje p { color: var(--texto-suave); max-width: 380px; }
+
+/* ---------- Tarjeta ---------- */
+.login-tarjeta {
+    grid-area: tarjeta;
+    align-self: center;
+    padding: clamp(24px, 3vw, 36px);
+    border-radius: 28px;
+    background: var(--tarjeta);
+    border: 1px solid var(--tarjeta-borde);
+    box-shadow: var(--sombra);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.login-tarjeta h1 { font-size: 2.6rem; line-height: 1.1; }
+.subtitulo { color: var(--texto-suave); margin: 4px 0 20px; }
+
+.etiqueta { display: block; font-size: 0.9rem; font-weight: 600; margin: 14px 0 8px; }
+
+.campo {
+    display: flex; align-items: center; gap: 10px;
+    padding: 0 16px; height: 52px;
+    border-radius: 14px;
+    background: var(--campo);
+    border: 1px solid var(--campo-borde);
+    transition: border-color .2s, box-shadow .2s;
+}
+.campo:focus-within { border-color: var(--acento); box-shadow: 0 0 0 3px rgba(56, 130, 246, 0.2); }
+.campo svg, .ojo svg, .btn-invitado svg, .rol-icono svg {
+    width: 20px; height: 20px; flex-shrink: 0;
+    fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+}
+.campo > svg { color: var(--texto-suave); }
+.campo input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--texto); font: inherit; }
+.campo input::placeholder { color: var(--texto-suave); }
+.ojo { border: 0; background: none; color: var(--texto-suave); display: flex; padding: 4px; }
+.ojo:hover { color: var(--texto); }
+
+/* Recordarme / olvidaste */
+.fila-opciones { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin: 16px 0 20px; font-size: 0.9rem; }
+.recordar { display: inline-flex; align-items: center; gap: 10px; color: var(--texto-suave); cursor: pointer; }
+.recordar input { position: absolute; opacity: 0; pointer-events: none; }
+.check { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--campo-borde); display: grid; place-items: center; }
+.recordar input:checked + .check { background: var(--acento); border-color: var(--acento); }
+.recordar input:checked + .check::after { content: "✓"; color: #fff; font-size: 0.7rem; font-weight: 700; }
+.enlace { color: var(--acento); text-decoration: none; font-weight: 600; }
+.enlace:hover { text-decoration: underline; }
+
+/* Botón principal */
+.btn-principal {
+    width: 100%; height: 54px; border: 0; border-radius: 16px;
+    background: var(--boton-gradiente); color: #fff;
+    font-weight: 700; letter-spacing: 0.18em; font-size: 0.9rem;
+    box-shadow: 0 10px 30px rgba(99, 70, 230, 0.4);
+    transition: transform .2s, box-shadow .2s;
+}
+.btn-principal:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(99, 70, 230, 0.5); }
+
+/* Roles */
+.etiqueta-seccion { margin: 22px 0 10px; font-size: 0.75rem; letter-spacing: 0.25em; color: var(--texto-suave); }
+.roles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.rol { display: block; cursor: pointer; }
+.rol input { position: absolute; opacity: 0; pointer-events: none; }
+.rol-caja {
+    position: relative; display: block; height: 100%;
+    padding: 14px; border-radius: 16px;
+    background: var(--campo); border: 1px solid var(--campo-borde);
+    transition: border-color .2s, box-shadow .2s;
+}
+.rol-caja strong { display: block; margin-top: 12px; font-size: 0.9rem; }
+.rol-caja small { display: block; color: var(--texto-suave); font-size: 0.75rem; line-height: 1.3; margin-top: 2px; }
+.rol-icono { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--campo); border: 1px solid var(--campo-borde); color: var(--acento); }
+.rol-punto { position: absolute; top: 14px; right: 14px; width: 14px; height: 14px; border-radius: 50%; border: 1px solid var(--campo-borde); }
+.rol input:checked + .rol-caja { border-color: var(--acento); box-shadow: 0 0 0 1px var(--acento), 0 8px 24px rgba(56, 130, 246, 0.18); }
+.rol input:checked + .rol-caja .rol-icono { background: var(--acento); border-color: var(--acento); color: #fff; }
+.rol input:checked + .rol-caja .rol-punto { background: var(--acento); border-color: var(--acento); box-shadow: 0 0 10px var(--acento); }
+.rol input:focus-visible + .rol-caja { outline: 2px solid var(--acento); outline-offset: 2px; }
+
+/* Separador e invitado */
+.separador { display: flex; align-items: center; gap: 14px; margin: 20px 0; color: var(--texto-suave); font-size: 0.8rem; }
+.separador::before, .separador::after { content: ""; flex: 1; height: 1px; background: var(--campo-borde); }
+
+.btn-invitado {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    height: 52px; border-radius: 16px; text-decoration: none; font-weight: 600;
+    background: var(--boton-oscuro); color: var(--boton-oscuro-texto);
+    border: 1px solid var(--campo-borde);
+    transition: transform .2s;
+}
+.btn-invitado:hover { transform: translateY(-2px); }
+.nota { text-align: center; color: var(--texto-suave); font-size: 0.8rem; margin: 10px 0 18px; }
+.crear-cuenta { text-align: center; font-size: 0.9rem; color: var(--texto-suave); }
+.crear-cuenta a { color: var(--texto); font-weight: 700; text-decoration: none; }
+
+/* ---------- Tablet y celular ---------- */
+@media (max-width: 900px) {
+    .login-page {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas: "marca" "tarjeta" "visual";
+        grid-template-rows: auto;
+    }
+    .login-tarjeta { width: 100%; max-width: 520px; justify-self: center; }
+    .login-visual { gap: 24px; text-align: center; align-items: center; }
+    .login-mensaje { text-align: center; }
+    .login-mensaje .pais { justify-content: center; }
+    .login-mensaje p { margin: 0 auto; }
+    .insignia { display: none; }
+}
+
+@media (max-width: 480px) {
+    .login-logo img { height: 42px; }
+    .login-tarjeta h1 { font-size: 2.1rem; }
+    .roles { grid-template-columns: 1fr; }
+}

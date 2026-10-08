@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Umbral</title>
+    <link rel="icon" type="image/png" href="img/icono.png">
+
+    <!-- Fuentes del diseño -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Estilos base (colores claro/oscuro) -->
+    <link rel="stylesheet" href="css/base.css">
+
+    <!-- Estilos propios de la página -->
+    <link rel="stylesheet" href="css/umbral.css">
+
+    <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
+    <script>
+        try {
+            var tema = localStorage.getItem('umbral-tema');
+            if (tema === 'dark' || tema === 'light') {
+                document.documentElement.setAttribute('data-theme', tema);
+            }
+        } catch (e) {}
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <a class="marca" href="index.html">
+            <img src="img/icono.png" alt="Umbral">
+            UMBRAL
+        </a>
+        <a class="btn" href="login.html">Iniciar sesión</a>
+    </nav>
+
+    <section class="hero">
+        <img src="img/icono.png" alt="Umbral - El paso hacia un nuevo hogar">
+        <h1>El paso hacia un nuevo hogar</h1>
+        <p>Casas y apartamentos en venta y arriendo.</p>
+    </section>
+
+    <script src="js/tema.js"></script>
+
+</body>
+</html>

@@ -30,6 +30,7 @@
 <body>
     @yield('contenido')
 
+    <script src="{{ asset('js/tema.js') }}"></script>
     @stack('scripts')
 </body>
 </html>

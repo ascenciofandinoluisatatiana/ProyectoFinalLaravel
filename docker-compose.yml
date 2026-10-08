@@ -81,6 +81,17 @@ services:
     networks:
       - portal_network
 
+  frontend:
+    image: nginx:alpine
+    container_name: portal_frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    networks:
+      - portal_network
+
 networks:
   portal_network:
     driver: bridge

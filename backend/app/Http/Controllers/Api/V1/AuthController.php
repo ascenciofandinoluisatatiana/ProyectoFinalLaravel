@@ -28,6 +28,11 @@ class AuthController extends Controller
             return response()->json(['message' => 'Correo o contraseña incorrectos.'], 401);
         }
 
+        // Soporte (IA del sistema) e invitado no inician sesión con formulario
+        if ($usuario->tieneRol('soporte', 'invitado') || $usuario->role === null) {
+            return response()->json(['message' => 'Esta cuenta no puede iniciar sesión aquí.'], 403);
+        }
+
         return response()->json([
             'message' => 'Inicio de sesión correcto.',
             'usuario' => [

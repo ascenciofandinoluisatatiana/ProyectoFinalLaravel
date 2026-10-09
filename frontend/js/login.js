@@ -1,13 +1,19 @@
-/* UMBRAL — Lógica de la pantalla de login */
+/* UMBRAL — Lógica de la pantalla de login
+   El JavaScript valida el formato y redirige.
+   Quien decide el rol de la cuenta es el servidor (Laravel). */
 (function () {
     var API = window.UMBRAL_API;
     var form = document.getElementById('form-login');
     var boton = form.querySelector('.btn-principal');
     var mensaje = document.getElementById('mensaje');
 
-    var NOMBRES_ROL = {
-        administrador: 'Administrador',
-        vendedor: 'Vendedor / Arrendador'
+    // A dónde va cada rol después de iniciar sesión.
+    // Por ahora todos van a panel.html; luego tendrá un panel propio cada uno.
+    var RUTAS_POR_ROL = {
+        administrador: 'panel.html',
+        vendedor: 'panel.html',
+        inmobiliaria: 'panel.html',
+        agente: 'panel.html'
     };
 
     // Mostrar / ocultar contraseña
@@ -22,18 +28,23 @@
         mensaje.hidden = false;
     }
 
+    // Validación de formato (la validación real está en el servidor)
+    function validar(email, password) {
+        if (!email || !password) return 'Escribe tu correo y tu contraseña.';
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'El correo no tiene un formato válido.';
+        if (password.length < 8) return 'La contraseña debe tener al menos 8 caracteres.';
+        return null;
+    }
+
     form.addEventListener('submit', async function (e) {
         e.preventDefault();
 
         var email = document.getElementById('correo').value.trim();
         var password = document.getElementById('clave').value;
-        var rolElegido = form.querySelector('input[name="rol"]:checked').value;
         var recordar = form.querySelector('input[name="recordar"]').checked;
 
-        if (!email || !password) {
-            mostrar('Escribe tu correo y tu contraseña.', 'error');
-            return;
-        }
+        var error = validar(email, password);
+        if (error) { mostrar(error, 'error'); return; }
 
         boton.disabled = true;
         mensaje.hidden = true;
@@ -47,18 +58,13 @@
             var datos = await respuesta.json().catch(function () { return {}; });
 
             if (!respuesta.ok) {
-                mostrar(
-                    respuesta.status === 422
-                        ? 'Revisa que el correo tenga un formato válido.'
-                        : (datos.message || 'No fue posible iniciar sesión.'),
-                    'error'
-                );
+                mostrar(datos.message || 'No fue posible iniciar sesión.', 'error');
                 return;
             }
 
-            // La cuenta debe corresponder al rol elegido en "Ingresar como"
-            if (datos.usuario.rol !== rolElegido) {
-                mostrar('Esta cuenta no ingresa como ' + NOMBRES_ROL[rolElegido] + '. Elige el rol correcto.', 'error');
+            var destino = RUTAS_POR_ROL[datos.usuario.rol];
+            if (!destino) {
+                mostrar('Tu cuenta no tiene acceso al portal.', 'error');
                 return;
             }
 
@@ -67,8 +73,8 @@
             almacen.setItem('umbral-usuario', JSON.stringify(datos.usuario));
 
             mostrar('¡Bienvenido, ' + datos.usuario.nombre + '!', 'ok');
-            setTimeout(function () { window.location.href = 'panel.html'; }, 700);
-        } catch (error) {
+            setTimeout(function () { window.location.href = destino; }, 700);
+        } catch (err) {
             mostrar('No se pudo conectar con el servidor. Revisa que Docker esté encendido.', 'error');
         } finally {
             boton.disabled = false;

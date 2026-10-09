@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Panel · Umbral</title>
+    <link rel="icon" type="image/png" href="img/icono.png">
+    <link rel="stylesheet" href="css/base.css">
+    <script>
+        try {
+            var t = localStorage.getItem('umbral-tema');
+            if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+    </script>
+    <style>
+        .panel { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: var(--fondo-degradado); }
+        .panel-caja { width: min(480px, 100%); padding: 32px; border-radius: 24px; text-align: center;
+                      background: var(--tarjeta); border: 1px solid var(--tarjeta-borde); box-shadow: var(--sombra); }
+        .panel-caja h1 { font-size: 2.2rem; margin-bottom: 8px; }
+        .panel-caja p { color: var(--texto-suave); margin-bottom: 6px; }
+        .panel-caja button { margin-top: 20px; padding: 12px 28px; border: 0; border-radius: 12px; font-weight: 700;
+                             background: var(--boton-gradiente); color: #fff; }
+    </style>
+</head>
+<body>
+    <main class="panel">
+        <div class="panel-caja">
+            <h1 class="titulo-serif" id="saludo">Panel</h1>
+            <p id="correo"></p>
+            <p id="rol"></p>
+            <p>Aquí irá el panel de propiedades (próximos pasos).</p>
+            <button type="button" id="salir">Cerrar sesión</button>
+        </div>
+    </main>
+    <script>
+        var datos = localStorage.getItem('umbral-usuario') || sessionStorage.getItem('umbral-usuario');
+        if (!datos) {
+            window.location.href = 'login.html';   // sin sesión, de vuelta al login
+        } else {
+            var u = JSON.parse(datos);
+            document.getElementById('saludo').textContent = 'Hola, ' + u.nombre;
+            document.getElementById('correo').textContent = u.email;
+            document.getElementById('rol').textContent = 'Rol: ' + u.rol;
+        }
+        document.getElementById('salir').addEventListener('click', function () {
+            localStorage.removeItem('umbral-usuario');
+            sessionStorage.removeItem('umbral-usuario');
+            window.location.href = 'login.html';
+        });
+    </script>
+</body>
+</html>

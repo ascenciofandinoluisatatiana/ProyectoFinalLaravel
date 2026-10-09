@@ -427,3 +427,20 @@
 @media (max-width: 480px) {
     .interruptor-tema button { width: 34px; height: 34px; }
 }
+
+/* ---------- Mensajes del login (error / éxito) ---------- */
+.mensaje {
+    margin: 0 0 14px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: 1px solid transparent;
+}
+.mensaje[hidden] { display: none; }
+.mensaje.error { color: #b42318; background: rgba(240, 68, 56, 0.1); border-color: rgba(240, 68, 56, 0.35); }
+.mensaje.ok    { color: #067647; background: rgba(18, 183, 106, 0.12); border-color: rgba(18, 183, 106, 0.35); }
+[data-theme="dark"] .mensaje.error { color: #fda29b; }
+[data-theme="dark"] .mensaje.ok    { color: #75e0a7; }
+
+.btn-principal:disabled { opacity: 0.6; cursor: wait; transform: none; }

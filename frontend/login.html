@@ -135,6 +135,7 @@
                 <a href="#" class="enlace">¿Olvidaste tu contraseña?</a>
             </div>
 
+            <p class="mensaje" id="mensaje" role="alert" hidden></p>
             <button type="submit" class="btn-principal">INICIAR SESIÓN <span aria-hidden="true">→</span></button>
 
             <p class="etiqueta-seccion">INGRESAR COMO</p>
@@ -173,18 +174,8 @@
     </section>
 </main>
 
+    <script src="js/config.js"></script>
     <script src="js/tema.js"></script>
-<script>
-    // Mostrar / ocultar contraseña
-    document.getElementById('ver-clave').addEventListener('click', function () {
-        var campo = document.getElementById('clave');
-        campo.type = campo.type === 'password' ? 'text' : 'password';
-    });
-
-    // Por ahora el formulario no envía nada (el login real llega con la base de datos)
-    document.getElementById('form-login').addEventListener('submit', function (e) {
-        e.preventDefault();
-    });
-</script>
+    <script src="js/login.js"></script>
 </body>
 </html>

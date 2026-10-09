@@ -444,3 +444,104 @@
 [data-theme="dark"] .mensaje.ok    { color: #75e0a7; }
 
 .btn-principal:disabled { opacity: 0.6; cursor: wait; transform: none; }
+
+/* =========================================================
+   PASO 6 — Selector de idioma
+   ========================================================= */
+
+.selector-idioma {
+    position: relative;
+    display: inline-block;
+}
+
+#idioma-boton {
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 14px;
+    border: 1px solid var(--campo-borde);
+    border-radius: 999px;
+    background: var(--tarjeta);
+    color: var(--texto);
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 6px 20px rgba(76, 60, 160, 0.12);
+    transition: all 0.25s ease;
+}
+
+#idioma-boton:hover {
+    border-color: var(--acento);
+    transform: translateY(-1px);
+}
+
+#idioma-boton:focus-visible {
+    outline: 2px solid var(--acento);
+    outline-offset: 2px;
+}
+
+#idioma-boton span:first-child {
+    font-size: 1rem;
+}
+
+#idioma-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    inset-inline-end: 0;
+    z-index: 20;
+    min-width: 150px;
+    padding: 6px;
+    border: 1px solid var(--campo-borde);
+    border-radius: 14px;
+    background: var(--tarjeta);
+    box-shadow: 0 14px 35px rgba(40, 30, 90, 0.18);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+#idioma-menu[hidden] {
+    display: none;
+}
+
+#idioma-menu button {
+    width: 100%;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--texto);
+    font-family: inherit;
+    font-size: 0.84rem;
+    text-align: start;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+#idioma-menu button:hover {
+    background: rgba(124, 58, 237, 0.1);
+}
+
+#idioma-menu button[aria-selected="true"] {
+    background: var(--acento);
+    color: #fff;
+}
+
+@media (max-width: 480px) {
+    .login-controles {
+        gap: 6px;
+    }
+
+    #idioma-boton {
+        min-height: 40px;
+        padding: 0 11px;
+        font-size: 0.75rem;
+    }
+
+    #idioma-menu {
+        min-width: 135px;
+    }
+}

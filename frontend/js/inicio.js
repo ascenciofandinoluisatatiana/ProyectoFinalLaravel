@@ -122,11 +122,14 @@
     });
 
     /* =========================================================
-       REGISTRO DE CUENTAS NUEVAS
+       REGISTRO DE CUENTAS NUEVAS (persona o inmobiliaria)
        ========================================================= */
     var form = document.getElementById('form-registro');
     var boton = form.querySelector('.btn-principal');
     var mensaje = document.getElementById('mensaje-registro');
+    var opcionesCuenta = form.querySelectorAll('[data-tipo-cuenta]');
+    var bloques = form.querySelectorAll('[data-solo]');
+    var tipoCuenta = 'persona';
 
     function mostrar(texto, tipo) {
         mensaje.textContent = texto;
@@ -134,17 +137,49 @@
         mensaje.hidden = false;
     }
 
+    // Persona o inmobiliaria: muestra solo los campos que corresponden
+    function elegirTipo(tipo) {
+        tipoCuenta = tipo;
+        opcionesCuenta.forEach(function (op) {
+            op.setAttribute('aria-checked', op.getAttribute('data-tipo-cuenta') === tipo ? 'true' : 'false');
+        });
+        bloques.forEach(function (bloque) {
+            bloque.hidden = bloque.getAttribute('data-solo') !== tipo;
+        });
+        mensaje.hidden = true;
+    }
+
+    opcionesCuenta.forEach(function (op) {
+        op.addEventListener('click', function () {
+            elegirTipo(op.getAttribute('data-tipo-cuenta'));
+        });
+    });
+    elegirTipo('persona');
+
+    function soloDigitos(texto) { return texto.replace(/\D/g, ''); }
+
     // Validación de formato (la validación real está en el servidor).
     // Devuelve la CLAVE del mensaje de error, o null si todo está bien.
-    function validar(campos) {
-        if (!campos.name || !campos.email || !campos.telefono ||
-            !campos.tipo_documento || !campos.numero_documento ||
-            !campos.password || !campos.password_confirmation) {
-            return 'msg.registro.vacio';
-        }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(campos.email)) return 'msg.correo';
-        if (campos.password.length < 8) return 'msg.clave_corta';
-        if (campos.password !== campos.password_confirmation) return 'msg.clave2';
+    function validar(c, confirmaColombia) {
+        var comunes = c.email && c.telefono && c.password && c.password_confirmation;
+        var propios = c.name && c.numero_documento &&
+            (tipoCuenta === 'persona' || c.representante_legal);
+
+        if (!comunes || !propios) return 'msg.registro.vacio';
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email)) return 'msg.correo';
+
+        var tel = soloDigitos(c.telefono);
+        if (tel.length < 7 || tel.length > 12) return 'msg.registro.telefono';
+
+        // Cédula: 5 a 12 dígitos. NIT: 9 o 10 dígitos, con dígito de verificación opcional (900123456-7)
+        var docValido = tipoCuenta === 'persona'
+            ? /^\d{5,12}$/.test(c.numero_documento)
+            : /^\d{9,10}(-\d)?$/.test(c.numero_documento);
+        if (!docValido) return 'msg.registro.documento';
+
+        if (c.password.length < 8) return 'msg.clave_corta';
+        if (c.password !== c.password_confirmation) return 'msg.clave2';
+        if (!confirmaColombia) return 'msg.registro.colombia';
         return null;
     }
 
@@ -152,16 +187,28 @@
         e.preventDefault();
 
         var campos = {
-            name: document.getElementById('reg-nombre').value.trim(),
+            tipo_cuenta: tipoCuenta,
             email: document.getElementById('reg-correo').value.trim(),
             telefono: document.getElementById('reg-telefono').value.trim(),
-            tipo_documento: document.getElementById('reg-tipo-doc').value,
-            numero_documento: document.getElementById('reg-numero-doc').value.trim(),
             password: document.getElementById('reg-clave').value,
-            password_confirmation: document.getElementById('reg-clave2').value
+            password_confirmation: document.getElementById('reg-clave2').value,
+            pais_residencia: 'CO'
         };
 
-        var claveError = validar(campos);
+        if (tipoCuenta === 'persona') {
+            campos.name = document.getElementById('reg-nombre').value.trim();
+            campos.tipo_documento = document.getElementById('reg-tipo-doc').value;
+            campos.numero_documento = document.getElementById('reg-numero-doc').value.trim();
+        } else {
+            campos.name = document.getElementById('reg-razon').value.trim();
+            campos.tipo_documento = 'NIT';
+            campos.numero_documento = document.getElementById('reg-nit').value.trim();
+            campos.representante_legal = document.getElementById('reg-representante').value.trim();
+        }
+
+        var confirmaColombia = document.getElementById('reg-colombia').checked;
+
+        var claveError = validar(campos, confirmaColombia);
         if (claveError) { mostrar(window.t(claveError), 'error'); return; }
 
         boton.disabled = true;
@@ -176,8 +223,11 @@
             var datos = await respuesta.json().catch(function () { return {}; });
 
             if (!respuesta.ok) {
-                // El correo o el documento ya existen en el portal
-                if (respuesta.status === 422 && datos.errors && datos.errors.email) {
+                if (respuesta.status === 403) {
+                    // Solo Colombia puede registrarse para publicar
+                    mostrar(window.t('msg.registro.solo_colombia'), 'error');
+                } else if (respuesta.status === 422 && datos.errors && datos.errors.email) {
+                    // El correo ya existe en el portal
                     mostrar(window.t('msg.registro.duplicado'), 'error');
                 } else if (respuesta.status === 422) {
                     mostrar(window.t('msg.registro.invalido'), 'error');

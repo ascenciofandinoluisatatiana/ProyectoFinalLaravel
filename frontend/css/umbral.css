@@ -835,3 +835,33 @@ section[id] { scroll-margin-top: 86px; }
     .modal-pestanas .pestana { font-size: 0.8rem; }
     .fila-campos { grid-template-columns: 1fr; }
 }
+
+/* ---------- Registro: tipo de cuenta y aviso de Colombia ---------- */
+.selector-cuenta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 6px 0 4px; }
+.opcion-cuenta {
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--campo-borde);
+    background: transparent;
+    color: var(--texto-suave);
+    font: inherit;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+}
+.opcion-cuenta:hover { color: var(--texto); }
+.opcion-cuenta[aria-checked="true"] {
+    color: var(--texto);
+    border-color: var(--acento);
+    box-shadow: 0 0 0 3px rgba(56, 130, 246, 0.2);
+}
+.opcion-cuenta:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+.aviso-colombia {
+    margin: 0 0 14px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--campo-borde);
+    font-size: 0.88rem;
+    line-height: 1.4;
+    color: var(--texto-suave);
+}

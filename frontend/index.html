@@ -530,43 +530,74 @@
                 <form id="form-registro" novalidate>
                     <p class="subtitulo" data-i18n="reg.sub">Crea tu cuenta y publica tus inmuebles hoy.</p>
 
-                    <label class="etiqueta" for="reg-nombre" data-i18n="reg.nombre">Nombre completo</label>
-                    <div class="campo">
-                        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.3 3.6-5 8-5s8 1.7 8 5"/></svg>
-                        <input type="text" id="reg-nombre" name="nombre" placeholder="Tu nombre" data-i18n-placeholder="reg.nombre_ph" autocomplete="name">
+                    <p class="aviso-colombia" data-i18n="reg.aviso_colombia">Publicar inmuebles solo está disponible para personas e inmobiliarias de Colombia. Si solo quieres explorar, entra como invitado.</p>
+
+                    <span class="etiqueta" id="etiqueta-tipo-cuenta" data-i18n="reg.tipo_cuenta">¿Cómo quieres vender?</span>
+                    <div class="selector-cuenta" role="radiogroup" aria-labelledby="etiqueta-tipo-cuenta">
+                        <button type="button" class="opcion-cuenta" role="radio" aria-checked="true" data-tipo-cuenta="persona" data-i18n="reg.cuenta.persona">Soy persona</button>
+                        <button type="button" class="opcion-cuenta" role="radio" aria-checked="false" data-tipo-cuenta="inmobiliaria" data-i18n="reg.cuenta.inmobiliaria">Soy inmobiliaria</button>
                     </div>
 
+                    <!-- ===== Campos de PERSONA ===== -->
+                    <div data-solo="persona">
+                        <label class="etiqueta" for="reg-nombre" data-i18n="reg.nombre">Nombre completo</label>
+                        <div class="campo">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.3 3.6-5 8-5s8 1.7 8 5"/></svg>
+                            <input type="text" id="reg-nombre" name="nombre" placeholder="Tu nombre" data-i18n-placeholder="reg.nombre_ph" autocomplete="name">
+                        </div>
+
+                        <div class="fila-campos">
+                            <div>
+                                <label class="etiqueta" for="reg-tipo-doc" data-i18n="reg.tipo_doc">Tipo de documento</label>
+                                <div class="campo campo-select">
+                                    <select id="reg-tipo-doc" name="tipo_documento" autocomplete="off">
+                                        <option value="CC" data-i18n="reg.doc.cc">Cédula de ciudadanía</option>
+                                        <option value="CE" data-i18n="reg.doc.ce">Cédula de extranjería</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="etiqueta" for="reg-numero-doc" data-i18n="reg.numero_doc">Número de documento</label>
+                                <div class="campo">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+                                    <input type="text" id="reg-numero-doc" name="numero_documento" placeholder="Solo números" data-i18n-placeholder="reg.numero_doc_ph" inputmode="numeric">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ===== Campos de INMOBILIARIA ===== -->
+                    <div data-solo="inmobiliaria" hidden>
+                        <label class="etiqueta" for="reg-razon" data-i18n="reg.razon">Razón social</label>
+                        <div class="campo">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h2M14 7h2M8 11h2M14 11h2M10 21v-4h4v4"/></svg>
+                            <input type="text" id="reg-razon" name="razon_social" placeholder="Nombre de tu inmobiliaria" data-i18n-placeholder="reg.razon_ph" autocomplete="organization">
+                        </div>
+
+                        <label class="etiqueta" for="reg-nit" data-i18n="reg.nit">NIT</label>
+                        <div class="campo">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+                            <input type="text" id="reg-nit" name="nit" placeholder="900123456-7" data-i18n-placeholder="reg.nit_ph" inputmode="numeric">
+                        </div>
+
+                        <label class="etiqueta" for="reg-representante" data-i18n="reg.representante">Representante legal</label>
+                        <div class="campo">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.3 3.6-5 8-5s8 1.7 8 5"/></svg>
+                            <input type="text" id="reg-representante" name="representante_legal" placeholder="Nombre del representante" data-i18n-placeholder="reg.representante_ph" autocomplete="off">
+                        </div>
+                    </div>
+
+                    <!-- ===== Campos comunes ===== -->
                     <label class="etiqueta" for="reg-correo" data-i18n="login.correo">Correo electrónico</label>
                     <div class="campo">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
                         <input type="email" id="reg-correo" name="correo" placeholder="Ingresa tu correo" data-i18n-placeholder="login.correo_ph" autocomplete="email">
                     </div>
 
-                    <div class="fila-campos">
-                        <div>
-                            <label class="etiqueta" for="reg-telefono" data-i18n="reg.telefono">Teléfono</label>
-                            <div class="campo">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg>
-                                <input type="tel" id="reg-telefono" name="telefono" placeholder="300 000 0000" data-i18n-placeholder="reg.telefono_ph" autocomplete="tel">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="etiqueta" for="reg-tipo-doc" data-i18n="reg.tipo_doc">Tipo de documento</label>
-                            <div class="campo campo-select">
-                                <select id="reg-tipo-doc" name="tipo_documento" autocomplete="off">
-                                    <option value="CC" data-i18n="reg.doc.cc">Cédula de ciudadanía</option>
-                                    <option value="CE" data-i18n="reg.doc.ce">Cédula de extranjería</option>
-                                    <option value="NIT" data-i18n="reg.doc.nit">NIT</option>
-                                    <option value="PAS" data-i18n="reg.doc.pas">Pasaporte</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <label class="etiqueta" for="reg-numero-doc" data-i18n="reg.numero_doc">Número de documento</label>
+                    <label class="etiqueta" for="reg-telefono" data-i18n="reg.telefono">Teléfono</label>
                     <div class="campo">
-                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
-                        <input type="text" id="reg-numero-doc" name="numero_documento" placeholder="Solo números" data-i18n-placeholder="reg.numero_doc_ph" inputmode="numeric">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg>
+                        <input type="tel" id="reg-telefono" name="telefono" placeholder="300 000 0000" data-i18n-placeholder="reg.telefono_ph" autocomplete="tel">
                     </div>
 
                     <label class="etiqueta" for="reg-clave" data-i18n="login.clave">Contraseña</label>
@@ -579,6 +610,14 @@
                     <div class="campo">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><path d="m9.5 16 2 2 3.5-3.5"/></svg>
                         <input type="password" id="reg-clave2" name="clave_confirmation" placeholder="Repite tu contraseña" data-i18n-placeholder="reg.clave2_ph" autocomplete="new-password">
+                    </div>
+
+                    <div class="fila-opciones">
+                        <label class="recordar">
+                            <input type="checkbox" id="reg-colombia" name="colombia">
+                            <span class="check"></span>
+                            <span data-i18n="reg.colombia">Confirmo que resido en Colombia y mi documento es colombiano.</span>
+                        </label>
                     </div>
 
                     <p class="mensaje" id="mensaje-registro" role="alert" hidden></p>

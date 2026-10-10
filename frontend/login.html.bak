@@ -15,8 +15,7 @@
     <link rel="stylesheet" href="css/base.css">
 
     <!-- Estilos propios de la página -->
-    <!-- Componentes compartidos (campos, botones, decoración) -->
-    <link rel="stylesheet" href="css/componentes.css">
+    <link rel="stylesheet" href="css/login.css">
 
     <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
     <script>
@@ -96,7 +95,7 @@
             <img src="img/icono.png" alt="Umbral">
             <span>
                 <strong>UMBRAL</strong>
-                <em class="titulo-serif" data-i18n="marca.eslogan">El paso hacia un nuevo hogar.</em>
+                <em class="titulo-serif">El paso hacia un nuevo hogar.</em>
             </span>
         </a>
     </header>
@@ -107,27 +106,27 @@
             <div class="insignia">
                 <span class="punto"></span>
                 <div>
-                    <strong data-i18n="insignia.titulo">Propiedades en Colombia</strong>
-                    <small data-i18n="insignia.sub">Comprar • Arrendar • Vender</small>
+                    <strong>Propiedades en Colombia</strong>
+                    <small>Comprar • Arrendar • Vender</small>
                 </div>
             </div>
 
             <div class="chips">
                 <span class="chip">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
-                    <span data-i18n="chip.ciudad">Medellín · Antioquia</span>
+                    Medellín · Antioquia
                 </span>
                 <span class="chip">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
-                    <span data-i18n="chip.verificada">Propiedad verificada</span>
+                    Propiedad verificada
                 </span>
             </div>
         </div>
 
         <div class="login-mensaje">
-            <span class="pais" data-i18n="hero.pais">COLOMBIA</span>
-            <h2 class="titulo-serif"><span data-i18n="hero.t1">Más que propiedades,</span><br><em data-i18n="hero.t2">nuevos comienzos.</em></h2>
-            <p data-i18n="hero.p">Casas, apartamentos y fincas seleccionadas en toda Colombia, de Bogotá a Cartagena.</p>
+            <span class="pais">COLOMBIA</span>
+            <h2 class="titulo-serif">Más que propiedades,<br><em>nuevos comienzos.</em></h2>
+            <p>Casas, apartamentos y fincas seleccionadas en toda Colombia, de Bogotá a Cartagena.</p>
         </div>
     </section>
 
@@ -137,25 +136,25 @@
             <img src="img/icono.png" alt="Umbral">
             <span>
                 <strong>UMBRAL</strong>
-                <em class="titulo-serif" data-i18n="marca.eslogan">El paso hacia un nuevo hogar.</em>
+                <em class="titulo-serif">El paso hacia un nuevo hogar.</em>
             </span>
         </div>
 
-        <h1 class="titulo-serif" data-i18n="login.titulo">Bienvenido</h1>
-        <p class="subtitulo" data-i18n="login.sub">Inicia sesión para gestionar tus propiedades.</p>
+        <h1 class="titulo-serif">Bienvenido</h1>
+        <p class="subtitulo">Inicia sesión para gestionar tus propiedades.</p>
 
         <form id="form-login" novalidate>
-            <label class="etiqueta" for="correo" data-i18n="login.correo">Correo electrónico</label>
+            <label class="etiqueta" for="correo">Correo electrónico</label>
             <div class="campo">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
-                <input type="email" id="correo" name="correo" placeholder="Ingresa tu correo" data-i18n-placeholder="login.correo_ph" autocomplete="email">
+                <input type="email" id="correo" name="correo" placeholder="Ingresa tu correo" autocomplete="email">
             </div>
 
-            <label class="etiqueta" for="clave" data-i18n="login.clave">Contraseña</label>
+            <label class="etiqueta" for="clave">Contraseña</label>
             <div class="campo">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-                <input type="password" id="clave" name="clave" placeholder="Ingresa tu contraseña" data-i18n-placeholder="login.clave_ph" autocomplete="current-password">
-                <button type="button" class="ojo" id="ver-clave" aria-label="Mostrar u ocultar contraseña" data-i18n-aria="login.ver_clave">
+                <input type="password" id="clave" name="clave" placeholder="Ingresa tu contraseña" autocomplete="current-password">
+                <button type="button" class="ojo" id="ver-clave" aria-label="Mostrar u ocultar contraseña">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
                 </button>
             </div>
@@ -164,24 +163,24 @@
                 <label class="recordar">
                     <input type="checkbox" name="recordar" checked>
                     <span class="check"></span>
-                    <span data-i18n="login.recordarme">Recordarme</span>
+                    Recordarme
                 </label>
-                <a href="#" class="enlace" data-i18n="login.olvido">¿Olvidaste tu contraseña?</a>
+                <a href="#" class="enlace">¿Olvidaste tu contraseña?</a>
             </div>
 
             <p class="mensaje" id="mensaje" role="alert" hidden></p>
-            <button type="submit" class="btn-principal"><span data-i18n="login.entrar">INICIAR SESIÓN</span> <span aria-hidden="true">→</span></button>
+            <button type="submit" class="btn-principal">INICIAR SESIÓN <span aria-hidden="true">→</span></button>
 
 
-            <div class="separador"><span data-i18n="login.o">O</span></div>
+            <div class="separador"><span>O</span></div>
 
             <a href="index.html" class="btn-invitado">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5 5-2Z"/></svg>
-                <span data-i18n="login.invitado">Explorar como Invitado</span> <span aria-hidden="true">→</span>
+                Explorar como Invitado <span aria-hidden="true">→</span>
             </a>
-            <p class="nota" data-i18n="login.nota">Visualiza propiedades en Colombia sin iniciar sesión</p>
+            <p class="nota">Visualiza propiedades en Colombia sin iniciar sesión</p>
 
-            <p class="crear-cuenta"><span data-i18n="login.sin_cuenta">¿No tienes una cuenta?</span> <a href="#"><span data-i18n="login.crear">Crear una cuenta</span> <span aria-hidden="true">→</span></a></p>
+            <p class="crear-cuenta">¿No tienes una cuenta? <a href="#">Crear una cuenta <span aria-hidden="true">→</span></a></p>
         </form>
     </section>
 </main>

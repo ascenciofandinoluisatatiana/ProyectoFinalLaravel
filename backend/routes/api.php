@@ -17,4 +17,7 @@ Route::prefix('v1')->group(function () {
 
     // Inicio de sesión
     Route::post('/login', [AuthController::class, 'login']);
+
+    // Registro de cuentas nuevas (rol vendedor)
+    Route::post('/registro', [AuthController::class, 'register']);
 });

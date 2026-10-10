@@ -65,6 +65,8 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-portal_secret}
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      # A dónde regresa el panel al cerrar sesión (landing en nginx)
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
       # Necesario para que "artisan serve --no-reload" corra varios workers
       # y así el backend pueda atender varias peticiones a la vez.
       PHP_CLI_SERVER_WORKERS: 4

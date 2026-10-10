@@ -33,11 +33,21 @@
         </div>
     </main>
     <script>
-        var datos = localStorage.getItem('umbral-usuario') || sessionStorage.getItem('umbral-usuario');
-        if (!datos) {
-            window.location.href = 'login.html';   // sin sesión, de vuelta al login
+        var datosUsuario = localStorage.getItem('umbral-usuario') || sessionStorage.getItem('umbral-usuario');
+        var esInvitado = !datosUsuario && !!sessionStorage.getItem('umbral-invitado');
+        var u = null;
+
+        if (datosUsuario) {
+            try { u = JSON.parse(datosUsuario); } catch (e) { u = null; }
+        }
+
+        if (!u && !esInvitado) {
+            window.location.href = 'index.html';   // sin sesión, de vuelta al inicio
+        } else if (esInvitado) {
+            document.getElementById('saludo').textContent = 'Modo invitado';
+            document.getElementById('correo').style.display = 'none';
+            document.getElementById('rol').textContent = 'Estás explorando propiedades sin una cuenta.';
         } else {
-            var u = JSON.parse(datos);
             document.getElementById('saludo').textContent = 'Hola, ' + u.nombre;
             document.getElementById('correo').textContent = u.email;
             document.getElementById('rol').textContent = 'Rol: ' + u.rol;
@@ -45,7 +55,8 @@
         document.getElementById('salir').addEventListener('click', function () {
             localStorage.removeItem('umbral-usuario');
             sessionStorage.removeItem('umbral-usuario');
-            window.location.href = 'login.html';
+            sessionStorage.removeItem('umbral-invitado');
+            window.location.href = 'index.html';
         });
     </script>
 </body>

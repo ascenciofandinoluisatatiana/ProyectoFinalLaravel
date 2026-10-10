@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             UsuariosPruebaSeeder::class,
             DepartamentoSeeder::class,
             MunicipioSeeder::class,
+            DemoAdminSeeder::class,
         ]);
     }
 }

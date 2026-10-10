@@ -25,6 +25,11 @@
         </form>
 
         <div class="ml-auto flex items-center gap-2 md:ml-0">
+            {{-- Cambiar entre modo claro y oscuro --}}
+            <button type="button" id="boton-tema" class="tema-boton" title="Cambiar entre modo claro y oscuro" aria-label="Cambiar entre modo claro y oscuro">
+                <i class="fa-solid fa-moon icono-luna"></i>
+                <i class="fa-solid fa-sun icono-sol"></i>
+            </button>
             {{-- Actividad reciente: registros y pagos reales del portal --}}
             <div class="relative">
                 <button type="button" data-abre="menu-notificaciones"

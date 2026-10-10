@@ -33,6 +33,9 @@ class AppServiceProvider extends ServiceProvider
                 $consulta->whereIn('nombre', User::ROLES_PANEL);
             })->count();
 
+            // Cuentas esperando verificación (insignia del menú lateral)
+            $totalPendientes = User::where('estado', 'pendiente')->count();
+
             $notificaciones = collect();
 
             User::with('role')->latest()->take(4)->get()
@@ -64,6 +67,7 @@ class AppServiceProvider extends ServiceProvider
 
             $view->with([
                 'totalUsuarios' => $totalUsuarios,
+                'totalPendientes' => $totalPendientes,
                 'notificaciones' => $notificaciones,
             ]);
         });

@@ -106,6 +106,7 @@ class AuthController extends Controller
             'numero_documento' => $datos['numero_documento'],
             'representante_legal' => $esInmobiliaria ? $datos['representante_legal'] : null,
             'pais_residencia' => 'CO',
+            'estado' => 'pendiente', // queda en la cola de verificaciones del administrador
         ]);
 
         return response()->json([

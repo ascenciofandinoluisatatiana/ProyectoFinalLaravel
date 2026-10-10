@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PerfilController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\VerificacionController;
 use Illuminate\Support\Facades\Route;
 
 // La raíz del proyecto lleva directo al panel de administración.
@@ -33,6 +34,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('usuarios', [UserController::class, 'store'])->name('usuarios.store');
         Route::put('usuarios/{usuario}', [UserController::class, 'update'])->name('usuarios.update');
         Route::delete('usuarios/{usuario}', [UserController::class, 'destroy'])->name('usuarios.destroy');
+
+        
+        // Verificación de cuentas pendientes (aprobar / rechazar con historial)
+        Route::get('verificaciones', [VerificacionController::class, 'index'])->name('verificaciones.index');
+        Route::post('verificaciones/{usuario}/aprobar', [VerificacionController::class, 'aprobar'])->name('verificaciones.aprobar');
+        Route::post('verificaciones/{usuario}/rechazar', [VerificacionController::class, 'rechazar'])->name('verificaciones.rechazar');
 
         // Módulos en construcción (Fase 7 y siguientes del SRS)
         Route::get('membresias', fn () => view('admin.modulo', ['modulo' => 'Membresías']))->name('membresias');

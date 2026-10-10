@@ -37,6 +37,13 @@ class User extends Authenticatable
         return $this->hasMany(Membresia::class);
     }
 
+    
+    /** Historial de verificaciones de esta cuenta, la más reciente primero. */
+    public function verificaciones(): HasMany
+    {
+        return $this->hasMany(Verificacion::class)->latest();
+    }
+
     /** ¿Tiene alguno de estos roles? Ej: $user->tieneRol('administrador', 'soporte') */
     public function tieneRol(string ...$roles): bool
     {

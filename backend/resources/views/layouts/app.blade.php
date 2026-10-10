@@ -6,6 +6,20 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('titulo', 'Panel') · UMBRAL</title>
 
+    {{-- Aplica el tema guardado ANTES de pintar la página (evita el parpadeo).
+        Usa la misma clave que el login. Si no hay tema guardado empieza en
+        claro; para que empiece en oscuro cambia 'light' por 'dark' en "var tema". --}}
+    <script>
+        (function () {
+            var tema = 'light';
+            try {
+                var guardado = localStorage.getItem('umbral-tema');
+                if (guardado === 'dark' || guardado === 'light') tema = guardado;
+            } catch (e) {}
+            document.documentElement.setAttribute('data-theme', tema);
+        })();
+    </script>
+
     {{-- Recursos 100% locales (public/assets/admin): Tailwind compilado,
          FontAwesome, Chart.js y la fuente Inter. Así el panel se ve completo
          sin internet y sin paso de build de Node en el contenedor. --}}
@@ -13,6 +27,7 @@
     <link rel="stylesheet" href="{{ asset('assets/admin/fontawesome/css/fontawesome.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/admin/fontawesome/css/solid.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/admin/fontawesome/css/regular.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/admin/tema.css') }}">
     <script src="{{ asset('assets/admin/chart.umd.min.js') }}"></script>
 
     <style>
@@ -75,6 +90,27 @@
             boton && boton.addEventListener('click', abrirMenu);
             fondo && fondo.addEventListener('click', cerrarMenu);
             window.cerrarMenuLateral = cerrarMenu;
+        })();
+    </script>
+
+    <script>
+        // Botón de tema claro / oscuro (se recuerda en el navegador)
+        (function () {
+            var raiz = document.documentElement;
+            var boton = document.getElementById('boton-tema');
+            if (!boton) return;
+
+            boton.addEventListener('click', function () {
+                var nuevo = raiz.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+
+                raiz.classList.add('cambiando-tema');
+                raiz.setAttribute('data-theme', nuevo);
+                try { localStorage.setItem('umbral-tema', nuevo); } catch (e) {}
+                setTimeout(function () { raiz.classList.remove('cambiando-tema'); }, 450);
+
+                // Avisa a las gráficas para que cambien de colores
+                window.dispatchEvent(new CustomEvent('umbral:tema', { detail: nuevo }));
+            });
         })();
     </script>
 </body>

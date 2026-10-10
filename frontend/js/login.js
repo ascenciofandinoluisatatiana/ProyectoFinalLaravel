@@ -8,15 +8,58 @@
     var boton = form.querySelector('.btn-principal');
     var mensaje = document.getElementById('mensaje');
 
-    // A dónde va cada rol después de iniciar sesión.
-    // Por ahora todos van a panel.html; luego tendrá un panel propio cada uno.
+    // El administrador entra al dashboard real de Laravel; los demás roles
+    // conservan su flujo actual mientras se construyen sus paneles específicos.
     var RUTAS_POR_ROL = {
-        administrador: 'panel.html',
+        administrador: 'http://localhost:3000/admin',
         soporte: 'panel.html',
         vendedor: 'panel.html',
         inmobiliaria: 'panel.html',
         agente: 'panel.html'
     };
+
+    // La API valida credenciales, pero la administración necesita una sesión
+    // web de Laravel. La iniciamos usando el formulario oficial y su CSRF.
+    async function entrarAlPanelAdministrativo(email, password, recordar) {
+        var paginaLogin = await fetch('/admin/login', {
+            method: 'GET',
+            credentials: 'same-origin',
+            headers: { 'Accept': 'text/html' }
+        });
+        var html = await paginaLogin.text();
+        var documento = new DOMParser().parseFromString(html, 'text/html');
+        var campoToken = documento.querySelector('input[name="_token"]');
+        var metaToken = documento.querySelector('meta[name="csrf-token"]');
+        var token = campoToken ? campoToken.value : (metaToken ? metaToken.content : '');
+
+        if (!paginaLogin.ok || !token) {
+            throw new Error('No fue posible preparar la sesión administrativa.');
+        }
+
+        var datosFormulario = new URLSearchParams();
+        datosFormulario.set('_token', token);
+        datosFormulario.set('email', email);
+        datosFormulario.set('password', password);
+        if (recordar) datosFormulario.set('recordar', '1');
+
+        var acceso = await fetch('/admin/login', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'text/html'
+            },
+            body: datosFormulario.toString()
+        });
+
+        // Si Laravel devuelve otra vez el formulario, rechazó la sesión
+        // (por ejemplo, porque la cuenta está pendiente o no es administradora).
+        if (!acceso.ok || new URL(acceso.url).pathname.replace(/\/$/, '') === '/admin/login') {
+            throw new Error('La cuenta no pudo entrar al panel. Verifica que sea administradora, esté activa y esté verificada.');
+        }
+
+        window.location.href = '/admin';
+    }
 
     // Mostrar / ocultar contraseña
     document.getElementById('ver-clave').addEventListener('click', function () {
@@ -73,25 +116,29 @@
                 return;
             }
 
+            // La autenticación de la API no crea la sesión web del administrador.
+            // En ese caso iniciamos también la sesión Laravel antes de redirigir.
+            if (datos.usuario.rol === 'administrador') {
+                mostrar(window.t('msg.bienvenido', { nombre: datos.usuario.nombre }), 'ok');
+                await entrarAlPanelAdministrativo(email, password, recordar);
+                return;
+            }
+
             var destino = RUTAS_POR_ROL[datos.usuario.rol];
             if (!destino) {
                 mostrar(window.t('msg.sin_rol'), 'error');
                 return;
             }
 
-            // Guardar la sesión (provisional: más adelante será un token)
+            // Mantiene el almacenamiento actual para los demás roles.
             var almacen = recordar ? localStorage : sessionStorage;
-
             almacen.setItem('umbral-usuario', JSON.stringify(datos.usuario));
-
-            if (datos.token) {
-                almacen.setItem('umbral-token', datos.token);
-            }
+            if (datos.token) almacen.setItem('umbral-token', datos.token);
 
             mostrar(window.t('msg.bienvenido', { nombre: datos.usuario.nombre }), 'ok');
             setTimeout(function () { window.location.href = destino; }, 700);
         } catch (err) {
-            mostrar(window.t('msg.conexion'), 'error');
+            mostrar(err && err.message && err.message !== 'Failed to fetch' ? err.message : window.t('msg.conexion'), 'error');
         } finally {
             boton.disabled = false;
         }

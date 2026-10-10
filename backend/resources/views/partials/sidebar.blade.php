@@ -38,17 +38,25 @@
             <span class="ml-auto rounded-full bg-violet-500/15 px-2 py-0.5 text-[11px] font-bold text-violet-300 ring-1 ring-violet-500/30">{{ $totalUsuarios }}</span>
         </a>
 
+        <a href="{{ route('admin.verificaciones.index') }}"
+            class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all
+                {{ request()->routeIs('admin.verificaciones.*') ? 'bg-gradient-to-r from-violet-600/20 to-indigo-600/10 text-white ring-1 ring-violet-500/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}">
+            <i class="fa-solid fa-user-check w-5 text-center {{ request()->routeIs('admin.verificaciones.*') ? 'text-violet-400' : 'text-slate-500 group-hover:text-slate-300' }}"></i>
+            Verificaciones
+            <span id="badge-pendientes" class="ml-auto rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-bold text-amber-300 ring-1 ring-amber-500/30 {{ $totalPendientes > 0 ? '' : 'hidden' }}">{{ $totalPendientes }}</span>
+        </a>
+
         <a href="{{ route('admin.membresias') }}"
-           class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all
-                  {{ request()->routeIs('admin.membresias') ? 'bg-gradient-to-r from-violet-600/20 to-indigo-600/10 text-white ring-1 ring-violet-500/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}">
+            class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all
+                {{ request()->routeIs('admin.membresias') ? 'bg-gradient-to-r from-violet-600/20 to-indigo-600/10 text-white ring-1 ring-violet-500/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}">
             <i class="fa-solid fa-credit-card w-5 text-center text-slate-500 group-hover:text-slate-300"></i>
             Membresías
             <span class="ml-auto rounded-full bg-slate-800 px-2 py-0.5 text-[10px] font-semibold text-slate-500">pronto</span>
         </a>
 
         <a href="{{ route('admin.reportes') }}"
-           class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all
-                  {{ request()->routeIs('admin.reportes') ? 'bg-gradient-to-r from-violet-600/20 to-indigo-600/10 text-white ring-1 ring-violet-500/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}">
+            class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all
+                {{ request()->routeIs('admin.reportes') ? 'bg-gradient-to-r from-violet-600/20 to-indigo-600/10 text-white ring-1 ring-violet-500/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}">
             <i class="fa-solid fa-chart-line w-5 text-center text-slate-500 group-hover:text-slate-300"></i>
             Reportes
             <span class="ml-auto rounded-full bg-slate-800 px-2 py-0.5 text-[10px] font-semibold text-slate-500">pronto</span>

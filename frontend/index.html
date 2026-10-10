@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Umbral</title>
+    <title>Umbral · El paso hacia un nuevo hogar</title>
     <link rel="icon" type="image/png" href="img/icono.png">
 
     <!-- Fuentes del diseño -->
@@ -14,7 +14,10 @@
     <!-- Estilos base (colores claro/oscuro) -->
     <link rel="stylesheet" href="css/base.css">
 
-    <!-- Estilos propios de la página -->
+    <!-- Componentes compartidos (campos, botones, decoración) -->
+    <link rel="stylesheet" href="css/componentes.css">
+
+    <!-- Estilos propios de la página (landing y modal) -->
     <link rel="stylesheet" href="css/umbral.css">
 
     <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
@@ -27,22 +30,570 @@
         } catch (e) {}
     </script>
 </head>
-<body>
-    <nav class="navbar">
-        <a class="marca" href="index.html">
+<body data-pagina="home">
+
+    <!-- =========================================================
+         BARRA DE NAVEGACIÓN
+         ========================================================= -->
+    <nav class="navbar" id="navbar">
+        <a class="marca" href="#inicio">
             <img src="img/icono.png" alt="Umbral">
-            UMBRAL
+            <span>
+                <strong>UMBRAL</strong>
+                <em class="titulo-serif" data-i18n="marca.eslogan">El paso hacia un nuevo hogar.</em>
+            </span>
         </a>
-        <a class="btn" href="login.html">Iniciar sesión</a>
+
+        <div class="navbar-panel" id="navbar-panel">
+            <ul class="menu-enlaces">
+                <li><a href="#inicio" data-i18n="nav.inicio">Inicio</a></li>
+                <li><a href="#servicios" data-i18n="nav.servicios">Servicios</a></li>
+                <li><a href="#propiedades" data-i18n="nav.propiedades">Propiedades</a></li>
+                <li><a href="#nosotros" data-i18n="nav.nosotros">Nosotros</a></li>
+                <li><a href="#porque" data-i18n="nav.porque">Por qué nosotros</a></li>
+                <li><a href="#contacto" data-i18n="nav.contacto">Contacto</a></li>
+            </ul>
+
+            <div class="nav-acciones">
+                <div class="selector-idioma">
+                    <button
+                        type="button"
+                        id="idioma-boton"
+                        aria-expanded="false"
+                        aria-haspopup="true"
+                        aria-label="Seleccionar idioma"
+                    >
+                        <span aria-hidden="true">🌐</span>
+                        <span id="idioma-actual">Español</span>
+                        <span aria-hidden="true">⌄</span>
+                    </button>
+
+                    <div id="idioma-menu" hidden>
+                        <button type="button" data-idioma="es" aria-selected="false">Español</button>
+                        <button type="button" data-idioma="en" aria-selected="false">English</button>
+                        <button type="button" data-idioma="ar" aria-selected="false">العربية</button>
+                        <button type="button" data-idioma="fr" aria-selected="false">Français</button>
+                        <button type="button" data-idioma="pt" aria-selected="false">Português</button>
+                    </div>
+                </div>
+
+                <div class="interruptor-tema" role="group" aria-label="Tema de la interfaz">
+                    <button type="button" data-tema="light" aria-pressed="true" aria-label="Tema claro">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+                    </button>
+                    <button type="button" data-tema="dark" aria-pressed="false" aria-label="Tema oscuro">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+                    </button>
+                </div>
+
+                <button type="button" class="btn-secundario" data-abre-modal data-i18n="nav.login">Iniciar sesión</button>
+                <button type="button" class="btn-principal btn-compacto" id="boton-invitado">
+                    <span data-i18n="nav.invitado">Explorar como invitado</span>
+                </button>
+            </div>
+        </div>
+
+        <button type="button" class="hamburguesa" id="hamburguesa" aria-expanded="false" aria-controls="navbar-panel" aria-label="Abrir menú">
+            <span></span><span></span><span></span>
+        </button>
     </nav>
 
-    <section class="hero">
-        <img src="img/icono.png" alt="Umbral - El paso hacia un nuevo hogar">
-        <h1>El paso hacia un nuevo hogar</h1>
-        <p>Casas y apartamentos en venta y arriendo.</p>
-    </section>
+    <main>
+        <!-- =========================================================
+             HERO — misma atmósfera que la pantalla de login
+             ========================================================= -->
+        <section class="hero-inicio" id="inicio">
+            <div class="decoracion" aria-hidden="true">
+                <span class="orbe orbe-1"></span>
+                <span class="orbe orbe-2"></span>
+                <span class="orbe orbe-3"></span>
+                <span class="arco"></span>
+                <span class="estrella e1"></span>
+                <span class="estrella e2"></span>
+                <span class="estrella e3"></span>
+                <span class="estrella e4"></span>
+            </div>
 
+            <div class="hero-contenido">
+                <div class="insignia-grupo">
+                    <div class="insignia">
+                        <span class="punto"></span>
+                        <div>
+                            <strong data-i18n="insignia.titulo">Propiedades en Colombia</strong>
+                            <small data-i18n="insignia.sub">Comprar • Arrendar • Vender</small>
+                        </div>
+                    </div>
+
+                    <div class="chips">
+                        <span class="chip">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                            <span data-i18n="chip.ciudad">Medellín · Antioquia</span>
+                        </span>
+                        <span class="chip">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
+                            <span data-i18n="chip.verificada">Propiedad verificada</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="hero-mensaje">
+                    <span class="pais" data-i18n="hero.pais">COLOMBIA</span>
+                    <h1 class="titulo-serif"><span data-i18n="hero.t1">Más que propiedades,</span><br><em data-i18n="hero.t2">nuevos comienzos.</em></h1>
+                    <p data-i18n="hero.p">Casas, apartamentos y fincas seleccionadas en toda Colombia, de Bogotá a Cartagena.</p>
+
+                    <div class="hero-botones">
+                        <a href="#propiedades" class="btn-principal btn-ancho-auto">
+                            <span data-i18n="hero.cta1">Ver propiedades</span> <span aria-hidden="true">→</span>
+                        </a>
+                        <a href="#servicios" class="btn-invitado btn-ancho-auto">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5 5-2Z"/></svg>
+                            <span data-i18n="hero.cta2">Nuestros servicios</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             SERVICIOS
+             ========================================================= -->
+        <section class="seccion" id="servicios">
+            <header class="seccion-cabecera">
+                <span class="pais" data-i18n="serv.etiqueta">NUESTROS SERVICIOS</span>
+                <h2 class="titulo-serif" data-i18n="serv.titulo">Todo lo que necesitas para dar el paso</h2>
+                <p data-i18n="serv.sub">Acompañamiento completo antes, durante y después de tu decisión.</p>
+            </header>
+
+            <div class="rejilla rejilla-4">
+                <article class="tarjeta tarjeta-servicio">
+                    <span class="servicio-icono">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg>
+                    </span>
+                    <h3 data-i18n="serv.comprar.t">Comprar</h3>
+                    <p data-i18n="serv.comprar.d">Propiedades verificadas con historial claro y visitas guiadas por expertos locales.</p>
+                </article>
+
+                <article class="tarjeta tarjeta-servicio">
+                    <span class="servicio-icono">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 19h16"/></svg>
+                    </span>
+                    <h3 data-i18n="serv.vender.t">Vender</h3>
+                    <p data-i18n="serv.vender.d">Publica tu inmueble con fotografías profesionales y llega a compradores reales.</p>
+                </article>
+
+                <article class="tarjeta tarjeta-servicio">
+                    <span class="servicio-icono">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><path d="M3 13h18"/></svg>
+                    </span>
+                    <h3 data-i18n="serv.arrendar.t">Arrendar</h3>
+                    <p data-i18n="serv.arrendar.d">Contratos digitales y estudio de todos los postores para un arriendo sin sobresaltos.</p>
+                </article>
+
+                <article class="tarjeta tarjeta-servicio">
+                    <span class="servicio-icono">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
+                    </span>
+                    <h3 data-i18n="serv.avaluo.t">Avalúos y asesoría</h3>
+                    <p data-i18n="serv.avaluo.d">Tasación basada en datos del mercado y acompañamiento legal en cada firma.</p>
+                </article>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             PROPIEDADES DESTACADAS
+             ========================================================= -->
+        <section class="seccion seccion-alterna" id="propiedades">
+            <header class="seccion-cabecera">
+                <span class="pais" data-i18n="prop.etiqueta">PROPIEDADES DESTACADAS</span>
+                <h2 class="titulo-serif" data-i18n="prop.titulo">Seleccionadas para vidas extraordinarias</h2>
+                <p data-i18n="prop.sub">Una curaduría de los inmuebles más ambiciosos del país.</p>
+            </header>
+
+            <div class="rejilla rejilla-3">
+                <article class="tarjeta tarjeta-propiedad">
+                    <div class="propiedad-foto">
+                        <img src="img/prop-cartagena.png" alt="Penthouse en Bocagrande, Cartagena">
+                        <span class="propiedad-insignia" data-i18n="prop.destacada">Destacada</span>
+                    </div>
+                    <div class="propiedad-cuerpo">
+                        <h3 data-i18n="prop.1.t">Penthouse en Bocagrande</h3>
+                        <p class="propiedad-lugar">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                            <span data-i18n="prop.1.lugar">Cartagena · Bolívar</span>
+                        </p>
+                        <ul class="propiedad-detalles">
+                            <li>4 <span data-i18n="prop.hab">hab.</span></li>
+                            <li>5 <span data-i18n="prop.ban">baños</span></li>
+                            <li>380 <span data-i18n="prop.area">m²</span></li>
+                        </ul>
+                        <div class="propiedad-pie">
+                            <strong class="propiedad-precio" data-i18n="prop.1.precio">$4.200.000.000</strong>
+                            <a href="#contacto" class="enlace" data-i18n="prop.ver">Ver detalles →</a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="tarjeta tarjeta-propiedad">
+                    <div class="propiedad-foto">
+                        <img src="img/prop-bogota.png" alt="Apartamento en Chicó, Bogotá">
+                        <span class="propiedad-insignia" data-i18n="prop.destacada">Destacada</span>
+                    </div>
+                    <div class="propiedad-cuerpo">
+                        <h3 data-i18n="prop.2.t">Apartamento en Chicó</h3>
+                        <p class="propiedad-lugar">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                            <span data-i18n="prop.2.lugar">Bogotá · Cundinamarca</span>
+                        </p>
+                        <ul class="propiedad-detalles">
+                            <li>3 <span data-i18n="prop.hab">hab.</span></li>
+                            <li>3 <span data-i18n="prop.ban">baños</span></li>
+                            <li>210 <span data-i18n="prop.area">m²</span></li>
+                        </ul>
+                        <div class="propiedad-pie">
+                            <strong class="propiedad-precio" data-i18n="prop.2.precio">$1.850.000.000</strong>
+                            <a href="#contacto" class="enlace" data-i18n="prop.ver">Ver detalles →</a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="tarjeta tarjeta-propiedad">
+                    <div class="propiedad-foto">
+                        <img src="img/prop-guatape.png" alt="Finca en Guatapé, Antioquia">
+                        <span class="propiedad-insignia" data-i18n="prop.destacada">Destacada</span>
+                    </div>
+                    <div class="propiedad-cuerpo">
+                        <h3 data-i18n="prop.3.t">Finca junto al lago</h3>
+                        <p class="propiedad-lugar">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                            <span data-i18n="prop.3.lugar">Guatapé · Antioquia</span>
+                        </p>
+                        <ul class="propiedad-detalles">
+                            <li>5 <span data-i18n="prop.hab">hab.</span></li>
+                            <li>6 <span data-i18n="prop.ban">baños</span></li>
+                            <li>640 <span data-i18n="prop.area">m²</span></li>
+                        </ul>
+                        <div class="propiedad-pie">
+                            <strong class="propiedad-precio" data-i18n="prop.3.precio">$3.600.000.000</strong>
+                            <a href="#contacto" class="enlace" data-i18n="prop.ver">Ver detalles →</a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             NOSOTROS — historia y misión
+             ========================================================= -->
+        <section class="seccion" id="nosotros">
+            <div class="nosotros-columnas">
+                <div class="seccion-cabecera nosotros-texto">
+                    <span class="pais" data-i18n="nos.etiqueta">SOBRE NOSOTROS</span>
+                    <h2 class="titulo-serif" data-i18n="nos.titulo">Umbral nació de una mudanza imposible</h2>
+                    <p data-i18n="nos.p1">Buscamos hogar en una ciudad que no conocíamos: fotos engañosas, datos incompletos y procesos que parecían diseñados para cansar a cualquiera.</p>
+                    <p data-i18n="nos.p2">Por eso creamos Umbral: un portal donde cada propiedad está verificada, cada perfil validado y cada paso, acompañado. Un umbral de verdad entre tú y tu nuevo comienzo.</p>
+
+                    <div class="hero-botones">
+                        <a href="#contacto" class="btn-principal btn-ancho-auto">
+                            <span data-i18n="nos.cta">Conversemos</span> <span aria-hidden="true">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nosotros-tarjetas">
+                    <article class="tarjeta tarjeta-mision">
+                        <span class="servicio-icono">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/></svg>
+                        </span>
+                        <h3 data-i18n="nos.mision.t">Misión</h3>
+                        <p data-i18n="nos.mision.d">Que encontrar hogar en Colombia sea tan memorable como vivirlo: transparente, verificado y humano.</p>
+                    </article>
+                    <article class="tarjeta tarjeta-mision">
+                        <span class="servicio-icono">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4L4.2 8.7l5.4-.8L12 3Z"/></svg>
+                        </span>
+                        <h3 data-i18n="nos.vision.t">Visión</h3>
+                        <p data-i18n="nos.vision.d">Ser el umbral de confianza con el que Colombia compra, arrienda y vende propiedades en 2030.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             POR QUÉ NOSOTROS
+             ========================================================= -->
+        <section class="seccion seccion-alterna" id="porque">
+            <header class="seccion-cabecera">
+                <span class="pais" data-i18n="porque.etiqueta">POR QUÉ UMBRAL</span>
+                <h2 class="titulo-serif" data-i18n="porque.titulo">La confianza no se promete, se demuestra</h2>
+                <p data-i18n="porque.sub">Cada anuncio pasa por verificación humana y validación con IA antes de publicarse.</p>
+            </header>
+
+            <div class="rejilla rejilla-4">
+                <article class="tarjeta tarjeta-servicio">
+                    <span class="servicio-icono">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.4-3 8.4-7 9.5C8 19.4 5 15.4 5 11V6l7-3Z"/><path d="m9 11.5 2.5 2.5L16 9.5"/></svg>
+                    </span>
+                    <h3 data-i18n="porque.1.t">Verificación real</h3>
+                    <p data-i18n="porque.1.d">Documentos, titularidad y fotografías comprobados antes de publicar cada inmueble.</p>
+                </article>
+                <article class="tarjeta tarjeta-servicio">
+                    <span class="servicio-icono">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="7" width="16" height="12" rx="2"/><circle cx="12" cy="13" r="3"/><path d="M12 4v3M8 4h8"/></svg>
+                    </span>
+                    <h3 data-i18n="porque.2.t">Soporte con IA</h3>
+                    <p data-i18n="porque.2.d">Valida tus documentos y responde tus dudas a cualquier hora, todos los días.</p>
+                </article>
+                <article class="tarjeta tarjeta-servicio">
+                    <span class="servicio-icono">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12h8M8 8h8M8 16h5"/><rect x="4" y="3" width="16" height="18" rx="2"/></svg>
+                    </span>
+                    <h3 data-i18n="porque.3.t">Contratos digitales</h3>
+                    <p data-i18n="porque.3.d">Firma en línea con validez legal y sigue el estado de tu proceso en tiempo real.</p>
+                </article>
+                <article class="tarjeta tarjeta-servicio">
+                    <span class="servicio-icono">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                    </span>
+                    <h3 data-i18n="porque.4.t">Todo Colombia</h3>
+                    <p data-i18n="porque.4.d">De Bogotá a Cartagena: cobertura nacional con expertos en cada región.</p>
+                </article>
+            </div>
+
+            <div class="estadisticas">
+                <div class="estadistica">
+                    <strong class="titulo-serif">+500</strong>
+                    <span data-i18n="porque.stat1">Propiedades verificadas</span>
+                </div>
+                <div class="estadistica">
+                    <strong class="titulo-serif">32</strong>
+                    <span data-i18n="porque.stat2">Departamentos cubiertos</span>
+                </div>
+                <div class="estadistica">
+                    <strong class="titulo-serif">24/7</strong>
+                    <span data-i18n="porque.stat3">Soporte con IA</span>
+                </div>
+                <div class="estadistica">
+                    <strong class="titulo-serif">100%</strong>
+                    <span data-i18n="porque.stat4">Perfiles validados</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             CONTACTO
+             ========================================================= -->
+        <section class="seccion" id="contacto">
+            <header class="seccion-cabecera">
+                <span class="pais" data-i18n="con.etiqueta">CONTACTO</span>
+                <h2 class="titulo-serif" data-i18n="con.titulo">Hablemos de tu próximo comienzo</h2>
+                <p data-i18n="con.sub">Cuéntanos qué buscas y un experto te responde el mismo día.</p>
+            </header>
+
+            <div class="contacto-columnas">
+                <div class="contacto-info">
+                    <div class="tarjeta tarjeta-contacto">
+                        <span class="servicio-icono">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                        </span>
+                        <h3 data-i18n="con.info1.t">Oficina</h3>
+                        <p data-i18n="con.info1.d">El Poblado, Medellín · Antioquia, Colombia</p>
+                    </div>
+                    <div class="tarjeta tarjeta-contacto">
+                        <span class="servicio-icono">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+                        </span>
+                        <h3 data-i18n="con.info2.t">Correo</h3>
+                        <p>hola@umbral.co</p>
+                    </div>
+                    <div class="tarjeta tarjeta-contacto">
+                        <span class="servicio-icono">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+                        </span>
+                        <h3 data-i18n="con.info3.t">Horario</h3>
+                        <p data-i18n="con.info3.d">Lunes a sábado · 8:00 a.m. – 6:00 p.m.</p>
+                    </div>
+                </div>
+
+                <form class="tarjeta tarjeta-formulario" id="form-contacto" novalidate>
+                    <label class="etiqueta" for="con-nombre" data-i18n="con.nombre">Nombre</label>
+                    <div class="campo">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.3 3.6-5 8-5s8 1.7 8 5"/></svg>
+                        <input type="text" id="con-nombre" name="nombre" placeholder="¿Cómo te llamas?" data-i18n-placeholder="con.nombre_ph" autocomplete="name">
+                    </div>
+
+                    <label class="etiqueta" for="con-correo" data-i18n="con.correo">Correo electrónico</label>
+                    <div class="campo">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+                        <input type="email" id="con-correo" name="correo" placeholder="Ingresa tu correo" data-i18n-placeholder="login.correo_ph" autocomplete="email">
+                    </div>
+
+                    <label class="etiqueta" for="con-mensaje" data-i18n="con.mensaje">Mensaje</label>
+                    <div class="campo campo-area">
+                        <textarea id="con-mensaje" name="mensaje" rows="4" placeholder="Cuéntanos qué estás buscando" data-i18n-placeholder="con.mensaje_ph"></textarea>
+                    </div>
+
+                    <p class="mensaje" id="mensaje-contacto" role="alert" hidden></p>
+                    <button type="submit" class="btn-principal"><span data-i18n="con.enviar">ENVIAR MENSAJE</span> <span aria-hidden="true">→</span></button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- =========================================================
+         PIE DE PÁGINA
+         ========================================================= -->
+    <footer class="pie">
+        <div class="pie-marca">
+            <img src="img/icono.png" alt="Umbral">
+            <span>
+                <strong>UMBRAL</strong>
+                <em class="titulo-serif" data-i18n="marca.eslogan">El paso hacia un nuevo hogar.</em>
+            </span>
+        </div>
+        <nav class="pie-enlaces">
+            <a href="#inicio" data-i18n="nav.inicio">Inicio</a>
+            <a href="#servicios" data-i18n="nav.servicios">Servicios</a>
+            <a href="#propiedades" data-i18n="nav.propiedades">Propiedades</a>
+            <a href="#nosotros" data-i18n="nav.nosotros">Nosotros</a>
+            <a href="#contacto" data-i18n="nav.contacto">Contacto</a>
+        </nav>
+        <p class="pie-derechos">
+            <span data-i18n="foot.derechos">© 2026 Umbral. Todos los derechos reservados.</span>
+            <span class="pie-pais" data-i18n="foot.hecho">Hecho en Colombia 🇨🇴</span>
+        </p>
+    </footer>
+
+    <!-- =========================================================
+         MODAL FLOTANTE DE AUTENTICACIÓN
+         ========================================================= -->
+    <div class="modal-auth" id="modal-auth" hidden>
+        <div class="modal-fondo" data-cerrar-modal></div>
+
+        <div class="modal-caja" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+            <button type="button" class="modal-cerrar" data-cerrar-modal aria-label="Cerrar" data-i18n-aria="modal.cerrar">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+            </button>
+
+            <div class="tarjeta-marca">
+                <img src="img/icono.png" alt="Umbral">
+                <span>
+                    <strong>UMBRAL</strong>
+                    <em class="titulo-serif" data-i18n="marca.eslogan">El paso hacia un nuevo hogar.</em>
+                </span>
+            </div>
+
+            <h2 class="titulo-serif" id="modal-titulo" data-i18n="login.titulo">Bienvenido</h2>
+
+            <div class="modal-pestanas" role="tablist" aria-label="Autenticación">
+                <button type="button" class="pestana" id="pestana-login" role="tab" aria-selected="true" aria-controls="panel-login" data-i18n="login.pestana">Iniciar sesión</button>
+                <button type="button" class="pestana" id="pestana-registro" role="tab" aria-selected="false" aria-controls="panel-registro" data-i18n="reg.pestana">Crear cuenta</button>
+            </div>
+
+            <!-- ---- Panel: iniciar sesión (mismo formulario de login.html) ---- -->
+            <section id="panel-login" role="tabpanel" aria-labelledby="pestana-login">
+                <form id="form-login" novalidate>
+                    <p class="subtitulo" data-i18n="login.sub">Inicia sesión para gestionar tus propiedades.</p>
+
+                    <label class="etiqueta" for="correo" data-i18n="login.correo">Correo electrónico</label>
+                    <div class="campo">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+                        <input type="email" id="correo" name="correo" placeholder="Ingresa tu correo" data-i18n-placeholder="login.correo_ph" autocomplete="email">
+                    </div>
+
+                    <label class="etiqueta" for="clave" data-i18n="login.clave">Contraseña</label>
+                    <div class="campo">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+                        <input type="password" id="clave" name="clave" placeholder="Ingresa tu contraseña" data-i18n-placeholder="login.clave_ph" autocomplete="current-password">
+                        <button type="button" class="ojo" id="ver-clave" aria-label="Mostrar u ocultar contraseña" data-i18n-aria="login.ver_clave">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
+
+                    <div class="fila-opciones">
+                        <label class="recordar">
+                            <input type="checkbox" name="recordar" checked>
+                            <span class="check"></span>
+                            <span data-i18n="login.recordarme">Recordarme</span>
+                        </label>
+                        <a href="#" class="enlace" data-i18n="login.olvido">¿Olvidaste tu contraseña?</a>
+                    </div>
+
+                    <p class="mensaje" id="mensaje" role="alert" hidden></p>
+                    <button type="submit" class="btn-principal"><span data-i18n="login.entrar">INICIAR SESIÓN</span> <span aria-hidden="true">→</span></button>
+
+                    <p class="crear-cuenta"><span data-i18n="login.sin_cuenta">¿No tienes una cuenta?</span> <a href="#" class="enlace" data-cambia-pestanas="registro"><span data-i18n="login.crear">Crear una cuenta</span></a></p>
+                </form>
+            </section>
+
+            <!-- ---- Panel: crear cuenta ---- -->
+            <section id="panel-registro" role="tabpanel" aria-labelledby="pestana-registro" hidden>
+                <form id="form-registro" novalidate>
+                    <p class="subtitulo" data-i18n="reg.sub">Crea tu cuenta y publica tus inmuebles hoy.</p>
+
+                    <label class="etiqueta" for="reg-nombre" data-i18n="reg.nombre">Nombre completo</label>
+                    <div class="campo">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.3 3.6-5 8-5s8 1.7 8 5"/></svg>
+                        <input type="text" id="reg-nombre" name="nombre" placeholder="Tu nombre" data-i18n-placeholder="reg.nombre_ph" autocomplete="name">
+                    </div>
+
+                    <label class="etiqueta" for="reg-correo" data-i18n="login.correo">Correo electrónico</label>
+                    <div class="campo">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+                        <input type="email" id="reg-correo" name="correo" placeholder="Ingresa tu correo" data-i18n-placeholder="login.correo_ph" autocomplete="email">
+                    </div>
+
+                    <div class="fila-campos">
+                        <div>
+                            <label class="etiqueta" for="reg-telefono" data-i18n="reg.telefono">Teléfono</label>
+                            <div class="campo">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg>
+                                <input type="tel" id="reg-telefono" name="telefono" placeholder="300 000 0000" data-i18n-placeholder="reg.telefono_ph" autocomplete="tel">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="etiqueta" for="reg-tipo-doc" data-i18n="reg.tipo_doc">Tipo de documento</label>
+                            <div class="campo campo-select">
+                                <select id="reg-tipo-doc" name="tipo_documento" autocomplete="off">
+                                    <option value="CC" data-i18n="reg.doc.cc">Cédula de ciudadanía</option>
+                                    <option value="CE" data-i18n="reg.doc.ce">Cédula de extranjería</option>
+                                    <option value="NIT" data-i18n="reg.doc.nit">NIT</option>
+                                    <option value="PAS" data-i18n="reg.doc.pas">Pasaporte</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <label class="etiqueta" for="reg-numero-doc" data-i18n="reg.numero_doc">Número de documento</label>
+                    <div class="campo">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+                        <input type="text" id="reg-numero-doc" name="numero_documento" placeholder="Solo números" data-i18n-placeholder="reg.numero_doc_ph" inputmode="numeric">
+                    </div>
+
+                    <label class="etiqueta" for="reg-clave" data-i18n="login.clave">Contraseña</label>
+                    <div class="campo">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+                        <input type="password" id="reg-clave" name="clave" placeholder="Mínimo 8 caracteres" data-i18n-placeholder="reg.clave_ph" autocomplete="new-password">
+                    </div>
+
+                    <label class="etiqueta" for="reg-clave2" data-i18n="reg.clave2">Confirmar contraseña</label>
+                    <div class="campo">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><path d="m9.5 16 2 2 3.5-3.5"/></svg>
+                        <input type="password" id="reg-clave2" name="clave_confirmation" placeholder="Repite tu contraseña" data-i18n-placeholder="reg.clave2_ph" autocomplete="new-password">
+                    </div>
+
+                    <p class="mensaje" id="mensaje-registro" role="alert" hidden></p>
+                    <button type="submit" class="btn-principal"><span data-i18n="reg.entrar">CREAR CUENTA</span> <span aria-hidden="true">→</span></button>
+
+                    <p class="crear-cuenta"><span data-i18n="reg.tengo_cuenta">¿Ya tienes una cuenta?</span> <a href="#" class="enlace" data-cambia-pestanas="login"><span data-i18n="login.pestana">Iniciar sesión</span></a></p>
+                </form>
+            </section>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
     <script src="js/tema.js"></script>
-
+    <script src="js/i18n.js"></script>
+    <script src="js/login.js"></script>
+    <script src="js/inicio.js"></script>
 </body>
 </html>

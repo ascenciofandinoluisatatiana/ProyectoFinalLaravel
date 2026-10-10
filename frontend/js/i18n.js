@@ -59,6 +59,8 @@
         document.querySelectorAll('[data-idioma]').forEach(function (op) {
             op.setAttribute('aria-selected', op.getAttribute('data-idioma') === actual ? 'true' : 'false');
         });
+
+        document.dispatchEvent(new CustomEvent('umbral:idioma'));
     }
 
     // 4) Carga el JSON del idioma y lo aplica

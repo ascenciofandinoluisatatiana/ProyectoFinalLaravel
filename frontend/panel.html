@@ -22,16 +22,18 @@
                              background: var(--boton-gradiente); color: #fff; }
     </style>
 </head>
-<body>
+<body data-pagina="panel">
     <main class="panel">
         <div class="panel-caja">
-            <h1 class="titulo-serif" id="saludo">Panel</h1>
+            <h1 class="titulo-serif" id="saludo"></h1>
             <p id="correo"></p>
             <p id="rol"></p>
-            <p>Aquí irá el panel de propiedades (próximos pasos).</p>
-            <button type="button" id="salir">Cerrar sesión</button>
+            <p data-i18n="panel.proximamente">Aquí irá el panel de propiedades (próximos pasos).</p>
+            <button type="button" id="salir" data-i18n="panel.salir">Cerrar sesión</button>
         </div>
     </main>
+
+    <script src="js/i18n.js"></script>
     <script>
         var datosUsuario = localStorage.getItem('umbral-usuario') || sessionStorage.getItem('umbral-usuario');
         var esInvitado = !datosUsuario && !!sessionStorage.getItem('umbral-invitado');
@@ -43,15 +45,33 @@
 
         if (!u && !esInvitado) {
             window.location.href = 'index.html';   // sin sesión, de vuelta al inicio
-        } else if (esInvitado) {
-            document.getElementById('saludo').textContent = 'Modo invitado';
-            document.getElementById('correo').style.display = 'none';
-            document.getElementById('rol').textContent = 'Estás explorando propiedades sin una cuenta.';
-        } else {
-            document.getElementById('saludo').textContent = 'Hola, ' + u.nombre;
-            document.getElementById('correo').textContent = u.email;
-            document.getElementById('rol').textContent = 'Rol: ' + u.rol;
         }
+
+        // Pinta los textos que dependen de la sesión, en el idioma actual
+        function pintar() {
+            if (!u && !esInvitado) return;
+
+            var saludo = document.getElementById('saludo');
+            var correo = document.getElementById('correo');
+            var rol = document.getElementById('rol');
+
+            if (esInvitado) {
+                saludo.textContent = window.t('panel.invitado');
+                correo.style.display = 'none';
+                rol.textContent = window.t('panel.invitado_desc');
+            } else {
+                var nombreRol = window.t('rol.' + u.rol);
+                if (nombreRol === 'rol.' + u.rol) nombreRol = u.rol;   // rol sin traducción
+
+                saludo.textContent = window.t('panel.hola', { nombre: u.nombre });
+                correo.textContent = u.email;
+                rol.textContent = window.t('panel.rol', { rol: nombreRol });
+            }
+        }
+
+        // Se vuelve a pintar cada vez que se carga o cambia el idioma
+        document.addEventListener('umbral:idioma', pintar);
+
         document.getElementById('salir').addEventListener('click', function () {
             localStorage.removeItem('umbral-usuario');
             sessionStorage.removeItem('umbral-usuario');

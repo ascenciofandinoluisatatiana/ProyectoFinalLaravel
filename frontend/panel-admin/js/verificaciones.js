@@ -1,7 +1,8 @@
 /* UMBRAL — Pantalla "Verificaciones" del administrador.
    Todo pasa por la API:
      GET  /api/v1/admin/verificaciones                      → cuentas pendientes
-     POST /api/v1/admin/verificaciones/{id}/aprobar|rechazar → decisión (queda en el historial) */
+     POST /api/v1/admin/verificaciones/{id}/aprobar|rechazar → decisión (queda en el historial)
+     GET  /api/v1/admin/verificaciones/historial            → decisiones ya tomadas */
 (function () {
     'use strict';
 
@@ -11,6 +12,11 @@
     var pendientesCargados = [];     // última lista recibida, para decidir por id
     var decisionActual = null;       // { id, accion: 'aprobar' | 'rechazar' }
     var temporizadorBusqueda = null;
+
+    // Historial (segunda pestaña)
+    var paginaHistorial = 1;
+    var temporizadorHistorial = null;
+    var pestanaActual = 'pendientes';
 
     var tabla = document.getElementById('tabla-pendientes');
     var tablaVacia = document.getElementById('tabla-vacia');
@@ -112,7 +118,7 @@
 
             pendientesCargados = datos.datos;
             dibujarFilas(datos.datos);
-            dibujarPaginacion(datos);
+            dibujarPaginacion(datos, 'paginacion-info', 'paginacion-botones', cargar);
             tablaVacia.classList.toggle('hidden', datos.datos.length > 0);
 
             // Sin búsqueda, el total de la lista es el total de pendientes
@@ -159,12 +165,13 @@
         }).join('');
     }
 
-    function dibujarPaginacion(datos) {
-        document.getElementById('paginacion-info').textContent =
+    // Dibuja la paginación de cualquiera de las dos tablas
+    function dibujarPaginacion(datos, idInfo, idBotones, alCambiar) {
+        document.getElementById(idInfo).textContent =
             datos.total === 0 ? 'Sin resultados' :
-            'Mostrando ' + datos.desde + '–' + datos.hasta + ' de ' + datos.total + ' cuentas';
+            'Mostrando ' + datos.desde + '–' + datos.hasta + ' de ' + datos.total + ' registros';
 
-        var contenedor = document.getElementById('paginacion-botones');
+        var contenedor = document.getElementById(idBotones);
         contenedor.innerHTML = '';
         if (datos.ultima_pagina <= 1) return;
 
@@ -177,7 +184,7 @@
                 (activo ? 'bg-violet-600 text-white shadow shadow-violet-600/30'
                         : 'border border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-slate-200') +
                 (deshabilitado ? ' cursor-not-allowed opacity-40' : '');
-            if (!deshabilitado && !activo) b.addEventListener('click', function () { cargar(pagina); });
+            if (!deshabilitado && !activo) b.addEventListener('click', function () { alCambiar(pagina); });
             contenedor.appendChild(b);
         }
 
@@ -292,9 +299,107 @@
         temporizadorBusqueda = setTimeout(function () { cargar(1); }, 300);
     });
 
+    /* ================= Historial de decisiones ================= */
+    var TEXTO_ESTADO = { activo: 'activo', inactivo: 'inactivo', pendiente: 'pendiente' };
+
+    async function cargarHistorial(pagina) {
+        paginaHistorial = pagina || 1;
+        var cuerpo = document.getElementById('tabla-historial');
+        cuerpo.style.opacity = '0.45';
+
+        var parametros = new URLSearchParams({
+            page: paginaHistorial,
+            q: document.getElementById('hist-buscar').value.trim(),
+            decision: document.getElementById('hist-decision').value
+        });
+
+        try {
+            var datos = await P.api('/verificaciones/historial?' + parametros.toString());
+
+            document.getElementById('resumen-total').textContent = datos.resumen.total;
+            document.getElementById('resumen-aprobadas').textContent = datos.resumen.aprobadas;
+            document.getElementById('resumen-rechazadas').textContent = datos.resumen.rechazadas;
+
+            dibujarHistorial(datos.datos);
+            dibujarPaginacion(datos, 'hist-paginacion-info', 'hist-paginacion-botones', cargarHistorial);
+            document.getElementById('hist-vacia').classList.toggle('hidden', datos.datos.length > 0);
+        } catch (error) {
+            manejarError(error, 'No se pudo cargar el historial');
+        } finally {
+            cuerpo.style.opacity = '1';
+        }
+    }
+
+    function dibujarHistorial(registros) {
+        document.getElementById('tabla-historial').innerHTML = registros.map(function (r) {
+            var aprobada = r.decision === 'aprobada';
+            var rol = COLORES_ROL[r.cuenta.rol] || COLORES_ROL.agente;
+            var insignia = aprobada
+                ? '<span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 bg-emerald-500/10 text-emerald-300 ring-emerald-500/30"><i class="fa-solid fa-check"></i>Aprobada</span>'
+                : '<span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 bg-red-500/10 text-red-300 ver-ring-rojo"><i class="fa-solid fa-xmark"></i>Rechazada</span>';
+            var icono = r.origen === 'ia' ? 'fa-robot' : 'fa-user';
+
+            return '<tr class="transition-colors hover:bg-slate-800/40">' +
+                '<td class="px-5 py-3.5 ver-sin-salto">' +
+                    '<p class="text-slate-300">' + P.esc(r.fecha || '—') + '</p>' +
+                    '<p class="text-xs text-slate-500">' + P.esc(r.fecha_humana || '') + '</p>' +
+                '</td>' +
+                '<td class="px-5 py-3.5">' +
+                    '<div class="flex items-center gap-3">' +
+                        '<span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-violet-500/80 to-indigo-600/80 text-xs font-bold text-white">' + P.esc(iniciales(r.cuenta.name)) + '</span>' +
+                        '<div class="min-w-0">' +
+                            '<p class="truncate font-semibold text-slate-200">' + P.esc(r.cuenta.name || '—') + '</p>' +
+                            '<p class="truncate text-xs text-slate-500">' + P.esc(r.cuenta.email || '') + '</p>' +
+                            '<span class="mt-1 inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ' + rol.fondo + ' ' + rol.texto + ' ' + rol.anillo + '">' + P.esc(r.cuenta.rol || '—') + '</span>' +
+                        '</div>' +
+                    '</div>' +
+                '</td>' +
+                '<td class="px-5 py-3.5">' + insignia +
+                    '<p class="mt-1 text-xs text-slate-500">' + P.esc(TEXTO_ESTADO[r.estado_anterior] || r.estado_anterior) + ' → ' + P.esc(TEXTO_ESTADO[r.estado_nuevo] || r.estado_nuevo) + '</p>' +
+                '</td>' +
+                '<td class="px-5 py-3.5 ver-motivo">' +
+                    (r.motivo ? '<p class="text-slate-300">' + P.esc(r.motivo) + '</p>' : '<p class="text-xs text-slate-600">Sin nota</p>') +
+                '</td>' +
+                '<td class="px-5 py-3.5 ver-sin-salto">' +
+                    '<span class="inline-flex items-center gap-2 text-slate-300"><i class="fa-solid ' + icono + ' text-slate-500"></i>' + P.esc(r.decidio || '—') + '</span>' +
+                '</td>' +
+            '</tr>';
+        }).join('');
+    }
+
+    document.getElementById('hist-buscar').addEventListener('input', function () {
+        clearTimeout(temporizadorHistorial);
+        temporizadorHistorial = setTimeout(function () { cargarHistorial(1); }, 300);
+    });
+    document.getElementById('hist-decision').addEventListener('change', function () { cargarHistorial(1); });
+
+    /* ================= Pestañas ================= */
+    function mostrarPestana(nombre) {
+        pestanaActual = nombre;
+
+        document.getElementById('seccion-pendientes').classList.toggle('hidden', nombre !== 'pendientes');
+        document.getElementById('seccion-historial').classList.toggle('hidden', nombre !== 'historial');
+
+        document.querySelectorAll('[data-pestana]').forEach(function (b) {
+            b.classList.toggle('ver-pestana-activa', b.getAttribute('data-pestana') === nombre);
+        });
+
+        // La dirección guarda la pestaña (…verificaciones.html#historial)
+        history.replaceState(null, '', nombre === 'historial' ? '#historial' : window.location.pathname + window.location.search);
+
+        // Cada vez que se abre una pestaña se refresca su contenido
+        if (nombre === 'historial') cargarHistorial(paginaHistorial);
+        else cargar(paginaActual);
+    }
+
+    document.querySelectorAll('[data-pestana]').forEach(function (b) {
+        b.addEventListener('click', function () { mostrarPestana(b.getAttribute('data-pestana')); });
+    });
+
     /* ================= Arranque ================= */
     P.listo.then(function () {
-        cargar(1);
+        if (window.location.hash === '#historial') mostrarPestana('historial');
+        else cargar(1);
     }).catch(function (error) {
         if (error && error.estado !== 401 && window.console) console.error('Verificaciones:', error);
     });

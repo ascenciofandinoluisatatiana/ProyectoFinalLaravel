@@ -67,6 +67,46 @@ class VerificacionController extends Controller
     }
 
     /**
+     * GET /api/v1/admin/verificaciones/historial
+     * Decisiones ya tomadas (quién, cuándo y por qué), la más reciente primero.
+     */
+    public function historial(Request $request): JsonResponse
+    {
+        $consulta = Verificacion::with(['cuenta.role', 'decisor']);
+
+        // Filtro por decisión: aprobada | rechazada
+        $decision = $request->input('decision');
+        if (in_array($decision, Verificacion::DECISIONES, true)) {
+            $consulta->where('decision', $decision);
+        }
+
+        // Búsqueda por nombre o correo de la cuenta revisada
+        if ($q = trim((string) $request->input('q'))) {
+            $consulta->whereHas('cuenta', function ($subconsulta) use ($q) {
+                $subconsulta->where('name', 'ilike', "%{$q}%")
+                    ->orWhere('email', 'ilike', "%{$q}%");
+            });
+        }
+
+        $registros = $consulta->orderByDesc('created_at')->orderByDesc('id')->paginate(8)->withQueryString();
+
+        return response()->json([
+            'datos' => collect($registros->items())->map(fn (Verificacion $registro) => $this->serializarRegistro($registro)),
+            'pagina_actual' => $registros->currentPage(),
+            'ultima_pagina' => $registros->lastPage(),
+            'total' => $registros->total(),
+            'desde' => $registros->firstItem(),
+            'hasta' => $registros->lastItem(),
+            // Cifras globales: no cambian con la búsqueda ni con los filtros
+            'resumen' => [
+                'total' => Verificacion::count(),
+                'aprobadas' => Verificacion::where('decision', 'aprobada')->count(),
+                'rechazadas' => Verificacion::where('decision', 'rechazada')->count(),
+            ],
+        ]);
+    }
+
+    /**
      * Aplica la decisión: cambia el estado de la cuenta y guarda el
      * registro en el historial, todo dentro de una transacción.
      */
@@ -154,6 +194,33 @@ class VerificacionController extends Controller
             'pais_residencia' => $usuario->pais_residencia,
             'creado' => $registro?->translatedFormat('d M Y'),
             'creado_humano' => $registro?->diffForHumans(),
+        ];
+    }
+
+    /** Forma uniforme de una decisión del historial para el JavaScript de la pantalla. */
+    private function serializarRegistro(Verificacion $registro): array
+    {
+        $fecha = $registro->created_at?->copy()->timezone(self::ZONA);
+
+        return [
+            'id' => $registro->id,
+            'cuenta' => [
+                'id' => $registro->cuenta?->id,
+                'name' => $registro->cuenta?->name,
+                'email' => $registro->cuenta?->email,
+                'rol' => $registro->cuenta?->role?->nombre,
+                'estado' => $registro->cuenta?->estado,
+            ],
+            'decision' => $registro->decision,
+            'motivo' => $registro->motivo,
+            'estado_anterior' => $registro->estado_anterior,
+            'estado_nuevo' => $registro->estado_nuevo,
+            'origen' => $registro->origen,
+            'decidio' => $registro->origen === 'ia'
+                ? 'IA de soporte'
+                : ($registro->decisor?->name ?? 'Cuenta eliminada'),
+            'fecha' => $fecha?->translatedFormat('d M Y, H:i'),
+            'fecha_humana' => $fecha?->diffForHumans(),
         ];
     }
 }

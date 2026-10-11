@@ -54,6 +54,7 @@ Route::prefix('v1/admin')->middleware(['web', 'admin.api'])->group(function () {
 
     // Verificación de cuentas pendientes
     Route::get('verificaciones', [AdminVerificacionController::class, 'index']);
+    Route::get('verificaciones/historial', [AdminVerificacionController::class, 'historial']);
     Route::post('verificaciones/{usuario}/aprobar', [AdminVerificacionController::class, 'aprobar']);
     Route::post('verificaciones/{usuario}/rechazar', [AdminVerificacionController::class, 'rechazar']);
 });

@@ -53,7 +53,35 @@
 
         .ver-contador { display: inline-flex; align-items: center; gap: .5rem; border-radius: .75rem; border: 1px solid rgba(245, 158, 11, .3); background: rgba(245, 158, 11, .10); padding: .5rem .9rem; font-size: .875rem; font-weight: 600; color: #fcd34d; }
 
+
+        /* Pestañas Pendientes / Historial */
+        .ver-pestanas { display: flex; gap: .25rem; border-bottom: 1px solid #1e293b; }
+        .ver-pestana { display: inline-flex; align-items: center; gap: .5rem; padding: .7rem 1.1rem; margin-bottom: -1px; font-size: .875rem; font-weight: 600; color: #64748b; background: transparent; border: 0; border-bottom: 2px solid transparent; cursor: pointer; transition: all .15s ease; }
+        .ver-pestana:hover { color: #cbd5e1; }
+        .ver-pestana-activa { color: #c4b5fd; border-bottom-color: #8b5cf6; }
+
+        /* Tarjetas de resumen del historial */
+        .ver-resumen { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; }
+        .ver-resumen-item { border-radius: 1rem; border: 1px solid #1e293b; background: rgba(15, 23, 42, .6); padding: .9rem 1.1rem; }
+        .ver-resumen-item p:first-child { font-size: 1.5rem; font-weight: 800; color: #f1f5f9; line-height: 1.2; }
+        .ver-resumen-item p:last-child { font-size: .75rem; color: #64748b; margin-top: .15rem; }
+        .ver-resumen-ok p:first-child { color: #6ee7b7; }
+        .ver-resumen-no p:first-child { color: #fca5a5; }
+        @media (max-width: 480px) { .ver-resumen { grid-template-columns: 1fr; } }
+
+        .ver-sin-salto { white-space: nowrap; }
+        .ver-ring-rojo { --tw-ring-color: rgba(239, 68, 68, .3); }
+        .ver-motivo { max-width: 22rem; white-space: normal; word-break: break-word; }
+
         /* Si el panel está en tema claro */
+        html[data-theme="light"] .ver-pestanas { border-bottom-color: #e2dff0; }
+        html[data-theme="light"] .ver-pestana { color: #646c91; }
+        html[data-theme="light"] .ver-pestana:hover { color: #1e2547; }
+        html[data-theme="light"] .ver-pestana-activa { color: #6d28d9; border-bottom-color: #7c3aed; }
+        html[data-theme="light"] .ver-resumen-item { background: rgba(255, 255, 255, .8); border-color: #e2dff0; }
+        html[data-theme="light"] .ver-resumen-item p:first-child { color: #111936; }
+        html[data-theme="light"] .ver-resumen-ok p:first-child { color: #047857; }
+        html[data-theme="light"] .ver-resumen-no p:first-child { color: #b91c1c; }
         html[data-theme="light"] .ver-texto { background: #ffffff; border-color: #cbd5e1; color: #0f172a; }
         html[data-theme="light"] .ver-texto::placeholder { color: #94a3b8; }
         html[data-theme="light"] .ver-btn-ok { color: #047857; }
@@ -84,7 +112,14 @@
                         </span>
                     </div>
 
-                    <!-- Tabla con búsqueda -->
+                    <!-- Pestañas -->
+                    <div class="ver-pestanas" role="tablist">
+                        <button type="button" role="tab" data-pestana="pendientes" class="ver-pestana ver-pestana-activa"><i class="fa-solid fa-user-clock"></i>Pendientes</button>
+                        <button type="button" role="tab" data-pestana="historial" class="ver-pestana"><i class="fa-solid fa-clock-rotate-left"></i>Historial</button>
+                    </div>
+
+                    <!-- ============ PENDIENTES ============ -->
+                    <section id="seccion-pendientes" class="space-y-5">
                     <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 shadow-xl shadow-black/20">
 
                         <div class="border-b border-slate-800 p-4">
@@ -123,6 +158,60 @@
                             <div id="paginacion-botones" class="flex items-center gap-1"></div>
                         </div>
                     </div>
+                    </section>
+
+                    <!-- ============ HISTORIAL ============ -->
+                    <section id="seccion-historial" class="hidden space-y-5">
+
+                        <div class="ver-resumen">
+                            <div class="ver-resumen-item"><p id="resumen-total">–</p><p>Decisiones registradas</p></div>
+                            <div class="ver-resumen-item ver-resumen-ok"><p id="resumen-aprobadas">–</p><p>Aprobadas</p></div>
+                            <div class="ver-resumen-item ver-resumen-no"><p id="resumen-rechazadas">–</p><p>Rechazadas</p></div>
+                        </div>
+
+                        <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 shadow-xl shadow-black/20">
+
+                            <div class="flex flex-col gap-3 border-b border-slate-800 p-4 sm:flex-row sm:items-center">
+                                <div class="relative flex-1">
+                                    <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-500"></i>
+                                    <input type="search" id="hist-buscar" placeholder="Buscar por nombre o correo de la cuenta…"
+                                           class="w-full rounded-xl border border-slate-800 bg-slate-950/60 py-2.5 pl-10 pr-4 text-sm text-slate-200 placeholder-slate-600 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
+                                </div>
+                                <select id="hist-decision"
+                                        class="rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-2.5 text-sm text-slate-200 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
+                                    <option value="">Todas las decisiones</option>
+                                    <option value="aprobada">Aprobadas</option>
+                                    <option value="rechazada">Rechazadas</option>
+                                </select>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full min-w-[40rem] text-left text-sm">
+                                    <thead class="border-b border-slate-800 text-[11px] uppercase tracking-wider text-slate-500">
+                                        <tr>
+                                            <th class="px-5 py-3.5 font-semibold">Fecha</th>
+                                            <th class="px-5 py-3.5 font-semibold">Cuenta</th>
+                                            <th class="px-5 py-3.5 font-semibold">Decisión</th>
+                                            <th class="px-5 py-3.5 font-semibold">Motivo</th>
+                                            <th class="px-5 py-3.5 font-semibold">Decidió</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabla-historial" class="divide-y divide-slate-800/70 transition-opacity"></tbody>
+                                </table>
+                            </div>
+
+                            <div id="hist-vacia" class="hidden px-5 py-14 text-center">
+                                <div class="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-xl bg-slate-800 text-slate-500"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                                <p class="text-sm font-medium text-slate-400">Sin decisiones para mostrar</p>
+                                <p class="mt-0.5 text-xs text-slate-600">Cuando apruebes o rechaces cuentas, quedarán registradas aquí.</p>
+                            </div>
+
+                            <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 px-5 py-3.5">
+                                <p id="hist-paginacion-info" class="text-xs text-slate-500"></p>
+                                <div id="hist-paginacion-botones" class="flex items-center gap-1"></div>
+                            </div>
+                        </div>
+                    </section>
                 </div>
             </main>
 

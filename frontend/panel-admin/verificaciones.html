@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Verificaciones · UMBRAL</title>
+    <link rel="icon" type="image/png" href="/img/icono.png">
+
+    <!-- Aplica el tema guardado ANTES de pintar la página (evita el parpadeo) -->
+    <script>
+        (function () {
+            var tema = 'light';
+            try {
+                var guardado = localStorage.getItem('umbral-tema');
+                if (guardado === 'dark' || guardado === 'light') tema = guardado;
+            } catch (e) {}
+            document.documentElement.setAttribute('data-theme', tema);
+        })();
+    </script>
+
+    <link rel="stylesheet" href="/assets/admin/admin.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/regular.min.css">
+    <link rel="stylesheet" href="/assets/admin/tema.css">
+
+    <style>
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+        /* Estilos propios de esta pantalla: botones de decisión y cuadro de texto */
+        .ver-btn { display: inline-flex; align-items: center; gap: .4rem; border-radius: .6rem; padding: .45rem .8rem; font-size: .75rem; font-weight: 600; border: 1px solid transparent; cursor: pointer; transition: all .15s ease; }
+        .ver-btn:disabled { opacity: .5; cursor: not-allowed; }
+        .ver-btn-ok { background: rgba(16, 185, 129, .12); color: #6ee7b7; border-color: rgba(16, 185, 129, .35); }
+        .ver-btn-ok:hover { background: rgba(16, 185, 129, .24); }
+        .ver-btn-no { background: rgba(239, 68, 68, .10); color: #fca5a5; border-color: rgba(239, 68, 68, .35); }
+        .ver-btn-no:hover { background: rgba(239, 68, 68, .22); }
+
+        .ver-confirmar { border-radius: .75rem; padding: .65rem 1.25rem; font-size: .875rem; font-weight: 600; color: #fff; border: 0; cursor: pointer; transition: all .15s ease; }
+        .ver-confirmar:active { transform: scale(.98); }
+        .ver-confirmar:disabled { opacity: .6; cursor: not-allowed; }
+        .ver-confirmar-ok { background: #059669; box-shadow: 0 8px 20px rgba(5, 150, 105, .25); }
+        .ver-confirmar-ok:hover { background: #10b981; }
+        .ver-confirmar-no { background: #dc2626; box-shadow: 0 8px 20px rgba(220, 38, 38, .25); }
+        .ver-confirmar-no:hover { background: #ef4444; }
+
+        .ver-texto { width: 100%; resize: none; border-radius: .75rem; border: 1px solid #1e293b; background: rgba(2, 6, 23, .6); padding: .65rem 1rem; font-size: .875rem; color: #e2e8f0; outline: none; font-family: inherit; transition: all .15s ease; }
+        .ver-texto::placeholder { color: #475569; }
+        .ver-texto:focus { border-color: rgba(139, 92, 246, .6); box-shadow: 0 0 0 3px rgba(139, 92, 246, .2); }
+        .ver-texto.ver-error { border-color: rgba(239, 68, 68, .6); }
+
+        .ver-contador { display: inline-flex; align-items: center; gap: .5rem; border-radius: .75rem; border: 1px solid rgba(245, 158, 11, .3); background: rgba(245, 158, 11, .10); padding: .5rem .9rem; font-size: .875rem; font-weight: 600; color: #fcd34d; }
+
+        /* Si el panel está en tema claro */
+        html[data-theme="light"] .ver-texto { background: #ffffff; border-color: #cbd5e1; color: #0f172a; }
+        html[data-theme="light"] .ver-texto::placeholder { color: #94a3b8; }
+        html[data-theme="light"] .ver-btn-ok { color: #047857; }
+        html[data-theme="light"] .ver-btn-no { color: #b91c1c; }
+        html[data-theme="light"] .ver-contador { color: #b45309; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 font-sans antialiased" data-pagina="verificaciones" data-titulo="Verificaciones">
+
+    <div id="app" class="min-h-screen" style="visibility:hidden">
+        <div id="zona-menu"></div>
+
+        <div class="flex min-h-screen flex-col lg:pl-72 transition-all duration-300">
+            <div id="zona-barra"></div>
+
+            <main class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+                <div class="mx-auto max-w-7xl space-y-5">
+
+                    <!-- Encabezado de la sección -->
+                    <div class="flex flex-wrap items-end justify-between gap-3">
+                        <div>
+                            <h1 class="text-xl font-extrabold text-white sm:text-2xl">Verificaciones</h1>
+                            <p class="mt-1 text-sm text-slate-500">Aprueba o rechaza las cuentas pendientes. Cada decisión queda registrada.</p>
+                        </div>
+                        <span class="ver-contador">
+                            <i class="fa-solid fa-user-clock"></i>
+                            <span id="contador-pendientes">…</span> pendientes
+                        </span>
+                    </div>
+
+                    <!-- Tabla con búsqueda -->
+                    <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 shadow-xl shadow-black/20">
+
+                        <div class="border-b border-slate-800 p-4">
+                            <div class="relative">
+                                <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-500"></i>
+                                <input type="search" id="buscar" placeholder="Buscar por nombre, correo o documento…"
+                                       class="w-full rounded-xl border border-slate-800 bg-slate-950/60 py-2.5 pl-10 pr-4 text-sm text-slate-200 placeholder-slate-600 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full min-w-[40rem] text-left text-sm">
+                                <thead class="border-b border-slate-800 text-[11px] uppercase tracking-wider text-slate-500">
+                                    <tr>
+                                        <th class="px-5 py-3.5 font-semibold">Cuenta</th>
+                                        <th class="px-5 py-3.5 font-semibold">Rol</th>
+                                        <th class="px-5 py-3.5 font-semibold">Datos a verificar</th>
+                                        <th class="px-5 py-3.5 font-semibold">Registro</th>
+                                        <th class="px-5 py-3.5 text-right font-semibold">Decisión</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-pendientes" class="divide-y divide-slate-800/70 transition-opacity"></tbody>
+                            </table>
+                        </div>
+
+                        <!-- Sin pendientes -->
+                        <div id="tabla-vacia" class="hidden px-5 py-14 text-center">
+                            <div class="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-xl bg-slate-800 text-emerald-400"><i class="fa-solid fa-circle-check"></i></div>
+                            <p class="text-sm font-medium text-slate-400">No hay cuentas pendientes</p>
+                            <p class="mt-0.5 text-xs text-slate-600">Todo está al día. Las nuevas cuentas aparecerán aquí.</p>
+                        </div>
+
+                        <!-- Paginación -->
+                        <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 px-5 py-3.5">
+                            <p id="paginacion-info" class="text-xs text-slate-500"></p>
+                            <div id="paginacion-botones" class="flex items-center gap-1"></div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="border-t border-slate-800/60 px-6 py-4 text-xs text-slate-600 flex flex-wrap items-center justify-between gap-2">
+                <span>UMBRAL · El paso hacia un nuevo hogar</span>
+                <span>Panel de administración · Colombia</span>
+            </footer>
+        </div>
+
+        <!-- Modal: aprobar o rechazar (el mismo cuadro sirve para las dos) -->
+        <div id="modal-decision" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+            <div class="w-full max-w-md overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl shadow-black/60">
+                <div class="flex items-center justify-between border-b border-slate-800 px-6 py-4">
+                    <h3 id="decision-titulo" class="font-bold text-white">Aprobar cuenta</h3>
+                    <button type="button" data-cerrar-decision class="grid h-8 w-8 place-items-center rounded-lg text-slate-500 transition-colors hover:bg-slate-800 hover:text-slate-300">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <form id="form-decision" class="space-y-4 px-6 py-5" novalidate>
+                    <p id="decision-resumen" class="text-sm leading-relaxed text-slate-400"></p>
+
+                    <div>
+                        <label for="campo-motivo" class="mb-1.5 block text-sm font-medium text-slate-300">
+                            <span id="motivo-etiqueta">Nota</span>
+                            <span id="motivo-ayuda" class="font-normal text-slate-500"></span>
+                        </label>
+                        <textarea id="campo-motivo" rows="3" maxlength="500" class="ver-texto"></textarea>
+                        <p id="error-motivo" class="mt-1.5 hidden text-xs text-red-400"></p>
+                    </div>
+
+                    <div class="flex justify-end gap-2.5 pt-2">
+                        <button type="button" data-cerrar-decision
+                                class="rounded-xl border border-slate-700 px-4 py-2.5 text-sm font-medium text-slate-300 transition-all hover:bg-slate-800">
+                            Cancelar
+                        </button>
+                        <button type="submit" id="boton-decidir" class="ver-confirmar ver-confirmar-ok">Confirmar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Notificaciones flotantes -->
+        <div id="contenedor-toasts" class="fixed right-4 top-4 z-[60] flex w-80 flex-col gap-2.5"></div>
+    </div>
+
+    <!-- Fondo oscurecido detrás del menú móvil -->
+    <div id="fondo-menu" class="fixed inset-0 z-30 hidden bg-black/60 backdrop-blur-sm lg:hidden transition-opacity duration-300"></div>
+
+    <script src="js/panel-admin.js"></script>
+    <script src="js/verificaciones.js"></script>
+</body>
+</html>

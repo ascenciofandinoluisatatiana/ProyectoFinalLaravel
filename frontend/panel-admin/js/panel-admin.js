@@ -23,7 +23,7 @@
         ajustes:        { nuevo: '/panel-admin/ajustes.html',        viejo: '/admin/ajustes' },
         perfil:         { nuevo: '/panel-admin/perfil.html',         viejo: '/admin/perfil' }
     };
-    var MIGRADAS = ['panel', 'usuarios'];
+    var MIGRADAS = ['panel', 'usuarios', 'verificaciones'];
 
     var cuerpo = document.body;
     var pagina = cuerpo.getAttribute('data-pagina') || 'panel';

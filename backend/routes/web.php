@@ -7,6 +7,8 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VerificacionController;
 use Illuminate\Support\Facades\Route;
 
+
+
 // La raíz del proyecto lleva directo al panel de administración.
 Route::get('/', fn () => redirect()->route('admin.panel'));
 
@@ -49,5 +51,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('ajustes', [PerfilController::class, 'ajustes'])->name('ajustes');
         Route::post('ajustes/clave', [PerfilController::class, 'actualizarClave'])->name('ajustes.clave');
         Route::get('perfil', [PerfilController::class, 'perfil'])->name('perfil');
+        Route::post('/perfil/avatar', [PerfilController::class, 'actualizarAvatar'])
+        ->name('perfil.avatar');
+        
     });
 });

@@ -28,9 +28,20 @@
                     </div>
                 </div>
                 <a href="{{ route('admin.usuarios.index') }}?crear=1"
-                   class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-600/25 transition-all hover:from-violet-500 hover:to-indigo-500 hover:shadow-violet-500/40 active:scale-[0.98]">
+                    class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-600/25 transition-all hover:from-violet-500 hover:to-indigo-500 hover:shadow-violet-500/40 active:scale-[0.98]">
                     <i class="fa-solid fa-user-plus"></i>Nuevo usuario
                 </a>
+
+                <button
+                    type="button"
+                    id="boton-tema"
+                    class="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900/70 px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:bg-slate-800"
+                    aria-label="Cambiar tema"
+                    aria-pressed="false"
+                >
+                    <i id="icono-tema" class="fa-solid fa-sun"></i>
+                    <span id="texto-tema">Claro</span>
+                </button>
             </div>
         </div>
 
@@ -308,5 +319,62 @@
 
     dibujarGraficas();
     window.addEventListener('umbral:tema', dibujarGraficas);
+
+    // ----- Tema claro / oscuro ☀️🌙 -----
+    (function () {
+        var boton = document.getElementById('boton-tema');
+        var icono = document.getElementById('icono-tema');
+        var texto = document.getElementById('texto-tema');
+
+        if (!boton) return;
+
+        function actualizarInterfaz(tema) {
+            var oscuro = tema === 'dark';
+
+            boton.setAttribute('aria-pressed', oscuro ? 'true' : 'false');
+
+            if (icono) {
+                icono.className = oscuro
+                    ? 'fa-solid fa-moon'
+                    : 'fa-solid fa-sun';
+            }
+
+            if (texto) {
+                texto.textContent = oscuro ? 'Oscuro' : 'Claro';
+            }
+        }
+
+        function aplicarTema(tema) {
+            tema = tema === 'dark' ? 'dark' : 'light';
+
+            document.documentElement.setAttribute('data-theme', tema);
+
+            try {
+                localStorage.setItem('umbral-tema', tema);
+            } catch (e) {}
+
+            actualizarInterfaz(tema);
+
+            window.dispatchEvent(new CustomEvent('umbral:tema'));
+        }
+
+        var guardado = null;
+
+        try {
+            guardado = localStorage.getItem('umbral-tema');
+        } catch (e) {}
+
+        aplicarTema(
+            guardado === 'dark' || guardado === 'light'
+                ? guardado
+                : 'light'
+        );
+
+        boton.addEventListener('click', function () {
+            var actual = document.documentElement.getAttribute('data-theme');
+
+            aplicarTema(actual === 'dark' ? 'light' : 'dark');
+        });
+    })();
 </script>
 @endpush

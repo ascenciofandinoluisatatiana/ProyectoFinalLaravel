@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Membresia;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 /**
@@ -72,5 +74,80 @@ class CuentaController extends Controller
         $usuario->save();
 
         return response()->json(['mensaje' => 'Contraseña actualizada correctamente.']);
+    }
+
+    /**
+     * GET /api/v1/admin/menu — lo que el menú y la barra superior muestran
+     * en todas las páginas: contadores, actividad reciente y versiones.
+     */
+    public function menu(): JsonResponse
+    {
+        $totalUsuarios = User::whereHas('role', function ($consulta) {
+            $consulta->whereIn('nombre', User::ROLES_PANEL);
+        })->count();
+
+        // Cuentas esperando verificación (insignia del menú lateral)
+        $totalPendientes = User::where('estado', 'pendiente')->count();
+
+        // Actividad reciente real del portal: últimos registros y pagos
+        $actividad = collect();
+
+        User::with('role')->latest()->take(4)->get()
+            ->each(function (User $usuario) use ($actividad) {
+                $actividad->push([
+                    'tipo' => 'registro',
+                    'icono' => 'fa-user-plus',
+                    'color' => 'violet',
+                    'titulo' => 'Nuevo registro: ' . $usuario->name,
+                    'detalle' => 'Rol: ' . ($usuario->role?->nombre ?? 'sin rol'),
+                    'fecha' => $usuario->created_at,
+                    'referencia' => $usuario->email,
+                ]);
+            });
+
+        Membresia::with('usuario')->latest()->take(4)->get()
+            ->each(function (Membresia $membresia) use ($actividad) {
+                $actividad->push([
+                    'tipo' => 'pago',
+                    'icono' => 'fa-credit-card',
+                    'color' => 'emerald',
+                    'titulo' => 'Pago de membresía ' . (Membresia::NOMBRES_PLAN[$membresia->plan] ?? $membresia->plan),
+                    'detalle' => ($membresia->usuario?->name ?? 'Usuario') . ' · $' . number_format((float) $membresia->precio, 0, ',', '.') . ' COP',
+                    'fecha' => $membresia->created_at,
+                    'referencia' => null,
+                ]);
+            });
+
+        $notificaciones = $actividad->sortByDesc('fecha')->take(5)->values()
+            ->map(fn (array $evento) => [
+                'tipo' => $evento['tipo'],
+                'icono' => $evento['icono'],
+                'color' => $evento['color'],
+                'titulo' => $evento['titulo'],
+                'detalle' => $evento['detalle'],
+                'referencia' => $evento['referencia'],
+                'fecha' => $evento['fecha']?->toIso8601String(),
+                'hace' => $evento['fecha']?->diffForHumans(),
+            ]);
+
+        return response()->json([
+            'total_usuarios' => $totalUsuarios,
+            'total_pendientes' => $totalPendientes,
+            'notificaciones' => $notificaciones,
+            'sistema' => [
+                'laravel' => app()->version(),
+                'php' => PHP_VERSION,
+            ],
+        ]);
+    }
+
+    /** POST /api/v1/admin/logout — cierra la sesión del administrador. */
+    public function salir(Request $request): JsonResponse
+    {
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return response()->json(['mensaje' => 'Sesión cerrada.']);
     }
 }

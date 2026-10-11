@@ -1,13 +1,12 @@
 <?php
 
-use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\VerificacionController as AdminVerificacionController;
 use App\Http\Controllers\Api\V1\Admin\CuentaController;
+use App\Http\Controllers\Api\V1\Admin\ResumenController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\HealthController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\V1\Admin\ResumenController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,12 +24,6 @@ Route::prefix('v1')->group(function () {
 
     // Registro de cuentas nuevas (rol vendedor)
     Route::post('/registro', [AuthController::class, 'register']);
-
-    
-    // Panel del administrador. Por ahora sin token: la autenticación se agrega más adelante.
-    Route::prefix('admin')->group(function () {
-        Route::get('/resumen', ResumenController::class);
-    });
 });
 
 /*
@@ -43,13 +36,15 @@ Route::prefix('v1')->group(function () {
 | Cuando se agreguen tokens, el cambio se limita a este grupo.
 */
 Route::prefix('v1/admin')->middleware(['web', 'admin.api'])->group(function () {
-    // Cuenta del administrador y listas para formularios
+    // Cuenta del administrador, menú y listas para formularios
     Route::get('yo', [CuentaController::class, 'yo']);
+    Route::get('menu', [CuentaController::class, 'menu']);
     Route::get('catalogos', [CuentaController::class, 'catalogos']);
     Route::post('clave', [CuentaController::class, 'cambiarClave']);
+    Route::post('logout', [CuentaController::class, 'salir']);
 
-    // Panel principal
-    Route::get('dashboard', [AdminDashboardController::class, 'datos']);
+    // Panel principal: cifras y gráficas del dashboard
+    Route::get('resumen', ResumenController::class);
 
     // Gestión de usuarios
     Route::get('usuarios', [AdminUserController::class, 'index']);

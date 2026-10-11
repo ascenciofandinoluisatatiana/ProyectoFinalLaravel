@@ -8,10 +8,10 @@
     var boton = form.querySelector('.btn-principal');
     var mensaje = document.getElementById('mensaje');
 
-    // El administrador entra al dashboard real de Laravel; los demás roles
+    // El administrador entra a su panel (frontend/panel-admin); los demás roles
     // conservan su flujo actual mientras se construyen sus paneles específicos.
     var RUTAS_POR_ROL = {
-        administrador: 'http://localhost:3000/admin',
+        administrador: '/panel-admin/dashboard.html',
         soporte: 'panel.html',
         vendedor: 'panel.html',
         inmobiliaria: 'panel.html',
@@ -58,7 +58,7 @@
             throw new Error('La cuenta no pudo entrar al panel. Verifica que sea administradora, esté activa y esté verificada.');
         }
 
-        window.location.href = '/admin';
+        window.location.href = '/panel-admin/dashboard.html';
     }
 
     // Mostrar / ocultar contraseña

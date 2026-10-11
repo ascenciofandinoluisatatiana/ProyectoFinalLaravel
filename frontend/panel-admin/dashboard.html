@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Panel principal · UMBRAL</title>
+    <link rel="icon" type="image/png" href="/img/icono.png">
+
+    <!-- Aplica el tema guardado ANTES de pintar la página (evita el parpadeo).
+         Usa la misma clave que el login. Sin tema guardado empieza en claro. -->
+    <script>
+        (function () {
+            var tema = 'light';
+            try {
+                var guardado = localStorage.getItem('umbral-tema');
+                if (guardado === 'dark' || guardado === 'light') tema = guardado;
+            } catch (e) {}
+            document.documentElement.setAttribute('data-theme', tema);
+        })();
+    </script>
+
+    <!-- Recursos del panel: Tailwind compilado, FontAwesome, Chart.js y la fuente Inter.
+         Hoy los entrega Laravel desde public/assets/admin (nginx reenvía /assets). -->
+    <link rel="stylesheet" href="/assets/admin/admin.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/regular.min.css">
+    <link rel="stylesheet" href="/assets/admin/tema.css">
+    <script src="/assets/admin/chart.umd.min.js"></script>
+
+    <style>
+        /* Barra de desplazamiento oscura y discreta */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 font-sans antialiased" data-pagina="panel" data-titulo="Panel principal">
+
+    <!-- Se muestra cuando la API confirma que hay una sesión de administrador -->
+    <div id="app" class="min-h-screen" style="visibility:hidden">
+        <div id="zona-menu"></div>
+
+        <div class="flex min-h-screen flex-col lg:pl-72 transition-all duration-300">
+            <div id="zona-barra"></div>
+
+            <main class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+                <div class="mx-auto max-w-7xl space-y-6">
+
+                    <!-- Tarjeta de bienvenida -->
+                    <div class="hero-admin relative overflow-hidden rounded-2xl border border-slate-800 p-6 sm:p-8">
+                        <span class="hero-blob hero-blob-1"></span>
+                        <span class="hero-blob hero-blob-2"></span>
+                        <span class="hero-blob hero-blob-3"></span>
+
+                        <div class="relative flex flex-wrap items-center justify-between gap-4">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-violet-400">
+                                    <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>Panel de administración
+                                </p>
+                                <h1 class="titulo-grad mt-1 text-2xl font-extrabold sm:text-3xl">
+                                    <span id="saludo-hora">Hola</span>, <span id="saludo-nombre"></span>
+                                </h1>
+                                <p class="mt-1.5 max-w-xl text-sm text-slate-400">
+                                    Este es el estado del portal UMBRAL hoy, <span id="fecha-hoy"></span>.
+                                </p>
+                                <div class="mt-4 flex flex-wrap gap-2">
+                                    <span class="chip"><i class="fa-regular fa-clock"></i><span id="reloj">--:--</span></span>
+                                    <span class="chip chip-celeste"><i class="fa-solid fa-location-dot"></i>Colombia</span>
+                                </div>
+                            </div>
+                            <a href="#" data-ir="usuarios" data-sufijo="?crear=1"
+                               class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-600/25 transition-all hover:from-violet-500 hover:to-indigo-500 hover:shadow-violet-500/40 active:scale-[0.98]">
+                                <i class="fa-solid fa-user-plus"></i>Nuevo usuario
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Tarjetas de métricas (KPI) -->
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                        <div class="kpi kpi-violeta rounded-2xl border border-slate-800 bg-slate-900/60 p-5" style="--i:0">
+                            <div class="flex items-start justify-between">
+                                <div class="grid h-11 w-11 place-items-center rounded-xl bg-violet-500/10 text-violet-400 ring-1 ring-violet-500/20">
+                                    <i class="fa-solid fa-users"></i>
+                                </div>
+                                <span id="variacion-usuarios" class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold bg-emerald-500/10 text-emerald-400"></span>
+                            </div>
+                            <p id="valor-usuarios" class="mt-4 text-3xl font-extrabold tracking-tight text-white">0</p>
+                            <p class="mt-0.5 text-sm text-slate-500">Usuarios del portal</p>
+                        </div>
+
+                        <div class="kpi kpi-verde rounded-2xl border border-slate-800 bg-slate-900/60 p-5" style="--i:1">
+                            <div class="flex items-start justify-between">
+                                <div class="grid h-11 w-11 place-items-center rounded-xl bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20">
+                                    <i class="fa-solid fa-credit-card"></i>
+                                </div>
+                                <span id="variacion-membresias" class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold bg-emerald-500/10 text-emerald-400"></span>
+                            </div>
+                            <p id="valor-membresias" class="mt-4 text-3xl font-extrabold tracking-tight text-white">0</p>
+                            <p class="mt-0.5 text-sm text-slate-500">Membresías activas</p>
+                        </div>
+
+                        <div class="kpi kpi-ambar rounded-2xl border border-slate-800 bg-slate-900/60 p-5" style="--i:2">
+                            <div class="flex items-start justify-between">
+                                <div class="grid h-11 w-11 place-items-center rounded-xl bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/20">
+                                    <i class="fa-solid fa-coins"></i>
+                                </div>
+                                <span id="variacion-ingresos" class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold bg-emerald-500/10 text-emerald-400"></span>
+                            </div>
+                            <p id="valor-ingresos" class="mt-4 text-3xl font-extrabold tracking-tight text-white">$0</p>
+                            <p class="mt-0.5 text-sm text-slate-500">Ingresos por membresías (COP)</p>
+                        </div>
+
+                        <div class="kpi kpi-celeste rounded-2xl border border-slate-800 bg-slate-900/60 p-5" style="--i:3">
+                            <div class="flex items-start justify-between">
+                                <div class="grid h-11 w-11 place-items-center rounded-xl bg-sky-500/10 text-sky-400 ring-1 ring-sky-500/20">
+                                    <i class="fa-solid fa-user-clock"></i>
+                                </div>
+                            </div>
+                            <p id="valor-pendientes" class="mt-4 text-3xl font-extrabold tracking-tight text-white">0</p>
+                            <p class="mt-0.5 text-sm text-slate-500">Cuentas pendientes de verificación</p>
+                        </div>
+                    </div>
+
+                    <!-- Accesos rápidos -->
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                        <a href="#" data-ir="usuarios" class="atajo atajo-violeta" style="--i:0">
+                            <span class="atajo-icono"><i class="fa-solid fa-users"></i></span>
+                            <span><b>Usuarios</b><small>Crear, editar y verificar</small></span>
+                            <i class="fa-solid fa-arrow-right flecha"></i>
+                        </a>
+                        <a href="#" data-ir="membresias" class="atajo atajo-verde" style="--i:1">
+                            <span class="atajo-icono"><i class="fa-solid fa-credit-card"></i></span>
+                            <span><b>Membresías</b><small>Planes y pagos</small></span>
+                            <i class="fa-solid fa-arrow-right flecha"></i>
+                        </a>
+                        <a href="#" data-ir="reportes" class="atajo atajo-ambar" style="--i:2">
+                            <span class="atajo-icono"><i class="fa-solid fa-chart-line"></i></span>
+                            <span><b>Reportes</b><small>Cifras del portal</small></span>
+                            <i class="fa-solid fa-arrow-right flecha"></i>
+                        </a>
+                        <a href="#" data-ir="ajustes" class="atajo atajo-celeste" style="--i:3">
+                            <span class="atajo-icono"><i class="fa-solid fa-gear"></i></span>
+                            <span><b>Ajustes</b><small>Configuración general</small></span>
+                            <i class="fa-solid fa-arrow-right flecha"></i>
+                        </a>
+                    </div>
+
+                    <!-- Gráficas -->
+                    <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
+                        <div class="panel-card rounded-2xl border border-slate-800 bg-slate-900/60 p-5 xl:col-span-2">
+                            <div class="mb-4 flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-bold text-white">Actividad mensual</h3>
+                                    <p class="text-xs text-slate-500">Nuevos registros de usuarios en los últimos 12 meses</p>
+                                </div>
+                                <span class="rounded-full bg-slate-800 px-3 py-1 text-[11px] font-medium text-slate-400"><i class="fa-regular fa-calendar mr-1"></i>12 meses</span>
+                            </div>
+                            <div class="h-72">
+                                <canvas id="grafica-registros"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="panel-card rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+                            <div class="mb-4">
+                                <h3 class="font-bold text-white">Distribución por rol</h3>
+                                <p class="text-xs text-slate-500">Cómo se reparten las cuentas del portal</p>
+                            </div>
+                            <div class="h-72">
+                                <canvas id="grafica-roles"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="border-t border-slate-800/60 px-6 py-4 text-xs text-slate-600 flex flex-wrap items-center justify-between gap-2">
+                <span>UMBRAL · El paso hacia un nuevo hogar</span>
+                <span>Panel de administración · Colombia</span>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Fondo oscurecido detrás del menú móvil -->
+    <div id="fondo-menu" class="fixed inset-0 z-30 hidden bg-black/60 backdrop-blur-sm lg:hidden transition-opacity duration-300"></div>
+
+    <script src="js/panel-admin.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

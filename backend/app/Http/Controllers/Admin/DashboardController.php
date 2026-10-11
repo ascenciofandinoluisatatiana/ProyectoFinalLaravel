@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Membresia;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
@@ -17,7 +18,20 @@ class DashboardController extends Controller
     /** Nombres cortos de los meses para las gráficas. */
     private const MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
+    /** Vista Blade actual del panel (se retira cuando el panel pase al frontend). */
     public function index(): View
+    {
+        return view('admin.dashboard', $this->calcular());
+    }
+
+    /** GET /api/v1/admin/dashboard — los mismos números, en JSON. */
+    public function datos(): JsonResponse
+    {
+        return response()->json($this->calcular());
+    }
+
+    /** KPIs y gráficas: una sola fuente de datos para la vista y para la API. */
+    private function calcular(): array
     {
         $ahora = Carbon::now();
         $inicioMes = $ahora->copy()->startOfMonth();
@@ -73,7 +87,7 @@ class DashboardController extends Controller
                 'total' => (int) $fila->total,
             ]);
 
-        return view('admin.dashboard', [
+        return [
             'kpiUsuarios' => [
                 'total' => $totalUsuarios,
                 'delta' => self::porcentajeCambio($usuariosEsteMes, $usuariosMesAnterior),
@@ -92,7 +106,7 @@ class DashboardController extends Controller
                 'valores' => $valoresRegistros,
             ],
             'graficaRoles' => $distribucionRoles,
-        ]);
+        ];
     }
 
     /** Cambio porcentual del mes actual frente al anterior (−100 a +∞). */

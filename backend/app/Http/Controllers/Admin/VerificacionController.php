@@ -82,9 +82,13 @@ class VerificacionController extends Controller
 
         // Búsqueda por nombre o correo de la cuenta revisada
         if ($q = trim((string) $request->input('q'))) {
-            $consulta->whereHas('cuenta', function ($subconsulta) use ($q) {
-                $subconsulta->where('name', 'ilike', "%{$q}%")
-                    ->orWhere('email', 'ilike', "%{$q}%");
+            $consulta->where(function ($subconsulta) use ($q) {
+                $subconsulta->where('cuenta_nombre', 'ilike', "%{$q}%")
+                    ->orWhere('cuenta_email', 'ilike', "%{$q}%")
+                    ->orWhereHas('cuenta', function ($cuenta) use ($q) {
+                        $cuenta->where('name', 'ilike', "%{$q}%")
+                            ->orWhere('email', 'ilike', "%{$q}%");
+                    });
             });
         }
 
@@ -148,9 +152,16 @@ class VerificacionController extends Controller
             $cuenta->estado = $estadoNuevo;
             $cuenta->save();
 
+            $cuenta->loadMissing('role');
+
             return Verificacion::create([
                 'user_id' => $cuenta->id,
+                // Foto de la cuenta: el historial sigue legible aunque luego se elimine
+                'cuenta_nombre' => $cuenta->name,
+                'cuenta_email' => $cuenta->email,
+                'cuenta_rol' => $cuenta->role?->nombre,
                 'decidido_por' => auth()->id(),
+                'decisor_nombre' => auth()->user()?->name,
                 'origen' => 'administrador',
                 'decision' => $decision,
                 'motivo' => $datos['motivo'] ?? null,
@@ -206,11 +217,13 @@ class VerificacionController extends Controller
             'id' => $registro->id,
             'cuenta' => [
                 'id' => $registro->cuenta?->id,
-                'name' => $registro->cuenta?->name,
-                'email' => $registro->cuenta?->email,
-                'rol' => $registro->cuenta?->role?->nombre,
+                'name' => $registro->cuenta?->name ?? $registro->cuenta_nombre,
+                'email' => $registro->cuenta?->email ?? $registro->cuenta_email,
+                'rol' => $registro->cuenta?->role?->nombre ?? $registro->cuenta_rol,
                 'estado' => $registro->cuenta?->estado,
             ],
+            // true cuando la cuenta ya fue eliminada: solo queda la foto del historial
+            'cuenta_eliminada' => $registro->cuenta === null,
             'decision' => $registro->decision,
             'motivo' => $registro->motivo,
             'estado_anterior' => $registro->estado_anterior,
@@ -218,7 +231,7 @@ class VerificacionController extends Controller
             'origen' => $registro->origen,
             'decidio' => $registro->origen === 'ia'
                 ? 'IA de soporte'
-                : ($registro->decisor?->name ?? 'Cuenta eliminada'),
+                : ($registro->decisor?->name ?? $registro->decisor_nombre ?? 'Cuenta eliminada'),
             'fecha' => $fecha?->translatedFormat('d M Y, H:i'),
             'fecha_humana' => $fecha?->diffForHumans(),
         ];

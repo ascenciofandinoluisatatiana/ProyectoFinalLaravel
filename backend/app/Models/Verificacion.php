@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Una decisión de verificación sobre una cuenta del portal.
  * Cada fila es un registro del historial: nunca se edita ni se borra.
  */
-#[Fillable(['user_id', 'decidido_por', 'origen', 'decision', 'motivo', 'estado_anterior', 'estado_nuevo'])]
+#[Fillable(['user_id', 'cuenta_nombre', 'cuenta_email', 'cuenta_rol', 'decidido_por', 'decisor_nombre', 'origen', 'decision', 'motivo', 'estado_anterior', 'estado_nuevo'])]
 class Verificacion extends Model
 {
     // Laravel pluralizaría "verificacions"; aquí fijamos el nombre real.

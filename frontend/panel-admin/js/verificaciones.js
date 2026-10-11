@@ -351,6 +351,7 @@
                             '<p class="truncate font-semibold text-slate-200">' + P.esc(r.cuenta.name || '—') + '</p>' +
                             '<p class="truncate text-xs text-slate-500">' + P.esc(r.cuenta.email || '') + '</p>' +
                             '<span class="mt-1 inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ' + rol.fondo + ' ' + rol.texto + ' ' + rol.anillo + '">' + P.esc(r.cuenta.rol || '—') + '</span>' +
+                            (r.cuenta_eliminada ? '<span class="mt-1 ver-eliminada inline-flex items-center gap-1 rounded-full bg-slate-800 px-2 py-0.5 text-[11px] font-medium text-slate-400"><i class="fa-solid fa-user-slash"></i>Cuenta eliminada</span>' : '') +
                         '</div>' +
                     '</div>' +
                 '</td>' +

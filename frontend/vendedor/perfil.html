@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mi perfil · Umbral</title>
+    <link rel="icon" type="image/png" href="/img/icono.png">
+
+    <!-- Fuentes del diseño (las mismas del inicio y el login) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Colores claro/oscuro del proyecto + iconos (los entrega Laravel en /assets) -->
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
+    <link rel="stylesheet" href="/vendedor/css/vendedor.css">
+
+    <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
+    <script>
+        try {
+            var tema = localStorage.getItem('umbral-tema');
+            if (tema === 'dark' || tema === 'light') document.documentElement.setAttribute('data-theme', tema);
+        } catch (e) {}
+    </script>
+</head>
+<body class="vendedor" data-pagina="perfil">
+    <div class="v-pagina">
+        <header class="v-topbar" id="v-topbar"></header>
+
+        <main class="v-contenido">
+            <!-- Bienvenida -->
+            <section class="v-tarjeta v-hero">
+                <div>
+                    <p class="v-etiqueta"><i class="fa-solid fa-user-check"></i> Perfil de vendedor</p>
+                    <h1 class="titulo-serif">Hola, <span id="p-nombre"></span></h1>
+                    <p>Desde aquí administras todo lo que publicas en Umbral. Elige qué quieres hacer hoy y entra a tu panel.</p>
+                    <div class="v-chips">
+                        <span class="v-chip"><i class="fa-solid fa-location-dot"></i> Colombia</span>
+                        <span class="v-chip"><i class="fa-solid fa-user"></i> Cuenta persona</span>
+                        <span class="v-chip"><i class="fa-solid fa-envelope"></i> <span id="p-correo-chip"></span></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Las dos opciones: cada una lleva a su propio dashboard -->
+            <div>
+                <h2 class="titulo-serif v-titulo-seccion">¿Qué quieres hacer hoy?</h2>
+                <p class="v-subtitulo">Cada opción tiene su propio panel con inmuebles, contactos y visitas.</p>
+            </div>
+
+            <section class="v-opciones" aria-label="Opciones del vendedor">
+                <a class="v-opcion op-venta" href="/vendedor/vender.html">
+                    <span class="v-opcion-icono"><i class="fa-solid fa-house-circle-check"></i></span>
+                    <h3 class="titulo-serif">Vender</h3>
+                    <p>Publica tu inmueble, recibe ofertas de compradores reales y cierra la venta con acompañamiento.</p>
+                    <div class="v-opcion-datos" id="p-datos-venta"></div>
+                    <span class="v-opcion-cta">Ir al panel de ventas <i class="fa-solid fa-arrow-right"></i></span>
+                </a>
+
+                <a class="v-opcion op-arriendo" href="/vendedor/arrendar.html">
+                    <span class="v-opcion-icono"><i class="fa-solid fa-key"></i></span>
+                    <h3 class="titulo-serif">Arrendar</h3>
+                    <p>Encuentra inquilinos, coordina visitas y administra tus arriendos desde un solo lugar.</p>
+                    <div class="v-opcion-datos" id="p-datos-arriendo"></div>
+                    <span class="v-opcion-cta">Ir al panel de arriendos <i class="fa-solid fa-arrow-right"></i></span>
+                </a>
+            </section>
+
+            <!-- Cuenta y capacidades -->
+            <section class="v-dos-col">
+                <article class="v-tarjeta">
+                    <div class="v-tarjeta-cabeza"><h2>Tu cuenta</h2></div>
+                    <div class="v-tarjeta-cuerpo v-datos">
+                        <div class="v-dato"><i class="fa-solid fa-user"></i><div><small>Nombre</small><b id="p-nombre-dato"></b></div></div>
+                        <div class="v-dato"><i class="fa-solid fa-envelope"></i><div><small>Correo</small><b id="p-correo"></b></div></div>
+                        <div class="v-dato"><i class="fa-solid fa-id-card"></i><div><small>Tipo de cuenta</small><b>Vendedor · Persona</b></div></div>
+                        <div class="v-dato"><i class="fa-solid fa-location-dot"></i><div><small>País de residencia</small><b>Colombia</b></div></div>
+                    </div>
+                </article>
+
+                <article class="v-tarjeta">
+                    <div class="v-tarjeta-cabeza"><h2>Lo que puedes hacer como vendedor</h2></div>
+                    <div class="v-tarjeta-cuerpo v-capacidades">
+                        <div class="v-capacidad"><i class="fa-solid fa-house"></i><div><b>Registrar inmuebles</b><span>Carga los datos de cada propiedad.</span></div></div>
+                        <div class="v-capacidad"><i class="fa-solid fa-credit-card"></i><div><b>Contratar membresía</b><span>Semanal, quincenal o mensual.</span></div></div>
+                        <div class="v-capacidad"><i class="fa-solid fa-bullhorn"></i><div><b>Publicar</b><span>Tus inmuebles visibles en el portal.</span></div></div>
+                        <div class="v-capacidad"><i class="fa-solid fa-comments"></i><div><b>Gestionar contactos</b><span>Responde a cada interesado.</span></div></div>
+                        <div class="v-capacidad"><i class="fa-solid fa-calendar-check"></i><div><b>Gestionar visitas</b><span>Confirma y organiza tu agenda.</span></div></div>
+                        <div class="v-capacidad"><i class="fa-solid fa-handshake"></i><div><b>Cerrar ventas y arriendos</b><span>Lleva el control de cada negocio.</span></div></div>
+                    </div>
+                </article>
+            </section>
+        </main>
+    </div>
+
+    <script src="/vendedor/js/vendedor.js"></script>
+    <script src="/vendedor/js/perfil.js"></script>
+</body>
+</html>

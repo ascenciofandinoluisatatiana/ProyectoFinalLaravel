@@ -13,7 +13,7 @@
     var RUTAS_POR_ROL = {
         administrador: '/panel-admin/dashboard.html',
         soporte: 'panel.html',
-        vendedor: 'panel.html',
+        vendedor: '/vendedor/perfil.html',
         inmobiliaria: 'panel.html',
         agente: 'panel.html'
     };

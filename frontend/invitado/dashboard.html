@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es" data-theme="light">
 <head>
+<script>document.documentElement.classList.add('js-hero');setTimeout(function(){if(!document.getElementById('fBackdrop'))document.documentElement.classList.remove('js-hero')},4000)</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Explorar propiedades · UMBRAL</title>
@@ -205,6 +206,54 @@ body.hero-on:not(.hero-out) .topbar .search{opacity:0;pointer-events:none}
 #mSellers .mbody{padding:28px}
 #mSellers h3{font-size:24px;margin-bottom:20px;padding-right:50px}
 #mSellers .sellers{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+/* ===== RESPONSIVE ===== */
+html{-webkit-text-size-adjust:100%}
+img,video,svg{max-width:100%}
+.topbar{min-width:0}
+.topbar h1{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.search{min-width:120px}
+.toast{max-width:calc(100vw - 32px)}
+.mcols>*{min-width:0}
+.modal{overflow-wrap:anywhere}
+.specs{flex-wrap:wrap}
+
+/* portátil / tablet horizontal */
+@media(max-width:1280px){
+  .user-chip div{display:none}
+  .user-chip{padding:6px}
+}
+@media(max-width:1100px){
+  .topbar{padding:14px 20px;gap:10px}
+  .topbar h1{display:none}
+  .topbar .btn-sm{width:42px;height:42px;padding:0;justify-content:center;gap:0}
+  .topbar .btn-sm span{display:none}
+}
+/* tablet vertical */
+@media(max-width:960px){
+  .content{padding:18px 18px 50px}
+}
+/* celular */
+@media(max-width:600px){
+  .stats{grid-template-columns:repeat(2,1fr);gap:12px;margin:18px 0}
+  .stat{padding:14px;border-radius:16px}
+  .stat .ico{width:38px;height:38px;border-radius:11px;margin-bottom:10px}
+  .stat b{font-size:24px}
+  .stat span{font-size:13px;line-height:1.3;display:block}
+  .res-head h3{font-size:19px}
+  .toolbar{width:100%}
+  #mapView{height:60vh;min-height:340px;border-radius:16px}
+  .modal{border-radius:20px}
+  .mcols{padding:18px;gap:18px}
+  .mbody,#mSellers .mbody{padding:20px}
+  .mcols h2{font-size:21px}
+}
+@media(max-width:480px){
+  .topbar{padding:10px 12px;gap:6px}
+  .topbar select{max-width:96px;padding-left:8px;padding-right:4px}
+  .user-chip{display:none}
+  .content{padding:14px 12px 44px}
+}
+html.js-hero .panel#filters:not(.fmodal){display:none}
 </style>
 </head>
 <body>
@@ -333,6 +382,7 @@ body.hero-on:not(.hero-out) .topbar .search{opacity:0;pointer-events:none}
 <div class="toast" id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="/js/config.js"></script>
 <script>
 /* ============ CONFIG ============ */
 // Ruta de checkout PSE (la define el backend Laravel / proveedor de pagos: Wompi, ePayco, PayU...).
@@ -461,7 +511,7 @@ let P = [
 ];
 
 /* ============ API (Laravel) ============ */
-const API = 'http://localhost:8001/api/v1/public';
+const API = (window.UMBRAL_API || 'http://localhost:8001/api/v1') + '/public';
 // Si la API no responde, se mantienen los datos de ejemplo de arriba.
 let UBIC = null; // [{nombre, municipios:[...]}] con todos los departamentos y municipios de Colombia
 async function loadData(){

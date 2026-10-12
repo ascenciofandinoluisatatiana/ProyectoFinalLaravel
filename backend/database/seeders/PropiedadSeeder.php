@@ -15,8 +15,8 @@ class PropiedadSeeder extends Seeder
         $vendedores = [
             ['Inmobiliaria Horizonte S.A.S.', 'horizonte@demo.umbral.co', 3, '+57 604 555 0101', 'NIT', '900100001-1', true],
             ['Capital Urbano Inmobiliaria',   'capital@demo.umbral.co',    3, '+57 601 555 0142', 'NIT', '900100002-2', true],
-            ['Mariana Restrepo',              'mariana@demo.umbral.co',    2, '+57 300 555 0178', 'CC',  '1000000001',  false],
-            ['Andrés Pacheco',                'andres@demo.umbral.co',     2, '+57 315 555 0199', 'CC',  '1000000002',  false],
+            ['Mariana Restrepo',              'mariana@demo.umbral.co',    2, '+57 300 555 0178', 'CC',  '1000000101',  false],
+            ['Andrés Pacheco',                'andres@demo.umbral.co',     2, '+57 315 555 0199', 'CC',  '1000000102',  false],
             ['Casa Viva Colombia',            'casaviva@demo.umbral.co',   3, '+57 602 555 0166', 'NIT', '900100003-3', false],
         ];
 

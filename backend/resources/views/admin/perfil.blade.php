@@ -28,10 +28,6 @@
         <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 shadow-xl shadow-black/20">
             <div class="flex flex-wrap items-center gap-4">
 
-                <span class="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 text-xl font-bold text-white shadow-lg shadow-violet-500/30">
-                    {{ $iniciales ?: '?' }}
-                </span>
-
                 <div class="flex flex-wrap items-center gap-5">
                     <div class="relative">
                         @if($usuario->avatar)

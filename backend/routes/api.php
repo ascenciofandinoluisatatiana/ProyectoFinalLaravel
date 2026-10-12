@@ -7,6 +7,10 @@ use App\Http\Controllers\Api\V1\Admin\ResumenController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\HealthController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\LeadController;
+use App\Http\Controllers\Api\V1\PublicPropiedadController;
+use App\Http\Controllers\Api\V1\UbicacionController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -58,3 +62,13 @@ Route::prefix('v1/admin')->middleware(['web', 'admin.api'])->group(function () {
     Route::post('verificaciones/{usuario}/aprobar', [AdminVerificacionController::class, 'aprobar']);
     Route::post('verificaciones/{usuario}/rechazar', [AdminVerificacionController::class, 'rechazar']);
 });
+
+Route::prefix('v1/public')->group(function () {
+    Route::get('propiedades', [PublicPropiedadController::class, 'index']);
+        Route::get('ubicaciones', [UbicacionController::class, 'index']);
+    Route::get('propiedades/{id}', [PublicPropiedadController::class, 'show']);
+    Route::post('leads', [LeadController::class, 'store'])->middleware('throttle:10,1');
+});
+
+
+

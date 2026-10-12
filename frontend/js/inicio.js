@@ -118,7 +118,7 @@
         try {
             sessionStorage.setItem('umbral-invitado', JSON.stringify({ rol: 'invitado' }));
         } catch (e) {}
-        window.location.href = 'panel.html';
+        window.location.href = '/invitado/dashboard.html';
     });
 
     /* =========================================================

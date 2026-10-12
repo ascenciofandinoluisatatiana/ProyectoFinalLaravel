@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Explorar propiedades · UMBRAL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{
+  --bg:#f4f1fd;--card:#fff;--text:#1b1535;--muted:#6b6785;--border:#e7e2f7;
+  --primary:#6c3df5;--primary2:#8b5cf6;--soft:#efe9ff;--green:#10b981;--orange:#f59e0b;--blue:#3b82f6;--red:#ef4444;
+  --shadow:0 6px 24px rgba(88,60,180,.08);--banner:linear-gradient(120deg,#e6dcfb 0%,#d9d4fb 45%,#cfe6fb 100%);
+}
+[data-theme="dark"]{
+  --bg:#0e0a1d;--card:#18132c;--text:#f1eeff;--muted:#a49fc4;--border:#2b2447;
+  --soft:#261e47;--shadow:0 6px 24px rgba(0,0,0,.35);--banner:linear-gradient(120deg,#2a1f55 0%,#241d4d 50%,#183056 100%);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+button,input,select,textarea{font-family:inherit;font-size:14px;color:inherit}
+button{cursor:pointer;border:none;background:none}
+a{color:inherit;text-decoration:none}
+/* layout */
+.app{display:flex;min-height:100vh}
+.sidebar{width:290px;background:var(--card);border-right:1px solid var(--border);padding:22px 14px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;z-index:50;transition:transform .3s}
+.brand{display:flex;align-items:center;gap:12px;padding:0 10px 22px;border-bottom:1px solid var(--border);margin-bottom:18px}
+.logo{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--primary),var(--primary2));display:grid;place-items:center;color:#fff;font-size:22px;box-shadow:0 6px 16px rgba(108,61,245,.4)}
+.brand b{letter-spacing:.28em;font-size:20px;display:block}
+.brand small{color:var(--muted);font-size:12px}
+.nav-label{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--muted);padding:14px 12px 8px;text-transform:uppercase}
+.nav a{display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:12px;color:var(--muted);font-weight:600;margin-bottom:4px;cursor:pointer}
+.nav a i{width:20px;text-align:center}
+.nav a:hover{background:var(--soft)}
+.nav a.active{background:var(--soft);color:var(--primary);border:1px solid var(--border)}
+.guest-card{margin-top:auto;padding:16px;border-radius:16px;background:var(--soft);border:1px solid var(--border)}
+.guest-card h4{font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.guest-card p{font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.45}
+.main{flex:1;min-width:0}
+.topbar{display:flex;align-items:center;gap:12px;padding:16px 28px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:40}
+.topbar h1{font-size:19px;font-weight:700;white-space:nowrap}
+.menu-btn{display:none;width:40px;height:40px;border-radius:10px;border:1px solid var(--border)}
+.search{flex:1;max-width:520px;margin-left:auto;display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:12px;padding:0 14px;height:44px;background:var(--bg)}
+.search input{border:none;outline:none;background:none;flex:1}
+.icon-btn{width:44px;height:44px;border-radius:12px;border:1px solid var(--border);background:var(--bg);display:grid;place-items:center;color:var(--primary)}
+.lang{height:44px;border-radius:12px;border:1px solid var(--border);background:var(--bg);padding:0 10px;font-weight:600;cursor:pointer}
+.user-chip{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:14px;padding:6px 12px;background:var(--bg)}
+.avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+.user-chip b{font-size:14px;display:block;line-height:1.2}.user-chip small{color:var(--primary);font-size:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 18px;border-radius:12px;font-weight:700;transition:.2s}
+.btn-primary{background:linear-gradient(135deg,#5b2ff0,#7c4dff);color:#fff;box-shadow:0 6px 16px rgba(108,61,245,.35)}
+.btn-primary:hover{transform:translateY(-1px)}
+.btn-ghost{border:1px solid var(--border);background:var(--card)}
+.btn-ghost:hover{background:var(--soft)}
+.btn-green{background:linear-gradient(135deg,#059669,#10b981);color:#fff;box-shadow:0 6px 16px rgba(16,185,129,.3)}
+.btn-orange{background:linear-gradient(135deg,#ea8a04,#f59e0b);color:#fff;box-shadow:0 6px 16px rgba(245,158,11,.3)}
+.btn-sm{padding:9px 14px;font-size:13px}
+.content{padding:26px 28px 60px;max-width:1500px}
+/* banner */
+.banner{background:var(--banner);border:1px solid var(--border);border-radius:24px;padding:30px 34px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.tag{color:var(--primary);font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.banner h2{font-size:34px;font-weight:800;margin:6px 0}
+.banner h2 span{color:var(--primary)}
+.banner p{color:var(--muted);margin-bottom:14px}
+.pills{display:flex;gap:10px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;background:var(--soft);border:1px solid var(--border);color:var(--primary);font-weight:600;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin:24px 0}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:22px;box-shadow:var(--shadow);border-top:3px solid var(--c)}
+.stat .ico{width:46px;height:46px;border-radius:13px;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 15%,transparent);color:var(--c);margin-bottom:16px}
+.stat b{font-size:30px;font-weight:800;display:block}.stat span{color:var(--muted)}
+/* filters */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:20px;box-shadow:var(--shadow)}
+.ops{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.op{padding:10px 20px;border-radius:12px;border:1px solid var(--border);font-weight:700;color:var(--muted)}
+.op.active{background:linear-gradient(135deg,#5b2ff0,#7c4dff);color:#fff;border-color:transparent}
+.grid-f{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px}
+.field select,.field input,.field textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);outline:none}
+.field select:focus,.field input:focus,.field textarea:focus{border-color:var(--primary)}
+.res-head{display:flex;align-items:center;justify-content:space-between;margin:28px 0 16px;gap:12px;flex-wrap:wrap}
+.res-head h3{font-size:22px}.res-head small{color:var(--muted);font-weight:500;font-size:14px;margin-left:8px}
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.seg{display:flex;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card)}
+.seg button{padding:10px 16px;font-weight:600;color:var(--muted)}
+.seg button.active{background:var(--soft);color:var(--primary)}
+.chip{display:inline-flex;gap:8px;align-items:center;padding:6px 12px;border-radius:999px;background:var(--soft);color:var(--primary);font-weight:600;font-size:13px}
+/* cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+.pcard{background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;transition:.25s}
+.pcard:hover{transform:translateY(-4px);box-shadow:0 14px 34px rgba(88,60,180,.18)}
+.pimg{height:140px;position:relative;display:grid;place-items:center;color:rgba(255,255,255,.9);font-size:46px;cursor:pointer;background-size:cover;background-position:center}
+.pimg .badges{position:absolute;top:12px;left:12px;display:flex;gap:6px;flex-wrap:wrap}
+.b{padding:5px 11px;border-radius:999px;font-size:11px;font-weight:700;color:#fff;display:inline-flex;gap:5px;align-items:center;font-family:inherit}
+.b-sale{background:#5b2ff0}.b-rent{background:#0ea5e9}.b-ver{background:#10b981}.b-prem{background:#f59e0b}
+.fav{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.92);color:#9a94b8;display:grid;place-items:center;font-size:16px}
+.fav.on{color:var(--red)}
+.pbody{padding:14px;display:flex;flex-direction:column;gap:8px;flex:1}
+.price{font-size:19px;font-weight:800;color:var(--primary)}.price small{font-size:13px;color:var(--muted);font-weight:600}
+.ptitle{font-weight:700;font-size:15px}
+.loc{color:var(--muted);font-size:13px;display:flex;gap:7px;align-items:center}
+.specs{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);padding:10px 0;border-top:1px dashed var(--border);border-bottom:1px dashed var(--border)}
+.specs i{color:var(--primary);margin-right:5px}
+.mini-seller{display:flex;align-items:center;gap:10px;font-size:13px}
+.mini-seller .avatar{width:34px;height:34px;font-size:12px}
+.mini-seller b{display:block}.mini-seller small{color:var(--muted)}
+.pactions{display:flex;gap:8px;margin-top:auto}
+.pactions .btn{flex:1}
+#mapView{display:none;height:560px;border-radius:20px;border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow)}
+[data-theme="dark"] .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.9) contrast(.9)}
+.empty{text-align:center;padding:60px 20px;color:var(--muted);grid-column:1/-1}
+.empty i{font-size:40px;color:var(--primary);margin-bottom:12px}
+/* sellers */
+.sellers{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:20px}
+.scard{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:20px;box-shadow:var(--shadow)}
+.scard .top{display:flex;gap:14px;align-items:center;margin-bottom:14px}
+.scard .avatar{width:54px;height:54px;font-size:18px;border-radius:16px}
+.scard h4{font-size:16px}.scard small{color:var(--muted)}
+.scard ul{list-style:none;font-size:13px;color:var(--muted);display:grid;gap:8px;margin-bottom:14px}
+.scard ul i{color:var(--primary);width:18px}
+.ver-tag{color:var(--green);font-size:12px;font-weight:700}
+/* modal */
+.mbg{position:fixed;inset:0;background:rgba(10,6,28,.6);backdrop-filter:blur(4px);display:none;align-items:flex-start;justify-content:center;padding:30px 16px;overflow-y:auto;z-index:100}
+.mbg.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:24px;width:100%;max-width:980px;position:relative;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+.modal.sm{max-width:480px}
+.mclose{position:absolute;top:14px;right:14px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.92);color:#333;z-index:5;font-size:16px}
+.mhero{height:240px;display:grid;place-items:center;color:rgba(255,255,255,.9);font-size:90px;position:relative}
+.mhero .badges{position:absolute;left:18px;bottom:16px;display:flex;gap:6px}
+.mcols{display:grid;grid-template-columns:1.4fr 1fr;gap:26px;padding:26px}
+.mcols h2{font-size:24px;margin-bottom:6px}
+.mcols h5{font-size:13px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:20px 0 8px}
+.mcols p{color:var(--muted);line-height:1.6}
+.mapbox{height:250px;border-radius:16px;overflow:hidden;border:1px solid var(--border);margin-top:8px}
+.note{display:inline-flex;gap:6px;align-items:center;font-size:12px;color:var(--orange);font-weight:600;margin-top:8px}
+.sbox{border:1px solid var(--border);border-radius:18px;padding:18px;background:var(--bg)}
+.sbox .top{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+.stack{display:grid;gap:10px}
+.mbody{padding:28px}
+.mbody h3{margin-bottom:6px}
+.sum{background:var(--soft);border-radius:14px;padding:14px;margin:14px 0;font-size:14px}
+.sum div{display:flex;justify-content:space-between;gap:10px;padding:3px 0}
+.chk{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--muted)}
+.pse-logo{display:inline-flex;align-items:center;gap:8px;font-weight:800;color:#0b57d0;background:#e8f0fe;padding:6px 12px;border-radius:8px;font-size:13px}
+.calc-out{text-align:center;padding:16px;border-radius:14px;background:var(--soft);margin-top:14px}
+.calc-out b{font-size:28px;color:var(--primary);display:block}
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(30px);background:#1b1535;color:#fff;padding:13px 22px;border-radius:12px;opacity:0;transition:.3s;z-index:200;pointer-events:none;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.shade{display:none}
+@media(max-width:1100px){.stats{grid-template-columns:repeat(2,1fr)}.mcols{grid-template-columns:1fr}}
+@media(max-width:960px){
+  .sidebar{position:fixed;left:0;top:0;transform:translateX(-100%)}
+  .sidebar.open{transform:none}
+  .shade.open{display:block;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:45}
+  .menu-btn{display:grid;place-items:center}
+  .user-chip div,.topbar h1{display:none}
+  .content{padding:18px 16px 50px}.topbar{padding:12px 16px}
+}
+@media(max-width:600px){.stats{grid-template-columns:1fr}.banner h2{font-size:26px}.search{display:none}.cards{grid-template-columns:1fr}}
+
+/* ===== HERO ===== */
+.hero{position:relative;border-radius:28px;overflow:hidden;color:#fff;padding:44px 44px 34px;
+  background:
+    linear-gradient(110deg,rgba(40,16,100,.88) 0%,rgba(76,40,190,.66) 55%,rgba(20,60,140,.5) 100%),
+    url(/img/hero.jpg) center/cover no-repeat,
+    linear-gradient(120deg,#4c1d95 0%,#6c3df5 55%,#2563eb 100%);
+  box-shadow:0 18px 50px rgba(60,30,160,.28)}
+.hero::before,.hero::after{content:"";position:absolute;border-radius:50%;filter:blur(60px);opacity:.45;pointer-events:none}
+.hero::before{width:340px;height:340px;background:#a78bfa;top:-120px;right:-60px}
+.hero::after{width:300px;height:300px;background:#38bdf8;bottom:-140px;left:30%}
+.hero-in{position:relative;z-index:1;max-width:900px}
+.hero .tag{color:#ddd2ff}
+.hero h2{font-size:44px;font-weight:800;line-height:1.1;margin:8px 0 6px;letter-spacing:-.01em}
+.hero h2 .hl{color:#c4b5fd}
+.hero p{color:rgba(255,255,255,.82);font-size:16px;margin-bottom:22px}
+.hero .ops{margin-bottom:12px;gap:8px}
+.hero .op{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);color:#fff;padding:9px 18px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.hero .op:hover{background:rgba(255,255,255,.24)}
+.hero .op.active{background:#fff;color:var(--primary);border-color:#fff}
+.hbar{display:flex;align-items:center;gap:10px;background:var(--card);color:var(--text);border-radius:20px;padding:8px 8px 8px 20px;box-shadow:0 22px 50px rgba(20,10,60,.4)}
+.hbar .hico{color:var(--muted);font-size:17px}
+.hbar input{flex:1;min-width:0;height:50px;border:none;outline:none;background:none;font-size:16px;color:var(--text)}
+.hmore{display:inline-flex;align-items:center;gap:8px;height:50px;padding:0 16px;border-radius:14px;border:1px solid var(--border);font-weight:700;color:var(--text);white-space:nowrap;transition:.2s}
+.hmore:hover,.hmore.on{background:var(--soft);color:var(--primary)}
+.hmore .chev{font-size:11px;transition:transform .25s}.hmore.on .chev{transform:rotate(180deg)}
+.hbar .btn{height:50px;padding:0 24px;border-radius:14px;white-space:nowrap}
+.hero .pills{margin-top:20px}
+.hero .pill{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.28);color:#fff}
+.panel#filters{max-height:700px;transition:max-height .35s ease,padding .35s ease,opacity .25s ease,border-width .35s}
+.panel#filters.collapsed{max-height:0;padding-top:0;padding-bottom:0;border-width:0;opacity:0;overflow:hidden;box-shadow:none}
+.topbar .search{transition:opacity .25s}
+body.hero-on:not(.hero-out) .topbar .search{opacity:0;pointer-events:none}
+@media(max-width:700px){
+  .hero{padding:28px 20px 24px;border-radius:22px}
+  .hero h2{font-size:30px}
+  .hbar{flex-wrap:wrap;padding:10px}
+  .hbar .hico{display:none}
+  .hbar input{flex:1 1 100%;padding:0 6px}
+  .hbar .hmore,.hbar .btn{flex:1}
+}
+@media (prefers-reduced-motion:reduce){.panel#filters,.hmore .chev{transition:none}}
+
+/* ventana de vendedores */
+#mSellers .mbody{padding:28px}
+#mSellers h3{font-size:24px;margin-bottom:20px;padding-right:50px}
+#mSellers .sellers{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="shade" id="shade"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logo"><i class="fa-solid fa-house-chimney-window"></i></div>
+      <div><b>UMBRAL</b><small data-i18n="tagline"></small></div>
+    </div>
+    <div class="nav-label" data-i18n="nav_main"></div>
+    <nav class="nav">
+      <a class="active" data-nav="all"><i class="fa-solid fa-compass"></i><span data-i18n="nav_explore"></span></a>
+      <a data-nav="map"><i class="fa-solid fa-map-location-dot"></i><span data-i18n="nav_map"></span></a>
+      <a data-nav="favs"><i class="fa-solid fa-heart"></i><span data-i18n="nav_favs"></span></a>
+    </nav>
+    <div class="nav-label" data-i18n="nav_tools"></div>
+    <nav class="nav">
+      <a data-nav="calc"><i class="fa-solid fa-calculator"></i><span data-i18n="nav_calc"></span></a>
+      <a data-nav="sellers"><i class="fa-solid fa-address-card"></i><span data-i18n="nav_sellers"></span></a>
+    </nav>
+    <div class="guest-card">
+      <h4><i class="fa-solid fa-user-clock"></i> <span data-i18n="guest_mode"></span></h4>
+      <p data-i18n="guest_note"></p>
+      <a class="btn btn-primary btn-sm" style="width:100%" href="/index.html?auth=register"><i class="fa-solid fa-store"></i><span data-i18n="register_sell"></span></a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn"><i class="fa-solid fa-bars"></i></button>
+      <h1 data-i18n="page_title"></h1>
+      <div class="search"><i class="fa-solid fa-magnifying-glass" style="color:var(--muted)"></i><input id="q" data-i18n-ph="search_ph"></div>
+      <select class="lang" id="lang" aria-label="Idioma">
+        <option value="es">Español</option><option value="en">English</option>
+        <option value="pt">Português</option><option value="fr">Français</option>
+      </select>
+      <button class="icon-btn" id="themeBtn" title="Tema"><i class="fa-solid fa-moon"></i></button>
+      <div class="user-chip"><div class="avatar">IN</div><div><b data-i18n="guest"></b><small data-i18n="guest_role"></small></div></div>
+      <a class="btn btn-ghost btn-sm" href="/index.html?auth=login" style="white-space:nowrap"><i class="fa-solid fa-right-to-bracket"></i><span data-i18n="login"></span></a>
+<a class="btn btn-ghost btn-sm" id="exitBtn" href="/index.html" style="white-space:nowrap;color:var(--red)"><i class="fa-solid fa-arrow-right-from-bracket"></i><span data-i18n="exit"></span></a>
+    </header>
+
+    <main class="content">
+      <section class="hero" id="hero">
+        <div class="hero-in">
+          <div class="tag"><i class="fa-solid fa-wand-magic-sparkles"></i> <span data-i18n="banner_tag"></span></div>
+          <h2><span id="greet"></span>, <span class="hl" data-i18n="guest_word"></span></h2>
+          <p id="bannerText"></p>
+          <div class="hsearch">
+            <div class="ops" id="ops">
+              <button class="op active" data-op="all" data-i18n="op_all"></button>
+              <button class="op" data-op="venta"><i class="fa-solid fa-tag"></i> <span data-i18n="buy"></span></button>
+              <button class="op" data-op="arriendo"><i class="fa-solid fa-key"></i> <span data-i18n="rent"></span></button>
+            </div>
+            <div class="hbar">
+              <i class="fa-solid fa-magnifying-glass hico"></i>
+              <input id="qHero" data-i18n-ph="search_ph" autocomplete="off">
+              <button type="button" class="hmore" id="moreBtn" aria-expanded="false"><i class="fa-solid fa-sliders"></i><span data-i18n="f_btn"></span><i class="fa-solid fa-chevron-down chev"></i></button>
+              <button class="btn btn-primary" id="goExplore"><i class="fa-solid fa-magnifying-glass"></i><span data-i18n="btn_explore"></span></button>
+            </div>
+          </div>
+          <div class="pills">
+            <span class="pill"><i class="fa-regular fa-clock"></i><span id="clock"></span></span>
+            <span class="pill"><i class="fa-solid fa-location-dot"></i>Colombia</span>
+            <span class="pill"><i class="fa-solid fa-language"></i><span id="langPill"></span></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="stats">
+        <div class="stat" style="--c:#6c3df5"><div class="ico"><i class="fa-solid fa-house"></i></div><b id="s1">0</b><span data-i18n="stat_props"></span></div>
+        <div class="stat" style="--c:#10b981"><div class="ico"><i class="fa-solid fa-city"></i></div><b id="s2">0</b><span data-i18n="stat_cities"></span></div>
+        <div class="stat" style="--c:#f59e0b"><div class="ico"><i class="fa-solid fa-people-roof"></i></div><b id="s3">0</b><span data-i18n="stat_sellers"></span></div>
+        <div class="stat" style="--c:#3b82f6"><div class="ico"><i class="fa-solid fa-circle-check"></i></div><b id="s4">0</b><span data-i18n="stat_verified"></span></div>
+      </section>
+
+      <section class="panel" id="filters">
+        <div class="grid-f">
+          <div class="field"><label data-i18n="f_type"></label><select id="fType"></select></div>
+          <div class="field"><label data-i18n="f_dept"></label><select id="fDept"></select></div>
+          <div class="field"><label data-i18n="f_city"></label><select id="fCity"></select></div>
+          <div class="field"><label data-i18n="f_barrio"></label><select id="fBarrio"></select></div>
+          <div class="field"><label data-i18n="f_max"></label><input id="fMax" type="number" min="0" placeholder="COP"></div>
+          <div class="field"><label data-i18n="f_beds"></label><select id="fBeds"></select></div>
+          <div class="field"><label data-i18n="f_sort"></label><select id="fSort"></select></div>
+        </div>
+      </section>
+
+      <div class="res-head">
+        <h3><span data-i18n="results"></span><small id="count"></small></h3>
+        <div class="toolbar">
+          <span class="chip" id="sellerChip" style="display:none"></span>
+          <button class="btn btn-ghost btn-sm" id="clearBtn"><i class="fa-solid fa-rotate-left"></i><span data-i18n="clear"></span></button>
+          <div class="seg"><button class="active" data-view="cards"><i class="fa-solid fa-table-cells-large"></i> <span data-i18n="v_cards"></span></button><button data-view="map"><i class="fa-solid fa-map"></i> <span data-i18n="v_map"></span></button></div>
+        </div>
+      </div>
+      <div class="cards" id="cards"></div>
+      <div id="mapView"></div>
+    </main>
+  </div>
+</div>
+
+<!-- detalle -->
+<div class="mbg" id="mDetail"><div class="modal"><button class="mclose" data-close><i class="fa-solid fa-xmark"></i></button><div id="detailBody"></div></div></div>
+<!-- PSE -->
+<div class="mbg" id="mPse"><div class="modal sm"><button class="mclose" data-close><i class="fa-solid fa-xmark"></i></button><div class="mbody" id="pseBody"></div></div></div>
+<!-- calculadora -->
+<div class="mbg" id="mCalc"><div class="modal sm"><button class="mclose" data-close><i class="fa-solid fa-xmark"></i></button>
+  <div class="mbody">
+    <h3 data-i18n="calc_title"></h3><p style="color:var(--muted);font-size:13px;margin-bottom:14px" data-i18n="calc_note"></p>
+    <div class="stack">
+      <div class="field"><label data-i18n="calc_price"></label><input id="cPrice" type="number" value="500000000"></div>
+      <div class="field"><label data-i18n="calc_down"></label><input id="cDown" type="number" value="30"></div>
+      <div class="field"><label data-i18n="calc_rate"></label><input id="cRate" type="number" value="12" step="0.1"></div>
+      <div class="field"><label data-i18n="calc_years"></label><input id="cYears" type="number" value="15"></div>
+    </div>
+    <div class="calc-out"><span style="color:var(--muted)" data-i18n="calc_result"></span><b id="cOut">—</b></div>
+  </div></div></div>
+<!-- vendedores -->
+<div class="mbg" id="mSellers"><div class="modal"><button class="mclose" data-close><i class="fa-solid fa-xmark"></i></button>
+  <div class="mbody">
+    <h3 id="sellersAnchor" data-i18n="sellers_title"></h3>
+    <div class="sellers" id="sellers"></div>
+  </div></div></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+/* ============ CONFIG ============ */
+// Ruta de checkout PSE (la define el backend Laravel / proveedor de pagos: Wompi, ePayco, PayU...).
+// Si está vacía, se muestra el flujo en modo demostración.
+const PSE_URL = '';
+
+/* ============ I18N (RF-024 a RF-027) ============ */
+const LANGS = ['es','en','pt','fr'];
+const LOCALES = {es:'es-CO',en:'en-US',pt:'pt-BR',fr:'fr-FR'};
+const LANG_NAMES = {es:'Español',en:'English',pt:'Português',fr:'Français'};
+const T = {
+  tagline:['Portal inmobiliario','Real estate portal','Portal imobiliário','Portail immobilier'],
+  nav_main:['Principal','Main','Principal','Principal'],
+  nav_tools:['Herramientas','Tools','Ferramentas','Outils'],
+  nav_explore:['Explorar','Explore','Explorar','Explorer'],
+  nav_buy:['Comprar','Buy','Comprar','Acheter'],
+  nav_rent:['Arrendar','Rent','Alugar','Louer'],
+  nav_map:['Mapa','Map','Mapa','Carte'],
+  nav_favs:['Mis favoritos','My favorites','Meus favoritos','Mes favoris'],
+  nav_calc:['Calculadora hipotecaria','Mortgage calculator','Calculadora de financiamento','Calculateur de prêt'],
+  nav_sellers:['Vendedores','Sellers','Vendedores','Vendeurs'],
+  guest_mode:['Modo invitado','Guest mode','Modo convidado','Mode invité'],
+  guest_note:['Explora sin registrarte. ¿Quieres vender o publicar? Crea tu cuenta de vendedor.','Browse without signing up. Want to sell or list? Create a seller account.','Explore sem se cadastrar. Quer vender ou anunciar? Crie sua conta de vendedor.','Explorez sans vous inscrire. Vous voulez vendre ? Créez un compte vendeur.'],
+  register_sell:['Registrarme para vender','Sign up to sell','Cadastrar para vender','S\'inscrire pour vendre'],
+  page_title:['Explorar propiedades','Explore properties','Explorar imóveis','Explorer les biens'],
+  search_ph:['Buscar por ciudad, barrio o tipo…','Search by city, area or type…','Buscar por cidade, bairro ou tipo…','Rechercher ville, quartier ou type…'],
+  guest:['Invitado','Guest','Convidado','Invité'],
+  guest_role:['Sin cuenta','No account','Sem conta','Sans compte'],
+  guest_word:['Invitado','Guest','Convidado','Invité'],
+  login:['Iniciar sesión','Log in','Entrar','Connexion'],
+  f_btn:['Filtros','Filters','Filtros','Filtres'],
+  exit:['Salir','Exit','Sair','Quitter'],
+  banner_tag:['Portal inmobiliario de Colombia','Colombian real estate portal','Portal imobiliário da Colômbia','Portail immobilier de Colombie'],
+  g_morning:['Buenos días','Good morning','Bom dia','Bonjour'],
+  g_afternoon:['Buenas tardes','Good afternoon','Boa tarde','Bon après-midi'],
+  g_evening:['Buenas noches','Good evening','Boa noite','Bonsoir'],
+  banner_text:['Encuentra tu próximo hogar: compra, arrienda o explora hoy,','Find your next home: buy, rent or explore today,','Encontre seu próximo lar: compre, alugue ou explore hoje,','Trouvez votre prochain foyer : achetez, louez ou explorez aujourd\'hui,'],
+  btn_explore:['Ver propiedades','View properties','Ver imóveis','Voir les biens'],
+  stat_props:['Propiedades disponibles','Available properties','Imóveis disponíveis','Biens disponibles'],
+  stat_cities:['Ciudades y municipios','Cities & towns','Cidades e municípios','Villes et communes'],
+  stat_sellers:['Vendedores e inmobiliarias','Sellers & agencies','Vendedores e imobiliárias','Vendeurs et agences'],
+  stat_verified:['Propiedades verificadas','Verified properties','Imóveis verificados','Biens vérifiés'],
+  op_all:['Todas','All','Todas','Toutes'],
+  buy:['Comprar','Buy','Comprar','Acheter'],rent:['Arrendar','Rent','Alugar','Louer'],
+  f_type:['Tipo','Type','Tipo','Type'],f_dept:['Departamento','Department','Departamento','Département'],
+  f_city:['Ciudad / municipio','City / town','Cidade / município','Ville / commune'],f_barrio:['Barrio','Neighborhood','Bairro','Quartier'],
+  f_max:['Precio máximo','Max price','Preço máximo','Prix maximum'],f_beds:['Habitaciones','Bedrooms','Quartos','Chambres'],f_sort:['Ordenar por','Sort by','Ordenar por','Trier par'],
+  any:['Todos','Any','Todos','Tous'],anyf:['Todas','Any','Todas','Toutes'],
+  s_rel:['Relevancia','Relevance','Relevância','Pertinence'],s_low:['Precio: menor a mayor','Price: low to high','Preço: menor para maior','Prix : croissant'],s_high:['Precio: mayor a menor','Price: high to low','Preço: maior para menor','Prix : décroissant'],
+  results:['Propiedades','Properties','Imóveis','Biens'],
+  n_found:['encontradas','found','encontrados','trouvés'],
+  clear:['Limpiar','Clear','Limpar','Réinitialiser'],
+  v_cards:['Tarjetas','Cards','Cartões','Cartes'],v_map:['Mapa','Map','Mapa','Carte'],
+  no_results:['No encontramos propiedades con esos filtros.','No properties match those filters.','Nenhum imóvel encontrado com esses filtros.','Aucun bien ne correspond à ces filtres.'],
+  verified:['Verificada','Verified','Verificado','Vérifié'],premium:['Destacada','Featured','Destaque','En vedette'],
+  sale:['Venta','Sale','Venda','Vente'],rental:['Arriendo','Rent','Aluguel','Location'],
+  per_month:['/mes','/month','/mês','/mois'],
+  m2:['m²','m²','m²','m²'],
+  details:['Ver detalles','Details','Detalhes','Détails'],
+  t_casa:['Casa','House','Casa','Maison'],t_apartamento:['Apartamento','Apartment','Apartamento','Appartement'],
+  t_finca:['Finca','Country estate','Chácara','Domaine'],t_local:['Local comercial','Commercial space','Ponto comercial','Local commercial'],t_lote:['Lote','Land lot','Terreno','Terrain'],
+  in_:['en','in','em','à'],
+  estrato:['Estrato','Socioeconomic stratum','Estrato','Strate'],
+  location:['Ubicación','Location','Localização','Localisation'],
+  description:['Descripción','Description','Descrição','Description'],
+  auto_tr:['Traducción automática · el texto original en español es el válido','Automatic translation · the original Spanish text prevails','Tradução automática · o texto original em espanhol prevalece','Traduction automatique · le texte original espagnol fait foi'],
+  seller_info:['Vendedor / Inmobiliaria','Seller / Agency','Vendedor / Imobiliária','Vendeur / Agence'],
+  agency:['Inmobiliaria','Real estate agency','Imobiliária','Agence immobilière'],person:['Vendedor particular','Individual seller','Vendedor particular','Vendeur particulier'],
+  verified_seller:['Documento verificado','Verified ID','Documento verificado','Identité vérifiée'],
+  props_n:['propiedades','listings','imóveis','annonces'],
+  see_props:['Ver propiedades','View listings','Ver imóveis','Voir les annonces'],
+  call:['Llamar','Call','Ligar','Appeler'],
+  contact_form:['Contactar al vendedor','Contact the seller','Contatar o vendedor','Contacter le vendeur'],
+  name:['Nombre','Name','Nome','Nom'],phone_mail:['Teléfono o correo','Phone or email','Telefone ou e-mail','Téléphone ou e-mail'],message:['Mensaje','Message','Mensagem','Message'],
+  send:['Enviar mensaje','Send message','Enviar mensagem','Envoyer'],
+  sent_ok:['¡Mensaje enviado! El vendedor te contactará pronto.','Message sent! The seller will contact you soon.','Mensagem enviada! O vendedor entrará em contato.','Message envoyé ! Le vendeur vous contactera bientôt.'],
+  req:['Completa los campos obligatorios.','Please fill in the required fields.','Preencha os campos obrigatórios.','Veuillez remplir les champs obligatoires.'],
+  sellers_title:['Vendedores e inmobiliarias','Sellers & agencies','Vendedores e imobiliárias','Vendeurs et agences'],
+  pse_title_buy:['Comprar con PSE','Buy with PSE','Comprar com PSE','Acheter avec PSE'],pse_title_rent:['Arrendar con PSE','Rent with PSE','Alugar com PSE','Louer avec PSE'],
+  pse_text:['Serás redirigido al portal seguro de PSE. UMBRAL no almacena datos bancarios.','You will be redirected to the secure PSE portal. UMBRAL does not store bank data.','Você será redirecionado ao portal seguro PSE. A UMBRAL não armazena dados bancários.','Vous serez redirigé vers le portail sécurisé PSE. UMBRAL ne stocke aucune donnée bancaire.'],
+  property:['Propiedad','Property','Imóvel','Bien'],amount:['Valor','Amount','Valor','Montant'],
+  b_name:['Nombre completo','Full name','Nome completo','Nom complet'],b_mail:['Correo electrónico','Email','E-mail','E-mail'],b_doc:['Documento (CC / CE / NIT)','ID (CC / CE / NIT)','Documento (CC / CE / NIT)','Pièce d\'identité (CC / CE / NIT)'],
+  consent:['Acepto los términos y la política de tratamiento de datos (Ley 1581 de 2012).','I accept the terms and the personal data policy (Law 1581 of 2012).','Aceito os termos e a política de dados pessoais (Lei 1581 de 2012).','J\'accepte les conditions et la politique de données personnelles (Loi 1581 de 2012).'],
+  go_pse:['Continuar a PSE','Continue to PSE','Continuar para o PSE','Continuer vers PSE'],
+  redirecting:['Redirigiendo al portal PSE…','Redirecting to the PSE portal…','Redirecionando ao portal PSE…','Redirection vers le portail PSE…'],
+  demo_pse:['Modo demostración: configura PSE_URL con el checkout del proveedor.','Demo mode: set PSE_URL to the provider checkout.','Modo demonstração: configure PSE_URL com o checkout do provedor.','Mode démo : configurez PSE_URL avec le checkout du prestataire.'],
+  fav_add:['Añadida a favoritos','Added to favorites','Adicionado aos favoritos','Ajouté aux favoris'],fav_del:['Quitada de favoritos','Removed from favorites','Removido dos favoritos','Retiré des favoris'],
+  calc_title:['Calculadora hipotecaria','Mortgage calculator','Calculadora de financiamento','Calculateur de prêt'],
+  calc_note:['Estimación informativa en COP.','Informative estimate in COP.','Estimativa informativa em COP.','Estimation indicative en COP.'],
+  calc_price:['Valor del inmueble (COP)','Property price (COP)','Valor do imóvel (COP)','Prix du bien (COP)'],calc_down:['Cuota inicial (%)','Down payment (%)','Entrada (%)','Apport (%)'],
+  calc_rate:['Tasa anual (%)','Annual rate (%)','Taxa anual (%)','Taux annuel (%)'],calc_years:['Plazo (años)','Term (years)','Prazo (anos)','Durée (ans)'],
+  calc_result:['Cuota mensual estimada','Estimated monthly payment','Parcela mensal estimada','Mensualité estimée'],
+  seller_filter:['Vendedor','Seller','Vendedor','Vendeur'],
+  lang_pill:['Idioma','Language','Idioma','Langue']
+};
+const DESC = {
+  casa:['Amplia casa con acabados de calidad, zonas sociales luminosas, patio y excelente ubicación en un sector tranquilo y seguro.','Spacious house with quality finishes, bright living areas, a yard and an excellent location in a quiet, safe area.','Casa ampla com acabamentos de qualidade, áreas sociais iluminadas, quintal e ótima localização em região tranquila e segura.','Maison spacieuse aux finitions soignées, pièces lumineuses, jardin et excellent emplacement dans un quartier calme et sûr.'],
+  apartamento:['Apartamento moderno con buena iluminación natural, cocina integral, zonas comunes y cercanía a comercio y transporte.','Modern apartment with great natural light, full kitchen, shared amenities and close to shops and transport.','Apartamento moderno com boa iluminação natural, cozinha completa, áreas comuns e perto de comércio e transporte.','Appartement moderne, très lumineux, cuisine équipée, parties communes et proche des commerces et transports.'],
+  finca:['Hermosa finca con amplias zonas verdes, casa principal, vista abierta y ambiente de descanso a pocos minutos de la ciudad.','Beautiful country estate with large green areas, main house, open views and a relaxing setting minutes from the city.','Linda chácara com amplas áreas verdes, casa principal, vista aberta e ambiente de descanso a poucos minutos da cidade.','Beau domaine avec de grands espaces verts, maison principale, vue dégagée et cadre reposant à quelques minutes de la ville.'],
+  local:['Local comercial en zona de alto flujo peatonal, vitrina amplia, baño privado y fácil acceso.','Commercial space in a high-foot-traffic area, wide storefront, private restroom and easy access.','Ponto comercial em área de grande fluxo de pedestres, vitrine ampla, banheiro privativo e fácil acesso.','Local commercial dans une zone très fréquentée, grande vitrine, sanitaires privés et accès facile.'],
+  lote:['Lote plano con excelente proyección de valorización, servicios disponibles y vías de acceso pavimentadas.','Flat lot with strong appreciation potential, utilities available and paved access roads.','Terreno plano com excelente potencial de valorização, serviços disponíveis e vias de acesso pavimentadas.','Terrain plat à fort potentiel de valorisation, services disponibles et routes d\'accès goudronnées.']
+};
+const TYPE_ICON = {casa:'fa-house',apartamento:'fa-building',finca:'fa-tree',local:'fa-store',lote:'fa-mountain-sun'};
+
+/* ============ DATOS DEMO (en producción: GET /api/v1/propiedades) ============ */
+let SELLERS = [
+  {name:'Inmobiliaria Horizonte S.A.S.',kind:'agency',phone:'+57 604 555 0101',email:'contacto@horizonte.example',ini:'IH',ver:true},
+  {name:'Capital Urbano Inmobiliaria',kind:'agency',phone:'+57 601 555 0142',email:'ventas@capitalurbano.example',ini:'CU',ver:true},
+  {name:'Mariana Restrepo',kind:'person',phone:'+57 300 555 0178',email:'mariana.r@example.com',ini:'MR',ver:true},
+  {name:'Andrés Pacheco',kind:'person',phone:'+57 315 555 0199',email:'andres.p@example.com',ini:'AP',ver:true},
+  {name:'Casa Viva Colombia',kind:'agency',phone:'+57 602 555 0166',email:'info@casaviva.example',ini:'CV',ver:true}
+];
+let P = [
+  {id:1,type:'casa',op:'venta',price:1850000000,dept:'Antioquia',city:'Medellín',barrio:'El Poblado',addr:'Cra 35 # 8A-45',lat:6.2086,lng:-75.5659,beds:4,baths:4,park:3,area:320,estrato:6,ver:true,prem:true,seller:0,img:''},
+  {id:2,type:'apartamento',op:'arriendo',price:4800000,dept:'Cundinamarca',city:'Bogotá D.C.',barrio:'Chapinero',addr:'Cl 63 # 9-30',lat:4.6533,lng:-74.0626,beds:2,baths:2,park:1,area:85,estrato:5,ver:true,prem:true,seller:1,img:''},
+  {id:3,type:'apartamento',op:'venta',price:980000000,dept:'Bolívar',city:'Cartagena',barrio:'Bocagrande',addr:'Av. San Martín # 7-120',lat:10.4010,lng:-75.5560,beds:3,baths:3,park:1,area:140,estrato:6,ver:true,prem:true,seller:2,img:''},
+  {id:4,type:'finca',op:'venta',price:2400000000,dept:'Antioquia',city:'Rionegro',barrio:'Llanogrande',addr:'Km 4 vía Las Palmas',lat:6.1300,lng:-75.4200,beds:5,baths:5,park:6,area:1800,estrato:6,ver:false,prem:false,seller:0,img:''},
+  {id:5,type:'apartamento',op:'arriendo',price:3200000,dept:'Atlántico',city:'Barranquilla',barrio:'El Prado',addr:'Cra 54 # 68-80',lat:10.9948,lng:-74.7957,beds:3,baths:2,park:1,area:110,estrato:5,ver:true,prem:false,seller:3,img:''},
+  {id:6,type:'casa',op:'arriendo',price:6500000,dept:'Valle del Cauca',city:'Cali',barrio:'Ciudad Jardín',addr:'Cl 14 # 98-40',lat:3.3500,lng:-76.5350,beds:4,baths:3,park:2,area:240,estrato:5,ver:false,prem:false,seller:4,img:''},
+  {id:7,type:'local',op:'arriendo',price:9000000,dept:'Cundinamarca',city:'Bogotá D.C.',barrio:'Usaquén',addr:'Cra 6 # 119-25',lat:4.7110,lng:-74.0300,beds:0,baths:2,park:2,area:150,estrato:5,ver:true,prem:false,seller:1,img:''},
+  {id:8,type:'apartamento',op:'venta',price:520000000,dept:'Santander',city:'Bucaramanga',barrio:'Cabecera',addr:'Cra 33 # 52-10',lat:7.1190,lng:-73.1100,beds:3,baths:2,park:2,area:98,estrato:5,ver:false,prem:false,seller:3,img:''},
+  {id:9,type:'lote',op:'venta',price:780000000,dept:'Magdalena',city:'Santa Marta',barrio:'El Rodadero',addr:'Vía al Rodadero Km 2',lat:11.2000,lng:-74.2300,beds:0,baths:0,park:0,area:600,estrato:null,ver:false,prem:false,seller:2,img:''},
+  {id:10,type:'apartamento',op:'venta',price:640000000,dept:'Antioquia',city:'Medellín',barrio:'Laureles',addr:'Cir. 4 # 70-15',lat:6.2442,lng:-75.5900,beds:3,baths:2,park:1,area:105,estrato:5,ver:true,prem:false,seller:4,img:''},
+  {id:11,type:'casa',op:'venta',price:1450000000,dept:'Atlántico',city:'Barranquilla',barrio:'Alto Prado',addr:'Cl 79 # 56-20',lat:11.0000,lng:-74.8100,beds:4,baths:4,park:2,area:380,estrato:6,ver:true,prem:true,seller:3,img:''},
+  {id:12,type:'apartamento',op:'arriendo',price:2800000,dept:'Antioquia',city:'Envigado',barrio:'Zúñiga',addr:'Cra 47 # 38 Sur-15',lat:6.1700,lng:-75.5850,beds:2,baths:2,park:1,area:72,estrato:4,ver:true,prem:false,seller:0,img:''}
+];
+
+/* ============ API (Laravel) ============ */
+const API = 'http://localhost:8001/api/v1/public';
+// Si la API no responde, se mantienen los datos de ejemplo de arriba.
+let UBIC = null; // [{nombre, municipios:[...]}] con todos los departamentos y municipios de Colombia
+async function loadData(){
+  try{
+    const u = await fetch(`${API}/ubicaciones`, {headers:{'Accept':'application/json'}});
+    if(u.ok){ const uj = await u.json(); if(uj.data && uj.data.length) UBIC = uj.data; }
+  }catch(_){}
+  const res = await fetch(`${API}/propiedades?per_page=100`, {headers:{'Accept':'application/json'}});
+  if(!res.ok) throw new Error('API '+res.status);
+  const json = await res.json();
+  if(!json.data || !json.data.length) return;
+  const map = new Map();
+  P = json.data.map(p => {
+    if(!map.has(p.seller.id)) map.set(p.seller.id, {...p.seller, idx: map.size});
+    return {...p, seller: map.get(p.seller.id).idx};
+  });
+  SELLERS = [...map.values()];
+}
+
+/* ============ ESTADO ============ */
+let lang = localStorage.getItem('umbral_lang');
+if(!LANGS.includes(lang)){ // GeoIP real: lo resuelve el backend (mapeo país–idioma); aquí se usa el navegador
+  const nav=(navigator.language||'es').slice(0,2); lang = LANGS.includes(nav)?nav:'en';
+}
+const S = {op:'all',type:'',dept:'',city:'',barrio:'',max:'',beds:'',q:'',sort:'rel',view:'cards',favOnly:false,seller:null};
+let favs = []; try{favs=JSON.parse(localStorage.getItem('umbral_favs')||'[]')}catch(e){}
+let map=null, mapLayer=null, dmap=null;
+
+const t = k => (T[k]||[k])[LANGS.indexOf(lang)] || k;
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const cop = n => new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(n);
+const title = p => `${t('t_'+p.type)} ${p.op==='venta'?'':''}${t('in_')} ${p.barrio}`;
+const hue = id => (id*47)%360;
+const art = p => `linear-gradient(135deg,hsl(${260+hue(p.id)%50},65%,52%),hsl(${200+hue(p.id)%60},70%,48%))`;
+const toast = m => {const e=$('#toast');e.textContent=m;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),3200)};
+const imgStyle = p => p.img?`background-image:url('${p.img}')`:`background:${art(p)}`;
+const icon = p => p.img?'':`<i class="fa-solid ${TYPE_ICON[p.type]}"></i>`;
+
+/* ============ i18n aplicar ============ */
+function applyI18n(){
+  document.documentElement.lang = lang;
+  $$('[data-i18n]').forEach(e=>e.textContent=t(e.dataset.i18n));
+  $$('[data-i18n-ph]').forEach(e=>e.placeholder=t(e.dataset.i18nPh));
+  $('#lang').value = lang;
+  $('#langPill').textContent = LANG_NAMES[lang];
+  buildFilters(); updateBanner(); renderSellers(); render();
+}
+function updateBanner(){
+  const now=new Date(), h=+new Intl.DateTimeFormat('en-US',{hour:'numeric',hour12:false,timeZone:'America/Bogota'}).format(now)%24;
+  $('#greet').textContent = t(h<12?'g_morning':h<19?'g_afternoon':'g_evening');
+  const d = new Intl.DateTimeFormat(LOCALES[lang],{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'America/Bogota'}).format(now);
+  $('#bannerText').textContent = `${t('banner_text')} ${d}.`;
+  $('#clock').textContent = new Intl.DateTimeFormat(LOCALES[lang],{hour:'2-digit',minute:'2-digit',timeZone:'America/Bogota'}).format(now);
+}
+setInterval(updateBanner,30000);
+
+/* ============ filtros ============ */
+const uniq = a => [...new Set(a)].sort((x,y)=>x.localeCompare(y,'es'));
+function fill(sel,opts,val,allLabel){
+  sel.innerHTML = `<option value="">${allLabel}</option>`+opts.map(o=>`<option value="${o[0]}">${o[1]}</option>`).join('');
+  sel.value = opts.some(o=>String(o[0])===String(val))?val:'';
+}
+function buildFilters(){
+  fill($('#fType'),Object.keys(TYPE_ICON).map(k=>[k,t('t_'+k)]),S.type,t('any'));
+  const depts = UBIC ? UBIC.map(d=>d.nombre) : uniq(P.map(p=>p.dept));
+  fill($('#fDept'),depts.map(d=>[d,d]),S.dept,t('any'));
+  const byD = P.filter(p=>!S.dept||p.dept===S.dept);
+  const cities = UBIC
+    ? uniq(UBIC.filter(d=>!S.dept||d.nombre===S.dept).flatMap(d=>d.municipios))
+    : uniq(byD.map(p=>p.city));
+  fill($('#fCity'),cities.map(d=>[d,d]),S.city,t('anyf'));
+  if(!cities.includes(S.city)) S.city='';
+  const byC = byD.filter(p=>!S.city||p.city===S.city);
+  fill($('#fBarrio'),uniq(byC.map(p=>p.barrio)).map(d=>[d,d]),S.barrio,t('any'));
+  if(!byC.some(p=>p.barrio===S.barrio)) S.barrio='';
+  fill($('#fBeds'),[1,2,3,4].map(n=>[n,n+'+']),S.beds,t('any'));
+  $('#fSort').innerHTML = [['rel','s_rel'],['low','s_low'],['high','s_high']].map(o=>`<option value="${o[0]}">${t(o[1])}</option>`).join('');
+  $('#fSort').value=S.sort;
+}
+function filtered(){
+  let r = P.filter(p=>
+    (S.op==='all'||p.op===S.op)&&(!S.type||p.type===S.type)&&(!S.dept||p.dept===S.dept)&&
+    (!S.city||p.city===S.city)&&(!S.barrio||p.barrio===S.barrio)&&(!S.max||p.price<=+S.max)&&
+    (!S.beds||p.beds>=+S.beds)&&(!S.favOnly||favs.includes(p.id))&&(S.seller===null||p.seller===S.seller)&&
+    (!S.q||(`${t('t_'+p.type)} ${p.type} ${p.city} ${p.barrio} ${p.dept}`).toLowerCase().includes(S.q.toLowerCase())));
+  if(S.sort==='low') r.sort((a,b)=>a.price-b.price);
+  else if(S.sort==='high') r.sort((a,b)=>b.price-a.price);
+  else r.sort((a,b)=>(b.prem-a.prem)||(b.ver-a.ver)); // RF-053: mejor posicionamiento con membresía
+  return r;
+}
+
+/* ============ render ============ */
+function card(p){
+  const s=SELLERS[p.seller], rent=p.op==='arriendo', fav=favs.includes(p.id);
+  return `<article class="pcard">
+    <div class="pimg" style="${imgStyle(p)}" data-open="${p.id}">${icon(p)}
+      <div class="badges"><span class="b ${rent?'b-rent':'b-sale'}">${t(rent?'rental':'sale')}</span>
+      ${p.ver?`<span class="b b-ver"><i class="fa-solid fa-circle-check"></i>${t('verified')}</span>`:''}
+      ${p.prem?`<span class="b b-prem"><i class="fa-solid fa-star"></i>${t('premium')}</span>`:''}</div>
+      <button class="fav ${fav?'on':''}" data-fav="${p.id}"><i class="${fav?'fa-solid':'fa-regular'} fa-heart"></i></button>
+    </div>
+    <div class="pbody">
+      <div class="price">${cop(p.price)}${rent?`<small> ${t('per_month')}</small>`:''}</div>
+      <div class="ptitle">${title(p)}</div>
+      <div class="loc"><i class="fa-solid fa-location-dot"></i>${p.barrio} · ${p.city}, ${p.dept}</div>
+      <div class="specs">
+        ${p.beds?`<span><i class="fa-solid fa-bed"></i>${p.beds}</span>`:''}
+        ${p.baths?`<span><i class="fa-solid fa-bath"></i>${p.baths}</span>`:''}
+        ${p.park?`<span><i class="fa-solid fa-car"></i>${p.park}</span>`:''}
+        <span><i class="fa-solid fa-ruler-combined"></i>${p.area.toLocaleString('es-CO')} ${t('m2')}</span>
+      </div>
+      <div class="mini-seller"><div class="avatar">${s.ini}</div><div><b>${s.name}</b><small>${t(s.kind==='agency'?'agency':'person')}</small></div></div>
+      <div class="pactions">
+        <button class="btn btn-ghost btn-sm" data-open="${p.id}"><i class="fa-solid fa-eye"></i>${t('details')}</button>
+        <button class="btn ${rent?'btn-orange':'btn-green'} btn-sm" data-pay="${p.id}"><i class="fa-solid ${rent?'fa-key':'fa-cart-shopping'}"></i>${t(rent?'rent':'buy')}</button>
+      </div>
+    </div></article>`;
+}
+function render(){
+  const r = filtered();
+  $('#count').textContent = `${r.length} ${t('n_found')}`;
+  $('#cards').innerHTML = r.length? r.map(card).join('') : `<div class="empty"><i class="fa-regular fa-face-frown"></i><p>${t('no_results')}</p></div>`;
+  $('#s1').textContent=P.length; $('#s2').textContent=new Set(P.map(p=>p.city)).size;
+  $('#s3').textContent=SELLERS.length; $('#s4').textContent=P.filter(p=>p.ver).length;
+  const chip=$('#sellerChip');
+  if(S.seller!==null){chip.style.display='inline-flex';chip.innerHTML=`<i class="fa-solid fa-user"></i>${SELLERS[S.seller].name} <button id="chipX"><i class="fa-solid fa-xmark"></i></button>`}
+  else chip.style.display='none';
+  if(S.view==='map') renderMap(r);
+}
+function renderSellers(){
+  $('#sellers').innerHTML = SELLERS.map((s,i)=>`<div class="scard">
+    <div class="top"><div class="avatar">${s.ini}</div><div><h4>${s.name}</h4><small>${t(s.kind==='agency'?'agency':'person')} · ${P.filter(p=>p.seller===i).length} ${t('props_n')}</small>
+    ${s.ver?`<div class="ver-tag"><i class="fa-solid fa-circle-check"></i> ${t('verified_seller')}</div>`:''}</div></div>
+    <ul><li><i class="fa-solid fa-phone"></i>${s.phone}</li><li><i class="fa-solid fa-envelope"></i>${s.email}</li></ul>
+    <button class="btn btn-ghost btn-sm" style="width:100%" data-seller="${i}"><i class="fa-solid fa-house"></i>${t('see_props')}</button></div>`).join('');
+}
+
+/* ============ mapa ============ */
+function tileLayer(m){L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(m)}
+function renderMap(list){
+  if(!map){map=L.map('mapView').setView([5.5,-74.5],6);tileLayer(map);mapLayer=L.layerGroup().addTo(map)}
+  mapLayer.clearLayers();
+  const pts=[];
+  list.forEach(p=>{
+    const m=L.marker([p.lat,p.lng]).addTo(mapLayer);
+    m.bindPopup(`<b>${title(p)}</b><br>${cop(p.price)}${p.op==='arriendo'?t('per_month'):''}<br><a href="#" data-open="${p.id}" style="color:#6c3df5;font-weight:700">${t('details')} →</a>`);
+    pts.push([p.lat,p.lng]);
+  });
+  setTimeout(()=>{map.invalidateSize();if(pts.length)map.fitBounds(pts,{padding:[40,40],maxZoom:12})},50);
+}
+function setView(v){
+  S.view=v;
+  $$('.seg button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
+  $('#cards').style.display=v==='cards'?'grid':'none';
+  $('#mapView').style.display=v==='map'?'block':'none';
+  render();
+}
+
+/* ============ detalle ============ */
+function openDetail(id){
+  const p=P.find(x=>x.id===id), s=SELLERS[p.seller], rent=p.op==='arriendo', fav=favs.includes(p.id);
+  const d=DESC[p.type][LANGS.indexOf(lang)];
+  $('#detailBody').innerHTML=`
+  <div class="mhero" style="${imgStyle(p)}">${icon(p)}
+    <div class="badges"><span class="b ${rent?'b-rent':'b-sale'}">${t(rent?'rental':'sale')}</span>
+    ${p.ver?`<span class="b b-ver"><i class="fa-solid fa-circle-check"></i>${t('verified')}</span>`:''}
+    ${p.prem?`<span class="b b-prem"><i class="fa-solid fa-star"></i>${t('premium')}</span>`:''}</div></div>
+  <div class="mcols"><div>
+    <div class="price" style="font-size:30px">${cop(p.price)}${rent?`<small> ${t('per_month')}</small>`:''}</div>
+    <h2>${title(p)}</h2>
+    <div class="loc"><i class="fa-solid fa-location-dot"></i>${p.addr} · ${p.barrio}, ${p.city}, ${p.dept}</div>
+    <div class="specs" style="margin-top:14px">
+      ${p.beds?`<span><i class="fa-solid fa-bed"></i>${p.beds} ${t('f_beds')}</span>`:''}
+      ${p.baths?`<span><i class="fa-solid fa-bath"></i>${p.baths}</span>`:''}
+      ${p.park?`<span><i class="fa-solid fa-car"></i>${p.park}</span>`:''}
+      <span><i class="fa-solid fa-ruler-combined"></i>${p.area.toLocaleString('es-CO')} ${t('m2')}</span>
+      ${p.estrato?`<span><i class="fa-solid fa-layer-group"></i>${t('estrato')} ${p.estrato}</span>`:''}</div>
+    <h5>${t('description')}</h5><p>${d}</p>
+    ${lang!=='es'?`<div class="note"><i class="fa-solid fa-language"></i>${t('auto_tr')}</div>`:''}
+    <h5>${t('location')}</h5><div class="mapbox" id="dMap"></div>
+  </div><div class="stack">
+    <div class="sbox"><h5 style="margin:0 0 12px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">${t('seller_info')}</h5>
+      <div class="top"><div class="avatar" style="width:50px;height:50px">${s.ini}</div><div><b>${s.name}</b><br><small style="color:var(--muted)">${t(s.kind==='agency'?'agency':'person')}</small>
+      ${s.ver?`<div class="ver-tag"><i class="fa-solid fa-circle-check"></i> ${t('verified_seller')}</div>`:''}</div></div>
+      <div class="stack" style="font-size:13px;color:var(--muted)"><span><i class="fa-solid fa-phone" style="color:var(--primary);width:18px"></i>${s.phone}</span><span><i class="fa-solid fa-envelope" style="color:var(--primary);width:18px"></i>${s.email}</span></div>
+      <a class="btn btn-ghost btn-sm" style="width:100%;margin-top:12px" href="tel:${s.phone.replace(/\s/g,'')}"><i class="fa-solid fa-phone"></i>${t('call')}</a></div>
+    <div class="sbox"><h5 style="margin:0 0 12px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">${t('contact_form')}</h5>
+      <form id="leadForm" class="stack">
+        <div class="field"><label>${t('name')} *</label><input name="n"></div>
+        <div class="field"><label>${t('phone_mail')} *</label><input name="c"></div>
+        <div class="field"><label>${t('message')}</label><textarea name="m" rows="2"></textarea></div>
+        <button class="btn btn-primary btn-sm" type="submit"><i class="fa-solid fa-paper-plane"></i>${t('send')}</button></form></div>
+    <button class="btn ${rent?'btn-orange':'btn-green'}" data-pay="${p.id}"><i class="fa-solid ${rent?'fa-key':'fa-cart-shopping'}"></i>${t(rent?'rent':'buy')} · PSE</button>
+    <button class="btn btn-ghost" data-fav="${p.id}"><i class="${fav?'fa-solid':'fa-regular'} fa-heart" style="color:var(--red)"></i>${t('nav_favs')}</button>
+  </div></div>`;
+  openModal('#mDetail');
+  setTimeout(()=>{ if(dmap){dmap.remove();dmap=null}
+    dmap=L.map('dMap').setView([p.lat,p.lng],15);tileLayer(dmap);L.marker([p.lat,p.lng]).addTo(dmap).bindPopup(p.addr).openPopup();dmap.invalidateSize();},80);
+  $('#leadForm').onsubmit=async e=>{e.preventDefault();const f=e.target;
+    if(!f.n.value.trim()||!f.c.value.trim())return toast(t('req'));
+    try{
+      const r=await fetch(`${API}/leads`,{method:'POST',
+        headers:{'Content-Type':'application/json','Accept':'application/json'},
+        body:JSON.stringify({propiedad_id:p.id,nombre:f.n.value,contacto:f.c.value,mensaje:f.m.value})});
+      if(r.ok){toast(t('sent_ok'));f.reset();}else{toast(t('req'));}
+    }catch(_){toast(t('req'));}
+  };
+}
+
+/* ============ PSE ============ */
+function openPse(id){
+  const p=P.find(x=>x.id===id), rent=p.op==='arriendo';
+  $('#pseBody').innerHTML=`
+    <span class="pse-logo"><i class="fa-solid fa-building-columns"></i> PSE</span>
+    <h3 style="margin-top:14px">${t(rent?'pse_title_rent':'pse_title_buy')}</h3>
+    <p style="color:var(--muted);font-size:13px">${t('pse_text')}</p>
+    <div class="sum"><div><span>${t('property')}</span><b>${title(p)}</b></div><div><span>${t('location')}</span><b>${p.city}</b></div>
+      <div><span>${t('amount')}</span><b style="color:var(--primary)">${cop(p.price)}</b></div></div>
+    <form id="pseForm" class="stack">
+      <div class="field"><label>${t('b_name')} *</label><input name="n"></div>
+      <div class="field"><label>${t('b_mail')} *</label><input name="e" type="email"></div>
+      <div class="field"><label>${t('b_doc')} *</label><input name="d"></div>
+      <label class="chk"><input type="checkbox" name="ok"> ${t('consent')}</label>
+      <button class="btn btn-primary" type="submit"><i class="fa-solid fa-lock"></i>${t('go_pse')}</button></form>`;
+  openModal('#mPse');
+  $('#pseForm').onsubmit=e=>{e.preventDefault();const f=e.target;
+    if(!f.n.value.trim()||!f.e.value.trim()||!f.d.value.trim()||!f.ok.checked)return toast(t('req'));
+    toast(t('redirecting'));
+    const q=new URLSearchParams({propiedad:p.id,operacion:p.op,monto:p.price,nombre:f.n.value,correo:f.e.value,documento:f.d.value});
+    setTimeout(()=>{ if(PSE_URL) window.location.href=PSE_URL+'?'+q; else {toast(t('demo_pse'));closeModals()} },1100);
+  };
+}
+
+/* ============ modales / calculadora ============ */
+function openModal(sel){$(sel).classList.add('open');document.body.style.overflow='hidden'}
+function closeModals(){$$('.mbg').forEach(m=>m.classList.remove('open'));document.body.style.overflow='';if(dmap){dmap.remove();dmap=null}}
+function calc(){
+  const P0=+$('#cPrice').value, down=+$('#cDown').value/100, r=+$('#cRate').value/100/12, n=+$('#cYears').value*12;
+  const loan=P0*(1-down); if(!loan||!n){$('#cOut').textContent='—';return}
+  const m = r? loan*r/(1-Math.pow(1+r,-n)) : loan/n;
+  $('#cOut').textContent=cop(Math.round(m));
+}
+
+/* ============ eventos ============ */
+document.addEventListener('click',e=>{
+  const g=s=>e.target.closest(s);
+  let el;
+  if(g('[data-fav]')){e.stopPropagation();const id=+g('[data-fav]').dataset.fav;
+    favs=favs.includes(id)?favs.filter(x=>x!==id):[...favs,id];
+    toast(t(favs.includes(id)?'fav_add':'fav_del'));
+    try{localStorage.setItem('umbral_favs',JSON.stringify(favs))}catch(_){}
+    render(); if($('#mDetail').classList.contains('open')) openDetail(id); return}
+  if((el=g('[data-pay]'))){closeModals();openPse(+el.dataset.pay);return}
+  if((el=g('[data-open]'))){e.preventDefault();closeModals();openDetail(+el.dataset.open);return}
+  if((el=g('[data-seller]'))){S.seller=+el.dataset.seller;setView('cards');$('#filters').scrollIntoView({behavior:'smooth'});return}
+  if(g('#chipX')){S.seller=null;render();return}
+  if((el=g('[data-op]'))){S.op=el.dataset.op;$$('.op').forEach(b=>b.classList.toggle('active',b===el));render();return}
+  if((el=g('[data-view]'))){setView(el.dataset.view);return}
+  if(g('[data-close]')||e.target.classList.contains('mbg')){closeModals();return}
+  if((el=g('[data-nav]'))){
+    const n=el.dataset.nav; $$('[data-nav]').forEach(a=>a.classList.toggle('active',a===el));
+    $('#sidebar').classList.remove('open');$('#shade').classList.remove('open');
+    if(n==='calc'){openModal('#mCalc');calc();return}
+    if(n==='sellers'){$('#sellersAnchor').scrollIntoView({behavior:'smooth'});return}
+    S.favOnly=n==='favs'; S.seller=null;
+    if(n==='map'){setView('map');$('#filters').scrollIntoView({behavior:'smooth'});return}
+    if(n==='venta'||n==='arriendo'||n==='all'){S.op=n;$$('.op').forEach(b=>b.classList.toggle('active',b.dataset.op===n))}
+    setView('cards');return}
+  if(g('#clearBtn')){Object.assign(S,{op:'all',type:'',dept:'',city:'',barrio:'',max:'',beds:'',q:'',sort:'rel',favOnly:false,seller:null});
+    $('#q').value='';$('#fMax').value='';$$('.op').forEach(b=>b.classList.toggle('active',b.dataset.op==='all'));buildFilters();render();return}
+  if(g('#goExplore')){$('#filters').scrollIntoView({behavior:'smooth'});return}
+  if(g('#menuBtn')){$('#sidebar').classList.toggle('open');$('#shade').classList.toggle('open');return}
+  if(g('#shade')){$('#sidebar').classList.remove('open');$('#shade').classList.remove('open')}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModals()});
+$('#fType').onchange=e=>{S.type=e.target.value;render()};
+$('#fDept').onchange=e=>{S.dept=e.target.value;S.city='';S.barrio='';buildFilters();render()};
+$('#fCity').onchange=e=>{S.city=e.target.value;S.barrio='';buildFilters();render()};
+$('#fBarrio').onchange=e=>{S.barrio=e.target.value;render()};
+$('#fBeds').onchange=e=>{S.beds=e.target.value;render()};
+$('#fSort').onchange=e=>{S.sort=e.target.value;render()};
+$('#fMax').oninput=e=>{S.max=e.target.value;render()};
+$('#q').oninput=e=>{S.q=e.target.value;render()};
+$('#lang').onchange=e=>{lang=e.target.value;try{localStorage.setItem('umbral_lang',lang)}catch(_){}applyI18n()};
+['cPrice','cDown','cRate','cYears'].forEach(i=>$('#'+i).oninput=calc);
+
+/* tema claro / oscuro */
+function setTheme(th){
+  document.documentElement.dataset.theme=th;
+  $('#themeBtn').innerHTML=`<i class="fa-solid ${th==='dark'?'fa-sun':'fa-moon'}"></i>`;
+  try{localStorage.setItem('umbral_theme',th)}catch(_){}
+}
+$('#themeBtn').onclick=()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
+setTheme(localStorage.getItem('umbral_theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
+
+applyI18n();
+loadData().then(applyI18n).catch(()=>toast('No se pudo conectar con el servidor; se muestran datos de ejemplo')).finally(()=>{window.__loadDone=true;window.__loading=false;applyI18n()});
+</script>
+<script src="/js/efectos.js"></script>
+<script src="/js/hero.js"></script>
+<script src="/js/vendedores.js"></script>
+</body>
+</html>

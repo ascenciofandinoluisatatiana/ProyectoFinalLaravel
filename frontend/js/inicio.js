@@ -240,7 +240,7 @@
             // Cuenta creada: dejamos la sesión iniciada de una vez
             localStorage.setItem('umbral-usuario', JSON.stringify(datos.usuario));
             mostrar(window.t('msg.registro.creada'), 'ok');
-            setTimeout(function () { window.location.href = 'panel.html'; }, 700);
+            setTimeout(function () { window.location.href = datos.usuario.rol === 'vendedor' ? '/vendedor/perfil.html' : 'panel.html'; }, 700);
         } catch (err) {
             mostrar(window.t('msg.conexion'), 'error');
         } finally {

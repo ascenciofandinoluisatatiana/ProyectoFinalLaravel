@@ -104,4 +104,15 @@ class AgentePanelTest extends TestCase
         $this->postJson('/api/v1/agente/perfil/clave', ['actual' => 'Umbral2026*', 'password' => 'NuevaClave9', 'password_confirmation' => 'NuevaClave9'])
             ->assertOk();
     }
+
+    public function test_contacto_del_portal_llega_al_agente_de_la_propiedad(): void
+    {
+        $mia = $this->propiedad($this->agente);
+
+        $this->postJson('/api/v1/public/leads', ['propiedad_id' => $mia->id, 'nombre' => 'Visitante', 'contacto' => '3000000000', 'mensaje' => 'Hola'])
+            ->assertCreated();
+
+        $this->actingAs($this->agente)->getJson('/api/v1/agente/contactos')
+            ->assertOk()->assertJsonPath('data.0.nombre', 'Visitante')->assertJsonPath('data.0.estado', 'nuevo');
+    }
 }

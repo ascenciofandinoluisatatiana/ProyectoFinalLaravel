@@ -31,7 +31,9 @@ class PropiedadPublicaResource extends JsonResource
             'estrato' => $this->estrato,
             'ver'     => (bool) $this->verificada,
             'prem'    => (bool) ($this->prem ?? false),
-            'img'     => $this->imagen ? asset('storage/' . $this->imagen) : '',
+            // Ruta relativa: así funciona por el frontend (:3000) sin depender de APP_URL
+            'img'     => ! $this->imagen ? '' : (str_starts_with($this->imagen, '/') || str_starts_with($this->imagen, 'http')
+                ? $this->imagen : '/storage/' . $this->imagen),
             'seller'  => [
                 'id'    => $v->id,
                 'name'  => $v->name,

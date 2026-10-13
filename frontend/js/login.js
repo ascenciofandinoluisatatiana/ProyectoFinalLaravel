@@ -14,9 +14,31 @@
         administrador: '/panel-admin/dashboard.html',
         soporte: 'panel.html',
         vendedor: '/vendedor/perfil.html',
-        inmobiliaria: 'panel.html',
+        inmobiliaria: '/inmobiliaria/dashboard.html',
         agente: 'panel.html'
     };
+
+    // El panel de la inmobiliaria usa la sesión web de Laravel (igual que el admin):
+    // primero se pide la cookie XSRF-TOKEN y luego se inicia la sesión.
+    async function entrarAlPanelInmobiliaria(email, password, recordar) {
+        await fetch('/api/v1/inmobiliaria/csrf', { credentials: 'same-origin' });
+        var fila = document.cookie.split('; ').filter(function (f) { return f.indexOf('XSRF-TOKEN=') === 0; })[0];
+        var xsrf = fila ? decodeURIComponent(fila.substring('XSRF-TOKEN='.length)) : '';
+
+        var acceso = await fetch('/api/v1/inmobiliaria/sesion', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-XSRF-TOKEN': xsrf },
+            body: JSON.stringify({ email: email, password: password, recordar: !!recordar })
+        });
+        var datos = await acceso.json().catch(function () { return {}; });
+
+        if (!acceso.ok) {
+            throw new Error(datos.message || 'La cuenta no pudo entrar al panel de la inmobiliaria.');
+        }
+
+        window.location.href = '/inmobiliaria/dashboard.html';
+    }
 
     // La API valida credenciales, pero la administración necesita una sesión
     // web de Laravel. La iniciamos usando el formulario oficial y su CSRF.
@@ -121,6 +143,12 @@
             if (datos.usuario.rol === 'administrador') {
                 mostrar(window.t('msg.bienvenido', { nombre: datos.usuario.nombre }), 'ok');
                 await entrarAlPanelAdministrativo(email, password, recordar);
+                return;
+            }
+
+            if (datos.usuario.rol === 'inmobiliaria') {
+                mostrar(window.t('msg.bienvenido', { nombre: datos.usuario.nombre }), 'ok');
+                await entrarAlPanelInmobiliaria(email, password, recordar);
                 return;
             }
 

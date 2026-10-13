@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\V1\Admin\CuentaController;
 use App\Http\Controllers\Api\V1\Admin\ResumenController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\HealthController;
+use App\Http\Controllers\Api\V1\Inmobiliaria\ResumenController as InmobiliariaResumenController;
+use App\Http\Controllers\Api\V1\Inmobiliaria\SesionController as InmobiliariaSesionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\LeadController;
 use App\Http\Controllers\Api\V1\PublicPropiedadController;
@@ -72,3 +74,24 @@ Route::prefix('v1/public')->group(function () {
 
 
 
+
+/*
+|--------------------------------------------------------------------------
+| API del panel de la inmobiliaria  →  /api/v1/inmobiliaria/...
+|--------------------------------------------------------------------------
+| Igual que el panel de administración: sesión web de Laravel (grupo "web").
+| "inmobiliaria.api" exige sesión iniciada y rol inmobiliaria (401 / 403 en JSON).
+*/
+Route::prefix('v1/inmobiliaria')->middleware('web')->group(function () {
+    // Inicio de sesión del panel (deja la cookie de sesión)
+    Route::get('csrf', [InmobiliariaSesionController::class, 'csrf']);
+    Route::post('sesion', [InmobiliariaSesionController::class, 'entrar'])->middleware('throttle:10,1');
+
+    Route::middleware('inmobiliaria.api')->group(function () {
+        Route::get('yo', [InmobiliariaSesionController::class, 'yo']);
+        Route::post('salir', [InmobiliariaSesionController::class, 'salir']);
+
+        // Dashboard: cifras, gráfica, agentes, contactos y visitas
+        Route::get('resumen', InmobiliariaResumenController::class);
+    });
+});

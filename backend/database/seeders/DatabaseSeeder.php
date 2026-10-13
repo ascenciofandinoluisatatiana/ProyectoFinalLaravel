@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             MunicipioSeeder::class,
             PropiedadSeeder::class,
             DemoAdminSeeder::class,
+            InmobiliariaDemoSeeder::class,
         ]);
     }
 }

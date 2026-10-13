@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Inmobiliaria · Umbral</title>
+    <link rel="icon" type="image/png" href="/img/icono.png">
+
+    <!-- Fuentes del diseño (las mismas del inicio y el login) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Mismo diseño del panel del vendedor + iconos (los entrega Laravel en /assets) -->
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
+    <link rel="stylesheet" href="/vendedor/css/vendedor.css">
+    <link rel="stylesheet" href="/inmobiliaria/css/inmobiliaria.css">
+
+    <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
+    <script>
+        try {
+            var tema = localStorage.getItem('umbral-tema');
+            if (tema === 'dark' || tema === 'light') document.documentElement.setAttribute('data-theme', tema);
+        } catch (e) {}
+    </script>
+</head>
+<body class="vendedor op-venta" data-pagina="inmobiliaria-dashboard">
+    <div class="v-pagina">
+        <header class="v-topbar" id="v-topbar"></header>
+
+        <main class="v-contenido" id="d-contenido">
+            <div class="i-estado-carga" id="d-cargando"><i class="fa-solid fa-spinner fa-spin"></i>Cargando el panel…</div>
+
+            <div id="d-panel" class="i-panel" hidden>
+                <!-- Cabecera -->
+                <section class="v-tarjeta v-hero">
+                    <div>
+                        <p class="v-etiqueta"><i class="fa-solid fa-building"></i> Panel de la inmobiliaria</p>
+                        <h1 class="titulo-serif" id="d-titulo">Resumen</h1>
+                        <p>Así van tus propiedades, tus agentes y las personas interesadas.</p>
+                    </div>
+                </section>
+
+                <!-- Membresía -->
+                <section class="v-tarjeta v-membresia" id="d-membresia"></section>
+
+                <!-- Cifras -->
+                <section class="v-kpis" id="d-kpis"></section>
+
+                <!-- Gráfica y agentes -->
+                <div class="v-rejilla">
+                    <section class="v-tarjeta">
+                        <div class="v-tarjeta-cabeza"><h2>Rendimiento por agente</h2><small id="d-agentes-total"></small></div>
+                        <div class="i-tabla-caja" id="d-agentes"></div>
+                    </section>
+                    <section class="v-tarjeta">
+                        <div class="v-tarjeta-cabeza"><h2>Contactos de los últimos 7 días</h2></div>
+                        <div class="v-tarjeta-cuerpo"><div class="v-grafica"><canvas id="d-grafica" aria-label="Contactos por día"></canvas></div></div>
+                    </section>
+                </div>
+
+                <!-- Contactos y visitas -->
+                <div class="v-rejilla">
+                    <section class="v-tarjeta">
+                        <div class="v-tarjeta-cabeza"><h2>Contactos recientes</h2><small>Personas interesadas en tus propiedades</small></div>
+                        <div class="v-lista" id="d-contactos"></div>
+                    </section>
+                    <section class="v-tarjeta">
+                        <div class="v-tarjeta-cabeza"><h2>Próximas visitas</h2></div>
+                        <div class="v-lista" id="d-visitas"></div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Chart.js ya viene con el panel de administración (lo entrega Laravel en /assets) -->
+    <script src="/assets/admin/chart.umd.min.js"></script>
+    <script src="/inmobiliaria/js/inmobiliaria.js"></script>
+    <script src="/inmobiliaria/js/dashboard.js"></script>
+</body>
+</html>

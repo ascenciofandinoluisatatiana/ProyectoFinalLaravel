@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureAdmin::class,
             'admin.api' => \App\Http\Middleware\EnsureAdminApi::class,
+            'inmobiliaria.api' => \App\Http\Middleware\EnsureInmobiliariaApi::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

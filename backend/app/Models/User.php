@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'role_id', 'telefono', 'tipo_documento', 'numero_documento', 'representante_legal', 'pais_residencia', 'estado', 'avatar'])]
+#[Fillable(['name', 'email', 'password', 'role_id', 'inmobiliaria_id', 'telefono', 'tipo_documento', 'numero_documento', 'representante_legal', 'pais_residencia', 'estado', 'avatar'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -38,6 +38,18 @@ class User extends Authenticatable
     }
 
     
+    /** Inmobiliaria a la que pertenece este agente (null si no es agente). */
+    public function inmobiliaria(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'inmobiliaria_id');
+    }
+
+    /** Agentes dados de alta por esta inmobiliaria. */
+    public function agentes(): HasMany
+    {
+        return $this->hasMany(User::class, 'inmobiliaria_id');
+    }
+
     /** Historial de verificaciones de esta cuenta, la más reciente primero. */
     public function verificaciones(): HasMany
     {

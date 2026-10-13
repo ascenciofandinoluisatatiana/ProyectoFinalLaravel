@@ -1,0 +1,50 @@
+/* =========================================================
+   UMBRAL — Panel de la inmobiliaria
+   Se apoya en /vendedor/css/vendedor.css (mismo diseño del vendedor).
+   Aquí solo van las piezas que el vendedor no tiene.
+   ========================================================= */
+
+/* Pestaña de una sección que todavía no está lista */
+.v-tab.i-pronto { opacity: 0.45; cursor: not-allowed; }
+.v-tab.i-pronto:hover { background: transparent; color: inherit; }
+
+/* Tabla de agentes */
+.i-tabla-caja { overflow-x: auto; padding: 4px 18px 18px; }
+.i-tabla { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.i-tabla th {
+    text-align: left; padding: 10px 12px; font-size: 0.74rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.04em; color: var(--texto-suave);
+    border-bottom: 1px solid var(--campo-borde);
+}
+.i-tabla td { padding: 12px; border-bottom: 1px solid var(--campo-borde); }
+.i-tabla tr:last-child td { border-bottom: 0; }
+.i-tabla td.num, .i-tabla th.num { text-align: center; }
+.i-agente { display: flex; align-items: center; gap: 10px; }
+.i-agente small { display: block; color: var(--texto-suave); font-size: 0.75rem; }
+
+/* Estados que el vendedor no tiene */
+.v-insignia.en_seguimiento { color: #2f6bff; background: rgba(47, 107, 255, 0.12); }
+.v-insignia.cerrado, .v-insignia.realizada, .v-insignia.activo { color: var(--ok); background: var(--ok-fondo); }
+.v-insignia.descartado, .v-insignia.cancelada, .v-insignia.inactivo { color: var(--peligro); background: var(--peligro-fondo); }
+
+/* Resumen corto debajo de cada cifra */
+.v-kpi small { display: block; margin-top: 4px; font-size: 0.75rem; color: var(--texto-suave); }
+
+/* Mensaje de carga / error */
+.i-estado-carga { padding: 60px 20px; text-align: center; color: var(--texto-suave); }
+.i-estado-carga i { display: block; font-size: 1.8rem; margin-bottom: 12px; color: var(--op-texto); }
+
+/* Contenido del panel (se muestra cuando la sesión es válida) */
+.i-panel { display: grid; gap: 24px; grid-template-columns: minmax(0, 1fr); }
+.i-panel[hidden], .i-estado-carga[hidden] { display: none; }
+
+/* La inmobiliaria tiene más secciones que el vendedor: pestañas más compactas
+   y, si no caben, se desplazan de lado en vez de desbordar la pantalla */
+.v-tabs { min-width: 0; flex: 1 1 auto; }
+.v-tab { padding: 9px 12px; }
+@media (max-width: 960px) {
+    .v-tabs { flex-basis: 100%; }
+    .i-panel .v-rejilla { grid-template-columns: minmax(0, 1fr); }
+    .i-panel .v-lista { grid-template-columns: minmax(0, 1fr); }
+    .i-panel .v-fila-texto b { overflow-wrap: anywhere; }
+}

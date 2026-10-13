@@ -4,10 +4,6 @@
    Aquí solo van las piezas que el vendedor no tiene.
    ========================================================= */
 
-/* Pestaña de una sección que todavía no está lista */
-.v-tab.i-pronto { opacity: 0.45; cursor: not-allowed; }
-.v-tab.i-pronto:hover { background: transparent; color: inherit; }
-
 /* Tabla de agentes */
 .i-tabla-caja { overflow-x: auto; padding: 4px 18px 18px; }
 .i-tabla { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
@@ -39,12 +35,7 @@
 .i-panel[hidden], .i-estado-carga[hidden] { display: none; }
 .i-panel .v-lista { grid-template-columns: minmax(0, 1fr); }
 
-/* La inmobiliaria tiene más secciones que el vendedor: pestañas más compactas
-   y, si no caben, se desplazan de lado en vez de desbordar la pantalla */
-.v-tabs { min-width: 0; flex: 1 1 auto; }
-.v-tab { padding: 9px 12px; }
 @media (max-width: 960px) {
-    .v-tabs { flex-basis: 100%; }
     .i-panel .v-rejilla { grid-template-columns: minmax(0, 1fr); }
     .i-panel .v-fila-texto b { overflow-wrap: anywhere; }
 }
@@ -98,3 +89,75 @@
     .i-filtros { grid-template-columns: 1fr; }
     .i-fila-acciones { padding-left: 0; }
 }
+
+/* =========================================================
+   Estructura igual al perfil del invitado:
+   menú lateral fijo (se desplaza aparte) + barra superior con
+   título, idioma, tema y sesión. El contenido se desplaza solo.
+   ========================================================= */
+.v-pagina.i-app { flex-direction: row; align-items: stretch; }
+.i-lateral {
+    width: 270px; flex: none; position: sticky; top: 0; height: 100vh; overflow-y: auto; z-index: 60;
+    display: flex; flex-direction: column; padding: 22px 14px;
+    background: linear-gradient(var(--tarjeta), var(--tarjeta)), var(--fondo); border-right: 1px solid var(--campo-borde);
+    -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); transition: transform 0.3s;
+}
+.i-marca { display: flex; align-items: center; gap: 12px; padding: 0 10px 20px; margin-bottom: 8px; border-bottom: 1px solid var(--campo-borde); color: var(--texto); text-decoration: none; }
+.i-logo-marca { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; flex: none; background: linear-gradient(135deg, var(--op-1), var(--op-2)); box-shadow: 0 8px 18px var(--op-sombra); }
+.i-logo-marca img { width: 30px; height: 30px; object-fit: contain; filter: brightness(0) invert(1); }
+.i-marca b { display: block; font-size: 1.1rem; letter-spacing: 0.28em; line-height: 1.2; }
+.i-marca small { display: block; font-size: 0.75rem; color: var(--texto-suave); }
+.i-grupo { padding: 16px 12px 8px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--texto-suave); }
+.i-nav { display: grid; gap: 4px; }
+.i-nav a {
+    display: flex; align-items: center; gap: 14px; padding: 11px 14px; border-radius: 12px;
+    color: var(--texto-suave); font-weight: 700; font-size: 0.92rem; text-decoration: none; border: 1px solid transparent;
+    transition: background 0.2s, color 0.2s;
+}
+.i-nav a i { width: 20px; text-align: center; }
+.i-nav a:hover { background: var(--neutro-fondo); color: var(--texto); }
+.i-nav a.activo { background: var(--neutro-fondo); color: var(--op-texto); border-color: var(--campo-borde); }
+.i-tarjeta-lateral { margin-top: auto; padding: 16px; border-radius: 16px; background: var(--neutro-fondo); border: 1px solid var(--campo-borde); display: grid; gap: 8px; }
+.i-tarjeta-lateral b { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.i-tarjeta-lateral p { margin: 0; font-size: 0.82rem; color: var(--texto-suave); line-height: 1.45; }
+.i-tarjeta-lateral .v-btn { justify-content: center; }
+
+.i-principal { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.i-barra {
+    position: sticky; top: 0; z-index: 50; display: flex; align-items: center; gap: 12px;
+    padding: 14px clamp(16px, 3vw, 28px); background: linear-gradient(var(--tarjeta), var(--tarjeta)), var(--fondo); border-bottom: 1px solid var(--campo-borde);
+    -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+}
+.i-titulo { margin: 0 auto 0 0; font-size: 1.2rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.i-icono {
+    width: 44px; height: 44px; flex: none; display: grid; place-items: center; border-radius: 12px; cursor: pointer;
+    border: 1px solid var(--campo-borde); background: var(--campo); color: var(--op-texto); font-size: 1rem;
+}
+.i-icono:hover { background: var(--neutro-fondo); }
+#i-menu { display: none; }
+.i-idioma { height: 44px; padding: 0 10px; border-radius: 12px; border: 1px solid var(--campo-borde); background: var(--campo); color: var(--texto); font: inherit; font-weight: 700; cursor: pointer; }
+.i-usuario { display: flex; align-items: center; gap: 10px; padding: 5px 14px 5px 5px; border-radius: 14px; border: 1px solid var(--campo-borde); background: var(--campo); min-width: 0; }
+.i-usuario b { display: block; font-size: 0.85rem; line-height: 1.2; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.i-usuario small { display: block; font-size: 0.72rem; color: var(--op-texto); max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.i-salir {
+    display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px; border-radius: 12px; cursor: pointer;
+    border: 1px solid var(--campo-borde); background: var(--campo); color: var(--peligro); font: inherit; font-weight: 700; white-space: nowrap;
+}
+.i-salir:hover { background: var(--peligro-fondo); }
+.i-velo { display: none; }
+.i-app .v-contenido { width: min(1240px, 100%); }
+
+@media (max-width: 960px) {
+    .i-lateral { position: fixed; left: 0; top: 0; transform: translateX(-100%); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); }
+    .i-lateral.abierto { transform: none; }
+    .i-velo.abierto { display: block; position: fixed; inset: 0; z-index: 55; background: rgba(0, 0, 0, 0.45); }
+    #i-menu { display: grid; }
+    .i-usuario div, .i-salir span { display: none; }
+    .i-usuario { padding: 5px; }
+}
+@media (max-width: 520px) {
+    .i-barra { gap: 8px; }
+    .i-titulo { font-size: 1rem; }
+    .i-idioma { width: 64px; padding: 0 6px; }
+}
+[dir="rtl"] .i-lateral { border-right: 0; border-left: 1px solid var(--campo-borde); }

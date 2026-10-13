@@ -14,13 +14,13 @@
     var INICIO = '/index.html';
     var CLAVE_TEMA = 'umbral-tema';
 
-    // Secciones del panel. "listo: false" = se ve en el menú pero aún no se puede abrir.
+    // Secciones del panel, agrupadas como en el menú lateral del invitado
     var SECCIONES = [
-        { id: 'dashboard', href: '/agente/dashboard.html', icono: 'fa-chart-line', texto: 'Mi día', listo: true },
-        { id: 'propiedades', href: '/agente/propiedades.html', icono: 'fa-house', texto: 'Mis propiedades', listo: true },
-        { id: 'contactos', href: '/agente/contactos.html', icono: 'fa-comments', texto: 'Mis contactos', listo: true },
-        { id: 'visitas', href: '/agente/visitas.html', icono: 'fa-calendar-check', texto: 'Mi agenda', listo: true },
-        { id: 'perfil', href: '/agente/perfil.html', icono: 'fa-user', texto: 'Mi cuenta', listo: true }
+        { id: 'dashboard', grupo: 'g_principal', href: '/agente/dashboard.html', icono: 'fa-chart-line' },
+        { id: 'propiedades', grupo: 'g_principal', href: '/agente/propiedades.html', icono: 'fa-house' },
+        { id: 'contactos', grupo: 'g_trabajo', href: '/agente/contactos.html', icono: 'fa-comments' },
+        { id: 'visitas', grupo: 'g_trabajo', href: '/agente/visitas.html', icono: 'fa-calendar-check' },
+        { id: 'perfil', grupo: 'g_cuenta', href: '/agente/perfil.html', icono: 'fa-user' }
     ];
 
     var TIPOS = { apartamento: 'Apartamento', casa: 'Casa', finca: 'Finca', local: 'Local', lote: 'Lote', oficina: 'Oficina' };
@@ -134,9 +134,8 @@
     function aplicarTema(tema) {
         document.documentElement.setAttribute('data-theme', tema);
         try { localStorage.setItem(CLAVE_TEMA, tema); } catch (e) {}
-        document.querySelectorAll('.v-tema button').forEach(function (b) {
-            b.setAttribute('aria-pressed', b.dataset.tema === tema ? 'true' : 'false');
-        });
+        var b = document.getElementById('i-tema');
+        if (b) b.innerHTML = '<i class="fa-solid ' + (tema === 'dark' ? 'fa-sun' : 'fa-moon') + '"></i>';
         document.dispatchEvent(new CustomEvent('umbral:tema'));
     }
 
@@ -145,39 +144,194 @@
         irAlInicio();
     }
 
-    /* ---------- Barra superior ---------- */
-    function barra(usuario, activo) {
-        var cont = document.getElementById('v-topbar');
-        if (!cont) return;
-        var tema = document.documentElement.getAttribute('data-theme') || 'light';
-
-        var pestanas = SECCIONES.map(function (s) {
-            if (!s.listo) {
-                return '<span class="v-tab i-pronto" title="Próximamente"><i class="fa-solid ' + s.icono + '"></i>' + s.texto + '</span>';
+    /* ---------- Idioma del panel ----------
+       Misma preferencia que la página del invitado (clave "umbral_lang").
+       Por ahora se traducen el menú y la barra; el contenido sigue en español. */
+    var IDIOMAS = { es: 'Español', en: 'English', pt: 'Português', fr: 'Français' };
+    var TEXTOS = {
+            "menu": {
+                    "es": "Menú",
+                    "en": "Menu",
+                    "pt": "Menu",
+                    "fr": "Menu"
+            },
+            "idioma": {
+                    "es": "Idioma",
+                    "en": "Language",
+                    "pt": "Idioma",
+                    "fr": "Langue"
+            },
+            "tema": {
+                    "es": "Cambiar tema",
+                    "en": "Change theme",
+                    "pt": "Mudar tema",
+                    "fr": "Changer de thème"
+            },
+            "salir": {
+                    "es": "Salir",
+                    "en": "Log out",
+                    "pt": "Sair",
+                    "fr": "Quitter"
+            },
+            "portal": {
+                    "es": "Portal público",
+                    "en": "Public portal",
+                    "pt": "Portal público",
+                    "fr": "Portail public"
+            },
+            "portal_nota": {
+                    "es": "Mira cómo ven los visitantes tus propiedades.",
+                    "en": "See how visitors see your properties.",
+                    "pt": "Veja como os visitantes veem seus imóveis.",
+                    "fr": "Voyez comment les visiteurs voient vos biens."
+            },
+            "ver_portal": {
+                    "es": "Ver el portal",
+                    "en": "Open portal",
+                    "pt": "Ver o portal",
+                    "fr": "Voir le portail"
+            },
+            "rol_agente": {
+                    "es": "Panel del agente",
+                    "en": "Agent panel",
+                    "pt": "Painel do corretor",
+                    "fr": "Espace de l'agent"
+            },
+            "g_principal": {
+                    "es": "Principal",
+                    "en": "Main",
+                    "pt": "Principal",
+                    "fr": "Principal"
+            },
+            "g_trabajo": {
+                    "es": "Mi trabajo",
+                    "en": "My work",
+                    "pt": "Meu trabalho",
+                    "fr": "Mon travail"
+            },
+            "g_cuenta": {
+                    "es": "Cuenta",
+                    "en": "Account",
+                    "pt": "Conta",
+                    "fr": "Compte"
+            },
+            "dashboard": {
+                    "es": "Mi día",
+                    "en": "My day",
+                    "pt": "Meu dia",
+                    "fr": "Ma journée"
+            },
+            "propiedades": {
+                    "es": "Mis propiedades",
+                    "en": "My properties",
+                    "pt": "Meus imóveis",
+                    "fr": "Mes biens"
+            },
+            "contactos": {
+                    "es": "Mis contactos",
+                    "en": "My leads",
+                    "pt": "Meus contatos",
+                    "fr": "Mes contacts"
+            },
+            "visitas": {
+                    "es": "Mi agenda",
+                    "en": "My schedule",
+                    "pt": "Minha agenda",
+                    "fr": "Mon agenda"
+            },
+            "perfil": {
+                    "es": "Mi cuenta",
+                    "en": "My account",
+                    "pt": "Minha conta",
+                    "fr": "Mon compte"
+            },
+            "agente": {
+                    "es": "Agente",
+                    "en": "Agent",
+                    "pt": "Corretor",
+                    "fr": "Agent"
             }
-            return '<a class="v-tab" href="' + s.href + '"' + (activo === s.id ? ' aria-current="page"' : '') +
-                '><i class="fa-solid ' + s.icono + '"></i>' + s.texto + '</a>';
-        }).join('');
+    };
+    var idioma = 'es';
+    try { idioma = localStorage.getItem('umbral_lang') || 'es'; } catch (e) {}
+    if (!IDIOMAS[idioma]) idioma = 'es';
+    function tx(clave) { return (TEXTOS[clave] || {})[idioma] || (TEXTOS[clave] || {}).es || clave; }
 
+    /* ---------- Estructura: menú lateral + barra superior ----------
+       Las páginas solo traen <header id="v-topbar"> y <main>; aquí se arma
+       el mismo esquema del perfil de invitado: menú a la izquierda (se desplaza
+       aparte) y arriba el título, el idioma, el tema y la sesión. */
+    var usuarioActual = null, seccionActual = null;
+
+    function estructura() {
+        var pagina = document.querySelector('.v-pagina');
+        if (!pagina || pagina.classList.contains('i-app')) return;
+        pagina.classList.add('i-app');
+
+        var lateral = document.createElement('aside');
+        lateral.className = 'i-lateral';
+        lateral.id = 'i-lateral';
+        var velo = document.createElement('div');
+        velo.className = 'i-velo';
+        velo.id = 'i-velo';
+        var principal = document.createElement('div');
+        principal.className = 'i-principal';
+
+        while (pagina.firstChild) principal.appendChild(pagina.firstChild);
+        pagina.appendChild(velo);
+        pagina.appendChild(lateral);
+        pagina.appendChild(principal);
+        velo.addEventListener('click', function () { lateral.classList.remove('abierto'); velo.classList.remove('abierto'); });
+    }
+
+    function barra(usuario, activo) {
+        usuarioActual = usuario; seccionActual = activo;
+        estructura();
+        var tema = document.documentElement.getAttribute('data-theme') || 'light';
+        var actual = SECCIONES.filter(function (s) { return s.id === activo; })[0];
+
+        // Menú lateral agrupado
+        var html = '<a class="i-marca" href="/agente/dashboard.html"><span class="i-logo-marca"><img src="/img/icono.png" alt=""></span>' +
+            '<span><b>UMBRAL</b><small>' + esc(tx('rol_agente')) + '</small></span></a>';
+        ['g_principal', 'g_trabajo', 'g_cuenta'].forEach(function (g) {
+            html += '<div class="i-grupo">' + esc(tx(g)) + '</div><nav class="i-nav">' +
+                SECCIONES.filter(function (s) { return s.grupo === g; }).map(function (s) {
+                    return '<a href="' + s.href + '"' + (s.id === activo ? ' class="activo" aria-current="page"' : '') +
+                        '><i class="fa-solid ' + s.icono + '"></i><span>' + esc(tx(s.id)) + '</span></a>';
+                }).join('') + '</nav>';
+        });
+        html += '<div class="i-tarjeta-lateral"><b><i class="fa-solid fa-globe"></i> ' + esc(tx('portal')) + '</b>' +
+            '<p>' + esc(tx('portal_nota')) + '</p>' +
+            '<a class="v-btn v-btn-principal v-btn-mini" href="/invitado/dashboard.html" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i>' + esc(tx('ver_portal')) + '</a></div>';
+        document.getElementById('i-lateral').innerHTML = html;
+
+        // Barra superior: título, idioma, tema y sesión
+        var cont = document.getElementById('v-topbar');
+        cont.className = 'i-barra';
         cont.innerHTML =
-            '<a class="v-marca" href="/agente/dashboard.html"><img src="/img/icono.png" alt="Umbral">' +
-            '<span><strong>UMBRAL</strong><em>El paso hacia un nuevo hogar.</em></span></a>' +
-            '<nav class="v-tabs" aria-label="Secciones del agente">' + pestanas + '</nav>' +
-            '<div class="v-topbar-der">' +
-                '<div class="v-tema" role="group" aria-label="Tema de la interfaz">' +
-                    '<button type="button" data-tema="light" aria-pressed="' + (tema === 'light') + '" aria-label="Tema claro">' +
-                        '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>' +
-                    '<button type="button" data-tema="dark" aria-pressed="' + (tema === 'dark') + '" aria-label="Tema oscuro">' +
-                        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg></button>' +
-                '</div>' +
-                '<div class="v-usuario"><span class="v-avatar">' + esc(iniciales(usuario.nombre)) + '</span>' +
-                    '<div><b>' + esc(usuario.nombre) + '</b><small>Agente' + (usuario.inmobiliaria ? ' · ' + esc(usuario.inmobiliaria.nombre) : '') + '</small></div></div>' +
-                '<button type="button" class="v-icono-btn" id="v-salir" title="Cerrar sesión" aria-label="Cerrar sesión">' +
-                    '<i class="fa-solid fa-right-from-bracket"></i></button>' +
-            '</div>';
+            '<button type="button" class="i-icono" id="i-menu" aria-label="' + esc(tx('menu')) + '"><i class="fa-solid fa-bars"></i></button>' +
+            '<h1 class="i-titulo">' + esc(actual ? tx(actual.id) : '') + '</h1>' +
+            '<select class="i-idioma" id="i-idioma" aria-label="' + esc(tx('idioma')) + '">' +
+                Object.keys(IDIOMAS).map(function (k) { return '<option value="' + k + '"' + (k === idioma ? ' selected' : '') + '>' + IDIOMAS[k] + '</option>'; }).join('') +
+            '</select>' +
+            '<button type="button" class="i-icono" id="i-tema" aria-label="' + esc(tx('tema')) + '" title="' + esc(tx('tema')) + '">' +
+                '<i class="fa-solid ' + (tema === 'dark' ? 'fa-sun' : 'fa-moon') + '"></i></button>' +
+            '<div class="i-usuario"><span class="v-avatar">' + esc(iniciales(usuario.nombre)) + '</span>' +
+                '<div><b>' + esc(usuario.nombre) + '</b><small>' + esc(tx('agente')) + (usuario.inmobiliaria ? ' · ' + esc(usuario.inmobiliaria.nombre) : '') + '</small></div></div>' +
+            '<button type="button" class="i-salir" id="v-salir"><i class="fa-solid fa-right-from-bracket"></i><span>' + esc(tx('salir')) + '</span></button>';
 
-        cont.querySelectorAll('[data-tema]').forEach(function (b) {
-            b.addEventListener('click', function () { aplicarTema(b.dataset.tema); });
+        document.getElementById('i-tema').addEventListener('click', function () {
+            aplicarTema(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+        });
+        document.getElementById('i-idioma').addEventListener('change', function () {
+            idioma = this.value;
+            try { localStorage.setItem('umbral_lang', idioma); } catch (e) {}
+            document.documentElement.lang = idioma;
+            barra(usuarioActual, seccionActual);
+        });
+        document.getElementById('i-menu').addEventListener('click', function () {
+            document.getElementById('i-lateral').classList.toggle('abierto');
+            document.getElementById('i-velo').classList.toggle('abierto');
         });
         document.getElementById('v-salir').addEventListener('click', cerrarSesion);
     }

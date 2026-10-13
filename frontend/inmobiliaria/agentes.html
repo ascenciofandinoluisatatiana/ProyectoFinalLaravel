@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Agentes · Inmobiliaria · Umbral</title>
+    <link rel="icon" type="image/png" href="/img/icono.png">
+
+    <!-- Fuentes del diseño (las mismas del inicio y el login) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Mismo diseño del panel del vendedor + iconos (los entrega Laravel en /assets) -->
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
+    <link rel="stylesheet" href="/vendedor/css/vendedor.css">
+    <link rel="stylesheet" href="/inmobiliaria/css/inmobiliaria.css">
+
+    <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
+    <script>
+        try {
+            var tema = localStorage.getItem('umbral-tema');
+            if (tema === 'dark' || tema === 'light') document.documentElement.setAttribute('data-theme', tema);
+        } catch (e) {}
+    </script>
+</head>
+<body class="vendedor op-venta" data-pagina="inmobiliaria-agentes">
+    <div class="v-pagina">
+        <header class="v-topbar" id="v-topbar"></header>
+
+        <main class="v-contenido">
+            <div class="i-estado-carga" id="d-cargando"><i class="fa-solid fa-spinner fa-spin"></i>Cargando agentes…</div>
+
+            <div id="d-panel" class="i-panel" hidden>
+                <section class="v-tarjeta v-hero">
+                    <div>
+                        <p class="v-etiqueta"><i class="fa-solid fa-user-tie"></i> Agentes y equipo</p>
+                        <h1 class="titulo-serif">Tu equipo de agentes</h1>
+                        <p>Da de alta a tus agentes, actualiza sus datos y desactívalos cuando ya no trabajen contigo.</p>
+                    </div>
+                    <div class="v-chips" style="margin-top:0">
+                        <button type="button" class="v-btn v-btn-principal" id="d-nuevo"><i class="fa-solid fa-user-plus"></i> Agregar agente</button>
+                    </div>
+                </section>
+
+                <section class="v-tarjeta">
+                    <div class="v-tarjeta-cabeza"><h2>Agentes</h2><small id="d-total"></small></div>
+                    <div class="i-tabla-caja" id="d-agentes"></div>
+                </section>
+                <p class="v-nota"><i class="fa-solid fa-circle-info"></i> Al desactivar un agente, sus propiedades quedan sin agente para que las asignes a otro. Su historial de contactos y visitas se conserva.</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Ventana: agregar agente -->
+    <dialog class="v-ventana" id="d-alta">
+        <div class="v-ventana-cabeza">
+            <h2 class="titulo-serif">Agregar agente</h2>
+            <button type="button" class="v-icono-btn" data-cerrar aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="d-alta-form" novalidate>
+            <div class="v-form-rejilla">
+                <div class="v-campo ancho"><label for="a-nombre">Nombre completo</label><input id="a-nombre" name="name" type="text" maxlength="120" required></div>
+                <div class="v-campo"><label for="a-correo">Correo (será su usuario)</label><input id="a-correo" name="email" type="email" maxlength="150" required></div>
+                <div class="v-campo"><label for="a-telefono">Teléfono</label><input id="a-telefono" name="telefono" type="tel" maxlength="20" required></div>
+                <div class="v-campo"><label for="a-tipo">Tipo de documento</label>
+                    <select id="a-tipo" name="tipo_documento"><option value="CC">Cédula de ciudadanía</option><option value="CE">Cédula de extranjería</option></select></div>
+                <div class="v-campo"><label for="a-documento">Número de documento</label><input id="a-documento" name="numero_documento" type="text" maxlength="30" required></div>
+                <div class="v-campo"><label for="a-clave">Contraseña inicial</label><input id="a-clave" name="password" type="password" minlength="8" autocomplete="new-password" required></div>
+                <div class="v-campo"><label for="a-clave2">Confirmar contraseña</label><input id="a-clave2" name="password_confirmation" type="password" minlength="8" autocomplete="new-password" required></div>
+            </div>
+            <p class="v-nota">Entrégale al agente su correo y esta contraseña para que inicie sesión.</p>
+            <p class="v-nota i-error" id="d-alta-error" hidden></p>
+            <div class="v-form-pie">
+                <button type="button" class="v-btn v-btn-suave" data-cerrar>Cancelar</button>
+                <button type="submit" class="v-btn v-btn-principal"><i class="fa-solid fa-check"></i> Agregar</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- Ventana: editar agente -->
+    <dialog class="v-ventana" id="d-editar">
+        <div class="v-ventana-cabeza">
+            <h2 class="titulo-serif">Editar agente</h2>
+            <button type="button" class="v-icono-btn" data-cerrar aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="d-editar-form" novalidate>
+            <div class="v-form-rejilla">
+                <div class="v-campo ancho"><label for="e-nombre">Nombre completo</label><input id="e-nombre" name="name" type="text" maxlength="120" required></div>
+                <div class="v-campo"><label for="e-telefono">Teléfono</label><input id="e-telefono" name="telefono" type="tel" maxlength="20" required></div>
+                <div class="v-campo"><label for="e-correo">Correo</label><input id="e-correo" type="email" readonly></div>
+            </div>
+            <p class="v-nota i-error" id="d-editar-error" hidden></p>
+            <div class="v-form-pie">
+                <button type="button" class="v-btn v-btn-suave" data-cerrar>Cancelar</button>
+                <button type="submit" class="v-btn v-btn-principal"><i class="fa-solid fa-check"></i> Guardar</button>
+            </div>
+        </form>
+    </dialog>
+
+    <script src="/inmobiliaria/js/inmobiliaria.js"></script>
+    <script src="/inmobiliaria/js/agentes.js"></script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Propiedades · Inmobiliaria · Umbral</title>
+    <link rel="icon" type="image/png" href="/img/icono.png">
+
+    <!-- Fuentes del diseño (las mismas del inicio y el login) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Mismo diseño del panel del vendedor + iconos (los entrega Laravel en /assets) -->
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    <link rel="stylesheet" href="/vendedor/css/vendedor.css">
+    <link rel="stylesheet" href="/inmobiliaria/css/inmobiliaria.css">
+
+    <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
+    <script>
+        try {
+            var tema = localStorage.getItem('umbral-tema');
+            if (tema === 'dark' || tema === 'light') document.documentElement.setAttribute('data-theme', tema);
+        } catch (e) {}
+    </script>
+</head>
+<body class="vendedor op-venta" data-pagina="inmobiliaria-propiedades">
+    <div class="v-pagina">
+        <header class="v-topbar" id="v-topbar"></header>
+
+        <main class="v-contenido">
+            <div class="i-estado-carga" id="d-cargando"><i class="fa-solid fa-spinner fa-spin"></i>Cargando propiedades…</div>
+
+            <div id="d-panel" class="i-panel" hidden>
+                <section class="v-tarjeta v-hero">
+                    <div>
+                        <p class="v-etiqueta"><i class="fa-solid fa-house"></i> Propiedades</p>
+                        <h1 class="titulo-serif">Inmuebles de la inmobiliaria</h1>
+                        <p>Registra tus inmuebles, publícalos y asigna cada uno a un agente.</p>
+                    </div>
+                    <div class="v-chips" style="margin-top:0">
+                        <button type="button" class="v-btn v-btn-principal" id="d-registrar"><i class="fa-solid fa-plus"></i> Registrar inmueble</button>
+                    </div>
+                </section>
+
+                <!-- Filtros -->
+                <section class="v-tarjeta i-filtros">
+                    <div class="v-campo"><label for="filtro-operacion">Operación</label>
+                        <select id="filtro-operacion"><option value="">Venta y arriendo</option><option value="venta">Venta</option><option value="arriendo">Arriendo</option></select></div>
+                    <div class="v-campo"><label for="filtro-estado">Estado</label>
+                        <select id="filtro-estado"><option value="">Todos</option><option value="publicada">Publicada</option><option value="borrador">Borrador</option><option value="pausada">Pausada</option><option value="vendida">Vendida</option><option value="arrendada">Arrendada</option></select></div>
+                    <div class="v-campo"><label for="filtro-agente">Agente</label><select id="filtro-agente"></select></div>
+                    <div class="v-campo"><label for="filtro-texto">Buscar</label><input id="filtro-texto" type="search" placeholder="Barrio, ciudad o dirección"></div>
+                </section>
+
+                <section class="v-tarjeta">
+                    <div class="v-tarjeta-cabeza"><h2>Inmuebles</h2><small id="d-total"></small></div>
+                    <div class="v-propiedades" id="d-propiedades"></div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Ventana: registrar / editar inmueble -->
+    <dialog class="v-ventana" id="d-form">
+        <div class="v-ventana-cabeza">
+            <h2 class="titulo-serif" id="d-form-titulo">Registrar inmueble</h2>
+            <button type="button" class="v-icono-btn" data-cerrar aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="d-form-campos" novalidate>
+            <div class="v-form-rejilla">
+                <div class="v-campo"><label for="f-operacion">Operación</label>
+                    <select id="f-operacion" name="operacion" required><option value="venta">Venta</option><option value="arriendo">Arriendo</option></select></div>
+                <div class="v-campo"><label for="f-tipo">Tipo de inmueble</label><select id="f-tipo" name="tipo" required></select></div>
+                <div class="v-campo"><label for="f-precio" id="f-precio-etiqueta">Precio (COP)</label><input id="f-precio" name="precio" type="number" min="1" step="1" required></div>
+                <div class="v-campo"><label for="f-agente">Agente responsable</label><select id="f-agente" name="agente_id"></select></div>
+                <div class="v-campo"><label for="f-departamento">Departamento</label><select id="f-departamento" name="departamento" required></select></div>
+                <div class="v-campo"><label for="f-ciudad">Municipio</label><select id="f-ciudad" name="ciudad" required></select></div>
+                <div class="v-campo"><label for="f-barrio">Barrio</label><input id="f-barrio" name="barrio" type="text" maxlength="80" required></div>
+                <div class="v-campo"><label for="f-estrato">Estrato</label>
+                    <select id="f-estrato" name="estrato"><option value="">No aplica</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></div>
+                <div class="v-campo ancho"><label for="f-direccion">Dirección</label><input id="f-direccion" name="direccion" type="text" maxlength="150" required></div>
+                <div class="v-campo"><label for="f-habitaciones">Habitaciones</label><input id="f-habitaciones" name="habitaciones" type="number" min="0" max="50" value="0"></div>
+                <div class="v-campo"><label for="f-banos">Baños</label><input id="f-banos" name="banos" type="number" min="0" max="50" value="0"></div>
+                <div class="v-campo"><label for="f-parqueaderos">Parqueaderos</label><input id="f-parqueaderos" name="parqueaderos" type="number" min="0" max="50" value="0"></div>
+                <div class="v-campo"><label for="f-area">Área (m²)</label><input id="f-area" name="area" type="number" min="1" required></div>
+                <div class="v-campo ancho" id="f-estado-caja"><label for="f-estado">Al guardar</label>
+                    <select id="f-estado" name="estado"><option value="publicada">Publicar de una vez</option><option value="borrador">Guardar como borrador</option></select></div>
+            </div>
+
+            <!-- Foto del inmueble -->
+            <div class="v-campo ancho">
+                <label for="f-foto">Foto del inmueble</label>
+                <label class="v-foto" for="f-foto">
+                    <img id="f-foto-vista" alt="Vista previa de la foto" hidden>
+                    <span class="v-foto-vacio" id="f-foto-vacio"><i class="fa-solid fa-image"></i><b>Haz clic para subir una foto</b><small>JPG, PNG o WebP · máximo 4 MB</small></span>
+                </label>
+                <input class="v-oculto" id="f-foto" name="imagen" type="file" accept="image/jpeg,image/png,image/webp">
+                <div class="v-ubic-acciones"><button type="button" class="v-btn v-btn-suave v-btn-mini" id="f-foto-quitar" hidden><i class="fa-solid fa-trash"></i> Quitar foto</button></div>
+            </div>
+
+            <!-- Ubicación en el mapa -->
+            <div class="v-campo ancho">
+                <label>Ubicación en el mapa</label>
+                <div class="v-ubic-acciones">
+                    <button type="button" class="v-btn v-btn-suave v-btn-mini" id="f-buscar"><i class="fa-solid fa-magnifying-glass-location"></i> Buscar la dirección</button>
+                    <button type="button" class="v-btn v-btn-suave v-btn-mini" id="f-gps"><i class="fa-solid fa-crosshairs"></i> Usar mi ubicación</button>
+                </div>
+                <div class="v-mapa" id="d-mapa"></div>
+                <input type="hidden" name="lat">
+                <input type="hidden" name="lng">
+                <p class="v-nota" id="f-coords">Haz clic en el mapa para marcar dónde está el inmueble. Puedes arrastrar el pin para ajustarlo.</p>
+            </div>
+            <p class="v-nota i-error" id="d-form-error" hidden></p>
+            <div class="v-form-pie">
+                <button type="button" class="v-btn v-btn-suave" data-cerrar>Cancelar</button>
+                <button type="submit" class="v-btn v-btn-principal" id="d-form-guardar"><i class="fa-solid fa-check"></i> Guardar inmueble</button>
+            </div>
+        </form>
+    </dialog>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="/inmobiliaria/js/inmobiliaria.js"></script>
+    <script src="/inmobiliaria/js/propiedades.js"></script>
+</body>
+</html>

@@ -48,3 +48,53 @@
     .i-panel .v-lista { grid-template-columns: minmax(0, 1fr); }
     .i-panel .v-fila-texto b { overflow-wrap: anywhere; }
 }
+
+/* ---------- Piezas de las pantallas de gestión ---------- */
+.i-filtros { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; padding: 18px 22px; }
+.i-asignar { margin-top: 12px; }
+.i-asignar select, .i-select-mini { padding: 8px 11px; font-size: 0.85rem; }
+.i-error { color: var(--peligro); font-weight: 700; }
+.i-verificada { color: var(--ok); font-size: 0.85em; }
+.v-estado.vendida, .v-estado.arrendada { background: rgba(37, 99, 235, 0.92); }
+.v-campo textarea {
+    width: 100%; min-height: 80px; padding: 11px 13px; border-radius: var(--radio-campo);
+    border: 1px solid var(--campo-borde); background: var(--campo); color: var(--texto);
+    font: inherit; font-size: 0.9rem; resize: vertical;
+}
+.v-campo input[readonly] { opacity: 0.7; cursor: not-allowed; }
+
+/* Pestañas de filtro (contactos y visitas) */
+.i-pestanas { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 22px 0; }
+.i-pestana {
+    display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; cursor: pointer;
+    font: inherit; font-size: 0.85rem; font-weight: 700; color: var(--texto-suave);
+    background: transparent; border: 1px solid var(--campo-borde);
+}
+.i-pestana b { font-size: 0.75rem; padding: 1px 8px; border-radius: 999px; background: var(--neutro-fondo); color: var(--op-texto); }
+.i-pestana[aria-pressed="true"] { color: #fff; border-color: transparent; background: linear-gradient(135deg, var(--op-1), var(--op-2)); }
+.i-pestana[aria-pressed="true"] b { background: rgba(255, 255, 255, 0.22); color: #fff; }
+
+/* Filas con acciones (contactos, visitas, agentes) */
+.i-fila { flex-wrap: wrap; align-items: flex-start; }
+.i-fila .v-fila-texto span { white-space: normal; }
+.i-fila-acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; width: 100%; padding-left: 52px; }
+.i-fila-acciones select { width: auto; max-width: 220px; padding: 7px 10px; border-radius: 10px; border: 1px solid var(--campo-borde); background: var(--campo); color: var(--texto); font: inherit; font-size: 0.82rem; }
+.i-mensaje { margin-top: 6px; font-size: 0.85rem; color: var(--texto); white-space: pre-line; }
+
+/* Planes de membresía */
+.i-planes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.i-plan { display: grid; gap: 10px; padding: 24px; text-align: left; }
+.i-plan b.i-precio { font-size: 1.7rem; font-weight: 800; }
+.i-plan ul { margin: 0; padding-left: 18px; color: var(--texto-suave); font-size: 0.86rem; display: grid; gap: 4px; }
+
+/* Logo de la empresa */
+.i-logo { width: 96px; height: 96px; border-radius: 24px; object-fit: cover; border: 1px solid var(--campo-borde); background: var(--campo); display: grid; place-items: center; font-size: 1.8rem; font-weight: 800; color: var(--op-texto); }
+
+@media (max-width: 960px) {
+    .i-filtros { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .i-planes { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+    .i-filtros { grid-template-columns: 1fr; }
+    .i-fila-acciones { padding-left: 0; }
+}

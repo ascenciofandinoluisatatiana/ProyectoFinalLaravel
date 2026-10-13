@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Membresía · Inmobiliaria · Umbral</title>
+    <link rel="icon" type="image/png" href="/img/icono.png">
+
+    <!-- Fuentes del diseño (las mismas del inicio y el login) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Mismo diseño del panel del vendedor + iconos (los entrega Laravel en /assets) -->
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
+    <link rel="stylesheet" href="/vendedor/css/vendedor.css">
+    <link rel="stylesheet" href="/inmobiliaria/css/inmobiliaria.css">
+
+    <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
+    <script>
+        try {
+            var tema = localStorage.getItem('umbral-tema');
+            if (tema === 'dark' || tema === 'light') document.documentElement.setAttribute('data-theme', tema);
+        } catch (e) {}
+    </script>
+</head>
+<body class="vendedor op-venta" data-pagina="inmobiliaria-membresia">
+    <div class="v-pagina">
+        <header class="v-topbar" id="v-topbar"></header>
+
+        <main class="v-contenido">
+            <div class="i-estado-carga" id="d-cargando"><i class="fa-solid fa-spinner fa-spin"></i>Cargando membresía…</div>
+
+            <div id="d-panel" class="i-panel" hidden>
+                <section class="v-tarjeta v-hero">
+                    <div>
+                        <p class="v-etiqueta"><i class="fa-solid fa-credit-card"></i> Membresía</p>
+                        <h1 class="titulo-serif">Posicionamiento de tus propiedades</h1>
+                        <p>Con la membresía activa, tus propiedades aparecen primero cuando un visitante busca en su zona.</p>
+                    </div>
+                </section>
+
+                <section class="v-tarjeta v-membresia" id="d-vigente"></section>
+
+                <section>
+                    <h2 class="v-titulo-seccion" style="margin-bottom:14px">Elige la duración</h2>
+                    <div class="i-planes" id="d-planes"></div>
+                    <p class="v-nota" style="margin-top:12px"><i class="fa-solid fa-circle-info"></i>
+                        Si renuevas antes de que venza, el nuevo periodo empieza cuando termina el actual: no pierdes días.
+                        El pago por PSE se conectará cuando el proyecto defina el proveedor; por ahora el pago es simulado.</p>
+                </section>
+
+                <section class="v-tarjeta">
+                    <div class="v-tarjeta-cabeza"><h2>Historial de pagos</h2><small id="d-historial-total"></small></div>
+                    <div class="i-tabla-caja" id="d-historial"></div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="/inmobiliaria/js/inmobiliaria.js"></script>
+    <script src="/inmobiliaria/js/membresia.js"></script>
+</body>
+</html>

@@ -6,7 +6,13 @@ use App\Http\Controllers\Api\V1\Admin\CuentaController;
 use App\Http\Controllers\Api\V1\Admin\ResumenController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\HealthController;
+use App\Http\Controllers\Api\V1\Inmobiliaria\AgenteController as InmobiliariaAgenteController;
+use App\Http\Controllers\Api\V1\Inmobiliaria\ContactoController as InmobiliariaContactoController;
+use App\Http\Controllers\Api\V1\Inmobiliaria\MembresiaController as InmobiliariaMembresiaController;
+use App\Http\Controllers\Api\V1\Inmobiliaria\PerfilController as InmobiliariaPerfilController;
+use App\Http\Controllers\Api\V1\Inmobiliaria\PropiedadController as InmobiliariaPropiedadController;
 use App\Http\Controllers\Api\V1\Inmobiliaria\ResumenController as InmobiliariaResumenController;
+use App\Http\Controllers\Api\V1\Inmobiliaria\VisitaController as InmobiliariaVisitaController;
 use App\Http\Controllers\Api\V1\Inmobiliaria\SesionController as InmobiliariaSesionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\LeadController;
@@ -93,5 +99,33 @@ Route::prefix('v1/inmobiliaria')->middleware('web')->group(function () {
 
         // Dashboard: cifras, gráfica, agentes, contactos y visitas
         Route::get('resumen', InmobiliariaResumenController::class);
+
+        // Propiedades (POST también para editar: así se puede subir la foto)
+        Route::get('propiedades', [InmobiliariaPropiedadController::class, 'index']);
+        Route::post('propiedades', [InmobiliariaPropiedadController::class, 'store']);
+        Route::post('propiedades/{id}', [InmobiliariaPropiedadController::class, 'update'])->whereNumber('id');
+        Route::patch('propiedades/{id}/estado', [InmobiliariaPropiedadController::class, 'estado'])->whereNumber('id');
+        Route::patch('propiedades/{id}/agente', [InmobiliariaPropiedadController::class, 'asignar'])->whereNumber('id');
+        Route::delete('propiedades/{id}', [InmobiliariaPropiedadController::class, 'destroy'])->whereNumber('id');
+
+        // Agentes y equipo
+        Route::get('agentes', [InmobiliariaAgenteController::class, 'index']);
+        Route::post('agentes', [InmobiliariaAgenteController::class, 'store']);
+        Route::put('agentes/{id}', [InmobiliariaAgenteController::class, 'update'])->whereNumber('id');
+        Route::patch('agentes/{id}/estado', [InmobiliariaAgenteController::class, 'estado'])->whereNumber('id');
+
+        // Contactos (leads) y visitas
+        Route::get('contactos', [InmobiliariaContactoController::class, 'index']);
+        Route::patch('contactos/{id}', [InmobiliariaContactoController::class, 'update'])->whereNumber('id');
+        Route::get('visitas', [InmobiliariaVisitaController::class, 'index']);
+        Route::post('visitas', [InmobiliariaVisitaController::class, 'store']);
+        Route::patch('visitas/{id}', [InmobiliariaVisitaController::class, 'update'])->whereNumber('id');
+
+        // Membresía (pago simulado hasta integrar PSE) y perfil de la empresa
+        Route::get('membresia', [InmobiliariaMembresiaController::class, 'show']);
+        Route::post('membresia', [InmobiliariaMembresiaController::class, 'contratar']);
+        Route::get('perfil', [InmobiliariaPerfilController::class, 'show']);
+        Route::post('perfil', [InmobiliariaPerfilController::class, 'update']);
+        Route::post('perfil/clave', [InmobiliariaPerfilController::class, 'cambiarClave']);
     });
 });

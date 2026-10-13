@@ -16,14 +16,16 @@
     // Secciones del panel. "listo: false" = se ve en el menú pero aún no se puede abrir.
     var SECCIONES = [
         { id: 'dashboard', href: '/inmobiliaria/dashboard.html', icono: 'fa-chart-line', texto: 'Resumen', listo: true },
-        { id: 'propiedades', href: '/inmobiliaria/propiedades.html', icono: 'fa-house', texto: 'Propiedades', listo: false },
-        { id: 'agentes', href: '/inmobiliaria/agentes.html', icono: 'fa-user-tie', texto: 'Agentes', listo: false },
-        { id: 'contactos', href: '/inmobiliaria/contactos.html', icono: 'fa-comments', texto: 'Contactos', listo: false },
-        { id: 'visitas', href: '/inmobiliaria/visitas.html', icono: 'fa-calendar-check', texto: 'Visitas', listo: false },
-        { id: 'membresia', href: '/inmobiliaria/membresia.html', icono: 'fa-credit-card', texto: 'Membresía', listo: false },
-        { id: 'perfil', href: '/inmobiliaria/perfil.html', icono: 'fa-building', texto: 'Empresa', listo: false }
+        { id: 'propiedades', href: '/inmobiliaria/propiedades.html', icono: 'fa-house', texto: 'Propiedades', listo: true },
+        { id: 'agentes', href: '/inmobiliaria/agentes.html', icono: 'fa-user-tie', texto: 'Agentes', listo: true },
+        { id: 'contactos', href: '/inmobiliaria/contactos.html', icono: 'fa-comments', texto: 'Contactos', listo: true },
+        { id: 'visitas', href: '/inmobiliaria/visitas.html', icono: 'fa-calendar-check', texto: 'Visitas', listo: true },
+        { id: 'membresia', href: '/inmobiliaria/membresia.html', icono: 'fa-credit-card', texto: 'Membresía', listo: true },
+        { id: 'perfil', href: '/inmobiliaria/perfil.html', icono: 'fa-building', texto: 'Empresa', listo: true }
     ];
 
+    var TIPOS = { apartamento: 'Apartamento', casa: 'Casa', finca: 'Finca', local: 'Local', lote: 'Lote', oficina: 'Oficina' };
+    var ESTADOS_PROPIEDAD = { publicada: 'Publicada', borrador: 'Borrador', pausada: 'Pausada', vendida: 'Vendida', arrendada: 'Arrendada' };
     var ESTADOS_LEAD = { nuevo: 'Nuevo', en_seguimiento: 'En seguimiento', cerrado: 'Cerrado', descartado: 'Descartado' };
     var ESTADOS_VISITA = { pendiente: 'Pendiente', confirmada: 'Confirmada', realizada: 'Realizada', cancelada: 'Cancelada' };
 
@@ -59,6 +61,15 @@
         return d === 1 ? 'ayer' : 'hace ' + d + ' días';
     }
 
+    function cop(n) {
+        return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(Number(n) || 0);
+    }
+
+    // Foto de una propiedad: las subidas viven en /storage; las de ejemplo, en /img
+    function foto(url) {
+        return url ? '<img src="' + esc(url) + '" alt="" loading="lazy">' : '';
+    }
+
     function leerCookie(nombre) {
         var fila = document.cookie.split('; ').filter(function (f) { return f.indexOf(nombre + '=') === 0; })[0];
         return fila ? decodeURIComponent(fila.substring(nombre.length + 1)) : '';
@@ -83,18 +94,25 @@
         opciones = opciones || {};
         var metodo = opciones.metodo || 'GET';
         var cabeceras = { 'Accept': 'application/json' };
+        var cuerpo;
 
         if (metodo !== 'GET') {
-            cabeceras['Content-Type'] = 'application/json';
             var xsrf = leerCookie('XSRF-TOKEN');
             if (xsrf) cabeceras['X-XSRF-TOKEN'] = xsrf;
+        }
+        // FormData (formularios con foto) viaja tal cual; lo demás como JSON
+        if (opciones.formulario) {
+            cuerpo = opciones.formulario;
+        } else if (opciones.datos) {
+            cabeceras['Content-Type'] = 'application/json';
+            cuerpo = JSON.stringify(opciones.datos);
         }
 
         var respuesta = await fetch(BASE + ruta, {
             method: metodo,
             credentials: 'same-origin',
             headers: cabeceras,
-            body: opciones.datos ? JSON.stringify(opciones.datos) : undefined
+            body: cuerpo
         });
 
         // Sin sesión o sin permiso: de vuelta al inicio
@@ -105,7 +123,10 @@
 
         var json = await respuesta.json().catch(function () { return {}; });
         if (!respuesta.ok) {
-            throw new Error(json.message || 'No se pudo completar la acción.');
+            // 422: se muestra el primer error de validación (en español, lo arma Laravel)
+            var errores = json.errors ? Object.keys(json.errors).map(function (k) { return json.errors[k][0]; }) : [];
+            if (respuesta.status === 419) errores = ['Tu sesión expiró. Recarga la página.'];
+            throw new Error(errores[0] || json.message || 'No se pudo completar la acción.');
         }
         return json;
     }
@@ -178,6 +199,21 @@
         temporizador = setTimeout(function () { t.classList.remove('visible'); }, 3200);
     }
 
+    // Cierra una ventana <dialog> con la X, con "Cancelar" o al tocar fuera.
+    function prepararVentana(dialogo) {
+        dialogo.addEventListener('click', function (e) {
+            if (e.target === dialogo || e.target.closest('[data-cerrar]')) dialogo.close();
+        });
+    }
+
+    // Opciones <option> con los agentes ACTIVOS de la inmobiliaria
+    function opcionesAgentes(agentes, elegido, textoVacio) {
+        return '<option value="">' + esc(textoVacio || 'Sin agente') + '</option>' +
+            agentes.filter(function (a) { return a.estado === 'activo' || a.id === elegido; }).map(function (a) {
+                return '<option value="' + a.id + '"' + (a.id === elegido ? ' selected' : '') + '>' + esc(a.nombre) + '</option>';
+            }).join('');
+    }
+
     /* ---------- Arranque de cada pantalla ----------
        Revisa la sesión con el servidor y dibuja la barra.
        Devuelve los datos de la inmobiliaria o null (si no hay sesión ya redirigió). */
@@ -192,8 +228,8 @@
     }
 
     window.Inmobiliaria = {
-        ESTADOS_LEAD: ESTADOS_LEAD, ESTADOS_VISITA: ESTADOS_VISITA,
-        esc: esc, iniciales: iniciales, fecha: fecha, fechaLarga: fechaLarga, relativo: relativo,
-        api: api, iniciar: iniciar, toast: toast
+        TIPOS: TIPOS, ESTADOS_PROPIEDAD: ESTADOS_PROPIEDAD, ESTADOS_LEAD: ESTADOS_LEAD, ESTADOS_VISITA: ESTADOS_VISITA,
+        esc: esc, iniciales: iniciales, fecha: fecha, fechaLarga: fechaLarga, relativo: relativo, cop: cop, foto: foto,
+        api: api, iniciar: iniciar, toast: toast, prepararVentana: prepararVentana, opcionesAgentes: opcionesAgentes
     };
 })();

@@ -56,3 +56,17 @@ Route::prefix('admin')->name('admin.')->group(function () {
         
     });
 });
+
+/*
+|--------------------------------------------------------------------------
+| Fotos subidas (propiedades y logos/avatares)  →  /storage/...
+|--------------------------------------------------------------------------
+| Si existe el enlace public/storage (php artisan storage:link) el archivo se
+| entrega directo; si no (por ejemplo en Windows con Docker), lo entrega esta ruta.
+| Solo se permiten estas dos carpetas y nombres simples (sin "..").
+*/
+Route::get('storage/{ruta}', function (string $ruta) {
+    abort_unless(\Illuminate\Support\Facades\Storage::disk('public')->exists($ruta), 404);
+
+    return \Illuminate\Support\Facades\Storage::disk('public')->response($ruta);
+})->where('ruta', '(propiedades|avatars)/[A-Za-z0-9_\-]+\.(jpg|jpeg|png|webp)');

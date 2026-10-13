@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Contactos · Inmobiliaria · Umbral</title>
+    <link rel="icon" type="image/png" href="/img/icono.png">
+
+    <!-- Fuentes del diseño (las mismas del inicio y el login) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Mismo diseño del panel del vendedor + iconos (los entrega Laravel en /assets) -->
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
+    <link rel="stylesheet" href="/vendedor/css/vendedor.css">
+    <link rel="stylesheet" href="/inmobiliaria/css/inmobiliaria.css">
+
+    <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
+    <script>
+        try {
+            var tema = localStorage.getItem('umbral-tema');
+            if (tema === 'dark' || tema === 'light') document.documentElement.setAttribute('data-theme', tema);
+        } catch (e) {}
+    </script>
+</head>
+<body class="vendedor op-venta" data-pagina="inmobiliaria-contactos">
+    <div class="v-pagina">
+        <header class="v-topbar" id="v-topbar"></header>
+
+        <main class="v-contenido">
+            <div class="i-estado-carga" id="d-cargando"><i class="fa-solid fa-spinner fa-spin"></i>Cargando contactos…</div>
+
+            <div id="d-panel" class="i-panel" hidden>
+                <section class="v-tarjeta v-hero">
+                    <div>
+                        <p class="v-etiqueta"><i class="fa-solid fa-comments"></i> Contactos</p>
+                        <h1 class="titulo-serif">Personas interesadas</h1>
+                        <p>Mensajes que dejaron los visitantes en tus propiedades. Asígnalos a un agente y haz seguimiento.</p>
+                    </div>
+                </section>
+
+                <section class="v-tarjeta">
+                    <div class="i-pestanas" id="d-pestanas" role="group" aria-label="Filtrar por estado"></div>
+                    <div class="i-filtros" style="grid-template-columns:minmax(0,320px)">
+                        <div class="v-campo"><label for="filtro-agente">Agente</label><select id="filtro-agente"></select></div>
+                    </div>
+                    <div class="v-lista" id="d-contactos"></div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Ventana: programar visita desde un contacto -->
+    <dialog class="v-ventana" id="d-visita">
+        <div class="v-ventana-cabeza">
+            <h2 class="titulo-serif">Programar visita</h2>
+            <button type="button" class="v-icono-btn" data-cerrar aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="d-visita-form" novalidate>
+            <p class="v-nota" id="d-visita-quien"></p>
+            <div class="v-form-rejilla">
+                <div class="v-campo"><label for="v-fecha">Fecha y hora (hora de Colombia)</label><input id="v-fecha" name="fecha" type="datetime-local" required></div>
+                <div class="v-campo"><label for="v-agente">Agente que la atiende</label><select id="v-agente" name="agente_id"></select></div>
+                <div class="v-campo ancho"><label for="v-nota">Nota (opcional)</label><textarea id="v-nota" name="nota" maxlength="500"></textarea></div>
+            </div>
+            <p class="v-nota i-error" id="d-visita-error" hidden></p>
+            <div class="v-form-pie">
+                <button type="button" class="v-btn v-btn-suave" data-cerrar>Cancelar</button>
+                <button type="submit" class="v-btn v-btn-principal"><i class="fa-solid fa-calendar-plus"></i> Programar</button>
+            </div>
+        </form>
+    </dialog>
+
+    <script src="/inmobiliaria/js/inmobiliaria.js"></script>
+    <script src="/inmobiliaria/js/contactos.js"></script>
+</body>
+</html>

@@ -37,6 +37,7 @@
 /* Contenido del panel (se muestra cuando la sesión es válida) */
 .i-panel { display: grid; gap: 24px; grid-template-columns: minmax(0, 1fr); }
 .i-panel[hidden], .i-estado-carga[hidden] { display: none; }
+.i-panel .v-lista { grid-template-columns: minmax(0, 1fr); }
 
 /* La inmobiliaria tiene más secciones que el vendedor: pestañas más compactas
    y, si no caben, se desplazan de lado en vez de desbordar la pantalla */
@@ -45,7 +46,6 @@
 @media (max-width: 960px) {
     .v-tabs { flex-basis: 100%; }
     .i-panel .v-rejilla { grid-template-columns: minmax(0, 1fr); }
-    .i-panel .v-lista { grid-template-columns: minmax(0, 1fr); }
     .i-panel .v-fila-texto b { overflow-wrap: anywhere; }
 }
 

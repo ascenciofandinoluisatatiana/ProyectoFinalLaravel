@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\Api\V1\Inmobiliaria;
 
-use App\Models\Lead;
+use App\Http\Controllers\Api\V1\Concerns\ManejaVisitas;
 use App\Models\Visita;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 
 /**
@@ -16,7 +15,7 @@ use Illuminate\Validation\Rule;
  */
 class VisitaController extends BaseInmobiliariaController
 {
-    private const ZONA = 'America/Bogota';
+    use ManejaVisitas;
 
     /** GET /visitas?periodo=proximas|pasadas|todas&estado= */
     public function index(Request $request): JsonResponse
@@ -36,7 +35,7 @@ class VisitaController extends BaseInmobiliariaController
             $consulta->where('estado', $request->query('estado'));
         }
 
-        return response()->json(['data' => $consulta->get()->map(fn (Visita $v) => $this->formato($v))->all()]);
+        return response()->json(['data' => $consulta->get()->map(fn (Visita $v) => $this->formatoVisita($v))->all()]);
     }
 
     /** POST /visitas */
@@ -79,7 +78,7 @@ class VisitaController extends BaseInmobiliariaController
             'nota' => $datos['nota'] ?? null,
         ]);
 
-        return response()->json(['message' => 'Visita programada.', 'data' => $this->formato($visita->load(['propiedad', 'agente']))], 201);
+        return response()->json(['message' => 'Visita programada.', 'data' => $this->formatoVisita($visita->load(['propiedad', 'agente']))], 201);
     }
 
     /** PATCH /visitas/{id}  { estado?, fecha?, agente_id?, nota? } */
@@ -101,46 +100,6 @@ class VisitaController extends BaseInmobiliariaController
 
         $visita->update($datos);
 
-        return response()->json(['message' => 'Visita actualizada.', 'data' => $this->formato($visita->fresh()->load(['propiedad', 'agente']))]);
-    }
-
-    /** La fecha (en hora de Colombia) debe ser posterior a este momento. */
-    private function reglaFutura(): \Closure
-    {
-        return function (string $atributo, $valor, \Closure $falla) {
-            try {
-                if ($this->aUtc((string) $valor)->lte(now())) {
-                    $falla('La visita debe ser en una fecha y hora futuras.');
-                }
-            } catch (\Throwable $e) {
-                $falla('La fecha no es válida.');
-            }
-        };
-    }
-
-    private function aUtc(string $fecha): Carbon
-    {
-        return Carbon::parse($fecha, self::ZONA)->utc();
-    }
-
-    private function formato(Visita $v): array
-    {
-        return [
-            'id' => $v->id,
-            'nombre' => $v->nombre,
-            'contacto' => $v->contacto,
-            'fecha' => $v->fecha->toIso8601String(),
-            // Para rellenar el campo datetime-local del formulario (hora de Colombia)
-            'fecha_local' => $v->fecha->copy()->setTimezone(self::ZONA)->format('Y-m-d\TH:i'),
-            'estado' => $v->estado,
-            'nota' => $v->nota,
-            'lead_id' => $v->lead_id,
-            'propiedad' => [
-                'id' => $v->propiedad_id,
-                'titulo' => $this->tituloPropiedad($v->propiedad),
-                'direccion' => $v->propiedad?->direccion,
-            ],
-            'agente' => $v->agente ? ['id' => $v->agente->id, 'nombre' => $v->agente->name] : null,
-        ];
+        return response()->json(['message' => 'Visita actualizada.', 'data' => $this->formatoVisita($visita->fresh()->load(['propiedad', 'agente']))]);
     }
 }

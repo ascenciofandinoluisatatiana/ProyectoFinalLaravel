@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mi agenda · Agente · Umbral</title>
+    <link rel="icon" type="image/png" href="/img/icono.png">
+
+    <!-- Fuentes del diseño (las mismas del inicio y el login) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Mismo diseño del panel del vendedor + iconos (los entrega Laravel en /assets) -->
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
+    <link rel="stylesheet" href="/vendedor/css/vendedor.css">
+    <link rel="stylesheet" href="/inmobiliaria/css/inmobiliaria.css">
+
+    <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
+    <script>
+        try {
+            var tema = localStorage.getItem('umbral-tema');
+            if (tema === 'dark' || tema === 'light') document.documentElement.setAttribute('data-theme', tema);
+        } catch (e) {}
+    </script>
+</head>
+<body class="vendedor op-arriendo" data-pagina="agente-visitas">
+    <div class="v-pagina">
+        <header class="v-topbar" id="v-topbar"></header>
+
+        <main class="v-contenido">
+            <div class="i-estado-carga" id="d-cargando"><i class="fa-solid fa-spinner fa-spin"></i>Cargando visitas…</div>
+
+            <div id="d-panel" class="i-panel" hidden>
+                <section class="v-tarjeta v-hero">
+                    <div>
+                        <p class="v-etiqueta"><i class="fa-solid fa-calendar-check"></i> Visitas</p>
+                        <h1 class="titulo-serif">Mi agenda</h1>
+                        <p>Confirma, reprograma o cancela tus visitas. Las horas están en hora de Colombia.</p>
+                    </div>
+                    <div class="v-chips" style="margin-top:0">
+                        <button type="button" class="v-btn v-btn-principal" id="d-nueva"><i class="fa-solid fa-calendar-plus"></i> Nueva visita</button>
+                    </div>
+                </section>
+
+                <section class="v-tarjeta">
+                    <div class="i-pestanas" id="d-periodos" role="group" aria-label="Periodo">
+                        <button type="button" class="i-pestana" data-periodo="proximas" aria-pressed="true">Próximas</button>
+                        <button type="button" class="i-pestana" data-periodo="pasadas" aria-pressed="false">Pasadas</button>
+                        <button type="button" class="i-pestana" data-periodo="todas" aria-pressed="false">Todas</button>
+                    </div>
+                    <div class="v-lista" id="d-visitas"></div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Ventana: nueva visita -->
+    <dialog class="v-ventana" id="d-nueva-ventana">
+        <div class="v-ventana-cabeza">
+            <h2 class="titulo-serif">Nueva visita</h2>
+            <button type="button" class="v-icono-btn" data-cerrar aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="d-nueva-form" novalidate>
+            <div class="v-form-rejilla">
+                <div class="v-campo ancho"><label for="n-propiedad">Propiedad</label><select id="n-propiedad" name="propiedad_id" required></select></div>
+                <div class="v-campo"><label for="n-nombre">Nombre de quien visita</label><input id="n-nombre" name="nombre" type="text" maxlength="120" required></div>
+                <div class="v-campo"><label for="n-contacto">Teléfono o correo</label><input id="n-contacto" name="contacto" type="text" maxlength="120" required></div>
+                <div class="v-campo"><label for="n-fecha">Fecha y hora</label><input id="n-fecha" name="fecha" type="datetime-local" required></div>
+                <div class="v-campo ancho"><label for="n-nota">Nota (opcional)</label><textarea id="n-nota" name="nota" maxlength="500"></textarea></div>
+            </div>
+            <p class="v-nota i-error" id="d-nueva-error" hidden></p>
+            <div class="v-form-pie">
+                <button type="button" class="v-btn v-btn-suave" data-cerrar>Cancelar</button>
+                <button type="submit" class="v-btn v-btn-principal"><i class="fa-solid fa-check"></i> Programar</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- Ventana: reprogramar -->
+    <dialog class="v-ventana" id="d-reprogramar">
+        <div class="v-ventana-cabeza">
+            <h2 class="titulo-serif">Reprogramar visita</h2>
+            <button type="button" class="v-icono-btn" data-cerrar aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="d-reprogramar-form" novalidate>
+            <p class="v-nota" id="d-reprogramar-quien"></p>
+            <div class="v-campo"><label for="r-fecha">Nueva fecha y hora</label><input id="r-fecha" name="fecha" type="datetime-local" required></div>
+            <p class="v-nota">La visita queda pendiente de confirmar otra vez.</p>
+            <p class="v-nota i-error" id="d-reprogramar-error" hidden></p>
+            <div class="v-form-pie">
+                <button type="button" class="v-btn v-btn-suave" data-cerrar>Cancelar</button>
+                <button type="submit" class="v-btn v-btn-principal"><i class="fa-solid fa-check"></i> Guardar</button>
+            </div>
+        </form>
+    </dialog>
+
+    <script src="/agente/js/agente.js"></script>
+    <script src="/agente/js/visitas.js"></script>
+</body>
+</html>

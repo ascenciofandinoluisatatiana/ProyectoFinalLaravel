@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mi día · Agente · Umbral</title>
+    <link rel="icon" type="image/png" href="/img/icono.png">
+
+    <!-- Fuentes del diseño (las mismas del inicio y el login) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Mismo diseño del panel del vendedor + iconos (los entrega Laravel en /assets) -->
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
+    <link rel="stylesheet" href="/vendedor/css/vendedor.css">
+    <link rel="stylesheet" href="/inmobiliaria/css/inmobiliaria.css">
+
+    <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
+    <script>
+        try {
+            var tema = localStorage.getItem('umbral-tema');
+            if (tema === 'dark' || tema === 'light') document.documentElement.setAttribute('data-theme', tema);
+        } catch (e) {}
+    </script>
+</head>
+<body class="vendedor op-arriendo" data-pagina="agente-dashboard">
+    <div class="v-pagina">
+        <header class="v-topbar" id="v-topbar"></header>
+
+        <main class="v-contenido">
+            <div class="i-estado-carga" id="d-cargando"><i class="fa-solid fa-spinner fa-spin"></i>Cargando tu panel…</div>
+
+            <div id="d-panel" class="i-panel" hidden>
+                <section class="v-tarjeta v-hero">
+                    <div>
+                        <p class="v-etiqueta"><i class="fa-solid fa-user-tie"></i> Panel del agente</p>
+                        <h1 class="titulo-serif" id="d-titulo">Mi día</h1>
+                        <p id="d-subtitulo">Tus visitas, tus contactos nuevos y las propiedades que tienes a cargo.</p>
+                    </div>
+                </section>
+
+                <section class="v-kpis" id="d-kpis"></section>
+
+                <div class="v-rejilla">
+                    <section class="v-tarjeta">
+                        <div class="v-tarjeta-cabeza"><h2>Próximas visitas</h2><a class="v-enlace" href="/agente/visitas.html">Ver agenda</a></div>
+                        <div class="v-lista" id="d-visitas"></div>
+                    </section>
+                    <section class="v-tarjeta">
+                        <div class="v-tarjeta-cabeza"><h2>Contactos nuevos</h2><a class="v-enlace" href="/agente/contactos.html">Ver todos</a></div>
+                        <div class="v-lista" id="d-contactos"></div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/agente/js/agente.js"></script>
+    <script src="/agente/js/dashboard.js"></script>
+</body>
+</html>

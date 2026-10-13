@@ -15,17 +15,22 @@
         soporte: 'panel.html',
         vendedor: '/vendedor/perfil.html',
         inmobiliaria: '/inmobiliaria/dashboard.html',
-        agente: 'panel.html'
+        agente: '/agente/dashboard.html'
     };
 
-    // El panel de la inmobiliaria usa la sesión web de Laravel (igual que el admin):
-    // primero se pide la cookie XSRF-TOKEN y luego se inicia la sesión.
-    async function entrarAlPanelInmobiliaria(email, password, recordar) {
-        await fetch('/api/v1/inmobiliaria/csrf', { credentials: 'same-origin' });
+    // Los paneles de la inmobiliaria y del agente usan la sesión web de Laravel
+    // (igual que el admin): primero se pide la cookie XSRF-TOKEN y luego se inicia la sesión.
+    var PANELES_CON_SESION = {
+        inmobiliaria: { api: '/api/v1/inmobiliaria', destino: '/inmobiliaria/dashboard.html' },
+        agente: { api: '/api/v1/agente', destino: '/agente/dashboard.html' }
+    };
+
+    async function entrarAlPanelConSesion(panel, email, password, recordar) {
+        await fetch(panel.api + '/csrf', { credentials: 'same-origin' });
         var fila = document.cookie.split('; ').filter(function (f) { return f.indexOf('XSRF-TOKEN=') === 0; })[0];
         var xsrf = fila ? decodeURIComponent(fila.substring('XSRF-TOKEN='.length)) : '';
 
-        var acceso = await fetch('/api/v1/inmobiliaria/sesion', {
+        var acceso = await fetch(panel.api + '/sesion', {
             method: 'POST',
             credentials: 'same-origin',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-XSRF-TOKEN': xsrf },
@@ -34,10 +39,10 @@
         var datos = await acceso.json().catch(function () { return {}; });
 
         if (!acceso.ok) {
-            throw new Error(datos.message || 'La cuenta no pudo entrar al panel de la inmobiliaria.');
+            throw new Error(datos.message || 'La cuenta no pudo entrar a su panel.');
         }
 
-        window.location.href = '/inmobiliaria/dashboard.html';
+        window.location.href = panel.destino;
     }
 
     // La API valida credenciales, pero la administración necesita una sesión
@@ -146,9 +151,9 @@
                 return;
             }
 
-            if (datos.usuario.rol === 'inmobiliaria') {
+            if (PANELES_CON_SESION[datos.usuario.rol]) {
                 mostrar(window.t('msg.bienvenido', { nombre: datos.usuario.nombre }), 'ok');
-                await entrarAlPanelInmobiliaria(email, password, recordar);
+                await entrarAlPanelConSesion(PANELES_CON_SESION[datos.usuario.rol], email, password, recordar);
                 return;
             }
 

@@ -5,6 +5,11 @@ use App\Http\Controllers\Admin\VerificacionController as AdminVerificacionContro
 use App\Http\Controllers\Api\V1\Admin\CuentaController;
 use App\Http\Controllers\Api\V1\Admin\ResumenController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\Agente\ContactoController as AgenteContactoController;
+use App\Http\Controllers\Api\V1\Agente\PanelController as AgentePanelController;
+use App\Http\Controllers\Api\V1\Agente\PerfilController as AgentePerfilController;
+use App\Http\Controllers\Api\V1\Agente\SesionController as AgenteSesionController;
+use App\Http\Controllers\Api\V1\Agente\VisitaController as AgenteVisitaController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\Inmobiliaria\AgenteController as InmobiliariaAgenteController;
 use App\Http\Controllers\Api\V1\Inmobiliaria\ContactoController as InmobiliariaContactoController;
@@ -127,5 +132,34 @@ Route::prefix('v1/inmobiliaria')->middleware('web')->group(function () {
         Route::get('perfil', [InmobiliariaPerfilController::class, 'show']);
         Route::post('perfil', [InmobiliariaPerfilController::class, 'update']);
         Route::post('perfil/clave', [InmobiliariaPerfilController::class, 'cambiarClave']);
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| API del panel del agente  →  /api/v1/agente/...
+|--------------------------------------------------------------------------
+| El agente solo ve lo que su inmobiliaria le asignó. Misma sesión web.
+*/
+Route::prefix('v1/agente')->middleware('web')->group(function () {
+    Route::get('csrf', [AgenteSesionController::class, 'csrf']);
+    Route::post('sesion', [AgenteSesionController::class, 'entrar'])->middleware('throttle:10,1');
+
+    Route::middleware('agente.api')->group(function () {
+        Route::get('yo', [AgenteSesionController::class, 'yo']);
+        Route::post('salir', [AgenteSesionController::class, 'salir']);
+
+        Route::get('resumen', [AgentePanelController::class, 'resumen']);
+        Route::get('propiedades', [AgentePanelController::class, 'propiedades']);
+
+        Route::get('contactos', [AgenteContactoController::class, 'index']);
+        Route::patch('contactos/{id}', [AgenteContactoController::class, 'update'])->whereNumber('id');
+
+        Route::get('visitas', [AgenteVisitaController::class, 'index']);
+        Route::post('visitas', [AgenteVisitaController::class, 'store']);
+        Route::patch('visitas/{id}', [AgenteVisitaController::class, 'update'])->whereNumber('id');
+
+        Route::put('perfil', [AgentePerfilController::class, 'update']);
+        Route::post('perfil/clave', [AgentePerfilController::class, 'cambiarClave']);
     });
 });

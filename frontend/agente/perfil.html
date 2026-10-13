@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mi cuenta · Agente · Umbral</title>
+    <link rel="icon" type="image/png" href="/img/icono.png">
+
+    <!-- Fuentes del diseño (las mismas del inicio y el login) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Mismo diseño del panel del vendedor + iconos (los entrega Laravel en /assets) -->
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
+    <link rel="stylesheet" href="/vendedor/css/vendedor.css">
+    <link rel="stylesheet" href="/inmobiliaria/css/inmobiliaria.css">
+
+    <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
+    <script>
+        try {
+            var tema = localStorage.getItem('umbral-tema');
+            if (tema === 'dark' || tema === 'light') document.documentElement.setAttribute('data-theme', tema);
+        } catch (e) {}
+    </script>
+</head>
+<body class="vendedor op-arriendo" data-pagina="agente-perfil">
+    <div class="v-pagina">
+        <header class="v-topbar" id="v-topbar"></header>
+
+        <main class="v-contenido">
+            <div class="i-estado-carga" id="d-cargando"><i class="fa-solid fa-spinner fa-spin"></i>Cargando tu cuenta…</div>
+
+            <div id="d-panel" class="i-panel" hidden>
+                <section class="v-tarjeta v-hero">
+                    <div>
+                        <p class="v-etiqueta"><i class="fa-solid fa-user"></i> Mi cuenta</p>
+                        <h1 class="titulo-serif" id="d-nombre">Mi cuenta</h1>
+                        <p>Tu nombre y documento los administra tu inmobiliaria. Aquí puedes cambiar tu teléfono y tu contraseña.</p>
+                    </div>
+                </section>
+
+                <div class="v-rejilla">
+                    <section class="v-tarjeta">
+                        <div class="v-tarjeta-cabeza"><h2>Mis datos</h2></div>
+                        <form id="d-datos" class="v-tarjeta-cuerpo" style="display:grid;gap:14px" novalidate>
+                            <div class="v-form-rejilla">
+                                <div class="v-campo ancho"><label for="p-nombre">Nombre</label><input id="p-nombre" type="text" readonly></div>
+                                <div class="v-campo"><label for="p-correo">Correo</label><input id="p-correo" type="email" readonly></div>
+                                <div class="v-campo"><label for="p-documento">Documento</label><input id="p-documento" type="text" readonly></div>
+                                <div class="v-campo"><label for="p-inmobiliaria">Inmobiliaria</label><input id="p-inmobiliaria" type="text" readonly></div>
+                                <div class="v-campo"><label for="p-telefono">Teléfono</label><input id="p-telefono" name="telefono" type="tel" maxlength="20" required></div>
+                            </div>
+                            <p class="v-nota i-error" id="d-datos-error" hidden></p>
+                            <div class="v-form-pie"><button type="submit" class="v-btn v-btn-principal"><i class="fa-solid fa-check"></i> Guardar teléfono</button></div>
+                        </form>
+                    </section>
+
+                    <section class="v-tarjeta">
+                        <div class="v-tarjeta-cabeza"><h2>Cambiar contraseña</h2></div>
+                        <form id="d-clave" class="v-tarjeta-cuerpo" style="display:grid;gap:14px" novalidate>
+                            <div class="v-campo"><label for="c-actual">Contraseña actual</label><input id="c-actual" name="actual" type="password" autocomplete="current-password" required></div>
+                            <div class="v-campo"><label for="c-nueva">Nueva contraseña</label><input id="c-nueva" name="password" type="password" minlength="8" autocomplete="new-password" required></div>
+                            <div class="v-campo"><label for="c-nueva2">Confirmar nueva contraseña</label><input id="c-nueva2" name="password_confirmation" type="password" minlength="8" autocomplete="new-password" required></div>
+                            <p class="v-nota">Mínimo 8 caracteres. Te recomendamos cambiar la contraseña que te entregó la inmobiliaria.</p>
+                            <p class="v-nota i-error" id="d-clave-error" hidden></p>
+                            <div class="v-form-pie"><button type="submit" class="v-btn v-btn-principal"><i class="fa-solid fa-key"></i> Actualizar contraseña</button></div>
+                        </form>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/agente/js/agente.js"></script>
+    <script src="/agente/js/perfil.js"></script>
+</body>
+</html>

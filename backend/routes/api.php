@@ -41,6 +41,10 @@ Route::prefix('v1')->group(function () {
 
     // Registro de cuentas nuevas (rol vendedor)
     Route::post('/registro', [AuthController::class, 'register']);
+
+    // Consulta pública del estado de una cuenta (para la pantalla de espera).
+    // Solo devuelve el estado (pendiente/activo/inactivo), nunca datos sensibles.
+    Route::get('/estado-cuenta', [AuthController::class, 'estadoCuenta']);
 });
 
 /*

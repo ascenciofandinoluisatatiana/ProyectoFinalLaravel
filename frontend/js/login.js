@@ -139,7 +139,32 @@
             var datos = await respuesta.json().catch(function () { return {}; });
 
             if (!respuesta.ok) {
+                // Cuenta pendiente (202 no es error, pero también lo manejamos aquí
+                // por si el servidor responde 4xx en algún caso de estado especial).
+                if (respuesta.status === 202 || (datos && datos.estado === 'pendiente')) {
+                    // Guardamos el email para mostrarlo en la pantalla de espera
+                    sessionStorage.setItem('umbral-pendiente', JSON.stringify({
+                        nombre: datos.nombre || '',
+                        email: document.getElementById('correo').value.trim()
+                    }));
+                    window.location.href = '/espera.html';
+                    return;
+                }
+                if (respuesta.status === 403 && datos && datos.estado === 'inactivo') {
+                    mostrar(datos.message || window.t('msg.cuenta_inactiva'), 'error');
+                    return;
+                }
                 mostrar(mensajeDeError(respuesta.status), 'error');
+                return;
+            }
+
+            // Cuenta pendiente con 202 (el servidor la reconoció como válida pero sin acceso aún)
+            if (respuesta.status === 202 || (datos && datos.estado === 'pendiente')) {
+                sessionStorage.setItem('umbral-pendiente', JSON.stringify({
+                    nombre: datos.nombre || '',
+                    email: document.getElementById('correo').value.trim()
+                }));
+                window.location.href = '/espera.html';
                 return;
             }
 

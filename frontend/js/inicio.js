@@ -237,8 +237,21 @@
                 return;
             }
 
-            // Cuenta creada: dejamos la sesión iniciada de una vez
-            localStorage.setItem('umbral-usuario', JSON.stringify(datos.usuario));
+            // Cuenta creada con estado "pendiente": el administrador debe aprobarla.
+            // NO redirigimos al panel: mostramos la pantalla de espera.
+            if (datos.estado === 'pendiente') {
+                // Guardamos solo el email para identificar al usuario en la pantalla de espera.
+                // NO guardamos la sesión completa porque la cuenta aún no está activa.
+                sessionStorage.setItem('umbral-pendiente', JSON.stringify({
+                    nombre: datos.usuario ? datos.usuario.nombre : campos.name,
+                    email: datos.usuario ? datos.usuario.email : campos.email
+                }));
+                window.location.href = '/espera.html';
+                return;
+            }
+
+            // Fallback: si por alguna razón el backend no devuelve estado pendiente,
+            // mostramos el mensaje genérico de cuenta creada (no debería ocurrir).
             mostrar(window.t('msg.registro.creada'), 'ok');
             setTimeout(function () { window.location.href = datos.usuario.rol === 'vendedor' ? '/vendedor/perfil.html' : 'panel.html'; }, 700);
         } catch (err) {
@@ -247,4 +260,22 @@
             boton.disabled = false;
         }
     });
+
+    // ── Abrir el modal de login automáticamente si la URL trae ?login=1 ──
+    // Esto permite que espera.html mande al usuario directo al formulario de login.
+    (function () {
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('login') === '1') {
+            // Esperamos un momento a que i18n cargue los textos
+            setTimeout(function () {
+                mostrarPanel('login');
+                abrirModal();
+                // Limpiar el parámetro de la URL sin recargar la página
+                var url = new URL(window.location.href);
+                url.searchParams.delete('login');
+                window.history.replaceState({}, '', url.toString());
+            }, 300);
+        }
+    })();
+
 })();

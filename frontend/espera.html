@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Umbral · Cuenta en revisión</title>
+    <link rel="icon" type="image/png" href="img/icono.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/componentes.css">
+
+    <script>
+        try {
+            var tema = localStorage.getItem('umbral-tema');
+            if (tema === 'dark' || tema === 'light') document.documentElement.setAttribute('data-theme', tema);
+        } catch(e) {}
+    </script>
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--color-fondo, #f5f5f7);
+            font-family: 'Manrope', sans-serif;
+            padding: 2rem 1rem;
+        }
+
+        .tarjeta {
+            background: var(--color-superficie, #ffffff);
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,.10);
+            padding: 3rem 2.5rem;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            transition: all .4s ease;
+        }
+
+        .marca {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .6rem;
+            margin-bottom: 2.5rem;
+            text-decoration: none;
+        }
+        .marca img { width: 36px; height: 36px; }
+        .marca strong {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--color-primario, #6c3fc5);
+            letter-spacing: .08em;
+        }
+
+        /* ── Icono central ── */
+        .icono-central {
+            width: 88px; height: 88px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.75rem;
+            font-size: 2.6rem;
+            transition: background .5s, transform .4s;
+        }
+        .icono-central.espera {
+            background: linear-gradient(135deg, #f0e9ff, #e0d0ff);
+            animation: pulsar 2s ease-in-out infinite;
+        }
+        .icono-central.aprobado {
+            background: linear-gradient(135deg, #d4f5e9, #a8edcf);
+            animation: entrada .5s ease;
+        }
+        .icono-central.rechazado {
+            background: linear-gradient(135deg, #ffe4e4, #ffc5c5);
+        }
+        @keyframes pulsar {
+            0%, 100% { transform: scale(1);    opacity: 1; }
+            50%       { transform: scale(1.08); opacity: .85; }
+        }
+        @keyframes entrada {
+            from { transform: scale(.5); opacity: 0; }
+            to   { transform: scale(1);  opacity: 1; }
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--color-texto, #1a1a2e);
+            margin-bottom: .6rem;
+            transition: color .3s;
+        }
+        h1.aprobado { color: #0a7c4b; }
+        h1.rechazado { color: #b91c1c; }
+
+        .subtitulo {
+            font-size: .95rem;
+            color: var(--color-texto-suave, #666);
+            line-height: 1.6;
+            margin-bottom: 1.75rem;
+        }
+
+        .email-cuenta {
+            background: var(--color-fondo, #f5f5f7);
+            border: 1.5px solid var(--color-borde, #e0e0e0);
+            border-radius: .75rem;
+            padding: .75rem 1.25rem;
+            font-size: .9rem;
+            color: var(--color-primario, #6c3fc5);
+            font-weight: 600;
+            margin-bottom: 1.75rem;
+            word-break: break-all;
+        }
+
+        /* ── Pasos (solo en modo espera) ── */
+        .pasos {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 1.75rem;
+        }
+        .pasos li {
+            display: flex;
+            align-items: flex-start;
+            gap: .85rem;
+            padding: .65rem 0;
+            border-bottom: 1px solid var(--color-borde, #f0f0f0);
+            font-size: .87rem;
+            color: var(--color-texto-suave, #555);
+            line-height: 1.5;
+        }
+        .pasos li:last-child { border-bottom: none; }
+        .paso-num {
+            flex-shrink: 0;
+            width: 26px; height: 26px;
+            border-radius: 50%;
+            background: var(--color-primario, #6c3fc5);
+            color: #fff;
+            font-size: .78rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: .1rem;
+        }
+        /* Paso 2 se resalta mientras se espera */
+        .paso-activo .paso-num {
+            background: #f59e0b;
+            animation: pulsar 1.5s ease-in-out infinite;
+        }
+
+        .aviso-tiempo {
+            background: #fff8e1;
+            border: 1px solid #ffe082;
+            border-radius: .75rem;
+            padding: .85rem 1rem;
+            font-size: .85rem;
+            color: #7a5b00;
+            margin-bottom: 1.75rem;
+            line-height: 1.5;
+        }
+
+        /* ── Indicador de verificación en curso ── */
+        .verificando {
+            font-size: .8rem;
+            color: var(--color-texto-suave, #999);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .4rem;
+        }
+        .punto {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--color-primario, #6c3fc5);
+            animation: parpadeo 1.4s ease-in-out infinite;
+        }
+        .punto:nth-child(2) { animation-delay: .2s; }
+        .punto:nth-child(3) { animation-delay: .4s; }
+        @keyframes parpadeo {
+            0%, 80%, 100% { opacity: .2; transform: scale(.8); }
+            40%            { opacity: 1;  transform: scale(1); }
+        }
+
+        /* ── Panel aprobado (oculto inicialmente) ── */
+        .panel-aprobado {
+            display: none;
+            animation: entrada .5s ease;
+        }
+        .banner-aprobado {
+            background: linear-gradient(135deg, #d4f5e9, #a8edcf);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.75rem;
+        }
+        .banner-aprobado p {
+            font-size: .95rem;
+            color: #0a5c38;
+            line-height: 1.6;
+        }
+        .banner-aprobado strong { display: block; font-size: 1.05rem; margin-bottom: .4rem; }
+
+        /* ── Panel rechazado (oculto inicialmente) ── */
+        .panel-rechazado {
+            display: none;
+            animation: entrada .5s ease;
+        }
+        .banner-rechazado {
+            background: #ffe4e4;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.75rem;
+        }
+        .banner-rechazado p { font-size: .95rem; color: #7f1d1d; line-height: 1.6; }
+        .banner-rechazado strong { display: block; font-size: 1.05rem; margin-bottom: .4rem; }
+
+        /* ── Botones ── */
+        .acciones { display: flex; flex-direction: column; gap: .75rem; }
+
+        .btn {
+            display: block;
+            padding: .9rem 1.5rem;
+            border-radius: .85rem;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: opacity .2s, transform .15s;
+            border: none;
+        }
+        .btn:hover { opacity: .88; transform: translateY(-1px); }
+
+        .btn-primario   { background: var(--color-primario, #6c3fc5); color: #fff; }
+        .btn-verde      { background: #059669; color: #fff; font-size: 1.05rem; letter-spacing: .02em; }
+        .btn-secundario {
+            background: transparent;
+            color: var(--color-primario, #6c3fc5);
+            border: 1.5px solid var(--color-primario, #6c3fc5);
+        }
+
+        @media (max-width: 480px) {
+            .tarjeta { padding: 2rem 1.25rem; border-radius: 1rem; }
+            h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="tarjeta" id="tarjeta">
+
+    <!-- Logo -->
+    <a href="/" class="marca">
+        <img src="img/icono.png" alt="Umbral">
+        <strong>UMBRAL</strong>
+    </a>
+
+    <!-- Icono central (cambia según el estado) -->
+    <div class="icono-central espera" id="icono" role="img" aria-label="Estado de la cuenta">⏳</div>
+
+    <!-- Título (cambia según el estado) -->
+    <h1 id="titulo">Tu cuenta está en revisión</h1>
+
+    <!-- Subtítulo (cambia según el estado) -->
+    <p class="subtitulo" id="subtitulo">
+        Recibimos tu solicitud de registro. El administrador de UMBRAL
+        revisará tu información y activará tu cuenta pronto.
+    </p>
+
+    <!-- Email de la cuenta -->
+    <div class="email-cuenta" id="email-cuenta">—</div>
+
+    <!-- ══ PANEL DE ESPERA ══ -->
+    <div id="panel-espera">
+        <ol class="pasos" aria-label="Pasos del proceso">
+            <li>
+                <span class="paso-num">✓</span>
+                <span><strong>Solicitud recibida.</strong> Tu información fue guardada correctamente.</span>
+            </li>
+            <li class="paso-activo">
+                <span class="paso-num">2</span>
+                <span><strong>Revisión por el administrador.</strong> El equipo de UMBRAL verificará tus datos y documentos.</span>
+            </li>
+            <li>
+                <span class="paso-num">3</span>
+                <span><strong>Notificación.</strong> Cuando tu cuenta sea aprobada o rechazada, esta pantalla cambiará automáticamente.</span>
+            </li>
+            <li>
+                <span class="paso-num">4</span>
+                <span><strong>¡Listo!</strong> Con la cuenta aprobada podrás iniciar sesión y publicar tus propiedades.</span>
+            </li>
+        </ol>
+
+        <div class="aviso-tiempo">
+            ⏱️ <strong>Tiempo estimado:</strong> entre 24 y 48 horas hábiles.
+            Esta pantalla se actualiza sola — no necesitas recargarla.
+        </div>
+
+        <!-- Puntos animados que indican que se está verificando -->
+        <div class="verificando" id="verificando" aria-live="polite" aria-label="Verificando estado">
+            <span class="punto"></span>
+            <span class="punto"></span>
+            <span class="punto"></span>
+            <span style="font-size:.8rem">Verificando estado…</span>
+        </div>
+
+        <div class="acciones">
+            <a href="/" class="btn btn-secundario">Volver al inicio</a>
+        </div>
+    </div>
+
+    <!-- ══ PANEL APROBADO (oculto hasta que el admin apruebe) ══ -->
+    <div id="panel-aprobado" class="panel-aprobado">
+        <div class="banner-aprobado">
+            <p>
+                <strong>🎉 ¡Tu cuenta fue aprobada!</strong>
+                Ya puedes iniciar sesión en UMBRAL y comenzar a publicar
+                tus propiedades. Bienvenido al portal.
+            </p>
+        </div>
+        <div class="acciones">
+            <a href="/" class="btn btn-verde" id="btn-iniciar-sesion">
+                Iniciar sesión →
+            </a>
+        </div>
+    </div>
+
+    <!-- ══ PANEL RECHAZADO (oculto hasta que el admin rechace) ══ -->
+    <div id="panel-rechazado" class="panel-rechazado">
+        <div class="banner-rechazado">
+            <p>
+                <strong>❌ Tu cuenta fue rechazada</strong>
+                El administrador revisó tu información y no pudo aprobar
+                el registro. Si crees que es un error, contacta al equipo de UMBRAL.
+            </p>
+        </div>
+        <div class="acciones">
+            <a href="/#contacto" class="btn btn-primario">Contactar al administrador</a>
+            <a href="/" class="btn btn-secundario">Volver al inicio</a>
+        </div>
+    </div>
+
+</div>
+
+<script>
+(function () {
+    // ── Leer datos de la cuenta guardados al registrarse o al intentar login ──
+    var datos = {};
+    try { datos = JSON.parse(sessionStorage.getItem('umbral-pendiente') || '{}'); } catch(e) {}
+
+    var email = datos.email || '';
+    var nombre = datos.nombre || '';
+
+    // Mostrar email y personalizar título
+    var elEmail = document.getElementById('email-cuenta');
+    elEmail.textContent = email || 'Cuenta registrada';
+
+    if (nombre) {
+        document.getElementById('titulo').textContent = 'Hola, ' + nombre + ' — tu cuenta está en revisión';
+    }
+
+    // El botón de iniciar sesión lleva directo al modal de login
+    // (index.html abre el modal automáticamente si viene con ?login=1)
+    document.getElementById('btn-iniciar-sesion').href = '/?login=1';
+
+    // ── Función que cambia la pantalla al estado aprobado ──
+    function mostrarAprobado() {
+        var icono   = document.getElementById('icono');
+        var titulo  = document.getElementById('titulo');
+        var subtitulo = document.getElementById('subtitulo');
+
+        icono.textContent = '✅';
+        icono.className   = 'icono-central aprobado';
+        titulo.textContent = nombre ? ('¡' + nombre + ', tu cuenta fue aprobada!') : '¡Tu cuenta fue aprobada!';
+        titulo.className   = 'aprobado';
+        subtitulo.textContent = 'El administrador revisó tu información y todo está en orden.';
+
+        document.getElementById('panel-espera').style.display    = 'none';
+        document.getElementById('panel-aprobado').style.display  = 'block';
+        document.getElementById('verificando').style.display     = 'none';
+
+        // Limpiar el sessionStorage porque ya no es pendiente
+        try { sessionStorage.removeItem('umbral-pendiente'); } catch(e) {}
+    }
+
+    // ── Función que cambia la pantalla al estado rechazado ──
+    function mostrarRechazado() {
+        var icono   = document.getElementById('icono');
+        var titulo  = document.getElementById('titulo');
+        var subtitulo = document.getElementById('subtitulo');
+
+        icono.textContent = '❌';
+        icono.className   = 'icono-central rechazado';
+        titulo.textContent = 'Tu cuenta fue rechazada';
+        titulo.className   = 'rechazado';
+        subtitulo.textContent = 'El administrador revisó tu información y no pudo aprobar el registro.';
+
+        document.getElementById('panel-espera').style.display    = 'none';
+        document.getElementById('panel-rechazado').style.display = 'block';
+        document.getElementById('verificando').style.display     = 'none';
+
+        try { sessionStorage.removeItem('umbral-pendiente'); } catch(e) {}
+    }
+
+    // ── Polling: consulta el estado cada 10 segundos ──
+    // Si no hay email no tiene sentido hacer peticiones
+    if (!email) return;
+
+    var API = (window.UMBRAL_API || '/api/v1');
+    var intervalo = null;
+
+    function verificarEstado() {
+        fetch(API + '/estado-cuenta?email=' + encodeURIComponent(email), {
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(datos) {
+            if (datos.estado === 'activo') {
+                clearInterval(intervalo);
+                mostrarAprobado();
+            } else if (datos.estado === 'inactivo') {
+                clearInterval(intervalo);
+                mostrarRechazado();
+            }
+            // Si sigue 'pendiente' o 'desconocido', no hacemos nada: seguimos esperando
+        })
+        .catch(function() {
+            // Fallo de red: no mostrar error, seguir intentando silenciosamente
+        });
+    }
+
+    // Primera verificación a los 5 segundos, luego cada 10
+    setTimeout(function() {
+        verificarEstado();
+        intervalo = setInterval(verificarEstado, 10000);
+    }, 5000);
+
+})();
+</script>
+</body>
+</html>

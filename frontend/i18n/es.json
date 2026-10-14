@@ -169,5 +169,9 @@
   "msg.registro.vacio": "Completa todos los campos para crear tu cuenta.",
   "msg.registro.creada": "¡Cuenta creada! Ya puedes explorar el portal.",
   "msg.registro.duplicado": "Ese correo electrónico ya tiene una cuenta.",
-  "msg.registro.invalido": "Revisa los datos: alguno no cumple el formato esperado."
+  "msg.registro.invalido": "Revisa los datos: alguno no cumple el formato esperado.",
+  "msg": {
+    "cuenta_inactiva": "Tu cuenta ha sido desactivada. Contacta al administrador si crees que es un error.",
+    "cuenta_pendiente": "Tu cuenta está pendiente de aprobación. Te avisaremos cuando esté lista."
+  }
 }

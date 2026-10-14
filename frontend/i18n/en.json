@@ -169,5 +169,9 @@
   "msg.registro.vacio": "Fill in every field to create your account.",
   "msg.registro.creada": "Account created! You can now explore the portal.",
   "msg.registro.duplicado": "That email already has an account.",
-  "msg.registro.invalido": "Check your details: one of them doesn't match the expected format."
+  "msg.registro.invalido": "Check your details: one of them doesn't match the expected format.",
+  "msg": {
+    "cuenta_inactiva": "Your account has been deactivated. Contact the administrator if you think this is an error.",
+    "cuenta_pendiente": "Your account is pending approval. We will let you know when it is ready."
+  }
 }

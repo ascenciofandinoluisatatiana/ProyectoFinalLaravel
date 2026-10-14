@@ -23,6 +23,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\LeadController;
 use App\Http\Controllers\Api\V1\PublicPropiedadController;
 use App\Http\Controllers\Api\V1\UbicacionController;
+use App\Http\Controllers\Api\V1\Vendedor\PropiedadController as VendedorPropiedadController;
+use App\Http\Controllers\Api\V1\Vendedor\SesionController as VendedorSesionController;
 
 
 /*
@@ -135,6 +137,31 @@ Route::prefix('v1/inmobiliaria')->middleware('web')->group(function () {
     });
 });
 
+
+Route::prefix('v1/vendedor')->middleware('web')->group(function () {
+    Route::get('csrf', [VendedorSesionController::class, 'csrf']);
+    Route::post('sesion', [VendedorSesionController::class, 'entrar'])->middleware('throttle:10,1');
+
+    Route::middleware('vendedor.api')->group(function () {
+        Route::get('yo', [VendedorSesionController::class, 'yo']);
+        Route::post('salir', [VendedorSesionController::class, 'salir']);
+
+        Route::get('propiedades', [VendedorPropiedadController::class, 'index']);
+        Route::post('propiedades', [VendedorPropiedadController::class, 'store']);
+        Route::post('propiedades/{id}', [VendedorPropiedadController::class, 'update'])->whereNumber('id');
+        Route::patch('propiedades/{id}/estado', [VendedorPropiedadController::class, 'estado'])->whereNumber('id');
+        Route::delete('propiedades/{id}', [VendedorPropiedadController::class, 'destroy'])->whereNumber('id');
+
+        Route::get('contactos', [InmobiliariaContactoController::class, 'index']);
+        Route::patch('contactos/{id}', [InmobiliariaContactoController::class, 'update'])->whereNumber('id');
+        Route::get('visitas', [InmobiliariaVisitaController::class, 'index']);
+        Route::post('visitas', [InmobiliariaVisitaController::class, 'store']);
+        Route::patch('visitas/{id}', [InmobiliariaVisitaController::class, 'update'])->whereNumber('id');
+
+        Route::get('membresia', [InmobiliariaMembresiaController::class, 'show']);
+        Route::post('membresia', [InmobiliariaMembresiaController::class, 'contratar']);
+    });
+});
 /*
 |--------------------------------------------------------------------------
 | API del panel del agente  →  /api/v1/agente/...

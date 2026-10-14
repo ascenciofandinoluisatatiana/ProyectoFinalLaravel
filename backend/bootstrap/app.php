@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin.api' => \App\Http\Middleware\EnsureAdminApi::class,
             'inmobiliaria.api' => \App\Http\Middleware\EnsureInmobiliariaApi::class,
             'agente.api' => \App\Http\Middleware\EnsureAgenteApi::class,
+            'vendedor.api' => \App\Http\Middleware\EnsureVendedorApi::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

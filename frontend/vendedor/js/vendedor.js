@@ -2,13 +2,7 @@
    UMBRAL — Panel del vendedor (persona): utilidades comunes
    - Revisa que haya una sesión de VENDEDOR (la guarda login.js)
    - Dibuja la barra superior, el cambio de tema y el cierre de sesión
-   - Guarda los inmuebles, contactos y visitas del vendedor
-
-   IMPORTANTE (datos): todavía no existe una API autenticada para el
-   vendedor, así que los datos viven en el navegador (localStorage) bajo
-   la clave "umbral-vendedor-<id>". Cuando el backend la tenga, solo hay
-   que cambiar el objeto Almacen (al final de este archivo): el resto de
-   las pantallas no se toca.
+   - api(): habla con /api/v1/vendedor/... (sesión de Laravel, mismo origen)
    ========================================================= */
 (function () {
     'use strict';
@@ -36,7 +30,7 @@
         }
     };
 
-    var TIPOS = { casa: 'Casa', apartamento: 'Apartamento', finca: 'Finca', local: 'Local', lote: 'Lote' };
+    var TIPOS = { casa: 'Casa', apartamento: 'Apartamento', finca: 'Finca', local: 'Local', lote: 'Lote', oficina: 'Oficina' };
     var PLANES = { semanal: { dias: 7, nombre: 'Semanal' }, quincenal: { dias: 15, nombre: 'Quincenal' }, mensual: { dias: 30, nombre: 'Mensual' } };
 
     /* ---------- Utilidades ---------- */
@@ -88,12 +82,20 @@
     }
 
     function cerrarSesion() {
-        localStorage.removeItem(CLAVE_USUARIO);
-        sessionStorage.removeItem(CLAVE_USUARIO);
-        sessionStorage.removeItem('umbral-invitado');
-        localStorage.removeItem('umbral-token');
-        sessionStorage.removeItem('umbral-token');
-        window.location.href = '/index.html';
+        function terminar() {
+            localStorage.removeItem(CLAVE_USUARIO);
+            sessionStorage.removeItem(CLAVE_USUARIO);
+            sessionStorage.removeItem('umbral-invitado');
+            localStorage.removeItem('umbral-token');
+            sessionStorage.removeItem('umbral-token');
+            window.location.href = '/index.html';
+        }
+        // Cierra también la sesión del servidor; si falla, igual se limpia el navegador
+        fetch('/api/v1/vendedor/salir', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Accept': 'application/json', 'X-XSRF-TOKEN': leerCookie('XSRF-TOKEN') }
+        }).catch(function () {}).then(terminar);
     }
 
     /* ---------- Tema claro / oscuro (misma clave que el resto del sitio) ---------- */
@@ -154,6 +156,10 @@
             t.setAttribute('role', 'status'); t.setAttribute('aria-live', 'polite');
             document.body.appendChild(t);
         }
+        // Una <dialog> abierta con showModal() queda por encima de todo el resto de la página,
+        // así que el aviso se mueve dentro de ella; si no, el mensaje quedaría tapado.
+        var destino = document.querySelector('dialog[open]') || document.body;
+        if (t.parentNode !== destino) destino.appendChild(t);
         t.textContent = mensaje;
         t.classList.add('visible');
         clearTimeout(temporizador);
@@ -167,96 +173,42 @@
         });
     }
 
-    /* ---------- Datos de ejemplo (se pueden quitar con un clic) ---------- */
-    function haceDias(d, h) { return new Date(Date.now() - ((d * 24) + (h || 0)) * 3600000).toISOString(); }
-    function enDias(d, hora) {
-        var f = new Date(); f.setDate(f.getDate() + d); f.setHours(hora || 10, 0, 0, 0); return f.toISOString();
+    /* ---------- Llamadas a la API del vendedor (sesión de Laravel, mismo origen) ----------
+       api('/propiedades')                                   → GET
+       api('/propiedades', { metodo: 'POST', formulario: fd }) → POST con foto (FormData)
+       api('/propiedades/5/estado', { metodo: 'PATCH', datos: { estado: 'pausada' } }) */
+    function leerCookie(nombre) {
+        var f = document.cookie.split('; ').filter(function (x) { return x.indexOf(nombre + '=') === 0; })[0];
+        return f ? decodeURIComponent(f.substring(nombre.length + 1)) : '';
     }
 
-    function ejemplos() {
-        function p(id, op, tipo, precio, dep, ciudad, barrio, dir, hab, ban, par, area, estrato, estado, img) {
-            return { id: id, demo: true, operacion: op, tipo: tipo, precio: precio, departamento: dep, ciudad: ciudad, barrio: barrio,
-                direccion: dir, habitaciones: hab, banos: ban, parqueaderos: par, area: area, estrato: estrato, estado: estado,
-                imagen: img, creada: haceDias(20 - id) };
-        }
-        function c(id, prop, nombre, contacto, mensaje, dias, horas, atendido) {
-            return { id: id, demo: true, propiedadId: prop, nombre: nombre, contacto: contacto, mensaje: mensaje, fecha: haceDias(dias, horas), atendido: !!atendido };
-        }
-        function v(id, prop, nombre, dias, hora, estado) {
-            return { id: id, demo: true, propiedadId: prop, nombre: nombre, fecha: enDias(dias, hora), estado: estado };
-        }
-        return {
-            membresia: { plan: 'quincenal', hasta: enDias(11, 23), demo: true },
-            propiedades: [
-                p(1, 'venta', 'apartamento', 620000000, 'Antioquia', 'Medellín', 'El Poblado', 'Cra 35 # 8A-20', 3, 2, 2, 98, 5, 'publicada', '/img/prop-bogota.png'),
-                p(2, 'venta', 'casa', 890000000, 'Cundinamarca', 'Chía', 'Fusca', 'Cl 12 # 5-40', 4, 3, 2, 210, 4, 'publicada', '/img/residence-dusk.png'),
-                p(3, 'venta', 'finca', 1450000000, 'Antioquia', 'Guatapé', 'Vereda El Roble', 'Km 4 vía Guatapé', 5, 4, 4, 3200, 6, 'borrador', '/img/prop-guatape.png'),
-                p(4, 'venta', 'apartamento', 380000000, 'Bolívar', 'Cartagena', 'Bocagrande', 'Cra 2 # 9-15', 2, 2, 1, 74, 5, 'vendida', '/img/prop-cartagena.png'),
-                p(5, 'arriendo', 'apartamento', 2800000, 'Bogotá D.C.', 'Bogotá', 'Chapinero', 'Cl 57 # 7-31', 2, 1, 1, 64, 4, 'publicada', '/img/prop-bogota.png'),
-                p(6, 'arriendo', 'casa', 4200000, 'Valle del Cauca', 'Cali', 'Ciudad Jardín', 'Cl 18 # 122-60', 4, 3, 2, 180, 5, 'publicada', '/img/residence-night.png'),
-                p(7, 'arriendo', 'apartamento', 1900000, 'Atlántico', 'Barranquilla', 'Alto Prado', 'Cra 53 # 79-12', 2, 2, 1, 72, 4, 'pausada', '/img/prop-cartagena.png'),
-                p(8, 'arriendo', 'apartamento', 2300000, 'Antioquia', 'Medellín', 'Laureles', 'Cir 3 # 70-18', 2, 1, 1, 58, 4, 'arrendada', '/img/prop-bogota.png')
-            ],
-            contactos: [
-                c(1, 1, 'Camila Rojas', '3104567890', 'Hola, ¿el precio es negociable? Me gustaría conocerlo esta semana.', 0, 2, false),
-                c(2, 2, 'Andrés Gómez', 'andres.gomez@correo.co', 'Estoy interesado en la casa. ¿Tiene escrituras al día?', 1, 3, false),
-                c(3, 1, 'Valentina Muñoz', '3118821144', '¿Se puede visitar el sábado en la mañana?', 2, 5, true),
-                c(4, 2, 'Julián Herrera', '3206677889', 'Quisiera más fotos del jardín y de la cocina.', 4, 1, true),
-                c(5, 5, 'Laura Becerra', '3015550123', 'Busco arrendar desde el mes entrante. ¿Aceptan mascotas?', 0, 5, false),
-                c(6, 6, 'Sebastián Ortiz', 'sebas.ortiz@correo.co', '¿Incluye la administración en el canon?', 1, 8, false),
-                c(7, 5, 'Mariana Duque', '3149990011', 'Me interesa, ¿podemos coordinar una visita?', 3, 2, true),
-                c(8, 6, 'Felipe Castaño', '3023334455', '¿El contrato es a 12 meses?', 5, 6, true)
-            ],
-            visitas: [
-                v(1, 1, 'Camila Rojas', 1, 10, 'pendiente'),
-                v(2, 2, 'Andrés Gómez', 2, 15, 'confirmada'),
-                v(3, 5, 'Laura Becerra', 1, 16, 'pendiente'),
-                v(4, 6, 'Sebastián Ortiz', 3, 9, 'confirmada')
-            ]
-        };
-    }
+    async function api(ruta, opciones) {
+        opciones = opciones || {};
+        var metodo = opciones.metodo || 'GET';
+        var cabeceras = { 'Accept': 'application/json' };
+        var cuerpo;
+        if (metodo !== 'GET') cabeceras['X-XSRF-TOKEN'] = leerCookie('XSRF-TOKEN');
+        if (opciones.formulario) { cuerpo = opciones.formulario; }
+        else if (opciones.datos) { cabeceras['Content-Type'] = 'application/json'; cuerpo = JSON.stringify(opciones.datos); }
 
-    /* ---------- Almacén de datos del vendedor ---------- */
-    function Almacen(usuario) {
-        var clave = 'umbral-vendedor-' + usuario.id;
-
-        function guardar(d) {
-                    try { localStorage.setItem(clave, JSON.stringify(d)); }
-                    catch (e) { toast('No se pudo guardar: el almacenamiento del navegador está lleno. Usa fotos más livianas o elimina inmuebles.'); }
-                    return d;
-                }
-        function leer() {
-            try {
-                var d = JSON.parse(localStorage.getItem(clave));
-                if (d && d.propiedades) return d;
-            } catch (e) {}
-            // Primera visita: se muestran datos de ejemplo (avisados en pantalla)
-            var base = ejemplos();
-            base.demo = true; base.seq = 100;
-            return guardar(base);
+        var r = await fetch('/api/v1/vendedor' + ruta, { method: metodo, credentials: 'same-origin', headers: cabeceras, body: cuerpo });
+        if (r.status === 401 || r.status === 403) {
+            try { localStorage.removeItem(CLAVE_USUARIO); sessionStorage.removeItem(CLAVE_USUARIO); } catch (e) {}
+            window.location.replace('/index.html');
+            throw new Error('Sin acceso');
         }
-
-        return {
-            leer: leer,
-            guardar: guardar,
-            siguienteId: function (d) { d.seq = (d.seq || 100) + 1; return d.seq; },
-            membresiaActiva: function (d) { return !!(d.membresia && new Date(d.membresia.hasta) > new Date()); },
-            quitarEjemplos: function () {
-                var d = leer();
-                function propio(x) { return !x.demo; }
-                d.propiedades = d.propiedades.filter(propio);
-                d.contactos = d.contactos.filter(propio);
-                d.visitas = d.visitas.filter(propio);
-                if (d.membresia && d.membresia.demo) d.membresia = null;
-                d.demo = false;
-                return guardar(d);
-            }
-        };
+        var json = await r.json().catch(function () { return {}; });
+        if (!r.ok) {
+            var errores = json.errors ? Object.keys(json.errors).map(function (k) { return json.errors[k][0]; }) : [];
+            throw new Error(errores[0] || json.message || 'No se pudo completar la acción.');
+        }
+        return json;
     }
 
     window.Vendedor = {
         OPERACIONES: OPERACIONES, TIPOS: TIPOS, PLANES: PLANES,
         esc: esc, cop: cop, iniciales: iniciales, fecha: fecha, relativo: relativo,
-        guardia: guardia, barra: barra, toast: toast, prepararVentana: prepararVentana, Almacen: Almacen
+        guardia: guardia, barra: barra, toast: toast, prepararVentana: prepararVentana,
+        api: api
     };
 })();

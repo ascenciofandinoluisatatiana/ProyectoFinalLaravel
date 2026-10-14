@@ -22,7 +22,8 @@
     // (igual que el admin): primero se pide la cookie XSRF-TOKEN y luego se inicia la sesión.
     var PANELES_CON_SESION = {
         inmobiliaria: { api: '/api/v1/inmobiliaria', destino: '/inmobiliaria/dashboard.html' },
-        agente: { api: '/api/v1/agente', destino: '/agente/dashboard.html' }
+        agente: { api: '/api/v1/agente', destino: '/agente/dashboard.html' },
+        vendedor: { api: '/api/v1/vendedor', destino: '/vendedor/perfil.html' }
     };
 
     async function entrarAlPanelConSesion(panel, email, password, recordar) {

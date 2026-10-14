@@ -22,22 +22,38 @@
     poner('p-correo', usuario.email);
     poner('p-correo-chip', usuario.email);
 
-    // Resumen de cada operación (publicados, contactos y visitas por atender)
-    var datos = V.Almacen(usuario).leer();
+    // Resumen de cada operación (publicados, contactos y visitas por atender), desde la API
+    function dato(valor, texto) { return '<div><b>' + valor + '</b><span>' + texto + '</span></div>'; }
 
-    function resumen(operacion) {
+    function pintarResumen(id, publicados, contactos, visitas) {
+        document.getElementById(id).innerHTML =
+            dato(publicados, 'Publicados') + dato(contactos, 'Contactos') + dato(visitas, 'Visitas próximas');
+    }
+
+    function resumen(operacion, datos) {
         var props = datos.propiedades.filter(function (p) { return p.operacion === operacion; });
         var ids = props.map(function (p) { return p.id; });
         var publicados = props.filter(function (p) { return p.estado === 'publicada'; }).length;
-        var contactos = datos.contactos.filter(function (c) { return ids.indexOf(c.propiedadId) !== -1; }).length;
+        var contactos = datos.contactos.filter(function (c) { return c.propiedad && ids.indexOf(c.propiedad.id) !== -1; }).length;
         var visitas = datos.visitas.filter(function (v) {
-            return ids.indexOf(v.propiedadId) !== -1 && v.estado !== 'cancelada' && new Date(v.fecha) > new Date();
+            return v.propiedad && ids.indexOf(v.propiedad.id) !== -1 &&
+                (v.estado === 'pendiente' || v.estado === 'confirmada') && new Date(v.fecha) > new Date();
         }).length;
-
-        function dato(valor, texto) { return '<div><b>' + valor + '</b><span>' + texto + '</span></div>'; }
-        return dato(publicados, 'Publicados') + dato(contactos, 'Contactos') + dato(visitas, 'Visitas próximas');
+        return [publicados, contactos, visitas];
     }
 
-    document.getElementById('p-datos-venta').innerHTML = resumen('venta');
-    document.getElementById('p-datos-arriendo').innerHTML = resumen('arriendo');
+    // Mientras llega la respuesta se muestran ceros
+    ['venta', 'arriendo'].forEach(function (op) { pintarResumen('p-datos-' + op, 0, 0, 0); });
+
+    Promise.all([V.api('/propiedades'), V.api('/contactos'), V.api('/visitas?periodo=proximas')])
+        .then(function (r) {
+            var datos = { propiedades: r[0].data || [], contactos: r[1].data || [], visitas: r[2].data || [] };
+            ['venta', 'arriendo'].forEach(function (op) {
+                var x = resumen(op, datos);
+                pintarResumen('p-datos-' + op, x[0], x[1], x[2]);
+            });
+        })
+        .catch(function (e) {
+            if (e.message !== 'Sin acceso') V.toast(e.message || 'No se pudo cargar el resumen.');
+        });
 })();

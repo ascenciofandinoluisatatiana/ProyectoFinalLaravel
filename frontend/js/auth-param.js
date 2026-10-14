@@ -1,16 +1,18 @@
 (function () {
   var modo = new URLSearchParams(location.search).get('auth');
   if (!modo) return;
-  var texto = modo === 'register' ? 'crear cuenta' : 'iniciar sesión';
-  var norm = function (s) { return (s || '').trim().toLowerCase(); };
-  var todos = function () { return Array.prototype.slice.call(document.querySelectorAll('button, a')); };
+  var registro = (modo === 'register' || modo === 'registro');
+
   window.addEventListener('load', function () {
-    var abrir = todos().find(function (b) { return norm(b.textContent).indexOf(texto) !== -1; });
+    // 1) abrir el cuadro con el mismo botón que usa el menú
+    var abrir = document.querySelector('[data-abre-modal]');
     if (abrir) abrir.click();
-    setTimeout(function () {
-      var tab = todos().filter(function (b) { return norm(b.textContent) === texto; }).pop();
-      if (tab) tab.click();
-    }, 200);
+
+    // 2) elegir la pestaña que corresponde
+    var pestana = document.getElementById(registro ? 'pestana-registro' : 'pestana-login');
+    if (pestana) setTimeout(function () { pestana.click(); }, 50);
+
+    // 3) limpiar el ?auth= de la dirección
     history.replaceState(null, '', location.pathname);
   });
 })();

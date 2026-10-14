@@ -254,6 +254,14 @@ img,video,svg{max-width:100%}
   .content{padding:14px 12px 44px}
 }
 html.js-hero .panel#filters:not(.fmodal){display:none}
+
+/* ===== Marca: logo + frase, igual que la portada ===== */
+.marca-img{height:44px;width:auto;flex:none}
+[data-theme="dark"] .marca-img{filter:brightness(1.9) saturate(1.1)}
+.marca-txt{min-width:0}
+.marca-txt strong{display:block;font-size:1.05rem;letter-spacing:.35em;font-weight:700}
+.marca-txt em{display:block;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:500;font-size:.95rem;line-height:1.15;color:var(--primary2)}
+@media(max-width:600px){.marca-img{height:38px}.marca-txt em{font-size:.85rem}}
 </style>
 </head>
 <body>
@@ -261,8 +269,8 @@ html.js-hero .panel#filters:not(.fmodal){display:none}
   <div class="shade" id="shade"></div>
   <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <div class="logo"><i class="fa-solid fa-house-chimney-window"></i></div>
-      <div><b>UMBRAL</b><small data-i18n="tagline"></small></div>
+      <img class="marca-img" src="/img/icono.png" alt="Umbral">
+      <div class="marca-txt"><strong>UMBRAL</strong><em data-i18n="tagline"></em></div>
     </div>
     <div class="nav-label" data-i18n="nav_main"></div>
     <nav class="nav">
@@ -301,7 +309,7 @@ html.js-hero .panel#filters:not(.fmodal){display:none}
       <section class="hero" id="hero">
         <div class="hero-in">
           <div class="tag"><i class="fa-solid fa-wand-magic-sparkles"></i> <span data-i18n="banner_tag"></span></div>
-          <h2><span id="greet"></span>, <span class="hl" data-i18n="guest_word"></span></h2>
+          <h2><span id="greet"></span></h2>
           <p id="bannerText"></p>
           <div class="hsearch">
             <div class="ops" id="ops">
@@ -394,7 +402,7 @@ const LANGS = ['es','en','pt','fr'];
 const LOCALES = {es:'es-CO',en:'en-US',pt:'pt-BR',fr:'fr-FR'};
 const LANG_NAMES = {es:'Español',en:'English',pt:'Português',fr:'Français'};
 const T = {
-  tagline:['Portal inmobiliario','Real estate portal','Portal imobiliário','Portail immobilier'],
+  tagline:['El paso hacia un nuevo hogar.','The step toward a new home.','O passo para um novo lar.','Le pas vers un nouveau foyer.'],
   nav_main:['Principal','Main','Principal','Principal'],
   nav_tools:['Herramientas','Tools','Ferramentas','Outils'],
   nav_explore:['Explorar','Explore','Explorar','Explorer'],

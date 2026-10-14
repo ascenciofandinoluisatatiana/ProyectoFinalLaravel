@@ -23,7 +23,7 @@
     var PANELES_CON_SESION = {
         inmobiliaria: { api: '/api/v1/inmobiliaria', destino: '/inmobiliaria/dashboard.html' },
         agente: { api: '/api/v1/agente', destino: '/agente/dashboard.html' },
-        vendedor: { api: '/api/v1/vendedor', destino: '/vendedor/perfil.html' }
+        vendedor: { api: '/api/v1/vendedor', destino: '/vendedor/perfil.html', guardarUsuario: true },    
     };
 
     async function entrarAlPanelConSesion(panel, email, password, recordar) {
@@ -41,6 +41,10 @@
 
         if (!acceso.ok) {
             throw new Error(datos.message || 'La cuenta no pudo entrar a su panel.');
+        }
+
+        if (panel.guardarUsuario && datos.usuario) {
+            (recordar ? localStorage : sessionStorage).setItem('umbral-usuario', JSON.stringify(datos.usuario));
         }
 
         window.location.href = panel.destino;

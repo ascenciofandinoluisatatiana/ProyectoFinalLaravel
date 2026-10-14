@@ -2,7 +2,8 @@
    UMBRAL — Dashboard del vendedor (Vender y Arrendar)
    Un solo script para las dos pantallas: la operación sale de
    <body data-operacion="venta|arriendo">.
-   Los datos vienen de Vendedor.Almacen (ver js/vendedor.js).
+   Todo viene de la API real (/api/v1/vendedor/...): lo que se
+   publica aquí es lo que ve el invitado en la búsqueda pública.
    ========================================================= */
 (function () {
     'use strict';
@@ -13,25 +14,44 @@
 
     var clave = document.body.getAttribute('data-operacion');
     var OP = V.OPERACIONES[clave];
-    var almacen = V.Almacen(usuario);
-    var datos = almacen.leer();
+    var datos = { propiedades: [], contactos: [], visitas: [], vigente: null, planes: [] };
     var grafica = null;
 
     V.barra(usuario, clave);
 
     function $(id) { return document.getElementById(id); }
-    function guardarYPintar() { almacen.guardar(datos); pintar(); }
+
+    /* ---------- Carga desde la API ---------- */
+    async function cargar() {
+        try {
+            var r = await Promise.all([
+                V.api('/propiedades'),
+                V.api('/contactos'),
+                V.api('/visitas?periodo=proximas'),
+                V.api('/membresia')
+            ]);
+            datos.propiedades = r[0].data || [];
+            datos.contactos = r[1].data || [];
+            datos.visitas = r[2].data || [];
+            datos.vigente = r[3].vigente || null;
+            datos.planes = r[3].planes || [];
+        } catch (e) {
+            if (e.message !== 'Sin acceso') V.toast(e.message || 'No se pudieron cargar tus datos.');
+        }
+        pintar();
+    }
 
     /* ---------- Consultas sobre los datos ---------- */
     function misInmuebles() { return datos.propiedades.filter(function (p) { return p.operacion === clave; }); }
     function misIds() { return misInmuebles().map(function (p) { return p.id; }); }
-    function deMisInmuebles(lista) { var ids = misIds(); return lista.filter(function (x) { return ids.indexOf(x.propiedadId) !== -1; }); }
+    // Contactos y visitas traen la propiedad en x.propiedad.id
+    function deMisInmuebles(lista) {
+        var ids = misIds();
+        return lista.filter(function (x) { return x.propiedad && ids.indexOf(x.propiedad.id) !== -1; });
+    }
     function inmueble(id) { return datos.propiedades.filter(function (p) { return p.id === id; })[0]; }
     function titulo(p) { return p ? (V.TIPOS[p.tipo] || p.tipo) + ' en ' + p.barrio : 'Inmueble eliminado'; }
-    function hayEjemplos() {
-        return datos.propiedades.concat(datos.contactos, datos.visitas).some(function (x) { return x.demo; }) ||
-            !!(datos.membresia && datos.membresia.demo);
-    }
+    function membresiaActiva() { return !!datos.vigente; }
 
     /* ---------- Cabecera ---------- */
     $('d-icono').classList.add(OP.icono);
@@ -39,24 +59,16 @@
     $('d-titulo').textContent = OP.titulo;
     $('d-desc').textContent = OP.descripcion;
 
-    /* ---------- Aviso de datos de ejemplo ---------- */
-    function pintarAviso() {
-        $('d-aviso').innerHTML = hayEjemplos()
-            ? '<div class="v-aviso"><span><i class="fa-solid fa-flask"></i>Estás viendo datos de ejemplo para que conozcas el panel.</span>' +
-              '<button type="button" data-accion="quitar-ejemplos">Quitar ejemplos</button></div>'
-            : '';
-    }
-
     /* ---------- Membresía ---------- */
     function pintarMembresia() {
-        var activa = almacen.membresiaActiva(datos);
-        var m = datos.membresia;
-        var venceTxt = m ? new Date(m.hasta).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+        var activa = membresiaActiva();
+        var m = datos.vigente;
+        var venceTxt = m ? new Date(m.fecha_fin + 'T00:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
 
         $('d-membresia').innerHTML =
             '<div class="v-membresia-info"><i class="fa-solid ' + (activa ? 'fa-circle-check' : 'fa-credit-card') + '"></i><div>' +
             (activa
-                ? '<b>Membresía ' + V.esc(V.PLANES[m.plan].nombre.toLowerCase()) + ' activa</b><small>Vence el ' + V.esc(venceTxt) + ' · tus inmuebles publicados son visibles.</small>'
+                ? '<b>Membresía ' + V.esc(String(m.nombre_plan).toLowerCase()) + ' activa</b><small>Vence el ' + V.esc(venceTxt) + ' · tus inmuebles publicados son visibles.</small>'
                 : '<b>Sin membresía activa</b><small>Contrátala para publicar tus inmuebles en el portal.</small>') +
             '</div></div>' +
             '<button type="button" class="v-btn ' + (activa ? 'v-btn-suave' : 'v-btn-principal') + '" data-accion="planes">' +
@@ -66,7 +78,7 @@
     /* ---------- Cifras ---------- */
     function pintarKpis() {
         var props = misInmuebles();
-        var proximas = deMisInmuebles(datos.visitas).filter(function (v) { return v.estado !== 'cancelada' && new Date(v.fecha) > new Date(); });
+        var proximas = proximasVisitas();
 
         function kpi(i, icono, valor, texto) {
             return '<div class="v-kpi k-' + (i + 1) + '" style="--i:' + i + '"><div class="v-kpi-icono"><i class="fa-solid ' + icono + '"></i></div>' +
@@ -88,8 +100,8 @@
     var SVG_ELIMINAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>';
 
     function tarjeta(p) {
-        var contactos = datos.contactos.filter(function (c) { return c.propiedadId === p.id; }).length;
-        var visitas = datos.visitas.filter(function (v) { return v.propiedadId === p.id && v.estado !== 'cancelada'; }).length;
+        var contactos = Number(p.contactos) || 0;
+        var visitas = Number(p.visitas) || 0;
         var cerrado = p.estado === OP.cierre;
         var botones = '';
 
@@ -145,32 +157,39 @@
     }
 
     /* ---------- Contactos ---------- */
+    var ETIQUETA_CONTACTO = { nuevo: 'Nuevo', en_seguimiento: 'En seguimiento', cerrado: 'Cerrado', descartado: 'Descartado' };
+
     function pintarContactos() {
         var lista = deMisInmuebles(datos.contactos).sort(function (a, b) { return new Date(b.fecha) - new Date(a.fecha); }).slice(0, 6);
 
         $('d-contactos').innerHTML = lista.length ? lista.map(function (c) {
             var esCorreo = String(c.contacto).indexOf('@') !== -1;
             var enlace = (esCorreo ? 'mailto:' : 'tel:+57') + V.esc(String(c.contacto).replace(esCorreo ? /\s/g : /\D/g, ''));
+            var nuevo = c.estado === 'nuevo';
             return '<div class="v-fila"><span class="v-fila-avatar">' + V.esc(V.iniciales(c.nombre)) + '</span>' +
                 '<div class="v-fila-texto"><b>' + V.esc(c.nombre) + '</b><span>' + V.esc(c.mensaje) + '</span>' +
-                '<small>' + V.esc(titulo(inmueble(c.propiedadId))) + ' · ' + V.esc(V.relativo(c.fecha)) + '</small></div>' +
-                '<span class="v-insignia ' + (c.atendido ? 'atendido' : 'nuevo') + '">' + (c.atendido ? 'Atendido' : 'Nuevo') + '</span>' +
+                '<small>' + V.esc(c.propiedad.titulo) + ' · ' + V.esc(V.relativo(c.fecha)) + '</small></div>' +
+                '<span class="v-insignia ' + (nuevo ? 'nuevo' : 'atendido') + '">' + V.esc(ETIQUETA_CONTACTO[c.estado] || c.estado) + '</span>' +
                 '<a class="v-btn v-btn-suave v-btn-mini" href="' + enlace + '" title="' + (esCorreo ? 'Escribir' : 'Llamar') + '" aria-label="' + (esCorreo ? 'Escribir' : 'Llamar') + '">' +
                 '<i class="fa-solid ' + (esCorreo ? 'fa-envelope' : 'fa-phone') + '"></i></a>' +
-                (c.atendido ? '' : '<button type="button" class="v-btn v-btn-suave v-btn-mini" data-accion="atender" data-id="' + c.id + '" title="Marcar como atendido" aria-label="Marcar como atendido"><i class="fa-solid fa-check"></i></button>') +
+                (nuevo ? '<button type="button" class="v-btn v-btn-suave v-btn-mini" data-accion="atender" data-id="' + c.id + '" title="Marcar como atendido" aria-label="Marcar como atendido"><i class="fa-solid fa-check"></i></button>' : '') +
                 '</div>';
         }).join('') : '<div class="v-vacio"><i class="fa-solid fa-comments"></i>Cuando alguien se interese en tus inmuebles, lo verás aquí.</div>';
     }
 
     /* ---------- Visitas ---------- */
+    function proximasVisitas() {
+        return deMisInmuebles(datos.visitas).filter(function (v) {
+            return (v.estado === 'pendiente' || v.estado === 'confirmada') && new Date(v.fecha) > new Date();
+        });
+    }
+
     function pintarVisitas() {
-        var lista = deMisInmuebles(datos.visitas)
-            .filter(function (v) { return v.estado !== 'cancelada' && new Date(v.fecha) > new Date(); })
-            .sort(function (a, b) { return new Date(a.fecha) - new Date(b.fecha); }).slice(0, 5);
+        var lista = proximasVisitas().sort(function (a, b) { return new Date(a.fecha) - new Date(b.fecha); }).slice(0, 5);
 
         $('d-visitas').innerHTML = lista.length ? lista.map(function (v) {
             return '<div class="v-fila"><span class="v-fila-avatar">' + new Date(v.fecha).getDate() + '</span>' +
-                '<div class="v-fila-texto"><b>' + V.esc(v.nombre) + '</b><span>' + V.esc(titulo(inmueble(v.propiedadId))) + '</span>' +
+                '<div class="v-fila-texto"><b>' + V.esc(v.nombre) + '</b><span>' + V.esc(v.propiedad.titulo) + '</span>' +
                 '<small>' + V.esc(V.fecha(v.fecha)) + '</small></div>' +
                 '<span class="v-insignia ' + V.esc(v.estado) + '">' + (v.estado === 'confirmada' ? 'Confirmada' : 'Pendiente') + '</span>' +
                 (v.estado === 'pendiente' ? '<button type="button" class="v-btn v-btn-suave v-btn-mini" data-accion="confirmar" data-id="' + v.id + '" title="Confirmar visita" aria-label="Confirmar visita"><i class="fa-solid fa-check"></i></button>' : '') +
@@ -214,7 +233,6 @@
     }
 
     function pintar() {
-        pintarAviso();
         pintarMembresia();
         pintarKpis();
         pintarInmuebles();
@@ -232,17 +250,50 @@
     form.estrato.innerHTML = '<option value="">Sin estrato</option>' + [1, 2, 3, 4, 5, 6].map(function (n) { return '<option value="' + n + '">Estrato ' + n + '</option>'; }).join('');
     $('f-precio-etiqueta').textContent = clave === 'venta' ? 'Precio de venta (COP)' : 'Canon mensual (COP)';
 
-    /* ----- Foto del inmueble: se reduce y se guarda junto al inmueble ----- */
-    var fotoActual = null;
+    /* ----- Departamento y municipio: catálogo oficial (el servidor valida contra él) ----- */
+    var ubicaciones = [];
 
-    function pintarFoto() {
-        $('f-foto-vista').hidden = !fotoActual;
-        $('f-foto-vacio').hidden = !!fotoActual;
-        $('f-foto-quitar').hidden = !fotoActual;
-        if (fotoActual) $('f-foto-vista').src = fotoActual;
+    function opcion(valor, texto) { return '<option value="' + V.esc(valor) + '">' + V.esc(texto) + '</option>'; }
+
+    function llenarCiudades(departamento, ciudad) {
+        var dep = ubicaciones.filter(function (d) { return d.nombre === departamento; })[0];
+        form.ciudad.innerHTML = opcion('', dep ? 'Elige un municipio' : 'Elige primero el departamento') +
+            (dep ? dep.municipios.map(function (m) { return opcion(m, m); }).join('') : '');
+        form.ciudad.value = ciudad || '';
     }
 
-    // Reduce la imagen a 1200 px y la guarda como JPG liviano
+    async function cargarUbicaciones() {
+        try {
+            var r = await fetch('/api/v1/public/ubicaciones', { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' });
+            var j = await r.json();
+            ubicaciones = j.data || [];
+        } catch (e) { ubicaciones = []; }
+        if (!ubicaciones.length) V.toast('No se pudo cargar la lista de departamentos. Recarga la página.');
+        form.departamento.innerHTML = opcion('', 'Elige un departamento') +
+            ubicaciones.map(function (d) { return opcion(d.nombre, d.nombre); }).join('');
+        llenarCiudades('', '');
+    }
+
+    form.departamento.addEventListener('change', function () { llenarCiudades(form.departamento.value, ''); });
+
+    /* ----- Foto del inmueble: se reduce en el navegador y se envía como archivo ----- */
+    var fotoArchivo = null;     // Blob nuevo elegido por el usuario
+    var fotoVista = null;       // lo que se muestra (URL del servidor o del Blob nuevo)
+    var quitarFoto = false;     // true si había foto guardada y el usuario la quitó
+
+    function pintarFoto() {
+        $('f-foto-vista').hidden = !fotoVista;
+        $('f-foto-vacio').hidden = !!fotoVista;
+        $('f-foto-quitar').hidden = !fotoVista;
+        $('f-foto-quitar').style.display = fotoVista ? '' : 'none';
+        if (fotoVista) $('f-foto-vista').src = fotoVista;
+    }
+
+    function soltarVista() {
+        if (fotoVista && fotoVista.indexOf('blob:') === 0) URL.revokeObjectURL(fotoVista);
+    }
+
+    // Reduce la imagen a 1200 px y la convierte en un JPG liviano (el servidor admite hasta 4 MB)
     function reducirImagen(archivo, listo) {
         var lector = new FileReader();
         lector.onerror = function () { listo(null); };
@@ -257,7 +308,7 @@
                 var ctx = lienzo.getContext('2d');
                 ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, lienzo.width, lienzo.height);
                 ctx.drawImage(img, 0, 0, lienzo.width, lienzo.height);
-                listo(lienzo.toDataURL('image/jpeg', 0.8));
+                lienzo.toBlob(function (blob) { listo(blob); }, 'image/jpeg', 0.8);
             };
             img.src = lector.result;
         };
@@ -269,15 +320,24 @@
         if (!archivo) return;
         if (archivo.type.indexOf('image/') !== 0) { V.toast('Elige un archivo de imagen (JPG, PNG o WebP).'); this.value = ''; return; }
         if (archivo.size > 15 * 1024 * 1024) { V.toast('La foto pesa demasiado (máximo 15 MB).'); this.value = ''; return; }
-        reducirImagen(archivo, function (url) {
-            if (!url) { V.toast('No se pudo leer esa imagen. Prueba con otra.'); return; }
-            fotoActual = url;
+        reducirImagen(archivo, function (blob) {
+            if (!blob) { V.toast('No se pudo leer esa imagen. Prueba con otra.'); return; }
+            soltarVista();
+            fotoArchivo = blob;
+            fotoVista = URL.createObjectURL(blob);
+            quitarFoto = false;
             pintarFoto();
         });
         this.value = '';
     });
 
-    $('f-foto-quitar').addEventListener('click', function () { fotoActual = null; pintarFoto(); });
+    $('f-foto-quitar').addEventListener('click', function () {
+        // Si la foto era del servidor, hay que avisarle que la borre al guardar
+        if (!fotoArchivo) quitarFoto = true;
+        soltarVista();
+        fotoArchivo = null; fotoVista = null;
+        pintarFoto();
+    });
 
     /* ----- Ubicación: mapa de Leaflet con pin que se puede mover ----- */
     var mapa = null, pin = null;
@@ -356,55 +416,63 @@
         form.reset();
         form.id.value = p ? p.id : '';
         $('d-form-titulo').textContent = p ? 'Editar inmueble' : 'Registrar inmueble';
-        $('d-form-nota').textContent = almacen.membresiaActiva(datos)
+        $('d-form-nota').textContent = membresiaActiva()
             ? 'Con tu membresía activa, el inmueble se publica al guardarlo.'
             : 'Sin membresía activa se guarda como borrador; se publicará cuando la contrates.';
         if (p) {
-            ['tipo', 'precio', 'departamento', 'ciudad', 'barrio', 'direccion', 'habitaciones', 'banos', 'parqueaderos', 'area', 'estrato'].forEach(function (c) {
+            ['tipo', 'precio', 'barrio', 'direccion', 'habitaciones', 'banos', 'parqueaderos', 'area', 'estrato'].forEach(function (c) {
                 form[c].value = p[c] == null ? '' : p[c];
             });
+            form.departamento.value = p.departamento;
+            llenarCiudades(p.departamento, p.ciudad);
+        } else {
+            form.departamento.value = '';
+            llenarCiudades('', '');
         }
-        fotoActual = p && p.imagen ? p.imagen : null;
+        soltarVista();
+        fotoArchivo = null; quitarFoto = false;
+        fotoVista = p && p.imagen ? p.imagen : null;
         pintarFoto();
         ventanaForm.showModal();
+        if (!ubicaciones.length) V.toast('La lista de departamentos está vacía: hay que cargar los municipios en la base de datos.');
         iniciarMapa(p ? p.lat : null, p ? p.lng : null);
     }
-    form.addEventListener('submit', function (e) {
+    form.addEventListener('submit', async function (e) {
         e.preventDefault();
         if (!form.checkValidity()) { form.reportValidity(); return; }
 
-                if (!form.lat.value || !form.lng.value) {
+        if (!form.lat.value || !form.lng.value) {
             V.toast('Marca la ubicación del inmueble en el mapa.');
             $('d-mapa').scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
         }
 
-        var campos = {
-            lat: Number(form.lat.value), lng: Number(form.lng.value), imagen: fotoActual,
-            tipo: form.tipo.value, precio: Number(form.precio.value),
-            departamento: form.departamento.value.trim(), ciudad: form.ciudad.value.trim(),
-            barrio: form.barrio.value.trim(), direccion: form.direccion.value.trim(),
-            habitaciones: Number(form.habitaciones.value) || 0, banos: Number(form.banos.value) || 0,
-            parqueaderos: Number(form.parqueaderos.value) || 0, area: Number(form.area.value),
-            estrato: form.estrato.value ? Number(form.estrato.value) : null
-        };
+        var fd = new FormData();
+        fd.append('operacion', clave);
+        ['tipo', 'precio', 'departamento', 'ciudad', 'barrio', 'direccion', 'lat', 'lng', 'habitaciones', 'banos', 'parqueaderos', 'area'].forEach(function (c) {
+            fd.append(c, String(form[c].value).trim());
+        });
+        if (form.estrato.value) fd.append('estrato', form.estrato.value);
+        if (fotoArchivo) fd.append('imagen', fotoArchivo, 'foto.jpg');
+        else if (quitarFoto) fd.append('quitar_imagen', '1');
 
         var existente = form.id.value ? inmueble(Number(form.id.value)) : null;
-        if (existente) {
-            Object.keys(campos).forEach(function (k) { existente[k] = campos[k]; });
-            V.toast('Inmueble actualizado.');
-        } else {
-            var publicar = almacen.membresiaActiva(datos);
-            campos.id = almacen.siguienteId(datos);
-            campos.operacion = clave;
-            campos.estado = publicar ? 'publicada' : 'borrador';
-            campos.creada = new Date().toISOString();
-            datos.propiedades.push(campos);
-            V.toast(publicar ? 'Inmueble publicado.' : 'Guardado como borrador: activa tu membresía para publicarlo.');
-        }
+        var boton = form.querySelector('[type="submit"]');
+        if (boton) boton.disabled = true;
 
-        ventanaForm.close();
-        guardarYPintar();
+        try {
+            var r = await V.api(existente ? '/propiedades/' + existente.id : '/propiedades', { metodo: 'POST', formulario: fd });
+            ventanaForm.close();
+            if (existente) V.toast('Inmueble actualizado.');
+            else V.toast(r.data && r.data.estado === 'publicada'
+                ? 'Inmueble publicado.'
+                : 'Guardado como borrador: activa tu membresía para publicarlo.');
+            await cargar();
+        } catch (err) {
+            if (err.message !== 'Sin acceso') V.toast(err.message);
+        } finally {
+            if (boton) boton.disabled = false;
+        }
     });
 
     /* ---------- Ventana: planes de membresía ---------- */
@@ -412,10 +480,15 @@
     var planElegido = 'quincenal';
     V.prepararVentana(ventanaPlanes);
 
+    function listaPlanes() {
+        if (datos.planes.length) return datos.planes;
+        return Object.keys(V.PLANES).map(function (k) { return { plan: k, nombre: V.PLANES[k].nombre, dias: V.PLANES[k].dias }; });
+    }
+
     function pintarPlanes() {
-        $('d-planes-lista').innerHTML = Object.keys(V.PLANES).map(function (k) {
-            return '<button type="button" class="v-plan" data-plan="' + k + '" aria-pressed="' + (k === planElegido) + '">' +
-                V.PLANES[k].nombre + '<small>' + V.PLANES[k].dias + ' días</small></button>';
+        $('d-planes-lista').innerHTML = listaPlanes().map(function (pl) {
+            return '<button type="button" class="v-plan" data-plan="' + V.esc(pl.plan) + '" aria-pressed="' + (pl.plan === planElegido) + '">' +
+                V.esc(pl.nombre) + '<small>' + pl.dias + ' días' + (pl.precio ? ' · ' + V.cop(pl.precio) : '') + '</small></button>';
         }).join('');
     }
 
@@ -426,13 +499,20 @@
         pintarPlanes();
     });
 
-    $('d-planes-form').addEventListener('submit', function (e) {
+    $('d-planes-form').addEventListener('submit', async function (e) {
         e.preventDefault();
-        var hasta = new Date(); hasta.setDate(hasta.getDate() + V.PLANES[planElegido].dias);
-        datos.membresia = { plan: planElegido, hasta: hasta.toISOString(), demo: false };
-        ventanaPlanes.close();
-        V.toast('Membresía ' + V.PLANES[planElegido].nombre.toLowerCase() + ' activada.');
-        guardarYPintar();
+        var boton = this.querySelector('[type="submit"]');
+        if (boton) boton.disabled = true;
+        try {
+            var r = await V.api('/membresia', { metodo: 'POST', datos: { plan: planElegido } });
+            ventanaPlanes.close();
+            V.toast(r.message || 'Membresía activada.');
+            await cargar();
+        } catch (err) {
+            if (err.message !== 'Sin acceso') V.toast(err.message);
+        } finally {
+            if (boton) boton.disabled = false;
+        }
     });
 
     function abrirPlanes() { pintarPlanes(); ventanaPlanes.showModal(); }
@@ -440,7 +520,11 @@
     /* ---------- Acciones (botones de la pantalla) ---------- */
     $('d-registrar').addEventListener('click', function () { abrirForm(null); });
 
-    document.addEventListener('click', function (e) {
+    function cambiarEstado(id, estado) {
+        return V.api('/propiedades/' + id + '/estado', { metodo: 'PATCH', datos: { estado: estado } });
+    }
+
+    document.addEventListener('click', async function (e) {
         var b = e.target.closest('[data-accion]');
         if (!b) return;
 
@@ -449,43 +533,37 @@
         var p = inmueble(id);
 
         if (accion === 'planes') return abrirPlanes();
-        if (accion === 'quitar-ejemplos') {
-            datos = almacen.quitarEjemplos();
-            V.toast('Listo: ya solo ves tus propios datos.');
-            return pintar();
-        }
         if (accion === 'editar' && p) return abrirForm(p);
-
-        if (accion === 'publicar' && p) {
-            if (!almacen.membresiaActiva(datos)) { V.toast('Necesitas una membresía activa para publicar.'); return abrirPlanes(); }
-            p.estado = 'publicada'; V.toast('Inmueble publicado.');
-        } else if (accion === 'pausar' && p) {
-            p.estado = 'pausada'; V.toast('Publicación pausada.');
-        } else if (accion === 'reanudar' && p) {
-            if (!almacen.membresiaActiva(datos)) { V.toast('Necesitas una membresía activa para publicar.'); return abrirPlanes(); }
-            p.estado = 'publicada'; V.toast('Publicación reanudada.');
-        } else if (accion === 'cerrar' && p) {
-            p.estado = OP.cierre; V.toast(OP.cierreMensaje);
-        } else if (accion === 'eliminar' && p) {
-            if (!window.confirm('¿Eliminar este inmueble? También se quitarán sus contactos y visitas.')) return;
-            datos.propiedades = datos.propiedades.filter(function (x) { return x.id !== id; });
-            datos.contactos = datos.contactos.filter(function (x) { return x.propiedadId !== id; });
-            datos.visitas = datos.visitas.filter(function (x) { return x.propiedadId !== id; });
-            V.toast('Inmueble eliminado.');
-        } else if (accion === 'atender') {
-            datos.contactos.forEach(function (c) { if (c.id === id) c.atendido = true; });
-            V.toast('Contacto marcado como atendido.');
-        } else if (accion === 'confirmar') {
-            datos.visitas.forEach(function (v) { if (v.id === id) v.estado = 'confirmada'; });
-            V.toast('Visita confirmada.');
-        } else {
-            return;
+        if ((accion === 'publicar' || accion === 'reanudar') && !membresiaActiva()) {
+            V.toast('Necesitas una membresía activa para publicar.');
+            return abrirPlanes();
         }
-        guardarYPintar();
+        if (accion === 'eliminar' && !window.confirm('¿Eliminar este inmueble? También se quitarán sus contactos y visitas.')) return;
+
+        b.disabled = true;
+        try {
+            var mensaje;
+            if (accion === 'publicar' && p) { await cambiarEstado(id, 'publicada'); mensaje = 'Inmueble publicado.'; }
+            else if (accion === 'pausar' && p) { await cambiarEstado(id, 'pausada'); mensaje = 'Publicación pausada.'; }
+            else if (accion === 'reanudar' && p) { await cambiarEstado(id, 'publicada'); mensaje = 'Publicación reanudada.'; }
+            else if (accion === 'cerrar' && p) { await cambiarEstado(id, OP.cierre); mensaje = OP.cierreMensaje; }
+            else if (accion === 'eliminar' && p) { await V.api('/propiedades/' + id, { metodo: 'DELETE' }); mensaje = 'Inmueble eliminado.'; }
+            else if (accion === 'atender') { await V.api('/contactos/' + id, { metodo: 'PATCH', datos: { estado: 'en_seguimiento' } }); mensaje = 'Contacto marcado como atendido.'; }
+            else if (accion === 'confirmar') { await V.api('/visitas/' + id, { metodo: 'PATCH', datos: { estado: 'confirmada' } }); mensaje = 'Visita confirmada.'; }
+            else { b.disabled = false; return; }
+
+            V.toast(mensaje);
+            await cargar();
+        } catch (err) {
+            b.disabled = false;
+            if (err.message !== 'Sin acceso') V.toast(err.message);
+        }
     });
 
     // Si cambia el tema, la gráfica se vuelve a dibujar con los colores nuevos
     document.addEventListener('umbral:tema', pintarGrafica);
 
     pintar();
+    cargarUbicaciones();
+    cargar();
 })();

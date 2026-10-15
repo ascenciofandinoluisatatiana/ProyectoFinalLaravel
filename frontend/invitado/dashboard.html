@@ -262,6 +262,43 @@ html.js-hero .panel#filters:not(.fmodal){display:none}
 .marca-txt strong{display:block;font-size:1.05rem;letter-spacing:.35em;font-weight:700}
 .marca-txt em{display:block;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:500;font-size:.95rem;line-height:1.15;color:var(--primary2)}
 @media(max-width:600px){.marca-img{height:38px}.marca-txt em{font-size:.85rem}}
+
+/* ===== PREMIUM: top 10 de vendedores con membresía ===== */
+.prem-wrap{grid-column:1/-1;position:relative;overflow:hidden;border-radius:28px;padding:28px 26px 30px;margin-bottom:6px;color:#fff;
+  background:linear-gradient(135deg,#1f0f55 0%,#3b1a8f 48%,#5b2ff0 100%);border:1px solid rgba(252,211,77,.38);box-shadow:0 22px 56px rgba(60,30,160,.34)}
+.prem-orb{position:absolute;border-radius:50%;filter:blur(70px);pointer-events:none}
+.prem-orb.o1{width:300px;height:300px;background:#fbbf24;top:-150px;right:-80px;opacity:.28}
+.prem-orb.o2{width:320px;height:320px;background:#8b5cf6;bottom:-170px;left:-90px;opacity:.5}
+.prem-head{position:relative;z-index:1;display:flex;align-items:center;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.prem-crown{width:56px;height:56px;border-radius:18px;display:grid;place-items:center;font-size:25px;color:#3b2400;flex:none;background:linear-gradient(135deg,#fde68a,#f59e0b);box-shadow:0 10px 26px rgba(245,158,11,.5)}
+.prem-head h3{font-size:28px;font-weight:800;line-height:1.1;letter-spacing:-.01em;background:linear-gradient(90deg,#fff,#fde68a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.prem-head p{color:rgba(255,255,255,.78);font-size:14px;margin-top:4px;max-width:560px}
+.prem-top{margin-left:auto;display:inline-flex;gap:8px;align-items:center;padding:8px 16px;border-radius:999px;font-weight:800;font-size:13px;letter-spacing:.06em;color:#3b2400;background:linear-gradient(135deg,#fde68a,#f59e0b)}
+.prem-grid,.rest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+.prem-grid{position:relative;z-index:1}
+.rest-grid{grid-column:1/-1}
+.pcard.is-prem{border:1.5px solid #f5c451;box-shadow:0 12px 32px rgba(245,158,11,.22)}
+.pcard.is-prem:hover{box-shadow:0 18px 40px rgba(245,158,11,.34)}
+.prem-strip{position:absolute;left:0;right:0;bottom:0;display:flex;gap:7px;align-items:center;justify-content:center;padding:6px 10px;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#3b2400;
+  background:linear-gradient(90deg,#f59e0b,#fde68a,#f59e0b);background-size:200% 100%;animation:premShine 4s linear infinite}
+@keyframes premShine{to{background-position:-200% 0}}
+.more-bar{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;gap:14px;padding:22px 10px 10px;text-align:center;color:var(--muted);font-weight:600}
+.more-bar::before{content:"";order:-1;width:100%;max-width:520px;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent)}
+.btn-more{display:inline-flex;align-items:center;gap:10px;padding:14px 30px;border-radius:999px;font-weight:800;font-size:15px;color:#fff;background:linear-gradient(135deg,#5b2ff0,#7c4dff);box-shadow:0 10px 26px rgba(108,61,245,.38);transition:.25s}
+.btn-more:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(108,61,245,.5)}
+.btn-more i{animation:moreBounce 1.6s ease-in-out infinite}
+@keyframes moreBounce{0%,100%{transform:translateY(-2px)}50%{transform:translateY(3px)}}
+.rest-head{grid-column:1/-1;display:flex;align-items:center;gap:16px;margin:14px 0 4px;font-size:20px;font-weight:800}
+.rest-head::before,.rest-head::after{content:"";flex:1;height:1px;background:var(--border)}
+.rest-grid.anim .pcard{animation:premIn .5s ease both;animation-delay:calc(min(var(--i,0),12)*45ms)}
+@keyframes premIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media(max-width:600px){
+  .prem-wrap{padding:20px 14px 22px;border-radius:22px}
+  .prem-head h3{font-size:22px}.prem-top{margin-left:0}
+  .prem-crown{width:46px;height:46px;font-size:20px}
+  .prem-grid,.rest-grid{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){.prem-strip,.btn-more i,.rest-grid.anim .pcard{animation:none}}
 </style>
 </head>
 <body>
@@ -484,7 +521,13 @@ const T = {
   calc_rate:['Tasa anual (%)','Annual rate (%)','Taxa anual (%)','Taux annuel (%)'],calc_years:['Plazo (años)','Term (years)','Prazo (anos)','Durée (ans)'],
   calc_result:['Cuota mensual estimada','Estimated monthly payment','Parcela mensal estimada','Mensualité estimée'],
   seller_filter:['Vendedor','Seller','Vendedor','Vendeur'],
-  lang_pill:['Idioma','Language','Idioma','Langue']
+  lang_pill:['Idioma','Language','Idioma','Langue'],
+  prem_title:['Propiedades Premium','Premium properties','Imóveis Premium','Biens Premium'],
+  prem_sub:['Selección destacada de vendedores e inmobiliarias con membresía activa','Featured selection from sellers and agencies with an active membership','Seleção em destaque de vendedores e imobiliárias com assinatura ativa','Sélection de vendeurs et d\'agences avec abonnement actif'],
+  prem_top:['Top 10','Top 10','Top 10','Top 10'],
+  more_hint:['¿Quieres seguir mirando? Hay más propiedades para ti.','Want to keep looking? There are more properties for you.','Quer continuar vendo? Há mais imóveis para você.','Envie de continuer ? Il y a d\'autres biens pour vous.'],
+  see_more:['Ver más propiedades','See more properties','Ver mais imóveis','Voir plus de biens'],
+  more_title:['Más propiedades','More properties','Mais imóveis','Plus de biens']
 };
 const DESC = {
   casa:['Amplia casa con acabados de calidad, zonas sociales luminosas, patio y excelente ubicación en un sector tranquilo y seguro.','Spacious house with quality finishes, bright living areas, a yard and an excellent location in a quiet, safe area.','Casa ampla com acabamentos de qualidade, áreas sociais iluminadas, quintal e ótima localização em região tranquila e segura.','Maison spacieuse aux finitions soignées, pièces lumineuses, jardin et excellent emplacement dans un quartier calme et sûr.'],
@@ -544,7 +587,7 @@ let lang = localStorage.getItem('umbral_lang');
 if(!LANGS.includes(lang)){ // GeoIP real: lo resuelve el backend (mapeo país–idioma); aquí se usa el navegador
   const nav=(navigator.language||'es').slice(0,2); lang = LANGS.includes(nav)?nav:'en';
 }
-const S = {op:'all',type:'',dept:'',city:'',barrio:'',max:'',beds:'',q:'',sort:'rel',view:'cards',favOnly:false,seller:null};
+const S = {op:'all',type:'',dept:'',city:'',barrio:'',max:'',beds:'',q:'',sort:'rel',view:'cards',favOnly:false,seller:null,showAll:false};
 let favs = []; try{favs=JSON.parse(localStorage.getItem('umbral_favs')||'[]')}catch(e){}
 let map=null, mapLayer=null, dmap=null;
 
@@ -613,14 +656,14 @@ function filtered(){
 }
 
 /* ============ render ============ */
-function card(p){
+function card(p,i){
   const s=SELLERS[p.seller], rent=p.op==='arriendo', fav=favs.includes(p.id);
-  return `<article class="pcard">
+  return `<article class="pcard${p.prem?' is-prem':''}" style="--i:${i||0}">
     <div class="pimg" style="${imgStyle(p)}" data-open="${p.id}">${icon(p)}
       <div class="badges"><span class="b ${rent?'b-rent':'b-sale'}">${t(rent?'rental':'sale')}</span>
       ${p.ver?`<span class="b b-ver"><i class="fa-solid fa-circle-check"></i>${t('verified')}</span>`:''}
       ${p.prem?`<span class="b b-prem"><i class="fa-solid fa-star"></i>${t('premium')}</span>`:''}</div>
-      <button class="fav ${fav?'on':''}" data-fav="${p.id}"><i class="${fav?'fa-solid':'fa-regular'} fa-heart"></i></button>
+      ${p.prem?'<div class="prem-strip"><i class="fa-solid fa-crown"></i>Premium</div>':''}<button class="fav ${fav?'on':''}" data-fav="${p.id}"><i class="${fav?'fa-solid':'fa-regular'} fa-heart"></i></button>
     </div>
     <div class="pbody">
       <div class="price">${cop(p.price)}${rent?`<small> ${t('per_month')}</small>`:''}</div>
@@ -639,10 +682,28 @@ function card(p){
       </div>
     </div></article>`;
 }
+/* ============ PREMIUM: top 10 y "ver más" ============ */
+function filtersActive(){return !!(S.q||S.type||S.dept||S.city||S.barrio||S.max||S.beds||S.seller!==null||S.favOnly)}
+function cardsHTML(r){
+  const prem = S.view==='cards' ? r.filter(p=>p.prem).slice(0,10) : [];
+  if(!prem.length || filtersActive()) return r.map((p,i)=>card(p,i)).join('');
+  const shown = new Set(prem.map(p=>p.id));
+  const rest = r.filter(p=>!shown.has(p.id));
+  let h = `<section class="prem-wrap" aria-label="${t('prem_title')}">
+    <div class="prem-orb o1"></div><div class="prem-orb o2"></div>
+    <header class="prem-head"><div class="prem-crown"><i class="fa-solid fa-crown"></i></div>
+      <div><h3>${t('prem_title')}</h3><p>${t('prem_sub')}</p></div>
+      <span class="prem-top"><i class="fa-solid fa-ranking-star"></i>${t('prem_top')}</span></header>
+    <div class="prem-grid">${prem.map((p,i)=>card(p,i)).join('')}</div></section>`;
+  if(!rest.length) return h;
+  if(!S.showAll) return h + `<div class="more-bar"><span>${t('more_hint')}</span><button class="btn-more" data-showall="1"><i class="fa-solid fa-chevron-down"></i>${t('see_more')} · ${rest.length}</button></div>`;
+  return h + `<div class="rest-head"><span>${t('more_title')}</span></div><div class="rest-grid${S._anim?' anim':''}">${rest.map((p,i)=>card(p,i)).join('')}</div>`;
+}
+
 function render(){
   const r = filtered();
   $('#count').textContent = `${r.length} ${t('n_found')}`;
-  $('#cards').innerHTML = r.length? r.map(card).join('') : `<div class="empty"><i class="fa-regular fa-face-frown"></i><p>${t('no_results')}</p></div>`;
+  $('#cards').innerHTML = r.length? cardsHTML(r) : `<div class="empty"><i class="fa-regular fa-face-frown"></i><p>${t('no_results')}</p></div>`;
   $('#s1').textContent=P.length; $('#s2').textContent=new Set(P.map(p=>p.city)).size;
   $('#s3').textContent=SELLERS.length; $('#s4').textContent=P.filter(p=>p.ver).length;
   const chip=$('#sellerChip');
@@ -776,6 +837,7 @@ document.addEventListener('click',e=>{
   if((el=g('[data-pay]'))){closeModals();openPse(+el.dataset.pay);return}
   if((el=g('[data-open]'))){e.preventDefault();closeModals();openDetail(+el.dataset.open);return}
   if((el=g('[data-seller]'))){S.seller=+el.dataset.seller;setView('cards');$('#filters').scrollIntoView({behavior:'smooth'});return}
+  if(g('[data-showall]')){S.showAll=true;S._anim=true;render();S._anim=false;const rh=$('.rest-head');if(rh)rh.scrollIntoView({behavior:'smooth',block:'start'});return}
   if(g('#chipX')){S.seller=null;render();return}
   if((el=g('[data-op]'))){S.op=el.dataset.op;$$('.op').forEach(b=>b.classList.toggle('active',b===el));render();return}
   if((el=g('[data-view]'))){setView(el.dataset.view);return}
@@ -789,7 +851,7 @@ document.addEventListener('click',e=>{
     if(n==='map'){setView('map');$('#filters').scrollIntoView({behavior:'smooth'});return}
     if(n==='venta'||n==='arriendo'||n==='all'){S.op=n;$$('.op').forEach(b=>b.classList.toggle('active',b.dataset.op===n))}
     setView('cards');return}
-  if(g('#clearBtn')){Object.assign(S,{op:'all',type:'',dept:'',city:'',barrio:'',max:'',beds:'',q:'',sort:'rel',favOnly:false,seller:null});
+  if(g('#clearBtn')){Object.assign(S,{op:'all',type:'',dept:'',city:'',barrio:'',max:'',beds:'',q:'',sort:'rel',favOnly:false,seller:null,showAll:false});
     $('#q').value='';$('#fMax').value='';$$('.op').forEach(b=>b.classList.toggle('active',b.dataset.op==='all'));buildFilters();render();return}
   if(g('#goExplore')){$('#filters').scrollIntoView({behavior:'smooth'});return}
   if(g('#menuBtn')){$('#sidebar').classList.toggle('open');$('#shade').classList.toggle('open');return}

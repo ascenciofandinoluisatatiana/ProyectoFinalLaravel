@@ -51,7 +51,17 @@
         return fila ? decodeURIComponent(fila.substring(nombre.length + 1)) : '';
     }
 
+    // Marca en el navegador si hay una sesión de administrador abierta.
+    // Solo sirve para que login.html no parpadee; la sesión real la decide el servidor.
+    function recordarSesion(si) {
+        try {
+            if (si) localStorage.setItem('umbral-admin-sesion', '1');
+            else localStorage.removeItem('umbral-admin-sesion');
+        } catch (e) {}
+    }
+
     function irAlLogin() {
+        recordarSesion(false);
         window.location.replace(LOGIN);
     }
 
@@ -333,6 +343,7 @@
         });
 
         activarComportamientos();
+        recordarSesion(true);
         document.getElementById('app').style.visibility = 'visible';
         return { usuario: yo.usuario, resumen: resumen };
     })();

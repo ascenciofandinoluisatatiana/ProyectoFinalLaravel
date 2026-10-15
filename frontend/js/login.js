@@ -23,7 +23,7 @@
     var PANELES_CON_SESION = {
         inmobiliaria: { api: '/api/v1/inmobiliaria', destino: '/inmobiliaria/dashboard.html' },
         agente: { api: '/api/v1/agente', destino: '/agente/dashboard.html' },
-        vendedor: { api: '/api/v1/vendedor', destino: '/vendedor/perfil.html', guardarUsuario: true },    
+        vendedor: { api: '/api/v1/vendedor', destino: '/vendedor/perfil.html', guardarUsuario: true },
     };
 
     async function entrarAlPanelConSesion(panel, email, password, recordar) {
@@ -52,46 +52,50 @@
 
     // La API valida credenciales, pero la administración necesita una sesión
     // web de Laravel. La iniciamos usando el formulario oficial y su CSRF.
+
     async function entrarAlPanelAdministrativo(email, password, recordar) {
-        var paginaLogin = await fetch('/admin/login', {
-            method: 'GET',
-            credentials: 'same-origin',
-            headers: { 'Accept': 'text/html' }
+        // Preparar la sesión web de Laravel desde el login oficial.
+        await fetch('/api/v1/admin/csrf', {
+            credentials: 'same-origin'
         });
-        var html = await paginaLogin.text();
-        var documento = new DOMParser().parseFromString(html, 'text/html');
-        var campoToken = documento.querySelector('input[name="_token"]');
-        var metaToken = documento.querySelector('meta[name="csrf-token"]');
-        var token = campoToken ? campoToken.value : (metaToken ? metaToken.content : '');
 
-        if (!paginaLogin.ok || !token) {
-            throw new Error('No fue posible preparar la sesión administrativa.');
-        }
+        var fila = document.cookie.split('; ').find(function (f) {
+            return f.indexOf('XSRF-TOKEN=') === 0;
+        });
 
-        var datosFormulario = new URLSearchParams();
-        datosFormulario.set('_token', token);
-        datosFormulario.set('email', email);
-        datosFormulario.set('password', password);
-        if (recordar) datosFormulario.set('recordar', '1');
+        var xsrf = fila
+            ? decodeURIComponent(fila.substring('XSRF-TOKEN='.length))
+            : '';
 
-        var acceso = await fetch('/admin/login', {
+        var acceso = await fetch('/api/v1/admin/sesion', {
             method: 'POST',
             credentials: 'same-origin',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Accept': 'text/html'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-XSRF-TOKEN': xsrf
             },
-            body: datosFormulario.toString()
+            body: JSON.stringify({
+                email: email,
+                password: password,
+                recordar: !!recordar
+            })
         });
 
-        // Si Laravel devuelve otra vez el formulario, rechazó la sesión
-        // (por ejemplo, porque la cuenta está pendiente o no es administradora).
-        if (!acceso.ok || new URL(acceso.url).pathname.replace(/\/$/, '') === '/admin/login') {
-            throw new Error('La cuenta no pudo entrar al panel. Verifica que sea administradora, esté activa y esté verificada.');
+        var datos = await acceso.json().catch(function () {
+            return {};
+        });
+
+        if (!acceso.ok) {
+            throw new Error(
+                datos.message ||
+                'No se pudo iniciar la sesión administrativa.'
+            );
         }
 
-        window.location.href = '/panel-admin/dashboard.html';
+        window.location.replace('/panel-admin/dashboard.html');
     }
+
 
     // Mostrar / ocultar contraseña
     document.getElementById('ver-clave').addEventListener('click', function () {

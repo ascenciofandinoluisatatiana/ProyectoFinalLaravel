@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\VerificacionController as AdminVerificacionController;
 use App\Http\Controllers\Api\V1\Admin\CuentaController;
 use App\Http\Controllers\Api\V1\Admin\ResumenController;
+use App\Http\Controllers\Api\V1\Admin\SesionController as AdminSesionController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\Agente\ContactoController as AgenteContactoController;
 use App\Http\Controllers\Api\V1\Agente\PanelController as AgentePanelController;
@@ -58,6 +59,11 @@ Route::prefix('v1')->group(function () {
 | "admin.api" exige sesión iniciada y rol administrador (401 / 403 en JSON).
 | Cuando se agreguen tokens, el cambio se limita a este grupo.
 */
+// Login del panel de admin desde el frontend estatico
+Route::prefix('v1/admin')->middleware('web')->group(function () {
+    Route::get('csrf', [AdminSesionController::class, 'csrf']);
+    Route::post('sesion', [AdminSesionController::class, 'entrar'])->middleware('throttle:10,1');
+});
 Route::prefix('v1/admin')->middleware(['web', 'admin.api'])->group(function () {
     // Cuenta del administrador, menú y listas para formularios
     Route::get('yo', [CuentaController::class, 'yo']);

@@ -8,3 +8,5 @@ umbral-mobile.zip
 *.zip
 *.bak*
 respaldo_*.sql
+# Variables locales de cada uno (no subir)
+.env

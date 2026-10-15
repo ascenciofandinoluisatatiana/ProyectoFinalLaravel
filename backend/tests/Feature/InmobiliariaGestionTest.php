@@ -85,6 +85,53 @@ class InmobiliariaGestionTest extends TestCase
         $this->assertDatabaseMissing('propiedades', ['id' => $id]);
     }
 
+    public function test_ficha_completa_y_galeria_llegan_al_portal_del_invitado(): void
+    {
+        Storage::fake('public');
+
+        $r = $this->actingAs($this->inmo)->post('/api/v1/inmobiliaria/propiedades', $this->datosPropiedad([
+            'imagen' => UploadedFile::fake()->image('principal.jpg'),
+            'descripcion' => '  Apartamento con vista a la montaña.  ',
+            'pisos' => 1,
+            'antiguedad' => 5,
+            'caracteristicas' => ['piscina', 'ascensor', 'piscina'],
+        ]), ['Accept' => 'application/json'])
+            ->assertCreated()
+            ->assertJsonPath('data.descripcion', 'Apartamento con vista a la montaña.')
+            ->assertJsonPath('data.caracteristicas', ['ascensor', 'piscina']); // sin repetir y en orden del catálogo
+        $id = $r->json('data.id');
+
+        // Galería: de a una foto, con tope
+        $foto = $this->post("/api/v1/inmobiliaria/propiedades/{$id}/fotos", ['foto' => UploadedFile::fake()->image('sala.jpg')], ['Accept' => 'application/json'])
+            ->assertCreated()->json('data');
+        $this->post("/api/v1/inmobiliaria/propiedades/{$id}/fotos", ['foto' => UploadedFile::fake()->image('cocina.jpg')], ['Accept' => 'application/json'])
+            ->assertCreated();
+        $this->post("/api/v1/inmobiliaria/propiedades/{$id}/fotos", ['foto' => UploadedFile::fake()->create('doc.pdf', 10, 'application/pdf')], ['Accept' => 'application/json'])
+            ->assertStatus(422);
+
+        // El invitado recibe la ficha completa y todas las fotos (principal primero)
+        $publica = $this->getJson("/api/v1/public/propiedades/{$id}")->assertOk()
+            ->assertJsonPath('data.desc', 'Apartamento con vista a la montaña.')
+            ->assertJsonPath('data.floors', 1)
+            ->assertJsonPath('data.age', 5)
+            ->assertJsonPath('data.features.0.label', 'Ascensor')
+            ->assertJsonPath('data.seller.phone', $this->inmo->telefono)
+            ->assertJsonCount(3, 'data.photos');
+        $this->assertSame($publica->json('data.img'), $publica->json('data.photos.0'));
+
+        // Quitar una foto borra el archivo; al editar se pueden vaciar los campos opcionales
+        $this->deleteJson("/api/v1/inmobiliaria/propiedades/{$id}/fotos/{$foto['id']}")->assertOk();
+        Storage::disk('public')->assertMissing(str_replace('/storage/', '', $foto['url']));
+        $this->post("/api/v1/inmobiliaria/propiedades/{$id}", $this->datosPropiedad(['caracteristicas' => '', 'pisos' => '']), ['Accept' => 'application/json'])
+            ->assertOk()->assertJsonPath('data.caracteristicas', [])->assertJsonPath('data.pisos', null)
+            ->assertJsonPath('data.descripcion', 'Apartamento con vista a la montaña.') // lo que no se envía no se toca
+            ->assertJsonCount(1, 'data.fotos');
+
+        // Las fotos de otra inmobiliaria no se pueden tocar
+        $otra = $this->usuario('inmobiliaria');
+        $this->actingAs($otra)->deleteJson("/api/v1/inmobiliaria/propiedades/{$id}/fotos/{$foto['id']}")->assertNotFound();
+    }
+
     public function test_rechaza_ubicacion_fuera_de_colombia_y_municipio_invalido(): void
     {
         $this->actingAs($this->inmo)

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Inmobiliaria;
 
 use App\Models\Propiedad;
+use App\Models\PropiedadFoto;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -12,7 +13,9 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * Propiedades de la inmobiliaria (RF-040 a RF-046, RF-061 a RF-063, RF-080).
- * Las rutas de guardar usan POST (multipart) para poder subir la foto.
+ * Las rutas de guardar usan POST (multipart) para poder subir la foto principal.
+ * Las fotos adicionales (galería) se suben de a una con POST /propiedades/{id}/fotos:
+ * así cada petición es pequeña y no choca con el límite de tamaño del servidor.
  */
 class PropiedadController extends BaseInmobiliariaController
 {
@@ -23,7 +26,7 @@ class PropiedadController extends BaseInmobiliariaController
     /** GET /propiedades?operacion=&estado=&agente_id=&q= */
     public function index(Request $request): JsonResponse
     {
-        $consulta = Propiedad::with('agente:id,name')
+        $consulta = Propiedad::with(['agente:id,name', 'fotos'])
             ->withCount(['leads', 'visitas'])
             ->where('user_id', $this->inmobiliaria($request)->id);
 
@@ -49,6 +52,9 @@ class PropiedadController extends BaseInmobiliariaController
 
         return response()->json([
             'data' => $consulta->latest()->get()->map(fn (Propiedad $p) => $this->formato($p))->all(),
+            // Catálogo para pintar las casillas del formulario
+            'caracteristicas' => Propiedad::CARACTERISTICAS,
+            'max_fotos' => Propiedad::MAX_FOTOS,
         ]);
     }
 
@@ -67,7 +73,7 @@ class PropiedadController extends BaseInmobiliariaController
 
         return response()->json([
             'message' => 'Propiedad registrada.',
-            'data' => $this->formato($propiedad->load('agente:id,name')->loadCount(['leads', 'visitas'])),
+            'data' => $this->formato($propiedad->load(['agente:id,name', 'fotos'])->loadCount(['leads', 'visitas'])),
         ], 201);
     }
 
@@ -88,7 +94,7 @@ class PropiedadController extends BaseInmobiliariaController
 
         return response()->json([
             'message' => 'Propiedad actualizada.',
-            'data' => $this->formato($propiedad->fresh()->load('agente:id,name')->loadCount(['leads', 'visitas'])),
+            'data' => $this->formato($propiedad->fresh()->load(['agente:id,name', 'fotos'])->loadCount(['leads', 'visitas'])),
         ]);
     }
 
@@ -125,12 +131,54 @@ class PropiedadController extends BaseInmobiliariaController
         ]);
     }
 
+    /** POST /propiedades/{id}/fotos  (multipart: foto) — agrega una foto a la galería */
+    public function agregarFoto(Request $request, $id): JsonResponse
+    {
+        $propiedad = $this->propiedadPropia($request, $id);
+        $request->validate([
+            'foto' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+        ], [
+            'foto.required' => 'Elige una foto.',
+            'foto.max' => 'La foto no puede superar 4 MB.',
+            'foto.image' => 'El archivo debe ser una imagen.',
+            'foto.mimes' => 'La foto debe ser JPG, PNG o WebP.',
+        ]);
+
+        if ($propiedad->fotos()->count() >= Propiedad::MAX_FOTOS) {
+            throw ValidationException::withMessages([
+                'foto' => 'La galería admite máximo ' . Propiedad::MAX_FOTOS . ' fotos además de la principal.',
+            ]);
+        }
+
+        $foto = $propiedad->fotos()->create([
+            'ruta' => $request->file('foto')->store('propiedades', 'public'),
+            'orden' => (int) $propiedad->fotos()->max('orden') + 1,
+        ]);
+
+        return response()->json(['message' => 'Foto agregada.', 'data' => ['id' => $foto->id, 'url' => $foto->url]], 201);
+    }
+
+    /** DELETE /propiedades/{id}/fotos/{foto} */
+    public function quitarFoto(Request $request, $id, $fotoId): JsonResponse
+    {
+        $propiedad = $this->propiedadPropia($request, $id);
+        $foto = $propiedad->fotos()->whereKey((int) $fotoId)->firstOrFail();
+
+        $this->borrarArchivo($foto->ruta);
+        $foto->delete();
+
+        return response()->json(['message' => 'Foto eliminada.']);
+    }
+
     /** DELETE /propiedades/{id} */
     public function destroy(Request $request, $id): JsonResponse
     {
         $propiedad = $this->propiedadPropia($request, $id);
         $this->borrarImagen($propiedad);
-        $propiedad->delete(); // sus contactos y visitas se borran en cascada
+        foreach ($propiedad->fotos as $foto) {
+            $this->borrarArchivo($foto->ruta);
+        }
+        $propiedad->delete(); // sus fotos, contactos y visitas se borran en cascada
 
         return response()->json(['message' => 'Propiedad eliminada.']);
     }
@@ -156,12 +204,20 @@ class PropiedadController extends BaseInmobiliariaController
             'agente_id' => ['nullable', 'integer', $this->reglaAgente($request)],
             'estado' => [$nueva ? 'nullable' : 'prohibited', Rule::in(['borrador', 'publicada'])],
             'imagen' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            // Ficha completa (RF-040, RF-042, RF-043, RF-044). Todo opcional.
+            'descripcion' => ['nullable', 'string', 'max:3000'],
+            'pisos' => ['nullable', 'integer', 'min:1', 'max:200'],
+            'antiguedad' => ['nullable', 'integer', 'min:0', 'max:300'],
+            'caracteristicas' => ['nullable', 'array'],
+            'caracteristicas.*' => ['string', Rule::in(array_keys(Propiedad::CARACTERISTICAS))],
         ], [
             'lat.between' => 'La ubicación debe estar en Colombia.',
             'lng.between' => 'La ubicación debe estar en Colombia.',
             'lat.required' => 'Marca la ubicación en el mapa.',
             'lng.required' => 'Marca la ubicación en el mapa.',
             'imagen.max' => 'La foto no puede superar 4 MB.',
+            'pisos.min' => 'El número de pisos debe ser al menos 1.',
+            'caracteristicas.*.in' => 'Hay una característica que no es válida.',
         ]);
 
         // El municipio debe existir dentro del departamento elegido (catálogo oficial)
@@ -180,6 +236,16 @@ class PropiedadController extends BaseInmobiliariaController
         if ($nueva) {
             $datos['estado'] = $datos['estado'] ?? 'publicada';
         }
+        if (array_key_exists('descripcion', $datos)) {
+            $datos['descripcion'] = $datos['descripcion'] !== null ? trim($datos['descripcion']) : null;
+        }
+        // Se guardan sin repetir y en el orden del catálogo
+        if (array_key_exists('caracteristicas', $datos)) {
+            $datos['caracteristicas'] = array_values(array_intersect(
+                array_keys(Propiedad::CARACTERISTICAS),
+                $datos['caracteristicas'] ?? []
+            ));
+        }
         unset($datos['imagen']);
 
         return $datos;
@@ -187,9 +253,14 @@ class PropiedadController extends BaseInmobiliariaController
 
     private function borrarImagen(Propiedad $propiedad): void
     {
-        // Solo se borran fotos subidas al disco (no las imágenes de ejemplo del frontend)
-        if ($propiedad->imagen && ! str_starts_with($propiedad->imagen, '/') && ! str_starts_with($propiedad->imagen, 'http')) {
-            Storage::disk('public')->delete($propiedad->imagen);
+        $this->borrarArchivo($propiedad->imagen);
+    }
+
+    /** Solo se borran fotos subidas al disco (no las imágenes de ejemplo del frontend). */
+    private function borrarArchivo(?string $ruta): void
+    {
+        if ($ruta && ! str_starts_with($ruta, '/') && ! str_starts_with($ruta, 'http')) {
+            Storage::disk('public')->delete($ruta);
         }
     }
 
@@ -214,6 +285,13 @@ class PropiedadController extends BaseInmobiliariaController
             'verificada' => (bool) $p->verificada,
             'estado' => $p->estado,
             'imagen' => $this->urlImagen($p->imagen),
+            'descripcion' => $p->descripcion,
+            'pisos' => $p->pisos,
+            'antiguedad' => $p->antiguedad,
+            'caracteristicas' => $p->caracteristicas ?? [],
+            'fotos' => $p->relationLoaded('fotos')
+                ? $p->fotos->map(fn (PropiedadFoto $f) => ['id' => $f->id, 'url' => $f->url])->values()->all()
+                : [],
             'agente' => $p->agente ? ['id' => $p->agente->id, 'nombre' => $p->agente->name] : null,
             'contactos' => (int) ($p->leads_count ?? 0),
             'visitas' => (int) ($p->visitas_count ?? 0),

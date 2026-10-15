@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Propiedad;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -32,8 +33,21 @@ class PropiedadPublicaResource extends JsonResource
             'ver'     => (bool) $this->verificada,
             'prem'    => (bool) ($this->prem ?? false),
             // Ruta relativa: así funciona por el frontend (:3000) sin depender de APP_URL
-            'img'     => ! $this->imagen ? '' : (str_starts_with($this->imagen, '/') || str_starts_with($this->imagen, 'http')
-                ? $this->imagen : '/storage/' . $this->imagen),
+            'img'     => $this->urlFoto($this->imagen),
+            // Ficha completa (RF-040, RF-042, RF-043, RF-044). Campos nuevos:
+            // si la página no los usa, simplemente los ignora.
+            'desc'     => $this->descripcion,
+            'floors'   => $this->pisos,
+            'age'      => $this->antiguedad,
+            'features' => collect($this->caracteristicas ?? [])
+                ->filter(fn ($clave) => isset(Propiedad::CARACTERISTICAS[$clave]))
+                ->map(fn ($clave) => ['key' => $clave, 'label' => Propiedad::CARACTERISTICAS[$clave]])
+                ->values()->all(),
+            // Todas las fotos: la principal primero y luego la galería
+            'photos'   => array_values(array_filter(array_merge(
+                [$this->urlFoto($this->imagen)],
+                $this->relationLoaded('fotos') ? $this->fotos->map(fn ($f) => $f->url)->all() : []
+            ))),
             'seller'  => [
                 'id'    => $v->id,
                 'name'  => $v->name,
@@ -44,5 +58,15 @@ class PropiedadPublicaResource extends JsonResource
                 'ver'   => $v->estado === 'activo',
             ],
         ];
+    }
+
+    /** Ruta relativa (/storage/...): así funciona por el frontend (:3000) sin depender de APP_URL. */
+    private function urlFoto(?string $ruta): string
+    {
+        if (! $ruta) {
+            return '';
+        }
+
+        return str_starts_with($ruta, '/') || str_starts_with($ruta, 'http') ? $ruta : '/storage/' . $ruta;
     }
 }

@@ -19,7 +19,7 @@ class PublicPropiedadController extends Controller
         $q = Propiedad::query()
             ->select('propiedades.*')
             ->selectRaw(self::PREMIUM_SQL)
-            ->with('vendedor:id,name,email,telefono,role_id,estado')
+            ->with(['vendedor:id,name,email,telefono,role_id,estado', 'fotos'])
             ->where('estado', 'publicada')
             ->when($r->operacion,  fn ($q, $v) => $q->where('operacion', $v))
             ->when($r->tipo,       fn ($q, $v) => $q->where('tipo', $v))
@@ -40,7 +40,7 @@ class PublicPropiedadController extends Controller
         $p = Propiedad::query()
             ->select('propiedades.*')
             ->selectRaw(self::PREMIUM_SQL)
-            ->with('vendedor:id,name,email,telefono,role_id,estado')
+            ->with(['vendedor:id,name,email,telefono,role_id,estado', 'fotos'])
             ->where('estado', 'publicada')
             ->findOrFail($id);
 

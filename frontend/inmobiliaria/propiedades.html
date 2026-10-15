@@ -87,19 +87,46 @@
                 <div class="v-campo"><label for="f-banos">Baños</label><input id="f-banos" name="banos" type="number" min="0" max="50" value="0"></div>
                 <div class="v-campo"><label for="f-parqueaderos">Parqueaderos</label><input id="f-parqueaderos" name="parqueaderos" type="number" min="0" max="50" value="0"></div>
                 <div class="v-campo"><label for="f-area">Área (m²)</label><input id="f-area" name="area" type="number" min="1" required></div>
+                <div class="v-campo"><label for="f-pisos">Pisos o niveles</label><input id="f-pisos" name="pisos" type="number" min="1" max="200" placeholder="Opcional"></div>
+                <div class="v-campo"><label for="f-antiguedad">Antigüedad (años)</label><input id="f-antiguedad" name="antiguedad" type="number" min="0" max="300" placeholder="0 = nuevo"></div>
                 <div class="v-campo ancho" id="f-estado-caja"><label for="f-estado">Al guardar</label>
                     <select id="f-estado" name="estado"><option value="publicada">Publicar de una vez</option><option value="borrador">Guardar como borrador</option></select></div>
             </div>
 
-            <!-- Foto del inmueble -->
+            <!-- Descripción que verá el invitado -->
             <div class="v-campo ancho">
-                <label for="f-foto">Foto del inmueble</label>
+                <label for="f-descripcion">Descripción</label>
+                <textarea id="f-descripcion" name="descripcion" maxlength="3000" rows="5" placeholder="Cuenta lo que hace especial al inmueble: distribución, acabados, vista, cercanía a transporte, colegios o comercio…"></textarea>
+                <p class="v-nota"><span id="f-descripcion-cuenta">0</span> / 3000 caracteres</p>
+            </div>
+
+            <!-- Características y servicios -->
+            <fieldset class="v-campo ancho i-caja-campos">
+                <legend>Características y servicios</legend>
+                <div class="i-caracteristicas" id="f-caracteristicas"></div>
+            </fieldset>
+
+            <!-- Foto principal -->
+            <div class="v-campo ancho">
+                <label for="f-foto">Foto principal</label>
                 <label class="v-foto" for="f-foto">
                     <img id="f-foto-vista" alt="Vista previa de la foto" hidden>
                     <span class="v-foto-vacio" id="f-foto-vacio"><i class="fa-solid fa-image"></i><b>Haz clic para subir una foto</b><small>JPG, PNG o WebP · máximo 4 MB</small></span>
                 </label>
                 <input class="v-oculto" id="f-foto" name="imagen" type="file" accept="image/jpeg,image/png,image/webp">
                 <div class="v-ubic-acciones"><button type="button" class="v-btn v-btn-suave v-btn-mini" id="f-foto-quitar" hidden><i class="fa-solid fa-trash"></i> Quitar foto</button></div>
+                <p class="v-nota">Es la que aparece en la tarjeta del portal.</p>
+            </div>
+
+            <!-- Galería: fotos adicionales -->
+            <div class="v-campo ancho">
+                <label for="f-galeria">Más fotos <small id="f-galeria-cuenta"></small></label>
+                <div class="i-galeria" id="f-galeria-lista"></div>
+                <input class="v-oculto" id="f-galeria" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+                <div class="v-ubic-acciones">
+                    <label class="v-btn v-btn-suave v-btn-mini" for="f-galeria" id="f-galeria-agregar"><i class="fa-solid fa-images"></i> Agregar fotos</label>
+                </div>
+                <p class="v-nota">Las fotos se reducen automáticamente antes de subirlas.</p>
             </div>
 
             <!-- Ubicación en el mapa -->

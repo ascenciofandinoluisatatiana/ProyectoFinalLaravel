@@ -89,8 +89,20 @@ class InmobiliariaDemoSeeder extends Seeder
             ['casa', 'arriendo', 3200000, '73001', 'Piedra Pintada', 'Cra 8 # 72-10 Ibagué', 4.4470, -75.1950, 3, 3, 2, 160, 5, 'pausada', null],
         ];
 
+        // Ficha completa de cada propiedad (mismo orden): descripción, pisos, antigüedad, características
+        $fichas = [
+            ['Apartamento iluminado en piso alto con vista a la cordillera. Sala-comedor amplia, cocina integral abierta, estudio y balcón. A dos cuadras de la Universidad del Tolima y cerca de supermercados y transporte público.', 1, 8, ['ascensor', 'porteria', 'balcon', 'gimnasio', 'gas_natural', 'internet']],
+            ['Casa de dos niveles en conjunto cerrado, con jardín, patio de ropas independiente y estudio. Acabados en porcelanato y madera, cocina remodelada y zonas verdes con parque infantil.', 2, 12, ['porteria', 'piscina', 'jardin', 'parque_infantil', 'zona_bbq', 'deposito', 'mascotas', 'gas_natural']],
+            ['Apartamento para estrenar remodelación en Cádiz, cerca de la Calle 60 y centros comerciales. Dos alcobas con closet, cocina abierta y parqueadero cubierto.', 1, 15, ['ascensor', 'porteria', 'salon_comunal', 'gas_natural', 'internet']],
+            ['Local comercial esquinero en pleno centro, con alto flujo peatonal, vitrina de 6 metros, baño privado y mezanine para bodega.', 1, 25, ['deposito', 'internet']],
+            ['Apartamento en Cedritos, a pasos de la Autopista Norte y de TransMilenio. Tres alcobas, estudio, chimenea y terraza privada.', 1, 10, ['ascensor', 'porteria', 'chimenea', 'terraza', 'gimnasio', 'deposito', 'gas_natural']],
+            ['Finca de recreo con casa principal, kiosco, piscina y zonas verdes. Clima templado a 15 minutos de Ibagué por vía pavimentada.', 1, 20, ['piscina', 'jardin', 'zona_bbq', 'mascotas']],
+            ['Casa amplia en Piedra Pintada con patio, terraza y garaje para dos carros. Sector residencial tranquilo cerca de colegios.', 2, 18, ['terraza', 'jardin', 'mascotas', 'gas_natural']],
+        ];
+
         $creadas = [];
-        foreach ($propiedades as [$tipo, $op, $precio, $dane, $barrio, $dir, $lat, $lng, $hab, $ban, $par, $area, $estrato, $estado, $agente]) {
+        foreach ($propiedades as $i => [$tipo, $op, $precio, $dane, $barrio, $dir, $lat, $lng, $hab, $ban, $par, $area, $estrato, $estado, $agente]) {
+            [$descripcion, $pisos, $antiguedad, $caracteristicas] = $fichas[$i];
             $ubicacion = DB::table('municipios as m')
                 ->join('departamentos as d', 'd.id', '=', 'm.departamento_id')
                 ->where('m.codigo_dane', $dane)
@@ -109,6 +121,7 @@ class InmobiliariaDemoSeeder extends Seeder
                 'lat' => $lat, 'lng' => $lng,
                 'habitaciones' => $hab, 'banos' => $ban, 'parqueaderos' => $par,
                 'area' => $area, 'estrato' => $estrato, 'verificada' => $estado === 'publicada', 'estado' => $estado,
+                'descripcion' => $descripcion, 'pisos' => $pisos, 'antiguedad' => $antiguedad, 'caracteristicas' => $caracteristicas,
             ]);
         }
 

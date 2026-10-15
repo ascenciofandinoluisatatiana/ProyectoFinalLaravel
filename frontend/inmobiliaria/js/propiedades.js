@@ -1,6 +1,7 @@
 /* =========================================================
    UMBRAL — Propiedades de la inmobiliaria
    API: /api/v1/inmobiliaria/propiedades (+ /agentes para los selectores)
+        /api/v1/inmobiliaria/propiedades/{id}/fotos (galería, de a una foto)
         /api/v1/public/ubicaciones (departamentos y municipios oficiales)
    ========================================================= */
 (function () {
@@ -14,6 +15,11 @@
     var ventana = document.getElementById('d-form');
     var editando = null;      // propiedad que se edita (null = nueva)
     var quitarFoto = false;
+    var fotoPrincipal = null; // foto principal ya reducida (Blob)
+    var catalogo = {};        // características: { clave: 'Texto' }
+    var maxFotos = 9;
+    // Galería del formulario: fotos que ya existen, nuevas por subir y las que se van a borrar
+    var galeria = { existentes: [], nuevas: [], quitar: [] };
 
     function $(id) { return document.getElementById(id); }
 
@@ -30,6 +36,8 @@
     async function cargarPropiedades() {
         var r = await I.api('/propiedades' + filtros());
         propiedades = r.data;
+        if (r.caracteristicas) catalogo = r.caracteristicas;
+        if (r.max_fotos) maxFotos = r.max_fotos;
         pintar();
     }
 
@@ -52,6 +60,16 @@
         botones += boton('eliminar', 'fa-trash', 'Eliminar');
 
         var precio = I.cop(p.precio) + (p.operacion === 'arriendo' ? '<small> / mes</small>' : '');
+        var totalFotos = (p.imagen ? 1 : 0) + (p.fotos ? p.fotos.length : 0);
+
+        // Lo que le falta a la ficha para verse completa en el portal
+        var falta = [];
+        if (!p.imagen) falta.push('foto principal');
+        if (!p.descripcion) falta.push('descripción');
+        if (!p.caracteristicas || !p.caracteristicas.length) falta.push('características');
+        var aviso = falta.length && !cerrada
+            ? '<p class="i-incompleta"><i class="fa-solid fa-circle-exclamation"></i><span>Para que el invitado la vea completa, falta: ' + I.esc(falta.join(', ')) + '.</span></p>'
+            : '';
 
         return '<article class="v-prop">' +
             '<div class="v-prop-foto"><i class="fa-solid fa-house"></i>' + I.foto(p.imagen) +
@@ -64,8 +82,9 @@
                     '<span><i class="fa-solid fa-bed"></i>' + Number(p.habitaciones) + '</span>' +
                     '<span><i class="fa-solid fa-bath"></i>' + Number(p.banos) + '</span>' +
                     '<span><i class="fa-solid fa-ruler-combined"></i>' + Number(p.area) + ' m²</span>' +
+                    '<span><i class="fa-solid fa-camera"></i>' + totalFotos + '</span>' +
                     '<span>' + (p.operacion === 'venta' ? 'Venta' : 'Arriendo') + '</span>' +
-                '</div>' +
+                '</div>' + aviso +
                 '<div class="v-campo i-asignar"><label for="ag-' + p.id + '">Agente</label>' +
                     '<select id="ag-' + p.id + '" data-asignar="' + p.id + '">' +
                     I.opcionesAgentes(agentes, p.agente ? p.agente.id : null) + '</select></div>' +
@@ -148,25 +167,148 @@
         $('f-precio-etiqueta').textContent = form.operacion.value === 'arriendo' ? 'Canon mensual (COP)' : 'Precio (COP)';
     });
 
-    /* ---------- Formulario: foto ---------- */
+    /* ---------- Formulario: descripción y características ---------- */
+    form.descripcion.addEventListener('input', function () {
+        $('f-descripcion-cuenta').textContent = form.descripcion.value.length;
+    });
+
+    function pintarCaracteristicas(elegidas) {
+        elegidas = elegidas || [];
+        $('f-caracteristicas').innerHTML = Object.keys(catalogo).map(function (k) {
+            return '<label><input type="checkbox" name="caracteristicas[]" value="' + I.esc(k) + '"' +
+                (elegidas.indexOf(k) !== -1 ? ' checked' : '') + '> ' + I.esc(catalogo[k]) + '</label>';
+        }).join('');
+    }
+
+    /* ---------- Reducir fotos antes de subirlas ----------
+       Una foto de celular pesa 3-8 MB; se lleva a máximo 1600 px en JPEG
+       para que cada envío sea liviano (el servidor limita el tamaño de cada petición). */
+    var LADO_MAX = 1600;
+    var PESO_MAX = 900 * 1024;
+    var TIPOS_FOTO = ['image/jpeg', 'image/png', 'image/webp'];
+
+    function cargarImagen(archivo) {
+        return new Promise(function (ok, falla) {
+            var img = new Image();
+            var url = URL.createObjectURL(archivo);
+            img.onload = function () { URL.revokeObjectURL(url); ok(img); };
+            img.onerror = function () { URL.revokeObjectURL(url); falla(new Error('No se pudo leer la imagen.')); };
+            img.src = url;
+        });
+    }
+
+    async function reducir(archivo) {
+        if (TIPOS_FOTO.indexOf(archivo.type) === -1) throw new Error('“' + archivo.name + '” no es JPG, PNG o WebP.');
+        var img = await cargarImagen(archivo);
+        var lado = Math.min(LADO_MAX, Math.max(img.naturalWidth, img.naturalHeight));
+
+        // Primero baja la calidad; si aún pesa mucho, reduce el tamaño y vuelve a intentar
+        for (var intento = 0; intento < 6; intento++) {
+            var escala = lado / Math.max(img.naturalWidth, img.naturalHeight);
+            var lienzo = document.createElement('canvas');
+            lienzo.width = Math.round(img.naturalWidth * escala);
+            lienzo.height = Math.round(img.naturalHeight * escala);
+            var ctx = lienzo.getContext('2d');
+            ctx.fillStyle = '#fff';                 // fondo blanco para PNG con transparencia
+            ctx.fillRect(0, 0, lienzo.width, lienzo.height);
+            ctx.drawImage(img, 0, 0, lienzo.width, lienzo.height);
+
+            for (var calidad = 0.85; calidad > 0.5; calidad -= 0.1) {
+                var blob = await new Promise(function (ok) { lienzo.toBlob(ok, 'image/jpeg', calidad); });
+                if (!blob) throw new Error('No se pudo procesar “' + archivo.name + '”.');
+                if (blob.size <= PESO_MAX) return blob;
+            }
+            lado = Math.round(lado * 0.75);
+        }
+        throw new Error('“' + archivo.name + '” es demasiado pesada. Prueba con otra foto.');
+    }
+
+    /* ---------- Formulario: foto principal ---------- */
     function pintarFoto(url) {
         $('f-foto-vista').hidden = !url;
         $('f-foto-vacio').hidden = !!url;
         $('f-foto-quitar').hidden = !url;
         if (url) $('f-foto-vista').src = url;
     }
-    $('f-foto').addEventListener('change', function () {
+    $('f-foto').addEventListener('change', async function () {
         var archivo = this.files[0];
+        this.value = '';
         if (!archivo) return;
-        if (archivo.size > 4 * 1024 * 1024) { I.toast('La foto no puede superar 4 MB.'); this.value = ''; return; }
-        quitarFoto = false;
-        pintarFoto(URL.createObjectURL(archivo));
+        try {
+            fotoPrincipal = await reducir(archivo);
+            quitarFoto = false;
+            pintarFoto(URL.createObjectURL(fotoPrincipal));
+        } catch (err) { I.toast(err.message); }
     });
     $('f-foto-quitar').addEventListener('click', function () {
-        $('f-foto').value = '';
+        fotoPrincipal = null;
         quitarFoto = true;
         pintarFoto(null);
     });
+
+    /* ---------- Formulario: galería ---------- */
+    function totalGaleria() { return galeria.existentes.length + galeria.nuevas.length; }
+
+    function pintarGaleria() {
+        var html = galeria.existentes.map(function (f) {
+            return '<figure><img src="' + I.esc(f.url) + '" alt="" loading="lazy">' +
+                '<button type="button" data-quitar-existente="' + f.id + '" aria-label="Quitar foto"><i class="fa-solid fa-xmark"></i></button></figure>';
+        }).concat(galeria.nuevas.map(function (f, i) {
+            return '<figure class="nueva"><img src="' + f.vista + '" alt="">' +
+                '<button type="button" data-quitar-nueva="' + i + '" aria-label="Quitar foto"><i class="fa-solid fa-xmark"></i></button></figure>';
+        })).join('');
+        $('f-galeria-lista').innerHTML = html;
+        $('f-galeria-cuenta').textContent = '(' + totalGaleria() + ' de ' + maxFotos + ')';
+        $('f-galeria-agregar').setAttribute('aria-disabled', totalGaleria() >= maxFotos ? 'true' : 'false');
+    }
+
+    $('f-galeria').addEventListener('change', async function () {
+        var archivos = Array.prototype.slice.call(this.files);
+        this.value = '';
+        var cupo = maxFotos - totalGaleria();
+        if (archivos.length > cupo) {
+            I.toast('Solo caben ' + cupo + ' foto(s) más. Se tomaron las primeras.');
+            archivos = archivos.slice(0, Math.max(cupo, 0));
+        }
+        for (var i = 0; i < archivos.length; i++) {
+            try {
+                var blob = await reducir(archivos[i]);
+                galeria.nuevas.push({ blob: blob, vista: URL.createObjectURL(blob) });
+            } catch (err) { I.toast(err.message); }
+        }
+        pintarGaleria();
+    });
+
+    $('f-galeria-lista').addEventListener('click', function (e) {
+        var b = e.target.closest('button');
+        if (!b) return;
+        if (b.hasAttribute('data-quitar-existente')) {
+            var id = Number(b.getAttribute('data-quitar-existente'));
+            galeria.quitar.push(id);
+            galeria.existentes = galeria.existentes.filter(function (f) { return f.id !== id; });
+        } else {
+            var f = galeria.nuevas.splice(Number(b.getAttribute('data-quitar-nueva')), 1)[0];
+            if (f) URL.revokeObjectURL(f.vista);
+        }
+        pintarGaleria();
+    });
+
+    // Después de guardar el inmueble: borra y sube las fotos de la galería, de a una.
+    // Devuelve cuántas no se pudieron subir.
+    async function sincronizarGaleria(id) {
+        var fallas = 0;
+        for (var i = 0; i < galeria.quitar.length; i++) {
+            try { await I.api('/propiedades/' + id + '/fotos/' + galeria.quitar[i], { metodo: 'DELETE' }); }
+            catch (err) { fallas++; }
+        }
+        for (var j = 0; j < galeria.nuevas.length; j++) {
+            var datos = new FormData();
+            datos.append('foto', galeria.nuevas[j].blob, 'foto-' + (j + 1) + '.jpg');
+            try { await I.api('/propiedades/' + id + '/fotos', { metodo: 'POST', formulario: datos }); }
+            catch (err) { fallas++; }
+        }
+        return fallas;
+    }
 
     /* ---------- Formulario: mapa (Leaflet, igual que el vendedor) ---------- */
     var mapa = null, pin = null;
@@ -237,6 +379,9 @@
     function abrirForm(p) {
         editando = p || null;
         quitarFoto = false;
+        fotoPrincipal = null;
+        galeria.nuevas.forEach(function (f) { URL.revokeObjectURL(f.vista); });
+        galeria = { existentes: p && p.fotos ? p.fotos.slice() : [], nuevas: [], quitar: [] };
         form.reset();
         $('d-form-error').hidden = true;
         $('d-form-titulo').textContent = p ? 'Editar inmueble' : 'Registrar inmueble';
@@ -244,7 +389,8 @@
         form.agente_id.innerHTML = I.opcionesAgentes(agentes, p && p.agente ? p.agente.id : null);
 
         if (p) {
-            ['operacion', 'tipo', 'precio', 'barrio', 'direccion', 'habitaciones', 'banos', 'parqueaderos', 'area'].forEach(function (c) {
+            ['operacion', 'tipo', 'precio', 'barrio', 'direccion', 'habitaciones', 'banos', 'parqueaderos', 'area',
+                'pisos', 'antiguedad', 'descripcion'].forEach(function (c) {
                 form[c].value = p[c] == null ? '' : p[c];
             });
             form.estrato.value = p.estrato == null ? '' : String(p.estrato);
@@ -253,6 +399,9 @@
         pintarMunicipios(p ? p.ciudad : null);
         form.operacion.dispatchEvent(new Event('change'));
         pintarFoto(p ? p.imagen : null);
+        pintarCaracteristicas(p ? p.caracteristicas : []);
+        pintarGaleria();
+        $('f-descripcion-cuenta').textContent = form.descripcion.value.length;
 
         ventana.showModal();
         iniciarMapa(p ? p.lat : null, p ? p.lng : null);
@@ -271,23 +420,33 @@
         }
 
         var datos = new FormData(form);
-        if (!$('f-foto').files.length) datos.delete('imagen');
+        datos.delete('imagen');
+        if (fotoPrincipal) datos.append('imagen', fotoPrincipal, 'principal.jpg');
         if (editando) datos.delete('estado');
-        if (editando && quitarFoto) datos.append('quitar_imagen', '1');
-        ['agente_id', 'estrato'].forEach(function (c) { if (!datos.get(c)) datos.delete(c); });
+        if (editando && quitarFoto && !fotoPrincipal) datos.append('quitar_imagen', '1');
+        // Vacíos se envían igual (llegan como null) para poder borrarlos al editar
+        if (!datos.get('agente_id')) datos.delete('agente_id');
+        // Sin casillas marcadas se envía vacío para que al editar se puedan quitar todas
+        if (!datos.getAll('caracteristicas[]').length) datos.append('caracteristicas', '');
 
         var boton = $('d-form-guardar');
         boton.disabled = true;
         try {
             var r = await I.api(editando ? '/propiedades/' + editando.id : '/propiedades', { metodo: 'POST', formulario: datos });
+            var fallas = 0;
+            if (galeria.nuevas.length || galeria.quitar.length) {
+                boton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Subiendo fotos…';
+                fallas = await sincronizarGaleria(r.data.id);
+            }
             ventana.close();
-            I.toast(r.message);
+            I.toast(fallas ? r.message + ' ' + fallas + ' foto(s) no se pudieron guardar; inténtalo de nuevo desde Editar.' : r.message);
             await cargarPropiedades();
         } catch (err) {
             error.textContent = err.message;
             error.hidden = false;
         } finally {
             boton.disabled = false;
+            boton.innerHTML = '<i class="fa-solid fa-check"></i> Guardar inmueble';
         }
     });
 

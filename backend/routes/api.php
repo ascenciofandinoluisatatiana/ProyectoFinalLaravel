@@ -117,6 +117,8 @@ Route::prefix('v1/inmobiliaria')->middleware('web')->group(function () {
         Route::post('propiedades/{id}', [InmobiliariaPropiedadController::class, 'update'])->whereNumber('id');
         Route::patch('propiedades/{id}/estado', [InmobiliariaPropiedadController::class, 'estado'])->whereNumber('id');
         Route::patch('propiedades/{id}/agente', [InmobiliariaPropiedadController::class, 'asignar'])->whereNumber('id');
+        Route::post('propiedades/{id}/fotos', [InmobiliariaPropiedadController::class, 'agregarFoto'])->whereNumber('id');
+        Route::delete('propiedades/{id}/fotos/{foto}', [InmobiliariaPropiedadController::class, 'quitarFoto'])->whereNumber(['id', 'foto']);
         Route::delete('propiedades/{id}', [InmobiliariaPropiedadController::class, 'destroy'])->whereNumber('id');
 
         // Agentes y equipo

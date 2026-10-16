@@ -58,11 +58,12 @@ services:
       redis:
         condition: service_healthy
     environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
+      DB_HOST: ${DB_HOST_APP:-postgres}
+      DB_PORT: ${DB_PORT_APP:-5432}
       DB_DATABASE: ${DB_DATABASE:-portal_inmobiliario}
       DB_USERNAME: ${DB_USERNAME:-portal}
       DB_PASSWORD: ${DB_PASSWORD:-portal_secret}
+      DB_SSLMODE: ${DB_SSLMODE:-prefer}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       # A dónde regresa el panel al cerrar sesión (landing en nginx)

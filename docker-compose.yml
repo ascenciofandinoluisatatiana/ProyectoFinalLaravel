@@ -13,9 +13,9 @@ services:
     container_name: portal_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${DB_DATABASE:-portal_inmobiliario}
-      POSTGRES_USER: ${DB_USERNAME:-portal}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-portal_secret}
+      POSTGRES_DB: ${LOCAL_DB_DATABASE:-portal_inmobiliario}
+      POSTGRES_USER: ${LOCAL_DB_USERNAME:-portal}
+      POSTGRES_PASSWORD: ${LOCAL_DB_PASSWORD:-portal_secret}
     ports:
       - "${DB_PORT:-5432}:5432"
     volumes:
@@ -24,7 +24,7 @@ services:
     networks:
       - portal_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-portal} -d ${DB_DATABASE:-portal_inmobiliario}"]
+      test: ["CMD-SHELL", "pg_isready -U ${LOCAL_DB_USERNAME:-portal} -d ${LOCAL_DB_DATABASE:-portal_inmobiliario}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -53,8 +53,6 @@ services:
     container_name: portal_app
     restart: unless-stopped
     depends_on:
-      postgres:
-        condition: service_healthy
       redis:
         condition: service_healthy
     environment:

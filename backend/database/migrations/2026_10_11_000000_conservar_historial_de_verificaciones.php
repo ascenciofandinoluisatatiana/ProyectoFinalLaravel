@@ -28,17 +28,17 @@ return new class extends Migration
 
         // Relleno de las decisiones que ya existen con los datos actuales
         DB::statement(
-            'UPDATE verificaciones v
-                SET cuenta_nombre = u.name, cuenta_email = u.email, cuenta_rol = r.nombre
-               FROM users u
-          LEFT JOIN roles r ON r.id = u.role_id
-              WHERE u.id = v.user_id'
+            'UPDATE verificaciones
+                SET cuenta_nombre = (SELECT u.name  FROM users u WHERE u.id = verificaciones.user_id),
+                    cuenta_email  = (SELECT u.email FROM users u WHERE u.id = verificaciones.user_id),
+                    cuenta_rol    = (SELECT r.nombre FROM users u LEFT JOIN roles r ON r.id = u.role_id
+                                      WHERE u.id = verificaciones.user_id)
+              WHERE EXISTS (SELECT 1 FROM users u WHERE u.id = verificaciones.user_id)'
         );
         DB::statement(
-            'UPDATE verificaciones v
-                SET decisor_nombre = u.name
-               FROM users u
-              WHERE u.id = v.decidido_por'
+            'UPDATE verificaciones
+                SET decisor_nombre = (SELECT u.name FROM users u WHERE u.id = verificaciones.decidido_por)
+              WHERE EXISTS (SELECT 1 FROM users u WHERE u.id = verificaciones.decidido_por)'
         );
 
         // user_id puede quedar vacío y ya no se borra en cascada

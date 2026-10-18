@@ -10,3 +10,6 @@ umbral-mobile.zip
 respaldo_*.sql
 # Variables locales de cada uno (no subir)
 .env
+.env.*
+!.env.example
+*.respaldo

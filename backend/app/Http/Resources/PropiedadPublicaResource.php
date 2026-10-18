@@ -32,6 +32,8 @@ class PropiedadPublicaResource extends JsonResource
             'estrato' => $this->estrato,
             'ver'     => (bool) $this->verificada,
             'prem'    => (bool) ($this->prem ?? false),
+            'tier'    => [1 => 'bronce', 2 => 'plata', 3 => 'oro'][(int) ($this->nivel ?? 0)] ?? null,
+            'score'   => (int) ($this->score ?? 0),
             // Ruta relativa: así funciona por el frontend (:3000) sin depender de APP_URL
             'img'     => $this->urlFoto($this->imagen),
             // Ficha completa (RF-040, RF-042, RF-043, RF-044). Campos nuevos:

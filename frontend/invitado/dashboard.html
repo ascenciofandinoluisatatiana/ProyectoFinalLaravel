@@ -9,7 +9,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="/css/carrusel.css">
 <style>
 :root{
   --bg:#f4f1fd;--card:#fff;--text:#1b1535;--muted:#6b6785;--border:#e7e2f7;
@@ -264,25 +263,43 @@ html.js-hero .panel#filters:not(.fmodal){display:none}
 .marca-txt em{display:block;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:500;font-size:.95rem;line-height:1.15;color:var(--primary2)}
 @media(max-width:600px){.marca-img{height:38px}.marca-txt em{font-size:.85rem}}
 
-/* ===== PREMIUM: top 10 de vendedores con membresía ===== */
-.prem-wrap{grid-column:1/-1;position:relative;overflow:hidden;border-radius:28px;padding:28px 26px 30px;margin-bottom:6px;color:#fff;
+/* ===== PREMIUM v2: carrusel top 10 con medallas ===== */
+.prem-wrap{grid-column:1/-1;position:relative;overflow:hidden;border-radius:28px;padding:28px 26px 22px;margin-bottom:6px;color:#fff;
   background:linear-gradient(135deg,#1f0f55 0%,#3b1a8f 48%,#5b2ff0 100%);border:1px solid rgba(252,211,77,.38);box-shadow:0 22px 56px rgba(60,30,160,.34)}
+.prem-wrap .pcard{color:var(--text)}
 .prem-orb{position:absolute;border-radius:50%;filter:blur(70px);pointer-events:none}
 .prem-orb.o1{width:300px;height:300px;background:#fbbf24;top:-150px;right:-80px;opacity:.28}
 .prem-orb.o2{width:320px;height:320px;background:#8b5cf6;bottom:-170px;left:-90px;opacity:.5}
-.prem-head{position:relative;z-index:1;display:flex;align-items:center;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.prem-head{position:relative;z-index:1;display:flex;align-items:center;gap:16px;margin-bottom:10px;flex-wrap:wrap}
 .prem-crown{width:56px;height:56px;border-radius:18px;display:grid;place-items:center;font-size:25px;color:#3b2400;flex:none;background:linear-gradient(135deg,#fde68a,#f59e0b);box-shadow:0 10px 26px rgba(245,158,11,.5)}
 .prem-head h3{font-size:28px;font-weight:800;line-height:1.1;letter-spacing:-.01em;background:linear-gradient(90deg,#fff,#fde68a);-webkit-background-clip:text;background-clip:text;color:transparent}
 .prem-head p{color:rgba(255,255,255,.78);font-size:14px;margin-top:4px;max-width:560px}
-.prem-top{margin-left:auto;display:inline-flex;gap:8px;align-items:center;padding:8px 16px;border-radius:999px;font-weight:800;font-size:13px;letter-spacing:.06em;color:#3b2400;background:linear-gradient(135deg,#fde68a,#f59e0b)}
-.prem-grid,.rest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
-.prem-grid{position:relative;z-index:1}
-.rest-grid{grid-column:1/-1}
+.prem-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.prem-top{display:inline-flex;gap:8px;align-items:center;padding:8px 16px;border-radius:999px;font-weight:800;font-size:13px;letter-spacing:.06em;color:#3b2400;background:linear-gradient(135deg,#fde68a,#f59e0b)}
+.prem-arrow{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:#fde68a;background:rgba(255,255,255,.1);border:1px solid rgba(253,230,138,.45);transition:.2s}
+.prem-arrow:hover:not(:disabled){background:#fde68a;color:#3b2400;transform:scale(1.06)}
+.prem-arrow:disabled{opacity:.3;cursor:default}
+.prem-track{position:relative;z-index:1;display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;padding:12px 4px 24px;margin:0 -4px;scrollbar-width:none;outline:none;-webkit-overflow-scrolling:touch}
+.prem-track::-webkit-scrollbar{display:none}
+.prem-track .pcard{flex:0 0 clamp(250px,27%,300px);scroll-snap-align:start}
+.prem-bar{position:relative;z-index:1;height:4px;border-radius:4px;background:rgba(255,255,255,.14);overflow:hidden}
+.prem-bar span{position:absolute;top:0;bottom:0;left:0;width:30%;border-radius:4px;background:linear-gradient(90deg,#fde68a,#f59e0b);transition:left .15s,width .15s}
+.rest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;grid-column:1/-1}
+/* medalla de posición */
+.rank{position:absolute;left:14px;bottom:-20px;z-index:4;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px;color:#fff;border:3px solid var(--card);box-shadow:0 6px 16px rgba(30,10,80,.35);background:linear-gradient(135deg,#a78bfa,#6c3df5)}
+.rank.t-oro,.tier-chip.t-oro{background:linear-gradient(135deg,#fde68a,#f59e0b);color:#3b2400}
+.rank.t-plata,.tier-chip.t-plata{background:linear-gradient(135deg,#f8fafc,#94a3b8);color:#1e293b}
+.rank.t-bronce,.tier-chip.t-bronce{background:linear-gradient(135deg,#fdba74,#b45309);color:#fff}
+.tier-chip{position:absolute;left:64px;bottom:-12px;z-index:4;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;box-shadow:0 4px 12px rgba(30,10,80,.28);border:2px solid var(--card)}
+.rest-sub{grid-column:1/-1;text-align:center;color:var(--muted);font-size:13px;margin:-2px 0 6px}
+.pcard.has-rank .pbody{padding-top:28px}
+.pcard.has-rank .b-prem{display:none}
+/* tarjeta premium */
 .pcard.is-prem{border:1.5px solid #f5c451;box-shadow:0 12px 32px rgba(245,158,11,.22)}
-.pcard.is-prem:hover{box-shadow:0 18px 40px rgba(245,158,11,.34)}
-.prem-strip{position:absolute;left:0;right:0;bottom:0;display:flex;gap:7px;align-items:center;justify-content:center;padding:6px 10px;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#3b2400;
-  background:linear-gradient(90deg,#f59e0b,#fde68a,#f59e0b);background-size:200% 100%;animation:premShine 4s linear infinite}
-@keyframes premShine{to{background-position:-200% 0}}
+.pcard.is-prem:hover{transform:translateY(-6px);box-shadow:0 0 0 1px #f5c451,0 22px 46px rgba(245,158,11,.4)}
+.pcard.is-prem .price{font-size:22px}
+.pcard.is-prem .mini-seller .avatar{box-shadow:0 0 0 2px var(--card),0 0 0 4px #f5c451}
+/* ver más */
 .more-bar{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;gap:14px;padding:22px 10px 10px;text-align:center;color:var(--muted);font-weight:600}
 .more-bar::before{content:"";order:-1;width:100%;max-width:520px;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent)}
 .btn-more{display:inline-flex;align-items:center;gap:10px;padding:14px 30px;border-radius:999px;font-weight:800;font-size:15px;color:#fff;background:linear-gradient(135deg,#5b2ff0,#7c4dff);box-shadow:0 10px 26px rgba(108,61,245,.38);transition:.25s}
@@ -293,19 +310,21 @@ html.js-hero .panel#filters:not(.fmodal){display:none}
 .rest-head::before,.rest-head::after{content:"";flex:1;height:1px;background:var(--border)}
 .rest-grid.anim .pcard{animation:premIn .5s ease both;animation-delay:calc(min(var(--i,0),12)*45ms)}
 @keyframes premIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+/* esqueleto de carga */
+.pcard.sk{pointer-events:none}
+.sk-b,.sk-l{background:linear-gradient(90deg,var(--soft) 25%,var(--border) 50%,var(--soft) 75%);background-size:200% 100%;animation:skShine 1.3s linear infinite}
+.sk-l{display:block;height:14px;border-radius:8px}.sk-l.w40{width:40%}.sk-l.w60{width:60%}.sk-l.w90{width:90%}
+.sk-btn{display:block;height:36px;border-radius:12px;flex:1}
+@keyframes skShine{to{background-position:-200% 0}}
 @media(max-width:600px){
-  .prem-wrap{padding:20px 14px 22px;border-radius:22px}
-  .prem-head h3{font-size:22px}.prem-top{margin-left:0}
+  .prem-wrap{padding:20px 14px 18px;border-radius:22px}
+  .prem-head h3{font-size:22px}.prem-right{margin-left:0}
   .prem-crown{width:46px;height:46px;font-size:20px}
-  .prem-grid,.rest-grid{grid-template-columns:1fr}
+  .prem-arrow{display:none}
+  .prem-track .pcard{flex-basis:72vw}
+  .rest-grid{grid-template-columns:1fr}
 }
-@media (prefers-reduced-motion:reduce){.prem-strip,.btn-more i,.rest-grid.anim .pcard{animation:none}}
-/* Carrusel de fotos en el detalle + cantidad de fotos en las tarjetas */
-.mhero.mhero-car{height:auto;display:block;font-size:inherit;padding:0}
-.mhero-car .car-vista{border-radius:0;aspect-ratio:16/8;max-height:440px}
-.mhero-car .car-minis{padding:10px 18px 4px;background:var(--card)}
-.mhero-car .badges{top:14px;bottom:auto;z-index:3}
-.pcount{position:absolute;right:12px;bottom:12px;display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;color:#fff;background:rgba(15,20,40,.72)}
+@media (prefers-reduced-motion:reduce){.btn-more i,.rest-grid.anim .pcard,.sk-b,.sk-l{animation:none}.prem-track{scroll-behavior:auto}}
 </style>
 </head>
 <body>
@@ -435,7 +454,6 @@ html.js-hero .panel#filters:not(.fmodal){display:none}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="/js/config.js"></script>
-<script src="/js/carrusel.js"></script>
 <script>
 /* ============ CONFIG ============ */
 // Ruta de checkout PSE (la define el backend Laravel / proveedor de pagos: Wompi, ePayco, PayU...).
@@ -535,7 +553,11 @@ const T = {
   prem_top:['Top 10','Top 10','Top 10','Top 10'],
   more_hint:['¿Quieres seguir mirando? Hay más propiedades para ti.','Want to keep looking? There are more properties for you.','Quer continuar vendo? Há mais imóveis para você.','Envie de continuer ? Il y a d\'autres biens pour vous.'],
   see_more:['Ver más propiedades','See more properties','Ver mais imóveis','Voir plus de biens'],
-  more_title:['Más propiedades','More properties','Mais imóveis','Plus de biens']
+  more_title:['Más propiedades','More properties','Mais imóveis','Plus de biens'],
+  tier_oro:['Oro','Gold','Ouro','Or'],
+  tier_plata:['Plata','Silver','Prata','Argent'],
+  tier_bronce:['Bronce','Bronze','Bronze','Bronze'],
+  more_sub:['Orden orgánico: ficha completa, verificación y actualización reciente','Organic ranking: complete listing, verification and recent updates','Ordem orgânica: anúncio completo, verificação e atualização recente','Classement organique : annonce complète, vérification et mise à jour récente']
 };
 const DESC = {
   casa:['Amplia casa con acabados de calidad, zonas sociales luminosas, patio y excelente ubicación en un sector tranquilo y seguro.','Spacious house with quality finishes, bright living areas, a yard and an excellent location in a quiet, safe area.','Casa ampla com acabamentos de qualidade, áreas sociais iluminadas, quintal e ótima localização em região tranquila e segura.','Maison spacieuse aux finitions soignées, pièces lumineuses, jardin et excellent emplacement dans un quartier calme et sûr.'],
@@ -595,6 +617,7 @@ let lang = localStorage.getItem('umbral_lang');
 if(!LANGS.includes(lang)){ // GeoIP real: lo resuelve el backend (mapeo país–idioma); aquí se usa el navegador
   const nav=(navigator.language||'es').slice(0,2); lang = LANGS.includes(nav)?nav:'en';
 }
+let LOADING=true; setTimeout(()=>{if(LOADING){LOADING=false;try{render()}catch(_){}}},6000);
 const S = {op:'all',type:'',dept:'',city:'',barrio:'',max:'',beds:'',q:'',sort:'rel',view:'cards',favOnly:false,seller:null,showAll:false};
 let favs = []; try{favs=JSON.parse(localStorage.getItem('umbral_favs')||'[]')}catch(e){}
 let map=null, mapLayer=null, dmap=null;
@@ -608,7 +631,6 @@ const hue = id => (id*47)%360;
 const art = p => `linear-gradient(135deg,hsl(${260+hue(p.id)%50},65%,52%),hsl(${200+hue(p.id)%60},70%,48%))`;
 const toast = m => {const e=$('#toast');e.textContent=m;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),3200)};
 const imgStyle = p => p.img?`background-image:url('${p.img}')`:`background:${art(p)}`;
-const fotosDe = p => (p.photos&&p.photos.length) ? p.photos : (p.img?[p.img]:[]);
 const icon = p => p.img?'':`<i class="fa-solid ${TYPE_ICON[p.type]}"></i>`;
 
 /* ============ i18n aplicar ============ */
@@ -660,25 +682,24 @@ function filtered(){
     (!S.q||(`${t('t_'+p.type)} ${p.type} ${p.city} ${p.barrio} ${p.dept}`).toLowerCase().includes(S.q.toLowerCase())));
   if(S.sort==='low') r.sort((a,b)=>a.price-b.price);
   else if(S.sort==='high') r.sort((a,b)=>b.price-a.price);
-  else r.sort((a,b)=>(b.prem-a.prem)||(b.ver-a.ver)); // RF-053: mejor posicionamiento con membresía
+  else r.sort((a,b)=>(tierN(b)-tierN(a))||((b.score||0)-(a.score||0))||(b.ver-a.ver)); // RF-053: mejor posicionamiento con membresía
   return r;
 }
 
 /* ============ render ============ */
-function card(p,i){
+function card(p,i,rank){
   const s=SELLERS[p.seller], rent=p.op==='arriendo', fav=favs.includes(p.id);
-  return `<article class="pcard${p.prem?' is-prem':''}" style="--i:${i||0}">
+  return `<article class="pcard${p.prem?' is-prem':''}${rank?' has-rank':''}" style="--i:${i||0}">
     <div class="pimg" style="${imgStyle(p)}" data-open="${p.id}">${icon(p)}
       <div class="badges"><span class="b ${rent?'b-rent':'b-sale'}">${t(rent?'rental':'sale')}</span>
       ${p.ver?`<span class="b b-ver"><i class="fa-solid fa-circle-check"></i>${t('verified')}</span>`:''}
       ${p.prem?`<span class="b b-prem"><i class="fa-solid fa-star"></i>${t('premium')}</span>`:''}</div>
-      ${p.prem?'<div class="prem-strip"><i class="fa-solid fa-crown"></i>Premium</div>':''}<button class="fav ${fav?'on':''}" data-fav="${p.id}"><i class="${fav?'fa-solid':'fa-regular'} fa-heart"></i></button>
-      ${fotosDe(p).length>1?`<span class="pcount"><i class="fa-solid fa-camera"></i>${fotosDe(p).length}</span>`:''}
+      ${rank?`<span class="rank ${tierCls(p)}">#${rank}</span><span class="tier-chip ${tierCls(p)}">${t('tier_'+(p.tier||'bronce'))}</span>`:''}<button class="fav ${fav?'on':''}" data-fav="${p.id}"><i class="${fav?'fa-solid':'fa-regular'} fa-heart"></i></button>
     </div>
     <div class="pbody">
       <div class="price">${cop(p.price)}${rent?`<small> ${t('per_month')}</small>`:''}</div>
       <div class="ptitle">${title(p)}</div>
-      <div class="loc"><i class="fa-solid fa-location-dot"></i>${p.barrio} · ${p.city}, ${p.dept}</div>
+      <div class="loc"><i class="fa-solid fa-location-dot"></i>${ubic(p)}</div>
       <div class="specs">
         ${p.beds?`<span><i class="fa-solid fa-bed"></i>${p.beds}</span>`:''}
         ${p.baths?`<span><i class="fa-solid fa-bath"></i>${p.baths}</span>`:''}
@@ -692,9 +713,27 @@ function card(p,i){
       </div>
     </div></article>`;
 }
-/* ============ PREMIUM: top 10 y "ver más" ============ */
+/* ============ PREMIUM v2: top 10 en carrusel y "ver más" ============ */
+const TIER_N={oro:3,plata:2,bronce:1};
+function tierN(p){return TIER_N[p.tier]||(p.prem?1:0)}
+function tierCls(p){return 't-'+(p.tier||(p.prem?'bronce':'none'))}
+function ubic(p){const n=x=>String(x||'').toLowerCase().normalize('NFD').replace(/[^a-z]/g,'');
+  return p.barrio+' · '+p.city+(p.dept&&n(p.dept)!==n(p.city)?', '+p.dept:'')}
 function filtersActive(){return !!(S.q||S.type||S.dept||S.city||S.barrio||S.max||S.beds||S.seller!==null||S.favOnly)}
+function skeletonHTML(){return Array.from({length:8},()=>`<article class="pcard sk"><div class="pimg sk-b"></div><div class="pbody"><span class="sk-l w60"></span><span class="sk-l w90"></span><span class="sk-l w40"></span><div class="pactions"><span class="sk-b sk-btn"></span><span class="sk-b sk-btn"></span></div></div></article>`).join('')}
+function premNavUpdate(){
+  const tr=$('.prem-track'); if(!tr) return;
+  const max=tr.scrollWidth-tr.clientWidth, x=tr.scrollLeft;
+  const pv=$('[data-prem="-1"]'), nx=$('[data-prem="1"]');
+  if(pv) pv.disabled = x<=4; if(nx) nx.disabled = x>=max-4;
+  const bar=$('.prem-bar span');
+  if(bar){const w=tr.scrollWidth?Math.min(1,tr.clientWidth/tr.scrollWidth):1;
+    bar.style.width=(w*100)+'%'; bar.style.left=(max>0?(x/max)*(100-w*100):0)+'%'}
+}
+document.addEventListener('scroll',e=>{if(e.target.classList&&e.target.classList.contains('prem-track'))premNavUpdate()},true);
+window.addEventListener('resize',premNavUpdate);
 function cardsHTML(r){
+  if(typeof LOADING!=='undefined' && LOADING) return skeletonHTML();
   const prem = S.view==='cards' ? r.filter(p=>p.prem).slice(0,10) : [];
   if(!prem.length || filtersActive()) return r.map((p,i)=>card(p,i)).join('');
   const shown = new Set(prem.map(p=>p.id));
@@ -703,11 +742,15 @@ function cardsHTML(r){
     <div class="prem-orb o1"></div><div class="prem-orb o2"></div>
     <header class="prem-head"><div class="prem-crown"><i class="fa-solid fa-crown"></i></div>
       <div><h3>${t('prem_title')}</h3><p>${t('prem_sub')}</p></div>
-      <span class="prem-top"><i class="fa-solid fa-ranking-star"></i>${t('prem_top')}</span></header>
-    <div class="prem-grid">${prem.map((p,i)=>card(p,i)).join('')}</div></section>`;
+      <div class="prem-right"><span class="prem-top"><i class="fa-solid fa-ranking-star"></i>${t('prem_top')}</span>
+        <button class="prem-arrow" data-prem="-1" aria-label="←"><i class="fa-solid fa-chevron-left"></i></button>
+        <button class="prem-arrow" data-prem="1" aria-label="→"><i class="fa-solid fa-chevron-right"></i></button></div></header>
+    <div class="prem-track" tabindex="0">${prem.map((p,i)=>card(p,i,i+1)).join('')}</div>
+    <div class="prem-bar"><span></span></div></section>`;
+  setTimeout(premNavUpdate,30);
   if(!rest.length) return h;
   if(!S.showAll) return h + `<div class="more-bar"><span>${t('more_hint')}</span><button class="btn-more" data-showall="1"><i class="fa-solid fa-chevron-down"></i>${t('see_more')} · ${rest.length}</button></div>`;
-  return h + `<div class="rest-head"><span>${t('more_title')}</span></div><div class="rest-grid${S._anim?' anim':''}">${rest.map((p,i)=>card(p,i)).join('')}</div>`;
+  return h + `<div class="rest-head"><span>${t('more_title')}</span></div><p class="rest-sub">${t('more_sub')}</p><div class="rest-grid${S._anim?' anim':''}">${rest.map((p,i)=>card(p,i)).join('')}</div>`;
 }
 
 function render(){
@@ -755,14 +798,14 @@ function openDetail(id){
   const p=P.find(x=>x.id===id), s=SELLERS[p.seller], rent=p.op==='arriendo', fav=favs.includes(p.id);
   const d=DESC[p.type][LANGS.indexOf(lang)];
   $('#detailBody').innerHTML=`
-  <div class="mhero${fotosDe(p).length?' mhero-car':''}"${fotosDe(p).length?'':` style="${imgStyle(p)}"`}>${fotosDe(p).length?'<div id="dCar"></div>':icon(p)}
+  <div class="mhero" style="${imgStyle(p)}">${icon(p)}
     <div class="badges"><span class="b ${rent?'b-rent':'b-sale'}">${t(rent?'rental':'sale')}</span>
     ${p.ver?`<span class="b b-ver"><i class="fa-solid fa-circle-check"></i>${t('verified')}</span>`:''}
     ${p.prem?`<span class="b b-prem"><i class="fa-solid fa-star"></i>${t('premium')}</span>`:''}</div></div>
   <div class="mcols"><div>
     <div class="price" style="font-size:30px">${cop(p.price)}${rent?`<small> ${t('per_month')}</small>`:''}</div>
     <h2>${title(p)}</h2>
-    <div class="loc"><i class="fa-solid fa-location-dot"></i>${p.addr} · ${p.barrio}, ${p.city}, ${p.dept}</div>
+    <div class="loc"><i class="fa-solid fa-location-dot"></i>${p.addr} · ${ubic(p)}</div>
     <div class="specs" style="margin-top:14px">
       ${p.beds?`<span><i class="fa-solid fa-bed"></i>${p.beds} ${t('f_beds')}</span>`:''}
       ${p.baths?`<span><i class="fa-solid fa-bath"></i>${p.baths}</span>`:''}
@@ -788,7 +831,6 @@ function openDetail(id){
     <button class="btn btn-ghost" data-fav="${p.id}"><i class="${fav?'fa-solid':'fa-regular'} fa-heart" style="color:var(--red)"></i>${t('nav_favs')}</button>
   </div></div>`;
   openModal('#mDetail');
-  if(fotosDe(p).length) Carrusel.montar($('#dCar'), fotosDe(p), {miniaturas:true});
   setTimeout(()=>{ if(dmap){dmap.remove();dmap=null}
     dmap=L.map('dMap').setView([p.lat,p.lng],15);tileLayer(dmap);L.marker([p.lat,p.lng]).addTo(dmap).bindPopup(p.addr).openPopup();dmap.invalidateSize();},80);
   $('#leadForm').onsubmit=async e=>{e.preventDefault();const f=e.target;
@@ -848,6 +890,7 @@ document.addEventListener('click',e=>{
   if((el=g('[data-pay]'))){closeModals();openPse(+el.dataset.pay);return}
   if((el=g('[data-open]'))){e.preventDefault();closeModals();openDetail(+el.dataset.open);return}
   if((el=g('[data-seller]'))){S.seller=+el.dataset.seller;setView('cards');$('#filters').scrollIntoView({behavior:'smooth'});return}
+  if((el=g('[data-prem]'))){const tr=$('.prem-track');if(tr)tr.scrollBy({left:+el.dataset.prem*tr.clientWidth*.8,behavior:'smooth'});return}
   if(g('[data-showall]')){S.showAll=true;S._anim=true;render();S._anim=false;const rh=$('.rest-head');if(rh)rh.scrollIntoView({behavior:'smooth',block:'start'});return}
   if(g('#chipX')){S.seller=null;render();return}
   if((el=g('[data-op]'))){S.op=el.dataset.op;$$('.op').forEach(b=>b.classList.toggle('active',b===el));render();return}
@@ -890,7 +933,7 @@ $('#themeBtn').onclick=()=>setTheme(document.documentElement.dataset.theme==='da
 setTheme(localStorage.getItem('umbral_theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
 
 applyI18n();
-loadData().then(applyI18n).catch(()=>toast('No se pudo conectar con el servidor; se muestran datos de ejemplo')).finally(()=>{window.__loadDone=true;window.__loading=false;applyI18n()});
+loadData().then(applyI18n).catch(()=>toast('No se pudo conectar con el servidor; se muestran datos de ejemplo')).finally(()=>{window.__loadDone=true;window.__loading=false;LOADING=false;applyI18n()});
 </script>
 <script src="/js/efectos.js"></script>
 <script src="/js/hero.js"></script>

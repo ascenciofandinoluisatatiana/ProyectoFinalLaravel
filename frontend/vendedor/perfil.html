@@ -41,6 +41,9 @@
                         <span class="v-chip"><i class="fa-solid fa-user"></i> Cuenta persona</span>
                         <span class="v-chip"><i class="fa-solid fa-envelope"></i> <span id="p-correo-chip"></span></span>
                     </div>
+                    <div style="margin-top:18px">
+                        <button type="button" class="v-btn v-btn-suave" id="p-editar-abrir"><i class="fa-solid fa-pen"></i> Editar perfil</button>
+                    </div>
                 </div>
             </section>
 
@@ -75,6 +78,7 @@
                     <div class="v-tarjeta-cuerpo v-datos">
                         <div class="v-dato"><i class="fa-solid fa-user"></i><div><small>Nombre</small><b id="p-nombre-dato"></b></div></div>
                         <div class="v-dato"><i class="fa-solid fa-envelope"></i><div><small>Correo</small><b id="p-correo"></b></div></div>
+                        <div class="v-dato"><i class="fa-solid fa-phone"></i><div><small>Teléfono</small><b id="p-telefono"></b></div></div>
                         <div class="v-dato"><i class="fa-solid fa-id-card"></i><div><small>Tipo de cuenta</small><b>Vendedor · Persona</b></div></div>
                         <div class="v-dato"><i class="fa-solid fa-location-dot"></i><div><small>País de residencia</small><b>Colombia</b></div></div>
                     </div>
@@ -94,6 +98,26 @@
             </section>
         </main>
     </div>
+
+    <!-- Ventana: editar datos del perfil -->
+    <dialog class="v-ventana" id="p-editar">
+        <div class="v-ventana-cabeza">
+            <h2 class="titulo-serif">Editar perfil</h2>
+            <button type="button" class="v-icono-btn" data-cerrar aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="p-editar-form" novalidate>
+            <div class="v-form-rejilla">
+                <div class="v-campo ancho"><label for="e-nombre">Nombre completo</label><input id="e-nombre" name="nombre" type="text" maxlength="120" autocomplete="name" required></div>
+                <div class="v-campo"><label for="e-telefono">Teléfono</label><input id="e-telefono" name="telefono" type="tel" maxlength="20" autocomplete="tel"></div>
+                <div class="v-campo"><label for="e-correo">Correo</label><input id="e-correo" type="email" disabled></div>
+            </div>
+            <p class="v-nota"><i class="fa-solid fa-circle-info"></i> El correo es tu usuario para iniciar sesión y tu documento ya fue verificado, por eso no se cambian aquí.</p>
+            <div class="v-form-pie">
+                <button type="button" class="v-btn v-btn-suave" data-cerrar>Cancelar</button>
+                <button type="submit" class="v-btn v-btn-principal"><i class="fa-solid fa-check"></i> Guardar cambios</button>
+            </div>
+        </form>
+    </dialog>
 
     <script src="/vendedor/js/vendedor.js"></script>
     <script src="/vendedor/js/perfil.js"></script>

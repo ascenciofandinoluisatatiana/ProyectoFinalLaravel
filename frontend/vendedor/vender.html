@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
     <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    <link rel="stylesheet" href="/css/carrusel.css">
     <link rel="stylesheet" href="/vendedor/css/vendedor.css">
 
     <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
@@ -103,15 +104,16 @@
                 <div class="v-campo"><label for="f-parqueaderos">Parqueaderos</label><input id="f-parqueaderos" name="parqueaderos" type="number" min="0" max="50" value="0"></div>
                 <div class="v-campo"><label for="f-area">Área (m²)</label><input id="f-area" name="area" type="number" min="1" required></div>
             </div>
-                        <!-- Foto del inmueble -->
+            <!-- Fotos del inmueble: mínimo 5, máximo 15 -->
             <div class="v-campo ancho">
-                <label for="f-foto">Foto del inmueble</label>
-                <label class="v-foto" for="f-foto">
-                    <img id="f-foto-vista" alt="Vista previa de la foto" hidden>
-                    <span class="v-foto-vacio" id="f-foto-vacio"><i class="fa-solid fa-image"></i><b>Haz clic para subir una foto</b><small>JPG, PNG o WebP · se ajusta sola para que pese poco</small></span>
-                </label>
-                <input class="v-oculto" id="f-foto" type="file" accept="image/*">
-                <div class="v-ubic-acciones"><button type="button" class="v-btn v-btn-suave v-btn-mini" id="f-foto-quitar" hidden><i class="fa-solid fa-trash"></i> Quitar foto</button></div>
+                <label for="f-fotos">Fotos del inmueble <small id="f-fotos-cuenta"></small></label>
+                <div class="v-carrusel" id="f-carrusel" hidden></div>
+                <div class="v-fotos" id="f-fotos-lista"></div>
+                <input class="v-oculto" id="f-fotos" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+                <div class="v-ubic-acciones">
+                    <label class="v-btn v-btn-suave v-btn-mini" for="f-fotos" id="f-fotos-agregar"><i class="fa-solid fa-images"></i> Agregar fotos</label>
+                </div>
+                <p class="v-nota" id="f-fotos-nota"></p>
             </div>
 
             <!-- Ubicación en el mapa -->
@@ -154,6 +156,7 @@
     <!-- Chart.js ya viene con el panel de administración (lo entrega Laravel en /assets) -->
     <script src="/assets/admin/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="/js/carrusel.js"></script>
     <script src="/vendedor/js/vendedor.js"></script>
     <script src="/vendedor/js/dashboard.js"></script>
 </body>

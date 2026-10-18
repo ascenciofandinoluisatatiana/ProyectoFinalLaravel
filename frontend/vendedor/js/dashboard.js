@@ -128,7 +128,8 @@
         return '<article class="v-prop">' +
             '<div class="v-prop-foto"><i class="fa-solid fa-house"></i>' +
             (p.imagen ? '<img src="' + V.esc(p.imagen) + '" alt="" loading="lazy">' : '') +
-            '<span class="v-estado ' + V.esc(p.estado) + '">' + V.esc(ESTADOS[p.estado] || p.estado) + '</span>' + herramientas + '</div>' +
+            '<span class="v-estado ' + V.esc(p.estado) + '">' + V.esc(ESTADOS[p.estado] || p.estado) + '</span>' + herramientas +
+            '<span class="v-prop-nfotos" title="Fotos del inmueble"><i class="fa-solid fa-camera"></i> ' + ((p.imagen ? 1 : 0) + (p.fotos ? p.fotos.length : 0)) + '</span></div>' +
             '<div class="v-prop-cuerpo">' +
                 '<div class="v-prop-precio">' + V.cop(p.precio) + '<small>' + OP.sufijoPrecio + '</small></div>' +
                 '<h3>' + V.esc(titulo(p)) + '</h3>' +
@@ -276,68 +277,184 @@
 
     form.departamento.addEventListener('change', function () { llenarCiudades(form.departamento.value, ''); });
 
-    /* ----- Foto del inmueble: se reduce en el navegador y se envía como archivo ----- */
-    var fotoArchivo = null;     // Blob nuevo elegido por el usuario
-    var fotoVista = null;       // lo que se muestra (URL del servidor o del Blob nuevo)
-    var quitarFoto = false;     // true si había foto guardada y el usuario la quitó
+    /* ----- Fotos del inmueble: mínimo 5, máximo 15, con carrusel -----
+       Cada foto se reduce en el navegador (JPG liviano) antes de subirla.
+       El servidor las guarda de a una: la primera es la portada (propiedades.imagen)
+       y las demás van a la galería (propiedad_fotos). */
+    var MIN_FOTOS = 5, MAX_FOTOS = 15, LIMITE_MB = 4;
+    var LADO_MAX = 1600, PESO_MAX = 900 * 1024;
+    var TIPOS_FOTO = ['image/jpeg', 'image/png', 'image/webp'];
 
-    function pintarFoto() {
-        $('f-foto-vista').hidden = !fotoVista;
-        $('f-foto-vacio').hidden = !!fotoVista;
-        $('f-foto-quitar').hidden = !fotoVista;
-        $('f-foto-quitar').style.display = fotoVista ? '' : 'none';
-        if (fotoVista) $('f-foto-vista').src = fotoVista;
+    // Lista que se ve en el formulario, en orden. Cada elemento es una de estas tres cosas:
+    //   { existente: true, principal: true,  url }        portada ya guardada en el servidor
+    //   { existente: true, principal: false, id, url }    foto de galería ya guardada
+    //   { existente: false, blob, url, peso }             foto nueva que se subirá al guardar
+    var fotos = [];
+    var quitarPrincipal = false;   // el usuario quitó la portada que estaba guardada
+    var quitarIds = [];            // ids de fotos de galería guardadas que se van a borrar
+    var carrusel = null;           // controlador del carrusel de edición
+    var indiceCarrusel = 0;
+    var procesando = false;        // true mientras se reducen fotos recién elegidas
+    // Si falta el HTML nuevo o carrusel.js, el formulario sigue funcionando (sin el módulo de fotos)
+    var fotosListas = !!($('f-fotos') && $('f-fotos-lista') && $('f-carrusel') && window.Carrusel);
+    if (!fotosListas) console.warn('Fotos: faltan vender.html/arrendar.html nuevos o /js/carrusel.js');
+
+    function pesoTexto(bytes) {
+        return bytes >= 1048576 ? (bytes / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(bytes / 1024)) + ' KB';
     }
 
-    function soltarVista() {
-        if (fotoVista && fotoVista.indexOf('blob:') === 0) URL.revokeObjectURL(fotoVista);
+    function soltarVistas() {
+        fotos.forEach(function (f) { if (!f.existente && f.url) URL.revokeObjectURL(f.url); });
     }
 
-    // Reduce la imagen a 1200 px y la convierte en un JPG liviano (el servidor admite hasta 4 MB)
-    function reducirImagen(archivo, listo) {
-        var lector = new FileReader();
-        lector.onerror = function () { listo(null); };
-        lector.onload = function () {
-            var img = new Image();
-            img.onerror = function () { listo(null); };
-            img.onload = function () {
-                var escala = Math.min(1, 1200 / Math.max(img.width, img.height));
-                var lienzo = document.createElement('canvas');
-                lienzo.width = Math.round(img.width * escala);
-                lienzo.height = Math.round(img.height * escala);
-                var ctx = lienzo.getContext('2d');
-                ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, lienzo.width, lienzo.height);
-                ctx.drawImage(img, 0, 0, lienzo.width, lienzo.height);
-                lienzo.toBlob(function (blob) { listo(blob); }, 'image/jpeg', 0.8);
-            };
-            img.src = lector.result;
-        };
-        lector.readAsDataURL(archivo);
+    function iniciarFotos(p) {
+        if (!fotosListas) { V.toast('Falta actualizar vender.html y arrendar.html y subir js/carrusel.js: el formulario de fotos está incompleto.'); return; }
+        soltarVistas();
+        fotos = [];
+        quitarPrincipal = false;
+        quitarIds = [];
+        indiceCarrusel = 0;
+        if (p && p.imagen) fotos.push({ existente: true, principal: true, url: p.imagen });
+        ((p && p.fotos) || []).forEach(function (f) { fotos.push({ existente: true, principal: false, id: f.id, url: f.url }); });
+        pintarFotos();
     }
 
-    $('f-foto').addEventListener('change', function () {
-        var archivo = this.files && this.files[0];
-        if (!archivo) return;
-        if (archivo.type.indexOf('image/') !== 0) { V.toast('Elige un archivo de imagen (JPG, PNG o WebP).'); this.value = ''; return; }
-        if (archivo.size > 15 * 1024 * 1024) { V.toast('La foto pesa demasiado (máximo 15 MB).'); this.value = ''; return; }
-        reducirImagen(archivo, function (blob) {
-            if (!blob) { V.toast('No se pudo leer esa imagen. Prueba con otra.'); return; }
-            soltarVista();
-            fotoArchivo = blob;
-            fotoVista = URL.createObjectURL(blob);
-            quitarFoto = false;
-            pintarFoto();
+    // La portada es la guardada o, si no hay, la primera foto nueva
+    function indicePortada() {
+        var i = fotos.findIndex(function (f) { return f.existente && f.principal; });
+        return i !== -1 ? i : fotos.findIndex(function (f) { return !f.existente; });
+    }
+
+    function marcarActual(i) {
+        $('f-fotos-lista').querySelectorAll('.v-fotos-item').forEach(function (el, n) {
+            el.classList.toggle('actual', n === i);
         });
+    }
+
+    function pintarFotos() {
+        if (!fotosListas) return;
+        var total = fotos.length;
+        var portada = indicePortada();
+
+        var cuenta = $('f-fotos-cuenta');
+        cuenta.textContent = '(' + total + ' de ' + MAX_FOTOS + ' · mínimo ' + MIN_FOTOS + ')';
+        cuenta.classList.toggle('falta', total < MIN_FOTOS);
+
+        $('f-fotos-nota').textContent = total < MIN_FOTOS
+            ? 'Te ' + (MIN_FOTOS - total === 1 ? 'falta 1 foto' : 'faltan ' + (MIN_FOTOS - total) + ' fotos') + ' para llegar al mínimo de ' + MIN_FOTOS + '. Máximo ' + MAX_FOTOS + '.'
+            : 'La foto con la etiqueta “Portada” es la que se ve primero. Cada foto se reduce sola antes de subirla (límite de ' + LIMITE_MB + ' MB por foto).';
+        $('f-fotos-agregar').setAttribute('aria-disabled', total >= MAX_FOTOS ? 'true' : 'false');
+
+        $('f-fotos-lista').innerHTML = fotos.map(function (f, i) {
+            return '<figure class="v-fotos-item">' +
+                '<button type="button" class="v-fotos-ver" data-ver="' + i + '" aria-label="Ver foto ' + (i + 1) + ' en grande"><img src="' + V.esc(f.url) + '" alt=""></button>' +
+                '<span class="v-fotos-num">' + (i + 1) + ' / ' + MAX_FOTOS + '</span>' +
+                (i === portada ? '<span class="v-fotos-portada">Portada</span>' : '') +
+                '<button type="button" class="v-fotos-quitar" data-quitar="' + i + '" aria-label="Quitar foto ' + (i + 1) + '"><i class="fa-solid fa-xmark"></i></button>' +
+                '<figcaption>' + (f.existente ? 'Guardada' : pesoTexto(f.peso) + ' de ' + LIMITE_MB + ' MB') + '</figcaption>' +
+                '</figure>';
+        }).join('');
+
+        var caja = $('f-carrusel');
+        caja.hidden = !total;
+        if (total) {
+            indiceCarrusel = Math.min(indiceCarrusel, total - 1);
+            carrusel = Carrusel.montar(caja, fotos.map(function (f) { return f.url; }), {
+                inicio: indiceCarrusel, miniaturas: false,
+                alCambiar: function (i) { indiceCarrusel = i; marcarActual(i); }
+            });
+        } else {
+            caja.innerHTML = '';
+            carrusel = null;
+        }
+    }
+
+    /* ----- Reducir fotos antes de subirlas ----- */
+    function cargarImagen(archivo) {
+        return new Promise(function (ok, falla) {
+            var img = new Image();
+            var url = URL.createObjectURL(archivo);
+            img.onload = function () { URL.revokeObjectURL(url); ok(img); };
+            img.onerror = function () { URL.revokeObjectURL(url); falla(new Error('No se pudo leer “' + archivo.name + '”.')); };
+            img.src = url;
+        });
+    }
+
+    async function reducir(archivo) {
+        if (TIPOS_FOTO.indexOf(archivo.type) === -1) throw new Error('“' + archivo.name + '” no es JPG, PNG o WebP.');
+        var img = await cargarImagen(archivo);
+        var lado = Math.min(LADO_MAX, Math.max(img.naturalWidth, img.naturalHeight));
+
+        // Primero baja la calidad; si aún pesa mucho, reduce el tamaño y vuelve a intentar
+        for (var intento = 0; intento < 6; intento++) {
+            var escala = lado / Math.max(img.naturalWidth, img.naturalHeight);
+            var lienzo = document.createElement('canvas');
+            lienzo.width = Math.round(img.naturalWidth * escala);
+            lienzo.height = Math.round(img.naturalHeight * escala);
+            var ctx = lienzo.getContext('2d');
+            ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, lienzo.width, lienzo.height);   // fondo blanco para PNG con transparencia
+            ctx.drawImage(img, 0, 0, lienzo.width, lienzo.height);
+
+            for (var calidad = 0.85; calidad > 0.5; calidad -= 0.1) {
+                var blob = await new Promise(function (ok) { lienzo.toBlob(ok, 'image/jpeg', calidad); });
+                if (!blob) throw new Error('No se pudo procesar “' + archivo.name + '”.');
+                if (blob.size <= PESO_MAX) return blob;
+            }
+            lado = Math.round(lado * 0.75);
+        }
+        throw new Error('“' + archivo.name + '” es demasiado pesada. Prueba con otra foto.');
+    }
+
+    if (fotosListas) $('f-fotos').addEventListener('change', async function () {
+        var elegidas = Array.prototype.slice.call(this.files || []);
         this.value = '';
+        if (!elegidas.length || procesando) return;
+
+        var cupo = MAX_FOTOS - fotos.length;
+        if (cupo <= 0) { V.toast('Ya tienes las ' + MAX_FOTOS + ' fotos permitidas.'); return; }
+        if (elegidas.length > cupo) {
+            V.toast('Solo caben ' + cupo + ' foto(s) más. Se tomaron las primeras.');
+            elegidas = elegidas.slice(0, cupo);
+        }
+
+        procesando = true;
+        $('f-fotos-agregar').setAttribute('aria-disabled', 'true');
+        var primeraNueva = fotos.length;
+        for (var i = 0; i < elegidas.length; i++) {
+            try {
+                var blob = await reducir(elegidas[i]);
+                fotos.push({ existente: false, blob: blob, url: URL.createObjectURL(blob), peso: blob.size });
+            } catch (err) {
+                V.toast(err.message);
+            }
+        }
+        procesando = false;
+        if (fotos.length > primeraNueva) indiceCarrusel = primeraNueva;   // el carrusel salta a la primera foto agregada
+        pintarFotos();
     });
 
-    $('f-foto-quitar').addEventListener('click', function () {
-        // Si la foto era del servidor, hay que avisarle que la borre al guardar
-        if (!fotoArchivo) quitarFoto = true;
-        soltarVista();
-        fotoArchivo = null; fotoVista = null;
-        pintarFoto();
+    if (fotosListas) $('f-fotos-lista').addEventListener('click', function (e) {
+        var ver = e.target.closest('[data-ver]');
+        if (ver && carrusel) { carrusel.ir(Number(ver.getAttribute('data-ver'))); return; }
+
+        var quitar = e.target.closest('[data-quitar]');
+        if (!quitar) return;
+        var i = Number(quitar.getAttribute('data-quitar'));
+        var f = fotos[i];
+        if (!f) return;
+
+        if (f.existente) {
+            if (f.principal) quitarPrincipal = true; else quitarIds.push(f.id);
+        } else {
+            URL.revokeObjectURL(f.url);
+        }
+        fotos.splice(i, 1);
+        if (indiceCarrusel > i || indiceCarrusel >= fotos.length) indiceCarrusel = Math.max(0, indiceCarrusel - 1);
+        pintarFotos();
     });
+
+    // Al cerrar la ventana se liberan las fotos nuevas que no se guardaron
+    ventanaForm.addEventListener('close', function () { soltarVistas(); fotos = []; });
 
     /* ----- Ubicación: mapa de Leaflet con pin que se puede mover ----- */
     var mapa = null, pin = null;
@@ -384,7 +501,7 @@
         }, 80);
     }
 
-    // Busca la dirección escrita (OpenStreetMap / Nominatim) y pone el pin ahí
+    // Busca la dirección escrita llamando a NUESTRA API (/api/v1/public/geocodificar) y pone el pin ahí
     $('f-buscar').addEventListener('click', function () {
         if (!mapa) return;
         var consulta = [form.direccion.value, form.barrio.value, form.ciudad.value, form.departamento.value, 'Colombia']
@@ -392,10 +509,13 @@
         if (!form.ciudad.value.trim()) { V.toast('Escribe al menos la ciudad para buscar.'); return; }
 
         var boton = this; boton.disabled = true;
-        fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=co&q=' + encodeURIComponent(consulta), { headers: { 'Accept': 'application/json' } })
-            .then(function (r) { return r.json(); })
+        fetch('/api/v1/public/geocodificar?q=' + encodeURIComponent(consulta), { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
+            .then(function (r) { if (!r.ok) throw new Error('api'); return r.json(); })
             .then(function (res) {
-                if (res && res[0]) { fijarPunto(parseFloat(res[0].lat), parseFloat(res[0].lon), true); }
+                if (res && res.data) {
+                    fijarPunto(Number(res.data.lat), Number(res.data.lng), true);
+                    if (res.data.aproximado) { V.toast('Ubicación aproximada: no encontramos la calle exacta. Arrastra el pin hasta tu inmueble.'); }
+                }
                 else { V.toast('No encontramos esa dirección. Marca el punto directamente en el mapa.'); }
             })
             .catch(function () { V.toast('No se pudo buscar la dirección. Marca el punto en el mapa.'); })
@@ -429,10 +549,7 @@
             form.departamento.value = '';
             llenarCiudades('', '');
         }
-        soltarVista();
-        fotoArchivo = null; quitarFoto = false;
-        fotoVista = p && p.imagen ? p.imagen : null;
-        pintarFoto();
+        iniciarFotos(p);
         ventanaForm.showModal();
         if (!ubicaciones.length) V.toast('La lista de departamentos está vacía: hay que cargar los municipios en la base de datos.');
         iniciarMapa(p ? p.lat : null, p ? p.lng : null);
@@ -447,31 +564,81 @@
             return;
         }
 
+        // Fotos: entre 5 y 15 en total
+        if (fotosListas && !form.id.value && fotos.length < MIN_FOTOS) {
+            V.toast('Sube al menos ' + MIN_FOTOS + ' fotos del inmueble (llevas ' + fotos.length + ').');
+            $('f-fotos-lista').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+        if (fotosListas && fotos.length > MAX_FOTOS) {
+            V.toast('Máximo ' + MAX_FOTOS + ' fotos: quita ' + (fotos.length - MAX_FOTOS) + '.');
+            return;
+        }
+
+        var existente = form.id.value ? inmueble(Number(form.id.value)) : null;
+
+        // Portada: la guardada, o si no hay, la primera foto nueva. El resto va a la galería.
+        var portadaGuardada = fotos.some(function (f) { return f.existente && f.principal; });
+        var nuevas = fotos.filter(function (f) { return !f.existente; });
+        var portadaNueva = portadaGuardada ? null : (nuevas[0] || null);
+        var galeriaNuevas = nuevas.filter(function (f) { return f !== portadaNueva; });
+
         var fd = new FormData();
         fd.append('operacion', clave);
         ['tipo', 'precio', 'departamento', 'ciudad', 'barrio', 'direccion', 'lat', 'lng', 'habitaciones', 'banos', 'parqueaderos', 'area'].forEach(function (c) {
             fd.append(c, String(form[c].value).trim());
         });
         if (form.estrato.value) fd.append('estrato', form.estrato.value);
-        if (fotoArchivo) fd.append('imagen', fotoArchivo, 'foto.jpg');
-        else if (quitarFoto) fd.append('quitar_imagen', '1');
+        if (portadaNueva) fd.append('imagen', portadaNueva.blob, 'portada.jpg');
+        else if (quitarPrincipal && !portadaGuardada) fd.append('quitar_imagen', '1');
+        // Un inmueble nuevo se crea como borrador y se publica al final, cuando ya subieron todas las fotos
+        if (!existente) fd.append('estado', 'borrador');
 
-        var existente = form.id.value ? inmueble(Number(form.id.value)) : null;
         var boton = form.querySelector('[type="submit"]');
+        var textoBoton = boton ? boton.innerHTML : '';
         if (boton) boton.disabled = true;
 
         try {
             var r = await V.api(existente ? '/propiedades/' + existente.id : '/propiedades', { metodo: 'POST', formulario: fd });
+            var id = r.data.id;
+            var fallas = 0;
+
+            // Borra las fotos de galería que el usuario quitó (antes de subir, para no pasar el máximo)
+            for (var k = 0; k < quitarIds.length; k++) {
+                try { await V.api('/propiedades/' + id + '/fotos/' + quitarIds[k], { metodo: 'DELETE' }); }
+                catch (e1) { fallas++; }
+            }
+            // Sube las fotos nuevas de la galería, de a una (cada envío es liviano)
+            for (var j = 0; j < galeriaNuevas.length; j++) {
+                if (boton) boton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Subiendo foto ' + (j + 1) + ' de ' + galeriaNuevas.length + '…';
+                var datosFoto = new FormData();
+                datosFoto.append('foto', galeriaNuevas[j].blob, 'foto-' + (j + 1) + '.jpg');
+                try { await V.api('/propiedades/' + id + '/fotos', { metodo: 'POST', formulario: datosFoto }); }
+                catch (e2) { fallas++; }
+            }
+
+            // Inmueble nuevo: solo se publica si TODAS las fotos quedaron guardadas
+            var publicado = false;
+            if (!existente && !fallas && membresiaActiva()) {
+                try {
+                    await V.api('/propiedades/' + id + '/estado', { metodo: 'PATCH', datos: { estado: 'publicada' } });
+                    publicado = true;
+                } catch (e3) { /* queda como borrador */ }
+            }
+
             ventanaForm.close();
-            if (existente) V.toast('Inmueble actualizado.');
-            else V.toast(r.data && r.data.estado === 'publicada'
-                ? 'Inmueble publicado.'
-                : 'Guardado como borrador: activa tu membresía para publicarlo.');
+            if (fallas) {
+                V.toast(fallas + ' foto(s) no se pudieron guardar. El inmueble quedó guardado; ábrelo con “Editar” y agrega las que faltan.');
+            } else if (existente) {
+                V.toast('Inmueble actualizado.');
+            } else {
+                V.toast(publicado ? 'Inmueble publicado.' : 'Guardado como borrador: activa tu membresía para publicarlo.');
+            }
             await cargar();
         } catch (err) {
             if (err.message !== 'Sin acceso') V.toast(err.message);
         } finally {
-            if (boton) boton.disabled = false;
+            if (boton) { boton.disabled = false; boton.innerHTML = textoBoton; }
         }
     });
 

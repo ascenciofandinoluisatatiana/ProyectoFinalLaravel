@@ -26,6 +26,8 @@ use App\Http\Controllers\Api\V1\PublicPropiedadController;
 use App\Http\Controllers\Api\V1\UbicacionController;
 use App\Http\Controllers\Api\V1\Vendedor\PropiedadController as VendedorPropiedadController;
 use App\Http\Controllers\Api\V1\Vendedor\SesionController as VendedorSesionController;
+use App\Http\Controllers\Api\V1\GeocodificarController;
+use App\Http\Controllers\Api\V1\Vendedor\PerfilController as VendedorPerfilController;
 
 
 /*
@@ -90,7 +92,8 @@ Route::prefix('v1/admin')->middleware(['web', 'admin.api'])->group(function () {
 
 Route::prefix('v1/public')->group(function () {
     Route::get('propiedades', [PublicPropiedadController::class, 'index']);
-        Route::get('ubicaciones', [UbicacionController::class, 'index']);
+    Route::get('ubicaciones', [UbicacionController::class, 'index']);
+    Route::get('geocodificar', GeocodificarController::class)->middleware('throttle:30,1');
     Route::get('propiedades/{id}', [PublicPropiedadController::class, 'show']);
     Route::post('leads', [LeadController::class, 'store'])->middleware('throttle:10,1');
 });
@@ -157,11 +160,15 @@ Route::prefix('v1/vendedor')->middleware('web')->group(function () {
     Route::middleware('vendedor.api')->group(function () {
         Route::get('yo', [VendedorSesionController::class, 'yo']);
         Route::post('salir', [VendedorSesionController::class, 'salir']);
+        Route::get('perfil', [VendedorPerfilController::class, 'show']);
+        Route::put('perfil', [VendedorPerfilController::class, 'update']);
 
         Route::get('propiedades', [VendedorPropiedadController::class, 'index']);
         Route::post('propiedades', [VendedorPropiedadController::class, 'store']);
         Route::post('propiedades/{id}', [VendedorPropiedadController::class, 'update'])->whereNumber('id');
         Route::patch('propiedades/{id}/estado', [VendedorPropiedadController::class, 'estado'])->whereNumber('id');
+        Route::post('propiedades/{id}/fotos', [VendedorPropiedadController::class, 'agregarFoto'])->whereNumber('id');
+        Route::delete('propiedades/{id}/fotos/{foto}', [VendedorPropiedadController::class, 'quitarFoto'])->whereNumber(['id', 'foto']);
         Route::delete('propiedades/{id}', [VendedorPropiedadController::class, 'destroy'])->whereNumber('id');
 
         Route::get('contactos', [InmobiliariaContactoController::class, 'index']);

@@ -1,0 +1,283 @@
+/* =========================================================
+   UMBRAL — Tema unificado  (public/css/tema-umbral.css)
+   Cárgalo SIEMPRE de ÚLTIMO en cada página.
+
+   OSCURO = colores del dashboard.html de invitado
+   CLARO  = colores de panel-violeta.css (modo claro)
+
+   Define las variables con los DOS juegos de nombres que usa el proyecto:
+     · estilo dashboard:  --bg --card --text --muted --border --primary --primary2 --soft
+     · estilo panel:      --fondo --tarjeta --texto --texto-suave --acento --acento-2 ...
+   ========================================================= */
+
+/* ---------- 1) OSCURO (paleta del dashboard invitado) ---------- */
+:root[data-theme="dark"] {
+    --bg: #0b0810;
+    --card: #121016;
+    --text: #ffffff;
+    --muted: #a1a1aa;
+    --border: #2a2433;
+    --primary: #c084fc;
+    --primary2: #9333ea;
+    --soft: #1c142b;
+    --shadow: 0 6px 24px rgba(0, 0, 0, .45);
+    --banner: linear-gradient(120deg, #0d0a12 0%, #2a0a4a 55%, #4c0580 100%);
+
+    /* mismos colores con los nombres del panel */
+    --fondo: #0b0810;
+    --fondo-degradado: #0b0810;
+    --superficie: #121016;
+    --tarjeta: #121016;
+    --tarjeta-grad: #121016;
+    --tarjeta-borde: #2a2433;
+    --campo: rgba(255, 255, 255, .04);
+    --campo-borde: #2a2433;
+    --texto: #ffffff;
+    --texto-suave: #a1a1aa;
+    --acento: #c084fc;
+    --acento-2: #9333ea;
+    --boton-gradiente: linear-gradient(135deg, #6b21a8, #9333ea);
+    --neutro-fondo: #1c142b;
+    --sombra: none;
+}
+
+/* ---------- 2) CLARO (paleta de panel-violeta) ---------- */
+:root[data-theme="light"] {
+    --bg: #ffffff;
+    --card: #f7efff;
+    --text: #1d0b2e;
+    --muted: #6a5282;
+    --border: #e7d5fa;
+    --primary: #7415ad;
+    --primary2: #b759f5;
+    --soft: rgba(116, 21, 173, .09);
+    --shadow: none;
+    --banner: linear-gradient(100deg, #f7efff 0%, #e9cffc 100%);
+
+    --fondo: #ffffff;
+    --fondo-degradado: #ffffff;
+    --superficie: #f7efff;
+    --tarjeta: #f7efff;
+    --tarjeta-grad: linear-gradient(180deg, #faf5ff 0%, #f4eafd 100%);
+    --tarjeta-borde: rgba(116, 21, 173, .28);
+    --campo: #ffffff;
+    --campo-borde: #e7d5fa;
+    --texto: #1d0b2e;
+    --texto-suave: #6a5282;
+    --acento: #7415ad;
+    --acento-2: #b759f5;
+    --boton-gradiente: linear-gradient(90deg, #6d10a6 0%, #9332d1 100%);
+    --neutro-fondo: rgba(116, 21, 173, .09);
+    --sombra: none;
+}
+
+/* =========================================================
+   3) PANELES del vendedor (body.panel-violeta) — MODO OSCURO
+   panel-violeta.css pintaba el oscuro con otros tonos; aquí se
+   reemplaza por el del dashboard. El modo claro NO se toca:
+   ya es el de panel-violeta.
+   ========================================================= */
+[data-theme="dark"] body.panel-violeta {
+    --fondo: #0b0810;
+    --fondo-degradado: #0b0810;
+    --superficie: #121016;
+    --tarjeta: #121016;
+    --tarjeta-grad: #121016;
+    --tarjeta-borde: #2a2433;
+    --campo: rgba(255, 255, 255, .04);
+    --campo-borde: #2a2433;
+    --texto: #ffffff;
+    --texto-suave: #a1a1aa;
+    --acento: #c084fc;
+    --acento-2: #9333ea;
+    --boton-gradiente: linear-gradient(135deg, #6b21a8, #9333ea);
+    --neutro-fondo: #1c142b;
+
+    /* Venta = morado sólido · Arriendo = lavanda (igual que el portal) */
+    --op-1: #6b21a8;
+    --op-2: #9333ea;
+    --op-texto: #c084fc;
+}
+[data-theme="dark"] body.panel-violeta.op-arriendo {
+    --op-1: #c084fc;
+    --op-2: #e9d5ff;
+    --op-texto: #e9d5ff;
+}
+[data-theme="dark"] .panel-violeta .op-venta {
+    --op-1: #6b21a8; --op-2: #9333ea; --op-texto: #c084fc;
+}
+[data-theme="dark"] .panel-violeta .op-arriendo {
+    --op-1: #c084fc; --op-2: #e9d5ff; --op-texto: #e9d5ff;
+}
+
+/* Menú lateral, barra superior y cabecera (colores fijos en panel-violeta.css) */
+[data-theme="dark"] .panel-violeta .i-lateral {
+    background:
+        radial-gradient(rgba(192, 132, 252, .085) 1px, transparent 1.5px) 0 0 / 20px 20px,
+        repeating-radial-gradient(circle at 0% 100%, transparent 0 30px, rgba(192, 132, 252, .07) 30px 31px),
+        linear-gradient(185deg, #121016 0%, #0b0810 100%);
+    border-right-color: #2a2433;
+}
+[data-theme="dark"] .panel-violeta .i-barra { background: rgba(11, 8, 16, .96); border-bottom-color: #2a2433; }
+[data-theme="dark"] .panel-violeta .v-hero {
+    background: linear-gradient(120deg, #0d0a12 0%, #2a0a4a 55%, #4c0580 100%);
+    border-color: #2a2433;
+}
+[data-theme="dark"] .panel-violeta .v-hero .v-etiqueta { color: #c084fc; }
+[data-theme="dark"] .panel-violeta .v-btn-principal { background: linear-gradient(135deg, #6b21a8, #9333ea); }
+[data-theme="dark"] .panel-violeta .v-btn-principal:hover { background: #9333ea; }
+[data-theme="dark"] .panel-violeta.op-arriendo .v-btn-principal { color: #1a0b2e; background: #e9d5ff; }
+[data-theme="dark"] .panel-violeta.op-arriendo .v-btn-principal:hover { background: #f3e8ff; }
+[data-theme="dark"] .panel-violeta .i-pestana[aria-pressed="true"] { background: #c084fc; color: #1a0b2e; }
+[data-theme="dark"] .panel-violeta .v-avatar,
+[data-theme="dark"] .panel-violeta .i-logo-marca { background: linear-gradient(135deg, #7e22ce, #9333ea); }
+[data-theme="dark"] .panel-violeta dialog.v-ventana { background: #121016; }
+[data-theme="dark"] .panel-violeta .v-toast { background: #1c142b; border-color: #2a2433; }
+[data-theme="dark"] .panel-violeta .v-prop-foto { background: linear-gradient(135deg, #1c142b, #3a2557); }
+
+/* =========================================================
+   4) dashboard.html (invitado) — MODO CLARO con el MISMO look de panel-violeta
+   (menú morado con textura, cabecera con arcos, tarjetas lila, KPI con línea)
+   ========================================================= */
+
+/* ---------- Menú lateral: morado con textura (puntos + arcos) ---------- */
+[data-theme="light"] .sidebar {
+    color: #fff;
+    background:
+        radial-gradient(rgba(255, 255, 255, .10) 1px, transparent 1.5px) 0 0 / 20px 20px,
+        repeating-radial-gradient(circle at 0% 100%, transparent 0 30px, rgba(255, 255, 255, .065) 30px 31px),
+        linear-gradient(185deg, #1f0040 0%, #3a0064 55%, #54007f 125%);
+    border-right: 1px solid rgba(255, 255, 255, .08);
+}
+[data-theme="light"] .sidebar .brand { border-bottom-color: rgba(255, 255, 255, .14); }
+[data-theme="light"] .sidebar .marca-txt strong { color: #f5ecfd; }
+[data-theme="light"] .sidebar .marca-txt em { color: rgba(226, 202, 248, .78); }
+[data-theme="light"] .sidebar .marca-img { filter: brightness(1.9) saturate(1.1); }
+[data-theme="light"] .sidebar .nav-label { color: rgba(214, 170, 250, .66); }
+[data-theme="light"] .sidebar .nav a { color: rgba(240, 228, 252, .84); }
+[data-theme="light"] .sidebar .nav a:hover { background: rgba(255, 255, 255, .09); color: #faf5ff; }
+[data-theme="light"] .sidebar .nav a.active {
+    color: #faf5ff;
+    background: linear-gradient(90deg, rgba(255, 255, 255, .17) 0%, rgba(255, 255, 255, .05) 100%);
+    border-color: rgba(255, 255, 255, .16);
+    box-shadow: inset 3px 0 0 #c997f6;
+}
+[data-theme="light"] .sidebar .nav a.active i { color: #dcb8fb; }
+[data-theme="light"] .sidebar .guest-card {
+    color: #f5ecfd;
+    background: rgba(255, 255, 255, .08);
+    border-color: rgba(255, 255, 255, .14);
+}
+[data-theme="light"] .sidebar .guest-card p { color: rgba(232, 212, 250, .78); }
+[data-theme="light"] .sidebar .guest-card .btn-primary {
+    color: #fbf5ff;
+    background: linear-gradient(90deg, #8e2ac8 0%, #7415ad 100%);
+}
+
+/* ---------- Barra superior: blanca + hilo de acento abajo ---------- */
+[data-theme="light"] .topbar {
+    background: #ffffff;
+    border-bottom: 1px solid #efe3fb;
+    box-shadow: none;
+}
+[data-theme="light"] .topbar.scrolled { box-shadow: none; }
+[data-theme="light"] .topbar::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; pointer-events: none;
+    background: linear-gradient(90deg, #4e007a 0%, #9332d1 45%, rgba(183, 89, 245, 0) 92%);
+}
+
+/* ---------- Cabecera (hero): oscuro → morado, arcos y cuadrícula ---------- */
+[data-theme="light"] .hero {
+    color: #f5ecfd;
+    border: 1px solid rgba(255, 255, 255, .12);
+    background: linear-gradient(100deg, #1b0a2e 0%, #2e0352 42%, #4e007a 82%, #6d10a6 128%);
+    box-shadow: none;
+}
+[data-theme="light"] .hero::before {
+    display: block;
+    top: 0; right: 0; bottom: 0; left: 0;
+    width: auto; height: auto;
+    border-radius: 0; filter: none; opacity: 1;
+    background:
+        repeating-radial-gradient(circle at 100% 0%, transparent 0 26px, rgba(255, 255, 255, .10) 26px 27px),
+        linear-gradient(rgba(255, 255, 255, .05) 1px, transparent 1px) 0 0 / 34px 34px,
+        linear-gradient(90deg, rgba(255, 255, 255, .05) 1px, transparent 1px) 0 0 / 34px 34px;
+    -webkit-mask-image: linear-gradient(100deg, rgba(0, 0, 0, .30) 0%, #000 65%);
+    mask-image: linear-gradient(100deg, rgba(0, 0, 0, .30) 0%, #000 65%);
+}
+[data-theme="light"] .hero::after { display: none; }
+[data-theme="light"] .hero h2 { color: #faf5ff; }
+[data-theme="light"] .hero h2 .hl,
+[data-theme="light"] .hero .tag { color: #c997f6; }
+[data-theme="light"] .hero p { color: rgba(238, 220, 252, .86); }
+[data-theme="light"] .hero .pill { color: #f5ecfd; background: rgba(255, 255, 255, .10); border-color: rgba(255, 255, 255, .22); }
+[data-theme="light"] .hero .op { color: #f5ecfd; background: rgba(255, 255, 255, .08); border-color: rgba(255, 255, 255, .24); }
+[data-theme="light"] .hero .op:hover { background: rgba(255, 255, 255, .16); border-color: rgba(255, 255, 255, .40); }
+[data-theme="light"] .hero .op.active { color: #34055c; background: #e9cffc; border-color: #e9cffc; }
+[data-theme="light"] .hero .hbar { box-shadow: none; border: 1px solid rgba(255, 255, 255, .12); }
+[data-theme="light"] .hero .btn-primary { color: #34055c; background: #e9cffc; box-shadow: none; }
+[data-theme="light"] .hero .btn-primary:hover { background: #f3e2fe; }
+
+/* ---------- Tarjetas lila con borde fino, sin sombras ---------- */
+[data-theme="light"] .pcard,
+[data-theme="light"] .stat,
+[data-theme="light"] .panel,
+[data-theme="light"] .scard,
+[data-theme="light"] .sbox {
+    background: linear-gradient(180deg, #faf5ff 0%, #f4eafd 100%);
+    border: 1px solid rgba(116, 21, 173, .28);
+    box-shadow: none;
+}
+[data-theme="light"] .pcard:hover { border-color: #6d10a6; box-shadow: none; }
+[data-theme="light"] .sbox { background: #ffffff; }
+
+/* ---------- KPI: línea de acento arriba + icono con degradé ---------- */
+[data-theme="light"] .stat { border-top: 3px solid var(--c); }
+[data-theme="light"] .stats .stat:nth-child(1) { --c: #6d10a6 !important; }
+[data-theme="light"] .stats .stat:nth-child(2) { --c: #9332d1 !important; }
+[data-theme="light"] .stats .stat:nth-child(3) { --c: #b052f0 !important; }
+[data-theme="light"] .stats .stat:nth-child(4) { --c: #550084 !important; }
+[data-theme="light"] .stat .ico {
+    color: #fbf5ff;
+    background: linear-gradient(135deg, var(--c) 0%, color-mix(in srgb, var(--c) 62%, #cb94f9) 100%);
+}
+
+/* ---------- Botones, insignias y detalles ---------- */
+[data-theme="light"] .btn-primary,
+[data-theme="light"] .op.active,
+[data-theme="light"] .btn-more,
+[data-theme="light"] .btn-green {
+    background: linear-gradient(100deg, #6d10a6 0%, #9332d1 100%);
+    color: #fbf5ff;
+    box-shadow: none;
+}
+[data-theme="light"] .btn-orange {
+    background: linear-gradient(100deg, #8728c2 0%, #b052f0 100%);
+    color: #fbf5ff;
+    border: 0;
+    box-shadow: none;
+}
+[data-theme="light"] .btn-ghost { background: #ffffff; border-color: #e7d5fa; }
+[data-theme="light"] .btn-ghost:hover { background: rgba(116, 21, 173, .09); }
+[data-theme="light"] .b-sale { background: #6d10a6; color: #fff; }
+[data-theme="light"] .b-rent { background: #8728c2; color: #fff; }
+[data-theme="light"] .avatar,
+[data-theme="light"] .logo { background: linear-gradient(135deg, #6d10a6 0%, #b052f0 100%); box-shadow: none; color: #fbf5ff; }
+[data-theme="light"] .field input:focus,
+[data-theme="light"] .field select:focus,
+[data-theme="light"] .field textarea:focus { border-color: #7415ad; box-shadow: 0 0 0 2px rgba(116, 21, 173, .22); }
+[data-theme="light"] .pimg:not([style*="url"]),
+[data-theme="light"] .mhero:not([style*="url"]) {
+    background: linear-gradient(135deg, #1f0040 0%, #6d10a6 60%, #9332d1 100%) !important;
+}
+
+/* ---------- Premium, ventanas y avisos ---------- */
+[data-theme="light"] .prem-wrap {
+    background: linear-gradient(100deg, #1b0a2e 0%, #2e0352 42%, #4e007a 100%);
+    box-shadow: none;
+}
+[data-theme="light"] .prem-orb { display: none; }
+[data-theme="light"] .modal { background: #ffffff; box-shadow: none; }
+[data-theme="light"] .mbg { background: rgba(32, 4, 58, .40); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+[data-theme="light"] .toast { background: #2b0050; color: #f5ecfd; border: 1px solid rgba(255, 255, 255, .14); }
+[data-theme="light"] .fbadge { background: #7415ad; color: #fff; }

@@ -1,0 +1,346 @@
+/* =========================================================
+   UMBRAL — Paleta violeta (panel del vendedor) · v5
+   Se activa con <body class="... panel-violeta">. Va DESPUÉS de
+   vendedor.css y solo redefine colores y acabados: no toca la
+   estructura ni la lógica de las pantallas.
+
+   Referencia: el modo oscuro del portal público.
+     - Superficies casi negras con matiz morado (#0a090f, #100f15).
+     - El morado vive en la cabecera (degradé oscuro → morado),
+       los botones, los acentos y las líneas finas.
+     - Venta = botón morado sólido · Arriendo = botón lavanda.
+   Colores base: #4e007a · #7415ad · #7c1db5 · #9a38d8 · #c997f6 · #e9cffc
+
+   - Modo claro: fondo blanco, tarjetas lila muy suave, mismos
+     acentos, misma cabecera. Sin sombras.
+   - Modo noche: sin brillos (ni manchas de luz ni sombras).
+   - Textura en el menú lateral y en la cabecera de cada pantalla.
+   ========================================================= */
+
+/* ---------- Variables: tema claro ---------- */
+body.panel-violeta {
+    --fondo: #ffffff;
+    --fondo-degradado: #ffffff;
+    --superficie: #f7efff;
+    --tarjeta: #f7efff;
+    --tarjeta-grad: linear-gradient(180deg, #faf5ff 0%, #f4eafd 100%);
+    --tarjeta-borde: rgba(116, 21, 173, 0.28);
+    --campo: #ffffff;
+    --campo-borde: #e7d5fa;
+    --texto: #1d0b2e;
+    --texto-suave: #6a5282;
+    --acento: #7415ad;
+    --acento-2: #b759f5;
+    --boton-gradiente: linear-gradient(90deg, #6d10a6 0%, #9332d1 100%);
+    --sombra: none;
+    --neutro-fondo: rgba(116, 21, 173, 0.09);
+
+    /* Venta: morado hondo */
+    --op-1: #6d10a6;
+    --op-2: #9332d1;
+    --op-texto: #6d10a6;
+    --op-glow: transparent;
+    --op-sombra: transparent;
+}
+/* Arriendo: orquídea (misma familia, se distingue de venta) */
+body.panel-violeta.op-arriendo {
+    --op-1: #8728c2;
+    --op-2: #b052f0;
+    --op-texto: #8728c2;
+}
+.panel-violeta .op-venta {
+    --op-1: #6d10a6; --op-2: #9332d1; --op-texto: #6d10a6; --op-glow: transparent; --op-sombra: transparent;
+}
+.panel-violeta .op-arriendo {
+    --op-1: #8728c2; --op-2: #b052f0; --op-texto: #8728c2; --op-glow: transparent; --op-sombra: transparent;
+}
+
+/* ---------- Variables: tema oscuro (casi negro con morado, sin brillos) ---------- */
+[data-theme="dark"] body.panel-violeta {
+    --fondo: #0a090f;
+    --fondo-degradado: linear-gradient(180deg, #0a090f 0%, #0c0a13 100%);
+    --superficie: #131019;
+    --tarjeta: #100f15;
+    --tarjeta-grad: linear-gradient(160deg, #181321 0%, #0f0e14 100%);
+    --tarjeta-borde: rgba(201, 151, 246, 0.24);
+    --campo: rgba(255, 255, 255, 0.04);
+    --campo-borde: rgba(201, 151, 246, 0.14);
+    --texto: #f3eff8;
+    --texto-suave: #9a93aa;
+    --acento: #c997f6;
+    --acento-2: #b25ae8;
+    --boton-gradiente: linear-gradient(90deg, #7415ad 0%, #8e2ac8 100%);
+    --sombra: none;
+    --neutro-fondo: rgba(201, 151, 246, 0.10);
+    --ok: #5cc197;
+    --ok-fondo: rgba(92, 193, 151, 0.14);
+    --aviso: #dcb25c;
+    --aviso-fondo: rgba(220, 178, 92, 0.12);
+    --peligro: #e68497;
+    --peligro-fondo: rgba(230, 132, 151, 0.14);
+
+    --op-1: #9a38d8;
+    --op-2: #b25ae8;
+    --op-texto: #cf9bf7;
+    --op-glow: transparent;
+    --op-sombra: transparent;
+}
+[data-theme="dark"] body.panel-violeta.op-arriendo {
+    --op-1: #a24fe0;
+    --op-2: #c07af0;
+    --op-texto: #e0c0fc;
+}
+[data-theme="dark"] .panel-violeta .op-venta {
+    --op-1: #9a38d8; --op-2: #b25ae8; --op-texto: #cf9bf7; --op-glow: transparent; --op-sombra: transparent;
+}
+[data-theme="dark"] .panel-violeta .op-arriendo {
+    --op-1: #a24fe0; --op-2: #c07af0; --op-texto: #e0c0fc; --op-glow: transparent; --op-sombra: transparent;
+}
+
+/* Fuera las dos manchas de luz desenfocadas del fondo */
+body.panel-violeta::before,
+body.panel-violeta::after { display: none; }
+
+/* =========================================================
+   MENÚ LATERAL — con textura (puntos + arcos concéntricos)
+   ========================================================= */
+.panel-violeta .i-lateral {
+    color: #fff;
+    background:
+        radial-gradient(rgba(255, 255, 255, 0.10) 1px, transparent 1.5px) 0 0 / 20px 20px,
+        repeating-radial-gradient(circle at 0% 100%, transparent 0 30px, rgba(255, 255, 255, 0.065) 30px 31px),
+        linear-gradient(185deg, #1f0040 0%, #3a0064 55%, #54007f 125%);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: none;
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.20) transparent;
+}
+[data-theme="dark"] .panel-violeta .i-lateral {
+    background:
+        radial-gradient(rgba(201, 151, 246, 0.085) 1px, transparent 1.5px) 0 0 / 20px 20px,
+        repeating-radial-gradient(circle at 0% 100%, transparent 0 30px, rgba(201, 151, 246, 0.07) 30px 31px),
+        linear-gradient(185deg, #140e20 0%, #0d0b14 100%);
+    border-right: 1px solid rgba(201, 151, 246, 0.16);
+}
+[dir="rtl"] .panel-violeta .i-lateral { border-right: 0; border-left: 1px solid rgba(255, 255, 255, 0.08); }
+.panel-violeta .i-marca { color: #f5ecfd; border-bottom-color: rgba(255, 255, 255, 0.14); }
+.panel-violeta .i-marca small { color: rgba(226, 202, 248, 0.72); }
+.panel-violeta .i-logo-marca { background: linear-gradient(135deg, #b759f5 0%, #7415ad 100%); box-shadow: none; }
+[data-theme="dark"] .panel-violeta .i-logo-marca { background: linear-gradient(135deg, #9a38d8 0%, #7415ad 100%); }
+.panel-violeta .i-grupo { color: rgba(214, 170, 250, 0.66); }
+.panel-violeta .i-nav a { color: rgba(240, 228, 252, 0.84); position: relative; }
+.panel-violeta .i-nav a:hover { background: rgba(255, 255, 255, 0.09); color: #faf5ff; }
+.panel-violeta .i-nav a.activo {
+    color: #faf5ff;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.17) 0%, rgba(255, 255, 255, 0.05) 100%);
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow: inset 3px 0 0 #c997f6;
+}
+[data-theme="dark"] .panel-violeta .i-nav a.activo {
+    background: linear-gradient(90deg, rgba(154, 56, 216, 0.24) 0%, rgba(154, 56, 216, 0.06) 100%);
+    border-color: rgba(201, 151, 246, 0.28);
+}
+[dir="rtl"] .panel-violeta .i-nav a.activo { box-shadow: inset -3px 0 0 #c997f6; }
+.panel-violeta .i-nav a.activo i { color: #dcb8fb; }
+.panel-violeta .i-tarjeta-lateral {
+    color: #f5ecfd;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.14);
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+[data-theme="dark"] .panel-violeta .i-tarjeta-lateral { background: rgba(201, 151, 246, 0.06); border-color: rgba(201, 151, 246, 0.18); }
+.panel-violeta .i-tarjeta-lateral p { color: rgba(232, 212, 250, 0.78); }
+.panel-violeta .i-tarjeta-lateral .v-btn-principal {
+    color: #fbf5ff;
+    background: linear-gradient(90deg, #8e2ac8 0%, #7415ad 100%);
+    box-shadow: none;
+}
+
+/* ---------- Barra superior ---------- */
+.panel-violeta .i-barra {
+    background: #ffffff;
+    border-bottom: 1px solid #efe3fb;
+    box-shadow: none;
+}
+[data-theme="dark"] .panel-violeta .i-barra {
+    background: rgba(13, 12, 19, 0.96);
+    border-bottom-color: rgba(201, 151, 246, 0.16);
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+/* Hilo fino de acento en el borde inferior */
+.panel-violeta .i-barra::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; pointer-events: none;
+    background: linear-gradient(90deg, #4e007a 0%, #9332d1 45%, rgba(183, 89, 245, 0) 92%);
+}
+[data-theme="dark"] .panel-violeta .i-barra::after {
+    height: 1px;
+    background: linear-gradient(90deg, rgba(154, 56, 216, 0.90) 0%, rgba(154, 56, 216, 0.32) 45%, rgba(154, 56, 216, 0) 90%);
+}
+.panel-violeta .i-titulo { color: var(--texto); }
+.panel-violeta .i-icono:hover { background: var(--neutro-fondo); border-color: var(--op-1); }
+.panel-violeta .i-idioma:hover { border-color: var(--op-1); }
+.panel-violeta .v-avatar { background: linear-gradient(135deg, #6d10a6 0%, #b052f0 100%); box-shadow: none; color: #fbf5ff; }
+[data-theme="dark"] .panel-violeta .v-avatar { background: linear-gradient(135deg, #7415ad 0%, #9a38d8 100%); }
+.panel-violeta .v-tema button[aria-pressed="true"] { color: #fbf5ff; }
+
+/* =========================================================
+   CABECERA DE PANTALLA (hero) — como la del portal:
+   oscuro a la izquierda → morado a la derecha, con arcos
+   concéntricos y cuadrícula fina que se desvanece hacia el texto
+   ========================================================= */
+.panel-violeta .v-hero {
+    color: #f5ecfd;
+    border-color: rgba(255, 255, 255, 0.12);
+    background: linear-gradient(100deg, #1b0a2e 0%, #2e0352 42%, #4e007a 82%, #6d10a6 128%);
+    box-shadow: none;
+}
+[data-theme="dark"] .panel-violeta .v-hero {
+    background: linear-gradient(100deg, #100f15 0%, #1b0a2e 38%, #2e0352 62%, #480075 86%, #4e007a 100%);
+    border-color: rgba(201, 151, 246, 0.24);
+}
+.panel-violeta .v-hero::before {
+    background:
+        repeating-radial-gradient(circle at 100% 0%, transparent 0 26px, rgba(255, 255, 255, 0.10) 26px 27px),
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px) 0 0 / 34px 34px,
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px) 0 0 / 34px 34px;
+    -webkit-mask-image: linear-gradient(100deg, rgba(0, 0, 0, 0.30) 0%, #000 65%);
+    mask-image: linear-gradient(100deg, rgba(0, 0, 0, 0.30) 0%, #000 65%);
+}
+[data-theme="dark"] .panel-violeta .v-hero::before {
+    background:
+        repeating-radial-gradient(circle at 100% 0%, transparent 0 26px, rgba(255, 255, 255, 0.07) 26px 27px),
+        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px) 0 0 / 34px 34px,
+        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px) 0 0 / 34px 34px;
+}
+.panel-violeta .v-hero::after { display: none; }
+.panel-violeta .v-hero > * { z-index: 1; }
+.panel-violeta .v-hero h1 { color: #faf5ff; }
+[data-theme="dark"] .panel-violeta .v-hero h1 { color: #f5f0fa; }
+.panel-violeta .v-hero p { color: rgba(238, 220, 252, 0.86); }
+.panel-violeta .v-hero .v-etiqueta { color: #c997f6; }
+.panel-violeta .v-hero .v-chip { color: #f5ecfd; background: rgba(255, 255, 255, 0.10); border-color: rgba(255, 255, 255, 0.22); }
+.panel-violeta .v-hero .v-btn-suave { color: #f5ecfd; background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.24); }
+.panel-violeta .v-hero .v-btn-suave:hover { background: rgba(255, 255, 255, 0.16); color: #fbf5ff; border-color: rgba(255, 255, 255, 0.40); }
+
+/* ---------- Tarjetas ---------- */
+.panel-violeta .v-tarjeta:not(.v-hero),
+.panel-violeta .v-opcion { background: var(--tarjeta-grad); box-shadow: none; }
+.panel-violeta .v-tarjeta-cabeza h2 { color: var(--texto); }
+.panel-violeta .v-tarjeta,
+.panel-violeta .v-opcion,
+.panel-violeta .v-kpi,
+.panel-violeta .v-topbar { -webkit-backdrop-filter: none; backdrop-filter: none; }
+.panel-violeta .v-opcion::before { background: linear-gradient(135deg, var(--neutro-fondo), transparent 58%); }
+.panel-violeta .v-opcion:hover { transform: translateY(-3px); border-color: var(--op-1); box-shadow: none; }
+.panel-violeta .v-opcion-icono { color: #fbf5ff; box-shadow: none; }
+
+/* ---------- KPI (línea de acento arriba, como en el portal) ---------- */
+.panel-violeta .k-1 { --k: var(--op-1); }
+.panel-violeta .k-2 { --k: #9332d1; }
+.panel-violeta .k-3 { --k: #b052f0; }
+.panel-violeta .k-4 { --k: #550084; }
+[data-theme="dark"] .panel-violeta .k-1 { --k: #a652e6; }
+[data-theme="dark"] .panel-violeta .k-2 { --k: #c08af2; }
+[data-theme="dark"] .panel-violeta .k-3 { --k: #d6aaf8; }
+[data-theme="dark"] .panel-violeta .k-4 { --k: #8e3fd0; }
+.panel-violeta .v-kpi {
+    background: var(--tarjeta-grad);
+    border-top-width: 3px;
+    box-shadow: none;
+}
+/* Claro: icono relleno con degradé. Noche: tintado y apagado */
+.panel-violeta .v-kpi-icono {
+    color: #fbf5ff;
+    background: linear-gradient(135deg, var(--k) 0%, color-mix(in srgb, var(--k) 62%, #cb94f9) 100%);
+    box-shadow: none;
+}
+[data-theme="dark"] .panel-violeta .v-kpi-icono {
+    color: var(--k);
+    background: color-mix(in srgb, var(--k) 16%, transparent);
+    border: 1px solid color-mix(in srgb, var(--k) 32%, transparent);
+}
+
+/* ---------- Botones y detalles (sin sombras) ---------- */
+.panel-violeta .v-btn-principal {
+    color: #fbf5ff;
+    background: linear-gradient(100deg, var(--op-1) 0%, var(--op-2) 100%);
+    box-shadow: none;
+}
+.panel-violeta .v-btn-principal:hover { box-shadow: none; filter: brightness(1.06); }
+/* Noche (como el portal): Venta = morado sólido · Arriendo = lavanda con texto oscuro */
+[data-theme="dark"] .panel-violeta .v-btn-principal { background: linear-gradient(100deg, #7415ad 0%, #8e2ac8 100%); }
+[data-theme="dark"] .panel-violeta .v-btn-principal:hover { filter: none; background-color: #8e2ac8; }
+[data-theme="dark"] .panel-violeta.op-arriendo .v-btn-principal { color: #2a0845; background: linear-gradient(100deg, #dcb8fb 0%, #e9cffc 100%); }
+[data-theme="dark"] .panel-violeta.op-arriendo .v-btn-principal:hover { background: #f0dcfd; }
+.panel-violeta .v-tab[aria-current="page"] { color: #fbf5ff; box-shadow: none; }
+.panel-violeta .v-prop-foto { background: linear-gradient(135deg, #1f0040 0%, var(--op-1) 60%, var(--op-2) 100%); }
+[data-theme="dark"] .panel-violeta .v-prop-foto { background: linear-gradient(135deg, #1c1629 0%, #2c1647 100%); }
+.panel-violeta .v-prop:hover { box-shadow: none; }
+.panel-violeta .v-campo input:focus,
+.panel-violeta .v-campo select:focus { border-color: var(--acento); box-shadow: 0 0 0 2px rgba(116, 21, 173, 0.22); }
+[data-theme="dark"] .panel-violeta .v-campo input:focus,
+[data-theme="dark"] .panel-violeta .v-campo select:focus { box-shadow: 0 0 0 2px rgba(201, 151, 246, 0.32); }
+.panel-violeta .v-insignia.en_seguimiento { color: var(--op-texto); background: var(--neutro-fondo); }
+.panel-violeta .i-tabla th { color: var(--op-texto); }
+.panel-violeta .i-pestana[aria-pressed="true"] {
+    color: #fbf5ff;
+    background: linear-gradient(100deg, var(--op-1), var(--op-2));
+    box-shadow: none;
+}
+/* Noche: pestaña activa en lavanda con texto oscuro (como "Todas" en el portal) */
+[data-theme="dark"] .panel-violeta .i-pestana[aria-pressed="true"] { color: #2a0845; background: #c997f6; }
+[data-theme="dark"] .panel-violeta .i-pestana[aria-pressed="true"] b { color: #2a0845; background: rgba(42, 8, 69, 0.14); }
+.panel-violeta .v-aviso { border-color: color-mix(in srgb, var(--aviso) 32%, transparent); }
+
+/* Estado de los inmuebles */
+[data-theme="dark"] .panel-violeta .v-estado { background: rgba(13, 11, 20, 0.90); color: #f3eff8; border: 1px solid rgba(201, 151, 246, 0.30); }
+[data-theme="dark"] .panel-violeta .v-estado.publicada { background: #25805f; border-color: transparent; }
+[data-theme="dark"] .panel-violeta .v-estado.borrador { background: #94682a; border-color: transparent; }
+[data-theme="dark"] .panel-violeta .v-estado.pausada { background: #4d4560; border-color: transparent; }
+
+/* Botones circulares sobre las fotos (editar / eliminar) */
+.panel-violeta .v-icon-circ { box-shadow: none; border: 1px solid rgba(116, 21, 173, 0.16); }
+[data-theme="dark"] .panel-violeta .v-icon-circ { color: #e9d8fb; background: rgba(19, 16, 25, 0.94); border-color: rgba(201, 151, 246, 0.26); }
+[data-theme="dark"] .panel-violeta .v-icon-circ.editar:hover { background: #7415ad; color: #fbf5ff; }
+[data-theme="dark"] .panel-violeta .v-icon-circ.eliminar:hover { background: #b84a5e; color: #fbf5ff; }
+.panel-violeta .v-icon-circ.editar:hover { background: var(--op-1); color: #fbf5ff; }
+
+/* ---------- Ventanas, avisos y carrusel ---------- */
+.panel-violeta dialog.v-ventana { background: #ffffff; box-shadow: none; }
+[data-theme="dark"] .panel-violeta dialog.v-ventana { background: #141119; }
+.panel-violeta dialog.v-ventana::backdrop { background: rgba(32, 4, 58, 0.40); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+[data-theme="dark"] .panel-violeta dialog.v-ventana::backdrop { background: rgba(5, 4, 9, 0.62); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.panel-violeta .v-toast { background: #2b0050; color: #f5ecfd; border: 1px solid rgba(255, 255, 255, 0.14); box-shadow: none; }
+[data-theme="dark"] .panel-violeta .v-toast { background: #1d1429; border-color: rgba(201, 151, 246, 0.28); }
+.panel-violeta .car-btn { box-shadow: none; border: 1px solid rgba(116, 21, 173, 0.16); }
+[data-theme="dark"] .panel-violeta .car-btn { color: #e9d8fb; background: rgba(19, 16, 25, 0.94); border-color: rgba(201, 151, 246, 0.26); }
+[data-theme="dark"] .panel-violeta .car-btn:hover { background: #231a31; }
+.panel-violeta .car-vista { background: #14101c; }
+
+/* ---------- Mapa (Leaflet) en modo noche: tenue, sin blancos ---------- */
+[data-theme="dark"] .panel-violeta .v-mapa .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.78) contrast(0.88) saturate(0.5); }
+[data-theme="dark"] .panel-violeta .v-mapa.leaflet-container,
+[data-theme="dark"] .panel-violeta .v-mapa .leaflet-container { background: #15121c; }
+[data-theme="dark"] .panel-violeta .leaflet-bar a { background: #1d1829; color: #e9d8fb; border-bottom-color: rgba(201, 151, 246, 0.20); }
+[data-theme="dark"] .panel-violeta .leaflet-bar a:hover { background: #271f37; }
+[data-theme="dark"] .panel-violeta .leaflet-control-attribution { background: rgba(13, 11, 20, 0.90) !important; color: #a79fba; }
+[data-theme="dark"] .panel-violeta .leaflet-control-attribution a { color: #c997f6; }
+
+/* ---------- Botones de la cabecera (van al final para ganar a las reglas de arriba) ---------- */
+.panel-violeta .v-hero .v-btn-principal,
+[data-theme="dark"] .panel-violeta .v-hero .v-btn-principal,
+[data-theme="dark"] .panel-violeta.op-arriendo .v-hero .v-btn-principal {
+    color: #34055c;
+    background: #e9cffc;
+    box-shadow: none;
+}
+.panel-violeta .v-hero .v-btn-principal:hover,
+[data-theme="dark"] .panel-violeta .v-hero .v-btn-principal:hover,
+[data-theme="dark"] .panel-violeta.op-arriendo .v-hero .v-btn-principal:hover { background: #f3e2fe; filter: none; }
+
+/* Menú lateral en móvil */
+@media (max-width: 960px) {
+    .panel-violeta .i-lateral { box-shadow: none; }
+    .panel-violeta .i-velo.abierto { background: rgba(10, 4, 20, 0.58); }
+}

@@ -203,4 +203,59 @@
 @media (max-width: 340px) { .i-caracteristicas { grid-template-columns: minmax(0, 1fr); } }
 
 /* La vista previa de la foto y el aviso "sube una foto" no deben verse a la vez */
-.v-foto img[hidden], .v-foto-vacio[hidden] { display: none; }
+.v-foto img[hidden], .v-foto-vacio[hidden], .v-btn[hidden] { display: none; }
+
+/* =========================================================
+   Paleta del portal (la misma de la página del invitado):
+   morado como color principal y fondos casi negros en el tema oscuro.
+   Solo cambia variables, así que aplica a la inmobiliaria y al agente
+   sin tocar vendedor.css ni base.css.
+   ========================================================= */
+[data-theme="light"] body.vendedor {
+    --fondo: #faf7ff;
+    --fondo-degradado: linear-gradient(180deg, #f3e8ff 0%, #faf7ff 55%, #ffffff 100%);
+    --tarjeta: rgba(255, 255, 255, 0.86);
+    --tarjeta-borde: #e9ddf7;
+    --campo: #ffffff;
+    --campo-borde: #e9ddf7;
+    --texto: #1a1026;
+    --texto-suave: #6b6280;
+    --acento: #7e22ce;
+    --acento-2: #9333ea;
+    --boton-gradiente: linear-gradient(135deg, #7e22ce 0%, #9333ea 100%);
+    --sombra: 0 6px 24px rgba(126, 34, 206, 0.08);
+    --op-1: #7e22ce;
+    --op-2: #9333ea;
+    --op-texto: #7e22ce;
+    --op-glow: rgba(147, 51, 234, 0.16);
+    --op-sombra: rgba(126, 34, 206, 0.3);
+    --neutro-fondo: #f3e8ff;
+}
+[data-theme="dark"] body.vendedor {
+    --fondo: #0b0810;
+    --fondo-degradado: linear-gradient(180deg, #0b0810 0%, #0f0b16 100%);
+    --tarjeta: #121016;
+    --tarjeta-borde: #2a2433;
+    --campo: #1c142b;
+    --campo-borde: #2a2433;
+    --texto: #ffffff;
+    --texto-suave: #a1a1aa;
+    --acento: #c084fc;
+    --acento-2: #9333ea;
+    --boton-gradiente: linear-gradient(135deg, #6b21a8 0%, #9333ea 100%);
+    --sombra: 0 6px 24px rgba(0, 0, 0, 0.45);
+    --op-1: #6b21a8;
+    --op-2: #9333ea;
+    --op-texto: #c084fc;
+    --op-glow: rgba(147, 51, 234, 0.22);
+    --op-sombra: rgba(126, 34, 206, 0.4);
+    --neutro-fondo: #1c142b;
+}
+/* Detalles con color fijo en vendedor.css */
+body.vendedor .v-campo input:focus, body.vendedor .v-campo select:focus, body.vendedor .v-campo textarea:focus { box-shadow: 0 0 0 3px var(--op-glow); }
+[data-theme="light"] body.vendedor .v-toast { background: #2e1065; }
+[data-theme="dark"] body.vendedor .v-toast { background: #1c142b; border: 1px solid #2a2433; }
+body.vendedor::after { background: var(--op-glow); }
+.v-insignia.en_seguimiento { color: var(--op-texto); background: var(--op-glow); }
+.v-estado.vendida, .v-estado.arrendada { background: rgba(126, 34, 206, 0.92); }
+[data-theme="dark"] body.vendedor .k-1 { --k: #a855f7; }

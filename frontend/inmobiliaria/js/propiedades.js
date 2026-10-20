@@ -350,21 +350,43 @@
             else { quitarPunto(); mapa.setView(CENTRO_COLOMBIA, 5); }
         }, 80);
     }
-    $('f-buscar').addEventListener('click', function () {
+    // Busca la dirección escrita con la API del portal (/api/v1/public/geocodificar, la misma del vendedor).
+    // Si no encuentra el número exacto, la API prueba con la calle, el barrio o el municipio
+    // y responde "aproximado": se avisa para que el usuario ajuste el pin.
+    $('f-buscar').addEventListener('click', async function () {
         if (!mapa) return;
         if (!form.ciudad.value) { I.toast('Elige al menos el municipio para buscar.'); return; }
         var consulta = [form.direccion.value, form.barrio.value, form.ciudad.value, form.departamento.value, 'Colombia']
             .map(function (t) { return String(t).trim(); }).filter(Boolean).join(', ');
-        var boton = this; boton.disabled = true;
-        fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=co&q=' + encodeURIComponent(consulta), { headers: { 'Accept': 'application/json' } })
-            .then(function (r) { return r.json(); })
-            .then(function (res) {
-                if (res && res[0]) fijarPunto(parseFloat(res[0].lat), parseFloat(res[0].lon), true);
-                else I.toast('No encontramos esa dirección. Marca el punto directamente en el mapa.');
-            })
-            .catch(function () { I.toast('No se pudo buscar la dirección. Marca el punto en el mapa.'); })
-            .then(function () { boton.disabled = false; });
+
+        var boton = this;
+        var texto = boton.innerHTML;
+        boton.disabled = true;
+        boton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Buscando…';
+        try {
+            var r = await fetch('/api/v1/public/geocodificar?q=' + encodeURIComponent(consulta), {
+                headers: { 'Accept': 'application/json' }, credentials: 'same-origin'
+            });
+            if (r.status === 429) throw new Error('Hiciste muchas búsquedas seguidas. Espera un minuto o marca el punto en el mapa.');
+            var res = await r.json().catch(function () { return {}; });
+            if (!r.ok) throw new Error(res.message || 'No se pudo buscar la dirección. Marca el punto en el mapa.');
+
+            if (res.data) {
+                fijarPunto(Number(res.data.lat), Number(res.data.lng), true);
+                I.toast(res.data.aproximado
+                    ? 'Ubicación aproximada: no encontramos la dirección exacta. Arrastra el pin hasta el inmueble.'
+                    : 'Dirección encontrada. Revisa que el pin quede sobre el inmueble.');
+            } else {
+                I.toast('No encontramos esa dirección. Marca el punto directamente en el mapa.');
+            }
+        } catch (err) {
+            I.toast(err.message);
+        } finally {
+            boton.disabled = false;
+            boton.innerHTML = texto;
+        }
     });
+
     $('f-gps').addEventListener('click', function () {
         if (!mapa) return;
         if (!navigator.geolocation) { I.toast('Tu navegador no permite obtener la ubicación.'); return; }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="light">
+<html lang="es" data-theme="dark">
 <head>
 <script>document.documentElement.classList.add('js-hero');setTimeout(function(){if(!document.getElementById('fBackdrop'))document.documentElement.classList.remove('js-hero')},4000)</script>
 <meta charset="UTF-8">
@@ -325,6 +325,99 @@ html.js-hero .panel#filters:not(.fmodal){display:none}
   .rest-grid{grid-template-columns:1fr}
 }
 @media (prefers-reduced-motion:reduce){.btn-more i,.rest-grid.anim .pcard,.sk-b,.sk-l{animation:none}.prem-track{scroll-behavior:auto}}
+
+/* ===== TEMA OSCURO (predeterminado) - solo colores ===== */
+[data-theme="dark"]{
+  --bg:#0b0810;--card:#121016;--text:#ffffff;--muted:#a1a1aa;--border:#2a2433;
+  --primary:#c084fc;--primary2:#9333ea;--soft:#1c142b;
+  --shadow:0 6px 24px rgba(0,0,0,.45);
+  --banner:linear-gradient(120deg,#0d0a12 0%,#2a0a4a 55%,#4c0580 100%);
+}
+/* botones y marca */
+[data-theme="dark"] .btn-primary,[data-theme="dark"] .op.active,[data-theme="dark"] .btn-more{background:linear-gradient(135deg,#6b21a8,#9333ea);color:#fff;box-shadow:0 6px 16px rgba(126,34,206,.4)}
+[data-theme="dark"] .btn-green{background:linear-gradient(135deg,#6b21a8,#7e22ce);color:#fff;box-shadow:0 6px 16px rgba(126,34,206,.35)}
+[data-theme="dark"] .btn-orange{background:#e9d5ff;color:#1a0b2e;box-shadow:none}
+[data-theme="dark"] .avatar,[data-theme="dark"] .logo{background:linear-gradient(135deg,#7e22ce,#9333ea)}
+[data-theme="dark"] .toast{background:#1c142b}
+[data-theme="dark"] .stat{border-top-color:#9333ea}
+/* hero */
+[data-theme="dark"] .hero{background:
+  linear-gradient(110deg,rgba(13,10,18,.92) 0%,rgba(42,10,74,.82) 55%,rgba(76,5,128,.72) 100%),
+  url(/img/hero.jpg) center/cover no-repeat,
+  linear-gradient(120deg,#0d0a12 0%,#2a0a4a 55%,#4c0580 100%);
+  box-shadow:0 18px 50px rgba(0,0,0,.5)}
+[data-theme="dark"] .hero::before{background:#9333ea}
+[data-theme="dark"] .hero::after{background:#7e22ce}
+[data-theme="dark"] .hero .tag{color:#c084fc}
+[data-theme="dark"] .hero .op.active{background:#c084fc;color:#1a0b2e;border-color:#c084fc}
+/* insignias */
+[data-theme="dark"] .b-sale{background:#0b0810;border:1px solid #7e22ce;color:#fff}
+[data-theme="dark"] .b-rent{background:#c084fc;color:#1a0b2e}
+[data-theme="dark"] .b-ver{background:#e5e7eb;color:#1f1f23}
+[data-theme="dark"] .b-prem{background:#f5c451;color:#3b2400}
+/* imagen de tarjeta sin foto (las que tienen foto no se tocan) */
+[data-theme="dark"] .pimg:not([style*="url"]),[data-theme="dark"] .mhero:not([style*="url"]){background:linear-gradient(135deg,#1c142b,#3a2557)!important}
+[data-theme="dark"] .pcard:hover{box-shadow:0 14px 34px rgba(147,51,234,.25)}
+/* panel premium */
+[data-theme="dark"] .prem-wrap{background:linear-gradient(135deg,#0f0c14 0%,#15101c 100%);border:1px solid rgba(245,196,81,.45);box-shadow:0 22px 56px rgba(0,0,0,.55)}
+[data-theme="dark"] .prem-orb.o1{opacity:.12}
+[data-theme="dark"] .prem-orb.o2{opacity:.22;background:#7e22ce}
+/* ===== AJUSTES JS (tema oscuro) - solo colores ===== */
+[data-theme="dark"] .fbadge{background:#9333ea;color:#fff}
+[data-theme="dark"] .topbar.scrolled{box-shadow:0 8px 28px rgba(0,0,0,.5)}
+/* ===== TEMA CLARO (mejorado) - solo colores ===== */
+[data-theme="light"]{
+  --bg:#faf7ff;--card:#ffffff;--text:#1a1026;--muted:#6b6280;--border:#e9ddf7;
+  --primary:#7e22ce;--primary2:#9333ea;--soft:#f3e8ff;
+  --shadow:0 6px 24px rgba(126,34,206,.08);
+  --banner:linear-gradient(120deg,#f3e8ff 0%,#e9d5ff 55%,#ddd6fe 100%);
+}
+/* botones y marca */
+[data-theme="light"] .btn-primary,[data-theme="light"] .op.active,[data-theme="light"] .btn-more{background:linear-gradient(135deg,#7e22ce,#9333ea);color:#fff;box-shadow:0 6px 16px rgba(126,34,206,.3)}
+[data-theme="light"] .btn-green{background:linear-gradient(135deg,#6b21a8,#7e22ce);color:#fff;box-shadow:0 6px 16px rgba(126,34,206,.28)}
+[data-theme="light"] .btn-orange{background:#f3e8ff;color:#581c87;border:1px solid #d8b4fe;box-shadow:none}
+[data-theme="light"] .avatar,[data-theme="light"] .logo{background:linear-gradient(135deg,#7e22ce,#9333ea)}
+[data-theme="light"] .logo{box-shadow:0 6px 16px rgba(126,34,206,.35)}
+[data-theme="light"] .toast{background:#2e1065}
+[data-theme="light"] .stat{border-top-color:#9333ea}
+[data-theme="light"] .topbar.scrolled{box-shadow:0 8px 28px rgba(126,34,206,.14)}
+[data-theme="light"] .pcard:hover{box-shadow:0 14px 34px rgba(126,34,206,.18)}
+[data-theme="light"] .fbadge{background:#7e22ce;color:#fff}
+/* hero */
+[data-theme="light"] .hero{background:
+  linear-gradient(110deg,rgba(46,16,101,.9) 0%,rgba(107,33,168,.78) 55%,rgba(147,51,234,.62) 100%),
+  url(/img/hero.jpg) center/cover no-repeat,
+  linear-gradient(120deg,#2e1065 0%,#6b21a8 55%,#9333ea 100%);
+  box-shadow:0 18px 50px rgba(88,28,135,.3)}
+[data-theme="light"] .hero::before{background:#c084fc}
+[data-theme="light"] .hero::after{background:#e879f9}
+[data-theme="light"] .hero .tag,[data-theme="light"] .hero h2 .hl{color:#e9d5ff}
+/* insignias */
+[data-theme="light"] .b-sale{background:#7e22ce;color:#fff}
+[data-theme="light"] .b-rent{background:#e9d5ff;color:#581c87}
+[data-theme="light"] .b-ver{background:#10b981;color:#fff}
+[data-theme="light"] .b-prem{background:#f5c451;color:#3b2400}
+/* imagen de tarjeta sin foto (las que tienen foto no se tocan) */
+[data-theme="light"] .pimg:not([style*="url"]),[data-theme="light"] .mhero:not([style*="url"]){background:linear-gradient(135deg,#a855f7,#6b21a8)!important}
+/* panel premium */
+[data-theme="light"] .prem-wrap{background:linear-gradient(135deg,#2e1065 0%,#4c1d95 50%,#7e22ce 100%);border:1px solid rgba(245,196,81,.55);box-shadow:0 22px 56px rgba(88,28,135,.35)}
+[data-theme="light"] .prem-orb.o2{background:#c084fc}
+/* ===== NIVELES PREMIUM (bordes) - como el diseño ===== */
+.pcard.is-prem:has(.rank.t-oro){border:1.5px solid #b8892b;box-shadow:none}
+.pcard.is-prem:has(.rank.t-plata){border:1.5px solid #b4b4c0;box-shadow:none}
+.pcard.is-prem:has(.rank.t-bronce){border:1.5px solid #9a6a2e;box-shadow:none}
+.pcard.is-prem:has(.rank.t-oro):hover{box-shadow:0 0 0 1px #b8892b,0 18px 40px rgba(0,0,0,.45)}
+.pcard.is-prem:has(.rank.t-plata):hover{box-shadow:0 0 0 1px #b4b4c0,0 18px 40px rgba(0,0,0,.45)}
+.pcard.is-prem:has(.rank.t-bronce):hover{box-shadow:0 0 0 1px #9a6a2e,0 18px 40px rgba(0,0,0,.45)}
+/* ===== ROTACION PREMIUM: botón seguir viendo premium ===== */
+.more-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+[data-theme] .btn-more.btn-more-prem{background:linear-gradient(135deg,#fde68a,#f59e0b);color:#3b2400;box-shadow:0 10px 26px rgba(245,158,11,.35)}
+[data-theme] .btn-more.btn-more-prem:hover{box-shadow:0 14px 32px rgba(245,158,11,.5)}
+/* ===== SIN CARRUSEL: 4 premium visibles en cuadrícula ===== */
+.prem-track{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;overflow:visible;scroll-snap-type:none;padding:12px 4px 12px;margin:0}
+.prem-track .pcard{flex:none;min-width:0}
+@media(max-width:1100px){.prem-track{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.prem-track{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -551,6 +644,8 @@ const T = {
   prem_title:['Propiedades Premium','Premium properties','Imóveis Premium','Biens Premium'],
   prem_sub:['Selección destacada de vendedores e inmobiliarias con membresía activa','Featured selection from sellers and agencies with an active membership','Seleção em destaque de vendedores e imobiliárias com assinatura ativa','Sélection de vendeurs et d\'agences avec abonnement actif'],
   prem_top:['Top 10','Top 10','Top 10','Top 10'],
+  see_prem:['Seguir viendo premium','Keep viewing premium','Continuar vendo premium','Voir plus de premium'],
+  prem_more_title:['Más propiedades premium','More premium properties','Mais imóveis premium','Plus de biens premium'],
   more_hint:['¿Quieres seguir mirando? Hay más propiedades para ti.','Want to keep looking? There are more properties for you.','Quer continuar vendo? Há mais imóveis para você.','Envie de continuer ? Il y a d\'autres biens pour vous.'],
   see_more:['Ver más propiedades','See more properties','Ver mais imóveis','Voir plus de biens'],
   more_title:['Más propiedades','More properties','Mais imóveis','Plus de biens'],
@@ -682,7 +777,7 @@ function filtered(){
     (!S.q||(`${t('t_'+p.type)} ${p.type} ${p.city} ${p.barrio} ${p.dept}`).toLowerCase().includes(S.q.toLowerCase())));
   if(S.sort==='low') r.sort((a,b)=>a.price-b.price);
   else if(S.sort==='high') r.sort((a,b)=>b.price-a.price);
-  else r.sort((a,b)=>(tierN(b)-tierN(a))||((b.score||0)-(a.score||0))||(b.ver-a.ver)); // RF-053: mejor posicionamiento con membresía
+  else r = premRotar(r.sort((a,b)=>(tierN(b)-tierN(a))||((b.score||0)-(a.score||0))||(b.ver-a.ver))); // RF-053 + rotación semanal dentro de cada nivel
   return r;
 }
 
@@ -715,6 +810,18 @@ function card(p,i,rank){
 }
 /* ============ PREMIUM v2: top 10 en carrusel y "ver más" ============ */
 const TIER_N={oro:3,plata:2,bronce:1};
+/* ROTACION PREMIUM: cada lunes (hora Colombia) los premium de un mismo nivel avanzan de puesto */
+function semanaNum(){return Math.floor((Math.floor((Date.now()-5*3600000)/86400000)+3)/7)}
+function premRotar(r){
+  const sem=semanaNum(), out=[];
+  [3,2,1].forEach(n=>{
+    const g=r.filter(p=>p.prem&&tierN(p)===n).sort((a,b)=>a.id-b.id);
+    if(!g.length) return;
+    const k=sem%g.length;
+    out.push(...g.slice(k),...g.slice(0,k));
+  });
+  return out.concat(r.filter(p=>!p.prem));
+}
 function tierN(p){return TIER_N[p.tier]||(p.prem?1:0)}
 function tierCls(p){return 't-'+(p.tier||(p.prem?'bronce':'none'))}
 function ubic(p){const n=x=>String(x||'').toLowerCase().normalize('NFD').replace(/[^a-z]/g,'');
@@ -734,23 +841,25 @@ document.addEventListener('scroll',e=>{if(e.target.classList&&e.target.classList
 window.addEventListener('resize',premNavUpdate);
 function cardsHTML(r){
   if(typeof LOADING!=='undefined' && LOADING) return skeletonHTML();
-  const prem = S.view==='cards' ? r.filter(p=>p.prem).slice(0,10) : [];
+  const premAll = S.view==='cards' ? r.filter(p=>p.prem) : [];
+  const prem = premAll.slice(0,4), premRest = premAll.slice(4);
   if(!prem.length || filtersActive()) return r.map((p,i)=>card(p,i)).join('');
   const shown = new Set(prem.map(p=>p.id));
-  const rest = r.filter(p=>!shown.has(p.id));
+  const rest = r.filter(p=>!p.prem);
   let h = `<section class="prem-wrap" aria-label="${t('prem_title')}">
     <div class="prem-orb o1"></div><div class="prem-orb o2"></div>
     <header class="prem-head"><div class="prem-crown"><i class="fa-solid fa-crown"></i></div>
       <div><h3>${t('prem_title')}</h3><p>${t('prem_sub')}</p></div>
-      <div class="prem-right"><span class="prem-top"><i class="fa-solid fa-ranking-star"></i>${t('prem_top')}</span>
-        <button class="prem-arrow" data-prem="-1" aria-label="←"><i class="fa-solid fa-chevron-left"></i></button>
-        <button class="prem-arrow" data-prem="1" aria-label="→"><i class="fa-solid fa-chevron-right"></i></button></div></header>
+      </header>
     <div class="prem-track" tabindex="0">${prem.map((p,i)=>card(p,i,i+1)).join('')}</div>
-    <div class="prem-bar"><span></span></div></section>`;
+    </section>`;
   setTimeout(premNavUpdate,30);
-  if(!rest.length) return h;
-  if(!S.showAll) return h + `<div class="more-bar"><span>${t('more_hint')}</span><button class="btn-more" data-showall="1"><i class="fa-solid fa-chevron-down"></i>${t('see_more')} · ${rest.length}</button></div>`;
-  return h + `<div class="rest-head"><span>${t('more_title')}</span></div><p class="rest-sub">${t('more_sub')}</p><div class="rest-grid${S._anim?' anim':''}">${rest.map((p,i)=>card(p,i)).join('')}</div>`;
+  if(premRest.length && S.showPrem) h += `<div class="rest-head"><span>${t('prem_more_title')}</span></div><div class="rest-grid${S._anim?' anim':''}">${premRest.map((p,i)=>card(p,i,4+i+1)).join('')}</div>`;
+  const bPrem = (premRest.length && !S.showPrem) ? `<button class="btn-more btn-more-prem" data-showprem="1"><i class="fa-solid fa-crown"></i>${t('see_prem')} · ${premRest.length}</button>` : '';
+  const barPrem = bPrem ? `<div class="more-bar"><div class="more-btns">${bPrem}</div></div>` : '';
+  if(!rest.length) return h + barPrem;
+  if(!S.showAll) return h + `<div class="more-bar"><span>${t('more_hint')}</span><div class="more-btns">${bPrem}<button class="btn-more" data-showall="1"><i class="fa-solid fa-chevron-down"></i>${t('see_more')} · ${rest.length}</button></div></div>`;
+  return h + barPrem + `<div class="rest-head"><span>${t('more_title')}</span></div><p class="rest-sub">${t('more_sub')}</p><div class="rest-grid${S._anim?' anim':''}">${rest.map((p,i)=>card(p,i)).join('')}</div>`;
 }
 
 function render(){
@@ -891,7 +1000,8 @@ document.addEventListener('click',e=>{
   if((el=g('[data-open]'))){e.preventDefault();closeModals();openDetail(+el.dataset.open);return}
   if((el=g('[data-seller]'))){S.seller=+el.dataset.seller;setView('cards');$('#filters').scrollIntoView({behavior:'smooth'});return}
   if((el=g('[data-prem]'))){const tr=$('.prem-track');if(tr)tr.scrollBy({left:+el.dataset.prem*tr.clientWidth*.8,behavior:'smooth'});return}
-  if(g('[data-showall]')){S.showAll=true;S._anim=true;render();S._anim=false;const rh=$('.rest-head');if(rh)rh.scrollIntoView({behavior:'smooth',block:'start'});return}
+  if(g('[data-showprem]')){S.showPrem=true;S._anim=true;render();S._anim=false;const rp=$('.rest-head');if(rp)rp.scrollIntoView({behavior:'smooth',block:'start'});return}
+  if(g('[data-showall]')){S.showAll=true;S._anim=true;render();S._anim=false;const rh=$$('.rest-head').pop();if(rh)rh.scrollIntoView({behavior:'smooth',block:'start'});return}
   if(g('#chipX')){S.seller=null;render();return}
   if((el=g('[data-op]'))){S.op=el.dataset.op;$$('.op').forEach(b=>b.classList.toggle('active',b===el));render();return}
   if((el=g('[data-view]'))){setView(el.dataset.view);return}
@@ -905,7 +1015,7 @@ document.addEventListener('click',e=>{
     if(n==='map'){setView('map');$('#filters').scrollIntoView({behavior:'smooth'});return}
     if(n==='venta'||n==='arriendo'||n==='all'){S.op=n;$$('.op').forEach(b=>b.classList.toggle('active',b.dataset.op===n))}
     setView('cards');return}
-  if(g('#clearBtn')){Object.assign(S,{op:'all',type:'',dept:'',city:'',barrio:'',max:'',beds:'',q:'',sort:'rel',favOnly:false,seller:null,showAll:false});
+  if(g('#clearBtn')){Object.assign(S,{op:'all',type:'',dept:'',city:'',barrio:'',max:'',beds:'',q:'',sort:'rel',favOnly:false,seller:null,showAll:false,showPrem:false});
     $('#q').value='';$('#fMax').value='';$$('.op').forEach(b=>b.classList.toggle('active',b.dataset.op==='all'));buildFilters();render();return}
   if(g('#goExplore')){$('#filters').scrollIntoView({behavior:'smooth'});return}
   if(g('#menuBtn')){$('#sidebar').classList.toggle('open');$('#shade').classList.toggle('open');return}
@@ -930,7 +1040,7 @@ function setTheme(th){
   try{localStorage.setItem('umbral_theme',th)}catch(_){}
 }
 $('#themeBtn').onclick=()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
-setTheme(localStorage.getItem('umbral_theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
+setTheme(localStorage.getItem('umbral_theme')||'dark');
 
 applyI18n();
 loadData().then(applyI18n).catch(()=>toast('No se pudo conectar con el servidor; se muestran datos de ejemplo')).finally(()=>{window.__loadDone=true;window.__loading=false;LOADING=false;applyI18n()});

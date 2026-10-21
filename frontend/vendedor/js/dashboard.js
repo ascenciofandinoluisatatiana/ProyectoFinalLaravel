@@ -168,8 +168,8 @@
             var enlace = (esCorreo ? 'mailto:' : 'tel:+57') + V.esc(String(c.contacto).replace(esCorreo ? /\s/g : /\D/g, ''));
             var nuevo = c.estado === 'nuevo';
             return '<div class="v-fila"><span class="v-fila-avatar">' + V.esc(V.iniciales(c.nombre)) + '</span>' +
-                '<div class="v-fila-texto"><b>' + V.esc(c.nombre) + '</b><span>' + V.esc(c.mensaje) + '</span>' +
-                '<small>' + V.esc(c.propiedad.titulo) + ' · ' + V.esc(V.relativo(c.fecha)) + '</small></div>' +
+                '<div class="v-fila-texto"><b>' + V.esc(c.nombre) + '</b>' +
+                '<span class="v-fila-contacto"><i class="fa-solid ' + (esCorreo ? 'fa-envelope' : 'fa-phone') + '"></i> ' + V.esc(c.contacto) + '</span><span>' + V.esc(c.mensaje) + '</span>' +                '<small>' + V.esc(c.propiedad.titulo) + ' · ' + V.esc(V.relativo(c.fecha)) + '</small></div>' +
                 '<span class="v-insignia ' + (nuevo ? 'nuevo' : 'atendido') + '">' + V.esc(ETIQUETA_CONTACTO[c.estado] || c.estado) + '</span>' +
                 '<a class="v-btn v-btn-suave v-btn-mini" href="' + enlace + '" title="' + (esCorreo ? 'Escribir' : 'Llamar') + '" aria-label="' + (esCorreo ? 'Escribir' : 'Llamar') + '">' +
                 '<i class="fa-solid ' + (esCorreo ? 'fa-envelope' : 'fa-phone') + '"></i></a>' +

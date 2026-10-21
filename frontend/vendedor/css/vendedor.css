@@ -307,3 +307,5 @@ dialog.v-ventana::backdrop { background: rgba(6, 10, 30, 0.55); -webkit-backdrop
 .v-campo label#f-fotos-agregar { display: inline-flex; align-items: center; gap: 8px; margin: 0; font-size: 0.78rem; color: inherit; cursor: pointer; }
 #f-fotos-agregar[aria-disabled="true"] { opacity: 0.5; pointer-events: none; }
 .v-prop-nfotos { position: absolute; right: 10px; bottom: 10px; z-index: 1; display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 800; color: #fff; background: rgba(15, 20, 40, 0.72); }
+.v-fila-texto .v-fila-contacto { color: var(--acento); font-weight: 700; margin: 1px 0 2px; }
+.v-fila-contacto i { font-size: 0.72rem; margin-right: 3px; }

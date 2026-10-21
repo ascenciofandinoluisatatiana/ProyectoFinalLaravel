@@ -162,7 +162,7 @@ Route::prefix('v1/vendedor')->middleware('web')->group(function () {
         Route::post('salir', [VendedorSesionController::class, 'salir']);
         Route::get('perfil', [VendedorPerfilController::class, 'show']);
         Route::put('perfil', [VendedorPerfilController::class, 'update']);
-
+        Route::post('perfil/clave', [VendedorPerfilController::class, 'cambiarClave'])->middleware('throttle:5,1');
         Route::get('propiedades', [VendedorPropiedadController::class, 'index']);
         Route::post('propiedades', [VendedorPropiedadController::class, 'store']);
         Route::post('propiedades/{id}', [VendedorPropiedadController::class, 'update'])->whereNumber('id');

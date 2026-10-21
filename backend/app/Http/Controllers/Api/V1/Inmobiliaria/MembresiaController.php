@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Inmobiliaria;
 
 use App\Models\Membresia;
+use App\Models\PlanMembresia;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -38,7 +39,7 @@ class MembresiaController extends BaseInmobiliariaController
             ->get()
             ->map(fn (Membresia $m) => $this->formato($m));
 
-        $planes = collect(Membresia::PRECIOS_PLAN)->map(fn ($precio, $plan) => [
+        $planes = collect(PlanMembresia::precios())->map(fn ($precio, $plan) => [
             'plan' => $plan,
             'nombre' => Membresia::NOMBRES_PLAN[$plan],
             'precio' => $precio,
@@ -58,7 +59,7 @@ class MembresiaController extends BaseInmobiliariaController
     /** POST /membresia  { plan } — contrata o renueva (si hay una vigente, la nueva empieza cuando esa termina) */
     public function contratar(Request $request): JsonResponse
     {
-        $datos = $request->validate(['plan' => ['required', Rule::in(array_keys(Membresia::PRECIOS_PLAN))]]);
+        $datos = $request->validate(['plan' => ['required', Rule::in(array_keys(PlanMembresia::precios()))]]);
         $usuario = $this->inmobiliaria($request);
         $hoy = Carbon::now(self::ZONA)->startOfDay();
 
@@ -74,7 +75,7 @@ class MembresiaController extends BaseInmobiliariaController
         $membresia = Membresia::create([
             'user_id' => $usuario->id,
             'plan' => $datos['plan'],
-            'precio' => Membresia::PRECIOS_PLAN[$datos['plan']],   // se guarda el precio aplicado (RF-058)
+            'precio' => PlanMembresia::precios()[$datos['plan']],   // se guarda el precio aplicado (RF-058)
             'estado' => 'activa',
             'fecha_inicio' => $inicio->toDateString(),
             'fecha_fin' => Membresia::calcularFin($datos['plan'], $inicio)->toDateString(),

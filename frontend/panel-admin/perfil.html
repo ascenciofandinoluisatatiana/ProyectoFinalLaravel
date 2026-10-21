@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mi perfil · UMBRAL</title>
+    <link rel="icon" type="image/png" href="/img/icono.png">
+
+    <script>
+        (function () {
+            var tema = 'light';
+            try {
+                var guardado = localStorage.getItem('umbral-tema');
+                if (guardado === 'dark' || guardado === 'light') tema = guardado;
+            } catch (e) {}
+            document.documentElement.setAttribute('data-theme', tema);
+        })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/admin/admin.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/regular.min.css">
+    <link rel="stylesheet" href="/assets/admin/tema.css">
+</head>
+<body class="bg-slate-950 text-slate-200 font-sans antialiased" data-pagina="perfil" data-titulo="Mi perfil">
+
+    <div id="app" class="min-h-screen" style="visibility:hidden">
+        <div id="zona-menu"></div>
+
+        <div class="flex min-h-screen flex-col lg:pl-72 transition-all duration-300">
+            <div id="zona-barra"></div>
+
+            <main class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+                <div class="mx-auto max-w-5xl space-y-6">
+
+                    <div id="aviso" class="pf-aviso" hidden role="status"></div>
+
+                    <!-- Banner: foto, nombre y acciones -->
+                    <section class="hero-admin pf-hero relative overflow-hidden">
+                        <span class="hero-blob hero-blob-1"></span>
+                        <span class="hero-blob hero-blob-2"></span>
+                        <span class="hero-blob hero-blob-3"></span>
+
+                        <div class="pf-hero-cuerpo">
+                            <div class="pf-avatar-wrap">
+                                <div id="zona-avatar" class="pf-avatar" aria-live="polite"></div>
+                                <button type="button" id="boton-elegir" class="pf-camara" title="Cambiar foto de perfil" aria-label="Cambiar foto de perfil">
+                                    <i class="fa-solid fa-camera"></i>
+                                </button>
+                            </div>
+
+                            <div class="pf-ident">
+                                <p class="pf-eyebrow"><i class="fa-solid fa-user-shield mr-1"></i>Mi perfil</p>
+                                <h1 id="perfil-nombre" class="titulo-grad pf-nombre"></h1>
+                                <p id="perfil-correo" class="pf-correo"></p>
+
+                                <div class="pf-chips">
+                                    <span class="chip"><i class="fa-solid fa-shield-halved"></i><span id="perfil-rol"></span></span>
+                                    <span id="chip-estado" class="chip chip-verde"><span class="pf-punto"></span><span id="perfil-estado"></span></span>
+                                </div>
+                            </div>
+
+                            <div class="pf-acciones">
+                                <a href="#" data-ir="ajustes" class="pf-btn pf-btn-primario">
+                                    <i class="fa-solid fa-key"></i>Cambiar contraseña
+                                </a>
+                                <button type="button" id="boton-elegir-2" class="pf-btn">
+                                    <i class="fa-solid fa-image"></i>Cambiar foto
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Vista previa: aparece al elegir una imagen -->
+                        <form id="form-avatar" class="pf-previa-barra" hidden>
+                            <img id="previa-img" src="" alt="Vista previa de la nueva foto">
+                            <div class="pf-previa-info">
+                                <b id="previa-nombre"></b>
+                                <small id="previa-detalle"></small>
+                            </div>
+                            <div class="pf-previa-botones">
+                                <button type="button" id="cancelar-avatar" class="pf-btn">Cancelar</button>
+                                <button id="boton-avatar" type="submit" class="pf-btn pf-btn-primario">
+                                    <i class="fa-solid fa-check"></i><span>Guardar foto</span>
+                                </button>
+                            </div>
+                        </form>
+                        <p id="error-avatar" class="pf-error" role="alert"></p>
+
+                        <input id="archivo-avatar" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+                    </section>
+
+                    <!-- Datos de la cuenta -->
+                    <div class="pf-rejilla dos">
+                        <section class="pf-card" style="--i:0">
+                            <div class="pf-card-cab">
+                                <span class="pf-icono"><i class="fa-solid fa-address-card"></i></span>
+                                <div>
+                                    <h2>Datos de contacto</h2>
+                                    <p>Cómo te encuentran en el portal</p>
+                                </div>
+                            </div>
+                            <dl class="pf-lista">
+                                <div class="pf-fila">
+                                    <span class="pf-icono"><i class="fa-solid fa-envelope"></i></span>
+                                    <div><dt>Correo</dt><dd id="dato-correo"></dd></div>
+                                </div>
+                                <div class="pf-fila">
+                                    <span class="pf-icono"><i class="fa-solid fa-phone"></i></span>
+                                    <div><dt>Teléfono</dt><dd id="dato-telefono"></dd></div>
+                                </div>
+                                <div class="pf-fila">
+                                    <span class="pf-icono"><i class="fa-solid fa-id-card"></i></span>
+                                    <div><dt>Documento</dt><dd id="dato-documento"></dd></div>
+                                </div>
+                            </dl>
+                        </section>
+
+                        <section class="pf-card" style="--i:1">
+                            <div class="pf-card-cab">
+                                <span class="pf-icono"><i class="fa-solid fa-user-gear"></i></span>
+                                <div>
+                                    <h2>Cuenta</h2>
+                                    <p>Tu acceso al panel</p>
+                                </div>
+                            </div>
+                            <dl class="pf-lista">
+                                <div class="pf-fila">
+                                    <span class="pf-icono"><i class="fa-solid fa-shield-halved"></i></span>
+                                    <div><dt>Rol en el panel</dt><dd id="dato-rol"></dd></div>
+                                </div>
+                                <div class="pf-fila">
+                                    <span class="pf-icono"><i class="fa-solid fa-circle-check"></i></span>
+                                    <div><dt>Estado</dt><dd id="dato-estado"></dd></div>
+                                </div>
+                                <div class="pf-fila">
+                                    <span class="pf-icono"><i class="fa-solid fa-calendar-days"></i></span>
+                                    <div><dt>Miembro desde</dt><dd id="dato-desde"></dd></div>
+                                </div>
+                            </dl>
+                        </section>
+                    </div>
+
+                    <!-- Resumen de decisiones -->
+                    <section>
+                        <div class="pf-seccion-cab">
+                            <h2>Resumen de verificaciones</h2>
+                            <p>Decisiones tomadas por ti en el proceso de verificación.</p>
+                        </div>
+
+                        <div class="pf-rejilla tres">
+                            <div class="kpi kpi-violeta rounded-2xl border border-slate-800 bg-slate-900/60 p-5" style="--i:0">
+                                <div class="pf-kpi-cab">
+                                    <span>Total de decisiones</span>
+                                    <span class="pf-kpi-icono"><i class="fa-solid fa-list-check"></i></span>
+                                </div>
+                                <p id="total-decisiones" class="pf-kpi-num">0</p>
+                                <p class="pf-kpi-pie">Decisiones registradas</p>
+                            </div>
+
+                            <div class="kpi kpi-verde rounded-2xl border border-slate-800 bg-slate-900/60 p-5" style="--i:1">
+                                <div class="pf-kpi-cab">
+                                    <span>Aprobadas</span>
+                                    <span class="pf-kpi-icono"><i class="fa-solid fa-check"></i></span>
+                                </div>
+                                <p id="total-aprobadas" class="pf-kpi-num">0</p>
+                                <p class="pf-kpi-pie">Verificaciones aprobadas</p>
+                            </div>
+
+                            <div class="kpi kpi-rojo rounded-2xl border border-slate-800 bg-slate-900/60 p-5" style="--i:2">
+                                <div class="pf-kpi-cab">
+                                    <span>Rechazadas</span>
+                                    <span class="pf-kpi-icono"><i class="fa-solid fa-xmark"></i></span>
+                                </div>
+                                <p id="total-rechazadas" class="pf-kpi-num">0</p>
+                                <p class="pf-kpi-pie">Verificaciones rechazadas</p>
+                            </div>
+                        </div>
+
+                        <div class="pf-card pf-tasa mt-5" style="--i:3; margin-top:20px">
+                            <div class="pf-tasa-cab">
+                                <b><i class="fa-solid fa-chart-pie" style="margin-right:8px;color:var(--ad-primary)"></i>Tasa de aprobación</b>
+                                <span id="tasa-texto">—</span>
+                            </div>
+                            <div class="pf-barra" role="img" id="tasa-barra" aria-label="Sin decisiones todavía">
+                                <i class="ok" id="barra-ok"></i><i class="no" id="barra-no"></i>
+                            </div>
+                            <div class="pf-tasa-leyenda">
+                                <span style="--c:#10b981">Aprobadas</span>
+                                <span style="--c:#ef4444">Rechazadas</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Últimas decisiones -->
+                    <section class="pf-card" style="--i:4">
+                        <div class="pf-card-cab">
+                            <span class="pf-icono"><i class="fa-solid fa-clock-rotate-left"></i></span>
+                            <div>
+                                <h2>Últimas decisiones</h2>
+                                <p>Las más recientes tomadas por este administrador.</p>
+                            </div>
+                        </div>
+                        <div id="lista-decisiones"></div>
+                    </section>
+
+                    <p class="pf-nota">
+                        <i class="fa-solid fa-circle-info" style="margin-top:3px"></i>
+                        <span>Si necesitas corregir el nombre o el correo de esta cuenta, hazlo desde
+                        <a href="#" data-ir="usuarios">Gestión de usuarios</a>.</span>
+                    </p>
+                </div>
+            </main>
+
+            <footer class="border-t border-slate-800/60 px-6 py-4 text-xs text-slate-600 flex flex-wrap items-center justify-between gap-2">
+                <span>UMBRAL · El paso hacia un nuevo hogar</span>
+                <span>Panel de administración · Colombia</span>
+            </footer>
+        </div>
+    </div>
+
+    <div id="fondo-menu" class="fixed inset-0 z-30 hidden bg-black/60 backdrop-blur-sm lg:hidden transition-opacity duration-300"></div>
+
+    <script src="/panel-admin/js/panel-admin.js"></script>
+    <script src="/panel-admin/js/perfil.js"></script>
+</body>
+</html>

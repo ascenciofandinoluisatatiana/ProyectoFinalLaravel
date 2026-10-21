@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\VerificacionController as AdminVerificacionController;
 use App\Http\Controllers\Api\V1\Admin\CuentaController;
+use App\Http\Controllers\Api\V1\Admin\MembresiaController as AdminMembresiaController;
 use App\Http\Controllers\Api\V1\Admin\ResumenController;
 use App\Http\Controllers\Api\V1\Admin\SesionController as AdminSesionController;
 use App\Http\Controllers\Api\V1\AuthController;
@@ -28,6 +29,7 @@ use App\Http\Controllers\Api\V1\Vendedor\PropiedadController as VendedorPropieda
 use App\Http\Controllers\Api\V1\Vendedor\SesionController as VendedorSesionController;
 use App\Http\Controllers\Api\V1\GeocodificarController;
 use App\Http\Controllers\Api\V1\Vendedor\PerfilController as VendedorPerfilController;
+use App\Http\Controllers\Api\V1\Admin\ReporteController;
 
 
 /*
@@ -67,15 +69,30 @@ Route::prefix('v1/admin')->middleware('web')->group(function () {
     Route::post('sesion', [AdminSesionController::class, 'entrar'])->middleware('throttle:10,1');
 });
 Route::prefix('v1/admin')->middleware(['web', 'admin.api'])->group(function () {
+    // Reportes y Métricas (Fase 16 & RF-057 / RF-104)
+    Route::get('reportes/resumen', [ReporteController::class, 'resumenGlobal']);
+    Route::get('reportes/visitas', [ReporteController::class, 'visitasPorPaisEIdioma']);
+    Route::get('reportes/transacciones', [ReporteController::class, 'transacciones']);
+    Route::get('reportes/exportar/transacciones', [ReporteController::class, 'exportarTransaccionesCsv']);
+    Route::get('reportes/exportar/inmuebles', [ReporteController::class, 'exportarPublicacionesCsv']);
+
+
     // Cuenta del administrador, menú y listas para formularios
     Route::get('yo', [CuentaController::class, 'yo']);
     Route::get('menu', [CuentaController::class, 'menu']);
     Route::get('catalogos', [CuentaController::class, 'catalogos']);
     Route::post('clave', [CuentaController::class, 'cambiarClave']);
+    Route::get('perfil', [CuentaController::class, 'perfil']);
+    Route::post('perfil/avatar', [CuentaController::class, 'actualizarAvatar']);
     Route::post('logout', [CuentaController::class, 'salir']);
 
     // Panel principal: cifras y gráficas del dashboard
     Route::get('resumen', ResumenController::class);
+
+    // Membresías: cifras, planes y precios, lista de pagos y cancelación
+    Route::get('membresias', [AdminMembresiaController::class, 'index']);
+    Route::put('membresias/planes/{plan}', [AdminMembresiaController::class, 'actualizarPlan']);
+    Route::post('membresias/{membresia}/cancelar', [AdminMembresiaController::class, 'cancelar'])->whereNumber('membresia');
 
     // Gestión de usuarios
     Route::get('usuarios', [AdminUserController::class, 'index']);

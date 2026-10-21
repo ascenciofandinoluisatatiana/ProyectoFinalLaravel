@@ -23,7 +23,7 @@
         ajustes:        { nuevo: '/panel-admin/ajustes.html',        viejo: '/admin/ajustes' },
         perfil:         { nuevo: '/panel-admin/perfil.html',         viejo: '/admin/perfil' }
     };
-    var MIGRADAS = ['panel', 'usuarios', 'verificaciones'];
+    var MIGRADAS = ['panel', 'usuarios', 'verificaciones', 'ajustes', 'perfil', 'membresias', 'reportes'];
 
     var cuerpo = document.body;
     var pagina = cuerpo.getAttribute('data-pagina') || 'panel';
@@ -141,8 +141,8 @@
                     '<span class="ml-auto rounded-full bg-violet-500/15 px-2 py-0.5 text-[11px] font-bold text-violet-300 ring-1 ring-violet-500/30">' + totalUsuarios + '</span>') +
                 enlaceMenu('verificaciones', 'fa-user-check', 'Verificaciones',
                     '<span id="badge-pendientes" class="ml-auto rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-bold text-amber-300 ring-1 ring-amber-500/30 ' + (pendientes > 0 ? '' : 'hidden') + '">' + pendientes + '</span>') +
-                enlaceMenu('membresias', 'fa-credit-card', 'Membresías', INSIGNIA_PRONTO) +
-                enlaceMenu('reportes', 'fa-chart-line', 'Reportes', INSIGNIA_PRONTO) +
+                enlaceMenu('membresias', 'fa-credit-card', 'Membresías') +
+                enlaceMenu('reportes', 'fa-chart-bar', 'Reportes') +
                 '<div class="menu-etiqueta">Sistema</div>' +
                 enlaceMenu('ajustes', 'fa-gear', 'Ajustes') +
                 enlaceMenu('perfil', 'fa-user', 'Mi perfil') +

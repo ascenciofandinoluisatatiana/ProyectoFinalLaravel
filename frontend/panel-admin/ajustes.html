@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ajustes de cuenta · UMBRAL</title>
+    <link rel="icon" type="image/png" href="/img/icono.png">
+
+    <script>
+        (function () {
+            var tema = 'light';
+            try {
+                var guardado = localStorage.getItem('umbral-tema');
+                if (guardado === 'dark' || guardado === 'light') tema = guardado;
+            } catch (e) {}
+            document.documentElement.setAttribute('data-theme', tema);
+        })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/admin/admin.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/regular.min.css">
+    <link rel="stylesheet" href="/assets/admin/tema.css">
+</head>
+<body class="bg-slate-950 text-slate-200 font-sans antialiased" data-pagina="ajustes" data-titulo="Ajustes de cuenta">
+
+    <div id="app" class="min-h-screen" style="visibility:hidden">
+        <div id="zona-menu"></div>
+
+        <div class="flex min-h-screen flex-col lg:pl-72 transition-all duration-300">
+            <div id="zona-barra"></div>
+
+            <main class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+                <div class="mx-auto max-w-2xl space-y-5">
+
+                    <div>
+                        <h1 class="text-xl font-extrabold text-white sm:text-2xl">Ajustes de cuenta</h1>
+                        <p class="mt-1 text-sm text-slate-500">Actualiza la contraseña con la que entras al panel.</p>
+                    </div>
+
+                    <div id="aviso" class="hidden"></div>
+
+                    <form id="form-clave" class="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-6 shadow-xl shadow-black/20">
+                        <div>
+                            <label for="clave_actual" class="mb-1.5 block text-sm font-medium text-slate-300">Contraseña actual</label>
+                            <input id="clave_actual" type="password" required autocomplete="current-password"
+                                   class="w-full rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
+                            <p id="error-clave_actual" class="mt-1.5 text-xs text-red-400"></p>
+                        </div>
+
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div>
+                                <label for="password" class="mb-1.5 block text-sm font-medium text-slate-300">Contraseña nueva</label>
+                                <input id="password" type="password" required autocomplete="new-password" placeholder="Mínimo 8 caracteres"
+                                       class="w-full rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
+                                <p id="error-password" class="mt-1.5 text-xs text-red-400"></p>
+                            </div>
+                            <div>
+                                <label for="password_confirmation" class="mb-1.5 block text-sm font-medium text-slate-300">Confirmar contraseña nueva</label>
+                                <input id="password_confirmation" type="password" required autocomplete="new-password" placeholder="Repite la contraseña"
+                                       class="w-full rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end pt-2">
+                            <button id="boton-guardar" type="submit"
+                                    class="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-600/25 transition-all hover:from-violet-500 hover:to-indigo-500 active:scale-[0.98]">
+                                <i class="fa-solid fa-floppy-disk mr-1.5"></i>Guardar cambios
+                            </button>
+                        </div>
+                    </form>
+
+                    <p class="rounded-xl border border-slate-800 bg-slate-900/40 px-4 py-3 text-xs leading-relaxed text-slate-500">
+                        <i class="fa-solid fa-shield-halved mr-1 text-slate-400"></i>
+                        Usa una contraseña única de al menos 8 caracteres y no la compartas con nadie del equipo.
+                    </p>
+                </div>
+            </main>
+
+            <footer class="border-t border-slate-800/60 px-6 py-4 text-xs text-slate-600 flex flex-wrap items-center justify-between gap-2">
+                <span>UMBRAL · El paso hacia un nuevo hogar</span>
+                <span>Panel de administración · Colombia</span>
+            </footer>
+        </div>
+    </div>
+
+    <div id="fondo-menu" class="fixed inset-0 z-30 hidden bg-black/60 backdrop-blur-sm lg:hidden transition-opacity duration-300"></div>
+
+    <script src="/panel-admin/js/panel-admin.js"></script>
+    <script src="/panel-admin/js/ajustes.js"></script>
+</body>
+</html>

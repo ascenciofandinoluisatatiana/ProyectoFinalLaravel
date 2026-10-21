@@ -10,6 +10,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Verificacion;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Datos de la cuenta del administrador que inició sesión y listas
@@ -74,6 +76,77 @@ class CuentaController extends Controller
         $usuario->save();
 
         return response()->json(['mensaje' => 'Contraseña actualizada correctamente.']);
+    }
+
+        /** GET /api/v1/admin/perfil — datos de la cuenta y resumen de sus decisiones de verificación. */
+    public function perfil(Request $request): JsonResponse
+    {
+        $usuario = $request->user()->load('role');
+
+        $aprobadas = Verificacion::where('decidido_por', $usuario->id)
+            ->where('decision', 'aprobada')->count();
+
+        $rechazadas = Verificacion::where('decidido_por', $usuario->id)
+            ->where('decision', 'rechazada')->count();
+
+        $ultimas = Verificacion::where('decidido_por', $usuario->id)
+            ->latest('created_at')
+            ->take(5)
+            ->get()
+            ->map(fn (Verificacion $decision) => [
+                'cuenta_nombre' => $decision->cuenta_nombre,
+                'cuenta_email' => $decision->cuenta_email,
+                'cuenta_rol' => $decision->cuenta_rol,
+                'decision' => $decision->decision,
+                'motivo' => $decision->motivo,
+                'fecha' => optional($decision->created_at)->toIso8601String(),
+            ]);
+
+        return response()->json([
+            'usuario' => [
+                'id' => $usuario->id,
+                'name' => $usuario->name,
+                'email' => $usuario->email,
+                'rol' => $usuario->role?->nombre,
+                'estado' => $usuario->estado,
+                'avatar' => $usuario->avatar,
+                'telefono' => $usuario->telefono,
+                'tipo_documento' => $usuario->tipo_documento,
+                'numero_documento' => $usuario->numero_documento,
+                'creado' => optional($usuario->created_at)->toIso8601String(),
+            ],
+            'aprobadas' => $aprobadas,
+            'rechazadas' => $rechazadas,
+            'total' => $aprobadas + $rechazadas,
+            'ultimas' => $ultimas,
+        ]);
+    }
+
+    /** POST /api/v1/admin/perfil/avatar — cambia la foto de perfil del administrador. */
+    public function actualizarAvatar(Request $request): JsonResponse
+    {
+        $datos = $request->validate([
+            'avatar' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+        ], [
+            'avatar.required' => 'Selecciona una imagen.',
+            'avatar.image' => 'El archivo debe ser una imagen.',
+            'avatar.mimes' => 'La imagen debe ser JPG, JPEG, PNG o WEBP.',
+            'avatar.max' => 'La imagen no puede superar 4 MB.',
+        ]);
+
+        $usuario = $request->user();
+
+        if ($usuario->avatar) {
+            Storage::disk('public')->delete($usuario->avatar);
+        }
+
+        $usuario->avatar = $datos['avatar']->store('avatars', 'public');
+        $usuario->save();
+
+        return response()->json([
+            'mensaje' => 'Foto de perfil actualizada correctamente.',
+            'avatar' => $usuario->avatar,
+        ]);
     }
 
     /**

@@ -110,12 +110,8 @@
        --------------------------------------------------------- */
     function enlaceMenu(nombre, icono, texto, insignia) {
         var activo = nombre === pagina;
-        return '<a href="' + url(nombre) + '" class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ' +
-            (activo
-                ? 'bg-gradient-to-r from-violet-600/20 to-indigo-600/10 text-white ring-1 ring-violet-500/30'
-                : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200') + '">' +
-            '<i class="fa-solid ' + icono + ' w-5 text-center ' +
-            (activo ? 'text-violet-400' : 'text-slate-500 group-hover:text-slate-300') + '"></i>' +
+        return '<a href="' + url(nombre) + '" class="menu-item' + (activo ? ' activo' : '') + '">' +
+            '<i class="fa-solid ' + icono + '"></i>' +
             texto + (insignia || '') + '</a>';
     }
 
@@ -129,19 +125,17 @@
         return '' +
         '<aside id="menu-lateral" class="fixed inset-y-0 left-0 z-40 flex w-72 -translate-x-full flex-col border-r border-slate-800 bg-slate-900/70 backdrop-blur transition-transform duration-300 lg:translate-x-0">' +
             '<div class="flex items-center gap-3 border-b border-slate-800 px-6 py-5">' +
-                '<div class="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg shadow-violet-500/25">' +
-                    '<i class="fa-solid fa-door-open text-lg text-white"></i>' +
-                '</div>' +
-                '<div class="leading-tight">' +
-                    '<p class="text-lg font-extrabold tracking-[0.18em] text-white">UMBRAL</p>' +
-                    '<p class="text-[11px] font-medium tracking-wide text-slate-400">Panel de administración</p>' +
+                '<img class="marca-img" src="/img/icono.png" alt="Umbral">' +
+                '<div class="marca-txt">' +
+                    '<strong>UMBRAL</strong>' +
+                    '<em>Panel de administración</em>' +
                 '</div>' +
                 '<button type="button" data-cierra-menu class="ml-auto grid h-8 w-8 place-items-center rounded-lg text-slate-500 transition-colors hover:bg-slate-800 hover:text-slate-300 lg:hidden">' +
                     '<i class="fa-solid fa-xmark"></i>' +
                 '</button>' +
             '</div>' +
             '<nav class="flex-1 space-y-1 overflow-y-auto px-3 py-4">' +
-                '<p class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-600">Principal</p>' +
+                '<div class="menu-etiqueta">Principal</div>' +
                 enlaceMenu('panel', 'fa-gauge-high', 'Panel') +
                 enlaceMenu('usuarios', 'fa-users', 'Gestión de usuarios',
                     '<span class="ml-auto rounded-full bg-violet-500/15 px-2 py-0.5 text-[11px] font-bold text-violet-300 ring-1 ring-violet-500/30">' + totalUsuarios + '</span>') +
@@ -149,11 +143,11 @@
                     '<span id="badge-pendientes" class="ml-auto rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-bold text-amber-300 ring-1 ring-amber-500/30 ' + (pendientes > 0 ? '' : 'hidden') + '">' + pendientes + '</span>') +
                 enlaceMenu('membresias', 'fa-credit-card', 'Membresías', INSIGNIA_PRONTO) +
                 enlaceMenu('reportes', 'fa-chart-line', 'Reportes', INSIGNIA_PRONTO) +
-                '<p class="px-3 pb-2 pt-5 text-[11px] font-semibold uppercase tracking-wider text-slate-600">Sistema</p>' +
+                '<div class="menu-etiqueta">Sistema</div>' +
                 enlaceMenu('ajustes', 'fa-gear', 'Ajustes') +
                 enlaceMenu('perfil', 'fa-user', 'Mi perfil') +
             '</nav>' +
-            '<div class="mx-3 mb-4 rounded-xl border border-slate-800 bg-slate-950/60 p-3.5 text-xs">' +
+            '<div class="tarjeta-estado mx-3 mb-4 p-3.5 text-xs">' +
                 '<p class="mb-2 font-semibold uppercase tracking-wider text-slate-500">Estado del sistema</p>' +
                 '<ul class="space-y-1.5 text-slate-400">' +
                     '<li class="flex items-center justify-between"><span>Laravel</span>' +
@@ -198,13 +192,13 @@
             : '<li class="px-4 py-8 text-center text-sm text-slate-500">Sin actividad por ahora.</li>';
 
         return '' +
-        '<header class="sticky top-0 z-20 border-b border-slate-800 bg-slate-950/80 backdrop-blur">' +
+        '<header class="barra-sup sticky top-0 z-20">' +
             '<div class="flex items-center gap-3 px-4 py-3 sm:px-6">' +
-                '<button type="button" id="boton-menu" class="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-slate-800 text-slate-400 transition-all hover:bg-slate-800 hover:text-slate-200 lg:hidden">' +
+                '<button type="button" id="boton-menu" class="boton-barra lg:hidden">' +
                     '<i class="fa-solid fa-bars"></i>' +
                 '</button>' +
-                '<h2 class="hidden truncate text-base font-bold text-white sm:block">' + esc(titulo) + '</h2>' +
-                '<form action="' + url('usuarios') + '" method="GET" class="relative ml-auto hidden w-64 md:block lg:w-80">' +
+                '<h2 class="barra-titulo hidden truncate sm:block">' + esc(titulo) + '</h2>' +
+                '<form action="' + url('usuarios') + '" method="GET" class="buscador-barra relative ml-auto hidden w-64 md:block lg:w-80">' +
                     '<i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-500"></i>' +
                     '<input type="search" name="q" placeholder="Buscar usuarios por nombre o correo…" class="w-full rounded-xl border border-slate-800 bg-slate-900/70 py-2 pl-10 pr-4 text-sm text-slate-200 placeholder-slate-600 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">' +
                 '</form>' +
@@ -213,7 +207,7 @@
                         '<i class="fa-solid fa-moon icono-luna"></i><i class="fa-solid fa-sun icono-sol"></i>' +
                     '</button>' +
                     '<div class="relative">' +
-                        '<button type="button" data-abre="menu-notificaciones" class="grid h-10 w-10 place-items-center rounded-xl border border-slate-800 text-slate-400 transition-all hover:bg-slate-800 hover:text-slate-200">' +
+                        '<button type="button" data-abre="menu-notificaciones" class="boton-barra">' +
                             '<i class="fa-regular fa-bell"></i>' +
                         '</button>' +
                         '<div id="menu-notificaciones" data-menu="notificaciones" class="absolute right-0 mt-2 hidden w-80 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl shadow-black/50">' +
@@ -226,8 +220,8 @@
                         '</div>' +
                     '</div>' +
                     '<div class="relative">' +
-                        '<button type="button" data-abre="menu-perfil" class="flex items-center gap-2.5 rounded-xl border border-slate-800 py-1.5 pl-1.5 pr-3 transition-all hover:bg-slate-800">' +
-                            '<span class="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 text-xs font-bold text-white shadow shadow-violet-500/30">' + esc(iniciales(usuario.name)) + '</span>' +
+                        '<button type="button" data-abre="menu-perfil" class="chip-usuario">' +
+                            '<span class="avatar-admin grid place-items-center bg-gradient-to-br from-violet-500 to-indigo-600 font-bold text-white">' + esc(iniciales(usuario.name)) + '</span>' +
                             '<span class="hidden text-left leading-tight sm:block">' +
                                 '<span class="block max-w-[10rem] truncate text-sm font-semibold text-slate-200">' + esc(usuario.name) + '</span>' +
                                 '<span class="block text-[11px] text-violet-400">Administrador</span>' +

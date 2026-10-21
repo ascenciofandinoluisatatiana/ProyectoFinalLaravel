@@ -58,9 +58,9 @@ services:
     environment:
       DB_HOST: ${DB_HOST_APP:-postgres}
       DB_PORT: ${DB_PORT_APP:-5432}
-      DB_DATABASE: ${DB_DATABASE:-portal_inmobiliario}
-      DB_USERNAME: ${DB_USERNAME:-portal}
-      DB_PASSWORD: ${DB_PASSWORD:-portal_secret}
+      DB_DATABASE: ${DB_DATABASE_APP:-${DB_DATABASE:-portal_inmobiliario}}
+      DB_USERNAME: ${DB_USERNAME_APP:-${DB_USERNAME:-portal}}
+      DB_PASSWORD: ${DB_PASSWORD_APP:-${DB_PASSWORD:-portal_secret}}
       DB_SSLMODE: ${DB_SSLMODE:-prefer}
       REDIS_HOST: redis
       REDIS_PORT: 6379

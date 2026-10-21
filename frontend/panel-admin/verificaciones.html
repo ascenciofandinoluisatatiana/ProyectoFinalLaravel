@@ -18,6 +18,9 @@
         })();
     </script>
 
+    <!-- Fuente del panel: la misma del dashboard de invitado -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/admin/admin.css">
     <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
     <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
@@ -27,8 +30,8 @@
     <style>
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 8px; }
-        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        ::-webkit-scrollbar-thumb { background: var(--ad-borde); border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--ad-borde2); }
 
         /* Estilos propios de esta pantalla: botones de decisión y cuadro de texto */
         .ver-btn { display: inline-flex; align-items: center; gap: .4rem; border-radius: .6rem; padding: .45rem .8rem; font-size: .75rem; font-weight: 600; border: 1px solid transparent; cursor: pointer; transition: all .15s ease; }
@@ -46,25 +49,25 @@
         .ver-confirmar-no { background: #dc2626; box-shadow: 0 8px 20px rgba(220, 38, 38, .25); }
         .ver-confirmar-no:hover { background: #ef4444; }
 
-        .ver-texto { width: 100%; resize: none; border-radius: .75rem; border: 1px solid #1e293b; background: rgba(2, 6, 23, .6); padding: .65rem 1rem; font-size: .875rem; color: #e2e8f0; outline: none; font-family: inherit; transition: all .15s ease; }
-        .ver-texto::placeholder { color: #475569; }
-        .ver-texto:focus { border-color: rgba(139, 92, 246, .6); box-shadow: 0 0 0 3px rgba(139, 92, 246, .2); }
+        .ver-texto { width: 100%; resize: none; border-radius: .75rem; border: 1px solid var(--ad-borde); background: var(--ad-bg); padding: .65rem 1rem; font-size: .875rem; color: var(--ad-text); outline: none; font-family: inherit; transition: all .15s ease; }
+        .ver-texto::placeholder { color: var(--ad-muted); opacity: .75; }
+        .ver-texto:focus { border-color: var(--ad-primary); box-shadow: 0 0 0 3px rgba(147, 51, 234, .2); }
         .ver-texto.ver-error { border-color: rgba(239, 68, 68, .6); }
 
         .ver-contador { display: inline-flex; align-items: center; gap: .5rem; border-radius: .75rem; border: 1px solid rgba(245, 158, 11, .3); background: rgba(245, 158, 11, .10); padding: .5rem .9rem; font-size: .875rem; font-weight: 600; color: #fcd34d; }
 
 
         /* Pestañas Pendientes / Historial */
-        .ver-pestanas { display: flex; gap: .25rem; border-bottom: 1px solid #1e293b; }
-        .ver-pestana { display: inline-flex; align-items: center; gap: .5rem; padding: .7rem 1.1rem; margin-bottom: -1px; font-size: .875rem; font-weight: 600; color: #64748b; background: transparent; border: 0; border-bottom: 2px solid transparent; cursor: pointer; transition: all .15s ease; }
-        .ver-pestana:hover { color: #cbd5e1; }
-        .ver-pestana-activa { color: #c4b5fd; border-bottom-color: #8b5cf6; }
+        .ver-pestanas { display: flex; gap: .25rem; border-bottom: 1px solid var(--ad-borde); }
+        .ver-pestana { display: inline-flex; align-items: center; gap: .5rem; padding: .7rem 1.1rem; margin-bottom: -1px; font-size: .875rem; font-weight: 600; color: var(--ad-muted); background: transparent; border: 0; border-bottom: 2px solid transparent; cursor: pointer; transition: all .15s ease; }
+        .ver-pestana:hover { color: var(--ad-text); }
+        .ver-pestana-activa { color: var(--ad-primary); border-bottom-color: var(--ad-primary2); }
 
         /* Tarjetas de resumen del historial */
         .ver-resumen { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; }
-        .ver-resumen-item { border-radius: 1rem; border: 1px solid #1e293b; background: rgba(15, 23, 42, .6); padding: .9rem 1.1rem; }
-        .ver-resumen-item p:first-child { font-size: 1.5rem; font-weight: 800; color: #f1f5f9; line-height: 1.2; }
-        .ver-resumen-item p:last-child { font-size: .75rem; color: #64748b; margin-top: .15rem; }
+        .ver-resumen-item { border-radius: 20px; border: 1px solid var(--ad-borde); background: var(--ad-card); padding: .9rem 1.1rem; }
+        .ver-resumen-item p:first-child { font-size: 1.5rem; font-weight: 800; color: var(--ad-text); line-height: 1.2; }
+        .ver-resumen-item p:last-child { font-size: .75rem; color: var(--ad-muted); margin-top: .15rem; }
         .ver-resumen-ok p:first-child { color: #6ee7b7; }
         .ver-resumen-no p:first-child { color: #fca5a5; }
         @media (max-width: 480px) { .ver-resumen { grid-template-columns: 1fr; } }
@@ -74,19 +77,11 @@
         .ver-ring-rojo { --tw-ring-color: rgba(239, 68, 68, .3); }
         .ver-motivo { max-width: 22rem; white-space: normal; word-break: break-word; }
 
-        /* Si el panel está en tema claro */
-        html[data-theme="light"] .ver-pestanas { border-bottom-color: #e2dff0; }
-        html[data-theme="light"] .ver-pestana { color: #646c91; }
-        html[data-theme="light"] .ver-pestana:hover { color: #1e2547; }
-        html[data-theme="light"] .ver-pestana-activa { color: #6d28d9; border-bottom-color: #7c3aed; }
-        html[data-theme="light"] .ver-resumen-item { background: rgba(255, 255, 255, .8); border-color: #e2dff0; }
-        html[data-theme="light"] .ver-resumen-item p:first-child { color: #111936; }
-        html[data-theme="light"] .ver-resumen-ok p:first-child { color: #047857; }
-        html[data-theme="light"] .ver-resumen-no p:first-child { color: #b91c1c; }
-        html[data-theme="light"] .ver-texto { background: #ffffff; border-color: #cbd5e1; color: #0f172a; }
-        html[data-theme="light"] .ver-texto::placeholder { color: #94a3b8; }
+        /* Si el panel está en tema claro (los colores base ya salen de las variables) */
         html[data-theme="light"] .ver-btn-ok { color: #047857; }
         html[data-theme="light"] .ver-btn-no { color: #b91c1c; }
+        html[data-theme="light"] .ver-resumen-ok p:first-child { color: #047857; }
+        html[data-theme="light"] .ver-resumen-no p:first-child { color: #b91c1c; }
         html[data-theme="light"] .ver-contador { color: #b45309; }
     </style>
 </head>

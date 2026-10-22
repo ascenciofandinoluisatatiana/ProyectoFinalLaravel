@@ -1,0 +1,91 @@
+# =============================================================
+# UMBRAL — Producción (VPS Contabo + Caddy)
+# Sin puertos publicados: Caddy entra por la red "proxy".
+# =============================================================
+services:
+  umbral_postgres:
+    image: postgres:16-alpine
+    container_name: umbral_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - umbral_postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - umbral_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  umbral_redis:
+    image: redis:7-alpine
+    container_name: umbral_redis
+    restart: unless-stopped
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - umbral_redis_data:/data
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    networks:
+      - umbral_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  umbral_backend:
+    build:
+      context: ./docker/backend
+    container_name: umbral_backend
+    restart: unless-stopped
+    depends_on:
+      umbral_postgres:
+        condition: service_healthy
+      umbral_redis:
+        condition: service_healthy
+    environment:
+      DB_HOST: umbral_postgres
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_SSLMODE: prefer
+      REDIS_HOST: umbral_redis
+      REDIS_PORT: 6379
+      FRONTEND_URL: https://umbral.proyectoscampus.top
+      PHP_CLI_SERVER_WORKERS: 4
+      RUN_MIGRATIONS: ${RUN_MIGRATIONS:-true}
+    volumes:
+      - ./backend:/var/www/html
+      - umbral_backend_vendor:/var/www/html/vendor
+    networks:
+      - umbral_network
+
+  umbral_frontend:
+    image: nginx:alpine
+    container_name: umbral_frontend
+    restart: unless-stopped
+    depends_on:
+      - umbral_backend
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./docker/nginx/prod.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - umbral_network
+      - proxy
+
+networks:
+  umbral_network:
+    driver: bridge
+  proxy:
+    external: true
+
+volumes:
+  umbral_postgres_data:
+  umbral_redis_data:
+  umbral_backend_vendor:

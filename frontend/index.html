@@ -50,7 +50,6 @@
                 <li><a href="#servicios" data-i18n="nav.servicios">Servicios</a></li>
                 <li><a href="#propiedades" data-i18n="nav.propiedades">Propiedades</a></li>
                 <li><a href="#nosotros" data-i18n="nav.nosotros">Nosotros</a></li>
-                <li><a href="#porque" data-i18n="nav.porque">Por qué nosotros</a></li>
                 <li><a href="#contacto" data-i18n="nav.contacto">Contacto</a></li>
             </ul>
 
@@ -63,9 +62,12 @@
                         aria-haspopup="true"
                         aria-label="Seleccionar idioma"
                     >
-                        <span aria-hidden="true">🌐</span>
+                        <svg class="icono-idioma" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <circle cx="12" cy="12" r="9"></circle>
+                            <path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"></path>
+                        </svg>
                         <span id="idioma-actual">Español</span>
-                        <span aria-hidden="true">⌄</span>
+                        <svg class="icono-desplegar" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m7 10 5 5 5-5"></path></svg>
                     </button>
 
                     <div id="idioma-menu" hidden>
@@ -209,75 +211,15 @@
                 <p data-i18n="prop.sub">Una curaduría de los inmuebles más ambiciosos del país.</p>
             </header>
 
-            <div class="rejilla rejilla-3">
-                <article class="tarjeta tarjeta-propiedad">
-                    <div class="propiedad-foto">
-                        <img src="img/prop-cartagena.png" alt="Penthouse en Bocagrande, Cartagena">
-                        <span class="propiedad-insignia" data-i18n="prop.destacada">Destacada</span>
-                    </div>
-                    <div class="propiedad-cuerpo">
-                        <h3 data-i18n="prop.1.t">Penthouse en Bocagrande</h3>
-                        <p class="propiedad-lugar">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
-                            <span data-i18n="prop.1.lugar">Cartagena · Bolívar</span>
-                        </p>
-                        <ul class="propiedad-detalles">
-                            <li>4 <span data-i18n="prop.hab">hab.</span></li>
-                            <li>5 <span data-i18n="prop.ban">baños</span></li>
-                            <li>380 <span data-i18n="prop.area">m²</span></li>
-                        </ul>
-                        <div class="propiedad-pie">
-                            <strong class="propiedad-precio" data-i18n="prop.1.precio">$4.200.000.000</strong>
-                            <a href="#contacto" class="enlace" data-i18n="prop.ver">Ver detalles →</a>
-                        </div>
-                    </div>
-                </article>
-
-                <article class="tarjeta tarjeta-propiedad">
-                    <div class="propiedad-foto">
-                        <img src="img/prop-bogota.png" alt="Apartamento en Chicó, Bogotá">
-                        <span class="propiedad-insignia" data-i18n="prop.destacada">Destacada</span>
-                    </div>
-                    <div class="propiedad-cuerpo">
-                        <h3 data-i18n="prop.2.t">Apartamento en Chicó</h3>
-                        <p class="propiedad-lugar">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
-                            <span data-i18n="prop.2.lugar">Bogotá · Cundinamarca</span>
-                        </p>
-                        <ul class="propiedad-detalles">
-                            <li>3 <span data-i18n="prop.hab">hab.</span></li>
-                            <li>3 <span data-i18n="prop.ban">baños</span></li>
-                            <li>210 <span data-i18n="prop.area">m²</span></li>
-                        </ul>
-                        <div class="propiedad-pie">
-                            <strong class="propiedad-precio" data-i18n="prop.2.precio">$1.850.000.000</strong>
-                            <a href="#contacto" class="enlace" data-i18n="prop.ver">Ver detalles →</a>
-                        </div>
-                    </div>
-                </article>
-
-                <article class="tarjeta tarjeta-propiedad">
-                    <div class="propiedad-foto">
-                        <img src="img/prop-guatape.png" alt="Finca en Guatapé, Antioquia">
-                        <span class="propiedad-insignia" data-i18n="prop.destacada">Destacada</span>
-                    </div>
-                    <div class="propiedad-cuerpo">
-                        <h3 data-i18n="prop.3.t">Finca junto al lago</h3>
-                        <p class="propiedad-lugar">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
-                            <span data-i18n="prop.3.lugar">Guatapé · Antioquia</span>
-                        </p>
-                        <ul class="propiedad-detalles">
-                            <li>5 <span data-i18n="prop.hab">hab.</span></li>
-                            <li>6 <span data-i18n="prop.ban">baños</span></li>
-                            <li>640 <span data-i18n="prop.area">m²</span></li>
-                        </ul>
-                        <div class="propiedad-pie">
-                            <strong class="propiedad-precio" data-i18n="prop.3.precio">$3.600.000.000</strong>
-                            <a href="#contacto" class="enlace" data-i18n="prop.ver">Ver detalles →</a>
-                        </div>
-                    </div>
-                </article>
+            <div class="destacadas-marco">
+                <div class="destacadas-carrusel" id="propiedades-destacadas" aria-live="polite">
+                    <div class="destacadas-cargando" role="status">Cargando propiedades Oro…</div>
+                </div>
+                <div class="destacadas-controles" aria-label="Controles de propiedades destacadas">
+                    <button type="button" class="destacadas-flecha" id="destacadas-anterior" aria-label="Propiedades anteriores">&#8592;</button>
+                    <span class="destacadas-indicador" id="destacadas-indicador">Propiedades Oro</span>
+                    <button type="button" class="destacadas-flecha" id="destacadas-siguiente" aria-label="Propiedades siguientes">&#8594;</button>
+                </div>
             </div>
         </section>
 
@@ -634,6 +576,7 @@
     <script src="js/i18n.js"></script>
     <script src="js/login.js"></script>
     <script src="js/inicio.js"></script>
+    <script src="js/propiedades-destacadas.js"></script>
 <script src="js/auth-param.js"></script>
 </body>
 </html>

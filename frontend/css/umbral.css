@@ -865,3 +865,1481 @@ section[id] { scroll-margin-top: 86px; }
     line-height: 1.4;
     color: var(--texto-suave);
 }
+
+
+/* =========================================================
+   AJUSTE VISUAL — navegación más compacta y secciones alineadas
+   ========================================================= */
+.navbar {
+    gap: clamp(10px, 1.5vw, 22px);
+    padding-inline: clamp(16px, 3vw, 38px);
+}
+.navbar-panel {
+    gap: clamp(12px, 1.5vw, 24px);
+    min-width: 0;
+}
+.menu-enlaces {
+    gap: clamp(10px, 1.35vw, 20px);
+    padding: 0;
+}
+.menu-enlaces a {
+    font-size: clamp(.78rem, .78vw, .88rem);
+    white-space: nowrap;
+}
+.nav-acciones { gap: 7px; }
+.nav-acciones .btn-secundario {
+    height: 40px;
+    padding-inline: 13px;
+    font-size: .8rem;
+}
+.nav-acciones .btn-compacto {
+    height: 40px;
+    padding-inline: 14px;
+    font-size: .78rem;
+    letter-spacing: 0;
+}
+#idioma-boton {
+    min-height: 40px;
+    gap: 7px;
+    padding-inline: 10px;
+    font-size: .78rem;
+    white-space: nowrap;
+}
+#idioma-boton .icono-idioma {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex: 0 0 auto;
+}
+#idioma-boton .icono-desplegar {
+    width: 13px;
+    height: 13px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex: 0 0 auto;
+}
+.interruptor-tema { gap: 2px; padding: 3px; }
+.interruptor-tema button { width: 32px; height: 32px; }
+.interruptor-tema button svg { width: 16px; height: 16px; }
+
+/* En pantallas intermedias, evitar que los controles se amontonen. */
+@media (max-width: 1180px) and (min-width: 901px) {
+    .navbar { padding-inline: 18px; gap: 10px; }
+    .marca { gap: 8px; }
+    .marca img { height: 38px; }
+    .marca em { display: none; }
+    .navbar-panel { gap: 12px; }
+    .menu-enlaces { gap: 10px; }
+    .menu-enlaces a { font-size: .78rem; }
+    .nav-acciones { gap: 5px; }
+    .nav-acciones .btn-secundario { padding-inline: 10px; }
+    .nav-acciones .btn-compacto { padding-inline: 10px; }
+}
+
+/* Sobre nosotros: alinear el texto y las tarjetas con el eje central. */
+.nosotros-texto { text-align: center; }
+.nosotros-texto p { margin-inline: auto; }
+.nosotros-texto .hero-botones { justify-content: center; }
+.nosotros-tarjetas .tarjeta-mision { text-align: center; }
+.nosotros-tarjetas .servicio-icono { margin-inline: auto; }
+
+/* Dar separación clara entre el mensaje y el botón de envío. */
+#form-contacto .btn-principal { margin-top: 14px; }
+#mensaje-contacto:not([hidden]) { margin-bottom: 10px; }
+
+@media (max-width: 900px) {
+    .navbar { padding-inline: clamp(16px, 4vw, 28px); }
+    .marca em { display: block; }
+    .navbar-panel { gap: 18px; }
+    .nav-acciones { gap: 8px; }
+    #idioma-boton { min-height: 42px; }
+    .interruptor-tema button { width: 34px; height: 34px; }
+}
+
+/* =========================================================
+   AJUSTES BLOQUE 2: legibilidad, centrado y carrusel Oro
+   ========================================================= */
+
+/* Tema claro: velo claro detrás del texto para mantener contraste sobre la fotografía. */
+[data-theme="light"] .hero-inicio::before {
+    background-image:
+        linear-gradient(90deg, rgba(244, 241, 251, .96) 0%, rgba(244, 241, 251, .88) 38%, rgba(244, 241, 251, .56) 62%, rgba(244, 241, 251, .18) 82%, rgba(244, 241, 251, .66) 100%),
+        linear-gradient(180deg, rgba(244, 241, 251, .06) 28%, rgba(244, 241, 251, .78) 100%),
+        var(--foto-casa);
+    background-size: cover, cover, cover;
+    background-position: center, center, left center;
+    background-repeat: no-repeat;
+}
+[data-theme="light"] .hero-mensaje .pais {
+    color: #1746a2;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .8);
+}
+[data-theme="light"] .hero-mensaje h1 { color: #111936; }
+[data-theme="light"] .hero-mensaje h1 em { color: #4338ca; }
+[data-theme="light"] .hero-mensaje > p {
+    color: #343c59;
+    font-weight: 500;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .55);
+}
+
+/* Centrado consistente de Sobre nosotros en escritorio, tablet y móvil. */
+#nosotros .nosotros-columnas { width: 100%; }
+#nosotros .nosotros-texto {
+    width: 100%;
+    max-width: none;
+    margin-inline: auto;
+    text-align: center;
+    justify-self: stretch;
+}
+#nosotros .nosotros-texto h2,
+#nosotros .nosotros-texto p { margin-inline: auto; }
+#nosotros .nosotros-texto p { max-width: 760px; }
+#nosotros .nosotros-texto .hero-botones { justify-content: center; }
+#nosotros .nosotros-tarjetas {
+    width: 100%;
+    max-width: 900px;
+    margin-inline: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+#nosotros .tarjeta-mision { text-align: center; }
+#nosotros .tarjeta-mision .servicio-icono { margin-inline: auto; }
+
+/* Separación real entre textarea y botón, con prioridad sobre estilos anteriores. */
+#form-contacto > .btn-principal {
+    display: inline-flex;
+    margin-top: 28px !important;
+}
+#form-contacto .campo-area { margin-bottom: 4px; }
+
+/* Carrusel de propiedades con membresía Oro devueltas por la API pública. */
+.destacadas-carrusel {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    padding: 8px 2px 18px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--acento) transparent;
+}
+.destacadas-carrusel::-webkit-scrollbar { height: 7px; }
+.destacadas-carrusel::-webkit-scrollbar-thumb { background: var(--acento); border-radius: 99px; }
+.destacada-card {
+    flex: 0 0 calc((100% - 40px) / 3);
+    min-width: 0;
+    overflow: hidden;
+    scroll-snap-align: start;
+    border: 1px solid var(--tarjeta-borde);
+    border-radius: var(--radio-tarjeta);
+    background: var(--tarjeta);
+    box-shadow: var(--sombra);
+    transition: transform .25s ease, border-color .25s ease;
+}
+.destacada-card:hover { transform: translateY(-4px); border-color: var(--acento); }
+.destacada-imagen { position: relative; height: 220px; overflow: hidden; background: var(--fondo-degradado); }
+.destacada-imagen img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.destacada-sin-imagen { height: 100%; display: grid; place-items: center; color: var(--texto-suave); letter-spacing: .3em; }
+.destacada-oro {
+    position: absolute; top: 14px; left: 14px;
+    padding: 7px 11px; border-radius: 99px;
+    color: #302008; background: linear-gradient(110deg, #f8e7a0, #d9ad43);
+    font-size: .72rem; font-weight: 800; box-shadow: 0 5px 18px rgba(0,0,0,.18);
+}
+.destacada-cuerpo { padding: 20px; }
+.destacada-operacion { color: var(--acento); font-size: .72rem; text-transform: uppercase; letter-spacing: .16em; font-weight: 800; }
+.destacada-cuerpo h3 { margin: 8px 0; font-size: 1.15rem; line-height: 1.35; }
+.destacada-lugar { color: var(--texto-suave); font-size: .88rem; margin-bottom: 14px; }
+.destacada-detalles { display: flex; flex-wrap: wrap; gap: 8px 14px; color: var(--texto-suave); font-size: .82rem; padding-bottom: 16px; }
+.destacada-pie { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid var(--tarjeta-borde); padding-top: 15px; }
+.destacada-pie strong { color: var(--texto); font-size: .98rem; }
+.destacada-ver { color: var(--acento); font-weight: 800; text-decoration: none; white-space: nowrap; }
+.destacada-ver:hover { text-decoration: underline; }
+.destacadas-controles { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 8px; }
+.destacadas-flecha {
+    width: 42px; height: 42px; display: inline-grid; place-items: center;
+    border-radius: 50%; border: 1px solid var(--tarjeta-borde);
+    background: var(--tarjeta); color: var(--texto); font-size: 1.2rem; cursor: pointer;
+    transition: background .2s ease, transform .2s ease;
+}
+.destacadas-flecha:hover:not(:disabled) { background: var(--fondo); transform: scale(1.05); }
+.destacadas-flecha:disabled { opacity: .35; cursor: not-allowed; }
+.destacadas-indicador { color: var(--texto-suave); font-size: .85rem; }
+.destacadas-cargando, .destacadas-aviso { flex: 1 0 100%; padding: 28px; text-align: center; color: var(--texto-suave); border: 1px dashed var(--tarjeta-borde); border-radius: 18px; }
+
+@media (max-width: 900px) {
+    .destacada-card { flex-basis: calc((100% - 20px) / 2); }
+    .destacada-imagen { height: 200px; }
+}
+@media (max-width: 600px) {
+    #nosotros .nosotros-tarjetas { grid-template-columns: 1fr; }
+    .destacada-card { flex-basis: 88%; }
+    .destacada-imagen { height: 210px; }
+    .destacadas-controles { gap: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .destacadas-carrusel { scroll-behavior: auto; }
+    .destacada-card { transition: none; }
+}
+
+/* BLOQUE 3 — refinamiento visual Umbral. Se agrega al final de umbral.css. */
+
+/* Navegación: marca a la izquierda, enlaces centrados y controles equilibrados. */
+@media (min-width: 901px) {
+  /* Tres zonas equilibradas: marca, enlaces centrados y controles sin empujar todo a la derecha. */
+  .navbar {
+    display: grid;
+    grid-template-columns: minmax(175px, 1fr) minmax(420px, 1.55fr) minmax(220px, 1fr);
+    align-items: center;
+    gap: clamp(14px, 1.8vw, 28px);
+    padding-inline: clamp(24px, 3vw, 46px);
+  }
+  .navbar > .marca { justify-self: start; }
+  .navbar-panel {
+    display: contents;
+  }
+  .menu-enlaces {
+    grid-column: 2;
+    justify-content: center;
+    gap: clamp(10px, 1.25vw, 20px);
+    min-width: 0;
+  }
+  .nav-acciones {
+    grid-column: 3;
+    justify-self: end;
+    gap: clamp(6px, .8vw, 12px);
+  }
+}
+
+/* Hero claro: menos velo blanco, más fotografía visible y texto contrastado. */
+[data-theme="light"] .hero-inicio::before {
+  background-image:
+    linear-gradient(90deg, rgba(239, 242, 250, .80) 0%, rgba(239, 242, 250, .67) 32%, rgba(239, 242, 250, .34) 56%, rgba(239, 242, 250, .06) 78%, rgba(239, 242, 250, .18) 100%),
+    linear-gradient(180deg, rgba(239, 242, 250, .02) 42%, rgba(239, 242, 250, .40) 100%),
+    var(--foto-casa);
+  background-size: cover, cover, cover;
+  background-position: center, center, left center;
+  background-repeat: no-repeat;
+}
+[data-theme="light"] .hero-mensaje .pais {
+  color: #15377c;
+  text-shadow: 0 1px 8px rgba(255,255,255,.75);
+  font-weight: 800;
+}
+[data-theme="light"] .hero-mensaje h1 {
+  color: #10172e;
+  text-shadow: 0 2px 12px rgba(255,255,255,.38);
+}
+[data-theme="light"] .hero-mensaje h1 em {
+  color: #4230a8;
+  text-shadow: 0 2px 12px rgba(255,255,255,.48);
+}
+[data-theme="light"] .hero-mensaje > p {
+  color: #202944;
+  font-weight: 600;
+  text-shadow: 0 1px 8px rgba(255,255,255,.75);
+}
+
+/* El botón del formulario conserva el aire y vuelve a una alineación intencional. */
+#form-contacto > .btn-principal {
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  align-self: center;
+  justify-content: center;
+  margin: 18px auto 0 !important;
+}
+#form-contacto .campo-area { margin-bottom: 0; }
+#form-contacto { align-items: stretch; }
+#form-contacto input,
+#form-contacto select,
+#form-contacto textarea,
+#form-contacto .campo,
+#form-contacto .campo-area { width: 100%; box-sizing: border-box; }
+
+/* Carrusel: fondo premium separado de la sección y profundidad entre tarjetas. */
+#propiedades {
+  position: relative;
+  isolation: isolate;
+}
+#propiedades::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 8% 0 4%;
+  border-radius: 34px;
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(83, 72, 166, .08), transparent 68%),
+    linear-gradient(135deg, rgba(30, 42, 78, .018), rgba(100, 83, 173, .035));
+  pointer-events: none;
+}
+[data-theme="dark"] #propiedades::before {
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(90, 79, 190, .12), transparent 68%),
+    linear-gradient(135deg, rgba(16, 26, 52, .36), rgba(50, 39, 94, .24));
+}
+.destacadas-carrusel {
+  position: relative;
+  perspective: 1400px;
+  align-items: stretch;
+  gap: clamp(12px, 1.5vw, 20px);
+  width: min(100%, 1120px);
+  margin: 0 auto;
+  padding: 22px clamp(28px, 3vw, 46px) 28px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: 1px solid rgba(115, 112, 175, .16);
+  border-radius: 30px;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(120, 112, 220, .16), transparent 62%),
+    linear-gradient(125deg, rgba(226, 232, 249, .94), rgba(242, 237, 255, .96) 52%, rgba(222, 235, 249, .94));
+  box-shadow: 0 18px 48px rgba(24, 32, 67, .07), inset 0 1px 0 rgba(255,255,255,.78);
+  scrollbar-width: none;
+}
+.destacadas-carrusel::-webkit-scrollbar { display: none; }
+[data-theme="dark"] .destacadas-carrusel {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(93, 83, 191, .24), transparent 62%),
+    linear-gradient(125deg, rgba(12, 22, 46, .97), rgba(30, 27, 62, .96) 52%, rgba(15, 34, 58, .97));
+  border-color: rgba(142, 131, 230, .24);
+  box-shadow: 0 20px 54px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.045);
+}
+.destacada-card {
+  flex: 0 0 min(29%, 300px);
+  position: relative;
+  border-radius: 24px;
+  border: 1px solid rgba(115, 112, 175, .18);
+  background: var(--tarjeta);
+  box-shadow: 0 20px 45px rgba(17, 25, 55, .14);
+  transform: scale(.91) rotateY(4deg);
+  opacity: .83;
+  transition: transform .65s cubic-bezier(.2,.75,.25,1), opacity .5s ease, box-shadow .5s ease, border-color .4s ease;
+}
+.destacada-card.is-active {
+  z-index: 2;
+  transform: scale(1.01) rotateY(0deg) translateY(-2px);
+  opacity: 1;
+  border-color: rgba(112, 99, 221, .52);
+  box-shadow: 0 28px 60px rgba(32, 35, 83, .20), 0 0 0 1px rgba(112,99,221,.10);
+}
+.destacada-card.is-prev { transform: scale(.91) rotateY(7deg); }
+.destacada-card.is-next { transform: scale(.91) rotateY(-7deg); }
+.destacada-imagen { height: clamp(170px, 16vw, 220px); }
+.destacada-imagen img { transition: transform .8s cubic-bezier(.2,.75,.25,1); }
+.destacada-card:hover .destacada-imagen img { transform: scale(1.055); }
+.destacada-cuerpo { padding: clamp(16px, 1.8vw, 24px); }
+.destacada-oro { border: 1px solid rgba(255,255,255,.55); }
+
+/* Las flechas flotan a los lados de la galería, no debajo de las tarjetas. */
+.destacadas-controles {
+  position: absolute;
+  z-index: 4;
+  top: 58%;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  padding-inline: clamp(4px, 1vw, 14px);
+  pointer-events: none;
+}
+.destacadas-flecha {
+  pointer-events: auto;
+  width: 46px;
+  height: 46px;
+  border: 1px solid rgba(116, 107, 199, .32);
+  background: rgba(255,255,255,.94);
+  color: #24264d;
+  font-size: 1.35rem;
+  box-shadow: 0 8px 24px rgba(12, 20, 45, .18);
+  backdrop-filter: blur(12px);
+}
+[data-theme="dark"] .destacadas-flecha {
+  background: rgba(24, 28, 54, .94);
+  color: #f3f4ff;
+  border-color: rgba(155, 144, 245, .42);
+}
+.destacadas-indicador { display: none; }
+.destacadas-cargando, .destacadas-aviso { margin: 8px; }
+
+@media (max-width: 900px) {
+  .destacadas-carrusel { padding: 20px 34px 26px; border-radius: 24px; }
+  .destacada-card { flex-basis: min(42%, 300px); transform: scale(.94); }
+  .destacada-card.is-active { transform: scale(1); }
+  .destacadas-controles { top: 60%; }
+}
+@media (max-width: 600px) {
+  #form-contacto > .btn-principal { margin: 18px auto 0 !important; align-self: stretch; width: 100%; }
+  .destacadas-carrusel { padding: 16px 22px 22px; margin-inline: 0; border-radius: 22px; }
+  .destacada-card { flex-basis: 82%; max-width: 300px; transform: scale(.94); }
+  .destacada-card.is-active { transform: scale(1); }
+  .destacada-imagen { height: 190px; }
+  .destacadas-controles { top: 58%; padding-inline: 0; }
+  .destacadas-flecha { width: 38px; height: 38px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .destacada-card, .destacada-imagen img { transition: none !important; }
+}
+
+
+/* AJUSTE FINAL: alineación equilibrada, formulario uniforme y carrusel más compacto. */
+@media (min-width: 901px) {
+  .navbar { grid-template-columns: minmax(165px, .9fr) minmax(400px, 1.5fr) minmax(200px, .9fr); }
+  .menu-enlaces { justify-self: center; }
+}
+#form-contacto > .btn-principal { width: 100% !important; max-width: 100%; margin-inline: auto !important; align-self: stretch; }
+.destacadas-carrusel { max-width: 1120px; }
+@media (min-width: 901px) {
+  .destacadas-carrusel { padding-block: 18px 24px; }
+  .destacada-card { flex-basis: min(27%, 280px); }
+  .destacada-imagen { height: 190px; }
+}
+
+
+/* BLOQUE 5 — corrección precisa de distribución, botón y carrusel integrado. */
+@media (min-width: 901px) {
+  .navbar {
+    display: grid !important;
+    /* Los enlaces ocupan el espacio REAL entre la marca y los controles. */
+    grid-template-columns: minmax(170px, 0.9fr) minmax(0, 1.25fr) minmax(300px, 1fr) !important;
+    column-gap: clamp(12px, 1.5vw, 24px) !important;
+    padding-inline: clamp(20px, 2.5vw, 38px) !important;
+  }
+  .navbar > .marca { grid-column: 1; justify-self: start; min-width: 0; }
+  .navbar-panel { display: contents !important; }
+  .menu-enlaces {
+    grid-column: 2;
+    justify-self: center;
+    justify-content: center;
+    flex-wrap: nowrap;
+    gap: clamp(8px, .95vw, 15px) !important;
+    padding: 0;
+    min-width: 0;
+  }
+  .menu-enlaces a { font-size: clamp(.76rem, .78vw, .88rem) !important; white-space: nowrap; }
+  .nav-acciones {
+    grid-column: 3;
+    justify-self: end;
+    flex-wrap: nowrap !important;
+    gap: clamp(5px, .55vw, 9px) !important;
+    min-width: 0;
+  }
+  .nav-acciones .btn-secundario,
+  .nav-acciones .btn-compacto { padding-inline: clamp(8px, .8vw, 14px) !important; white-space: nowrap; }
+}
+
+/* El texto del botón queda centrado en ambos ejes; mantiene el ancho del formulario. */
+#form-contacto > .btn-principal {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  line-height: 1.2 !important;
+  min-height: 48px;
+  padding-block: 12px !important;
+  box-sizing: border-box !important;
+}
+
+/* El degradado vive dentro del carrusel, no como una franja que cambie el fondo de la sección. */
+#propiedades::before { display: none !important; }
+.destacadas-marco {
+  position: relative;
+  isolation: isolate;
+  width: min(100%, 1060px);
+  margin: 8px auto 0;
+  padding: clamp(22px, 3vw, 36px) clamp(18px, 3vw, 38px);
+  border-radius: 30px;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(135, 89, 245, .23), transparent 58%),
+    radial-gradient(ellipse at 12% 85%, rgba(64, 126, 232, .12), transparent 52%),
+    linear-gradient(135deg, rgba(112, 89, 190, .075), rgba(82, 111, 184, .055) 48%, rgba(147, 93, 207, .09));
+  box-shadow: 0 18px 48px rgba(93, 64, 166, .12), 0 0 0 1px rgba(132, 100, 217, .12), inset 0 1px 0 rgba(255,255,255,.38);
+}
+[data-theme="dark"] .destacadas-marco {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(130, 83, 240, .27), transparent 58%),
+    radial-gradient(ellipse at 10% 90%, rgba(43, 130, 230, .13), transparent 52%),
+    linear-gradient(135deg, rgba(35, 31, 76, .82), rgba(15, 28, 57, .86) 52%, rgba(48, 30, 78, .82));
+  box-shadow: 0 22px 58px rgba(0,0,0,.2), 0 0 34px rgba(120, 78, 230, .15), inset 0 1px 0 rgba(184, 165, 255, .08);
+}
+.destacadas-carrusel {
+  width: 100%;
+  max-width: 980px;
+  margin-inline: auto;
+  padding: 14px 42px 20px !important;
+  gap: clamp(10px, 1.4vw, 18px) !important;
+  border-radius: 24px !important;
+  background: radial-gradient(ellipse at 50% 0%, rgba(132, 92, 228, .13), transparent 68%), rgba(246, 247, 255, .56) !important;
+  border: 1px solid rgba(127, 99, 207, .2) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.68), 0 10px 30px rgba(91, 68, 155, .08), 0 0 25px rgba(131, 91, 225, .08) !important;
+}
+[data-theme="dark"] .destacadas-carrusel {
+  background: radial-gradient(ellipse at 50% 0%, rgba(132, 92, 228, .15), transparent 68%), rgba(8, 15, 33, .42) !important;
+  box-shadow: inset 0 1px 0 rgba(190, 174, 255, .06), 0 10px 30px rgba(0,0,0,.16), 0 0 28px rgba(131, 91, 225, .12) !important;
+}
+.destacada-card { flex-basis: min(27%, 260px) !important; }
+.destacada-imagen { height: clamp(150px, 14vw, 185px) !important; }
+.destacada-card.is-active { box-shadow: 0 20px 42px rgba(35, 28, 83, .2), 0 0 0 1px rgba(135, 92, 230, .22), 0 0 26px rgba(128, 82, 224, .15) !important; }
+
+/* Flechas superpuestas DENTRO del carrusel, en los extremos de la galería. */
+.destacadas-controles {
+  position: absolute !important;
+  z-index: 6;
+  top: 50% !important;
+  left: 0 !important;
+  right: 0 !important;
+  transform: translateY(-50%);
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center;
+  margin: 0 !important;
+  padding: 0 clamp(8px, 1.2vw, 16px) !important;
+  pointer-events: none;
+}
+.destacadas-indicador { display: none !important; }
+.destacadas-flecha {
+  width: 40px !important;
+  height: 40px !important;
+  flex: 0 0 40px;
+  display: inline-grid !important;
+  place-items: center !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  border-radius: 50% !important;
+  pointer-events: auto;
+  border: 1px solid rgba(139, 105, 222, .48) !important;
+  background: rgba(255,255,255,.94) !important;
+  color: #30245f !important;
+  box-shadow: 0 7px 20px rgba(79, 49, 148, .2), 0 0 15px rgba(137, 91, 232, .16) !important;
+}
+[data-theme="dark"] .destacadas-flecha {
+  background: rgba(24, 25, 53, .96) !important;
+  color: #f6f2ff !important;
+  border-color: rgba(164, 135, 247, .55) !important;
+  box-shadow: 0 7px 20px rgba(0,0,0,.3), 0 0 15px rgba(137, 91, 232, .2) !important;
+}
+@media (max-width: 900px) {
+  .destacadas-marco { padding: 20px 14px 24px; border-radius: 24px; }
+  .destacadas-carrusel { padding: 14px 34px 18px !important; }
+  .destacada-card { flex-basis: min(42%, 260px) !important; }
+  .destacadas-controles { padding-inline: 5px !important; }
+}
+@media (max-width: 600px) {
+  .destacadas-marco { padding: 16px 8px 18px; border-radius: 20px; }
+  .destacadas-carrusel { padding: 12px 25px 16px !important; border-radius: 18px !important; }
+  .destacada-card { flex-basis: 78% !important; max-width: 260px; }
+  .destacada-imagen { height: 165px !important; }
+  .destacadas-flecha { width: 34px !important; height: 34px !important; flex-basis: 34px; }
+  .destacadas-controles { padding-inline: 2px !important; }
+}
+
+
+/* UMBRAL — ajuste estructural de navegación y acabado premium del carrusel */
+@media (min-width: 1101px) {
+  .navbar {
+    display: grid !important;
+    grid-template-columns: minmax(190px, 1fr) minmax(440px, max-content) minmax(330px, 1fr) !important;
+    align-items: center !important;
+    column-gap: clamp(18px, 2vw, 34px) !important;
+  }
+  /* Los enlaces y las acciones pasan a ser columnas independientes del header. */
+  .navbar-panel { display: contents !important; }
+  .navbar > .marca { grid-column: 1; justify-self: start; min-width: 0; }
+  .navbar .menu-enlaces {
+    grid-column: 2;
+    justify-self: center !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: clamp(15px, 1.6vw, 25px) !important;
+    white-space: nowrap;
+  }
+  .navbar .nav-acciones {
+    grid-column: 3;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    min-width: 0;
+  }
+}
+@media (min-width: 901px) and (max-width: 1100px) {
+  .navbar { gap: 14px !important; padding-inline: 18px !important; }
+  .navbar-panel { gap: 16px !important; }
+  .menu-enlaces { gap: 13px !important; }
+  .menu-enlaces a { font-size: .84rem !important; }
+  .nav-acciones { gap: 7px !important; }
+  .nav-acciones .btn-secundario, .nav-acciones .btn-compacto { padding-inline: 12px !important; }
+}
+
+/* Mantener la animación de entrada/hover y una tarjeta protagonista con más profundidad. */
+.destacadas-marco {
+  overflow: hidden;
+  border: 1px solid rgba(139, 104, 231, .25) !important;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(145, 91, 255, .22), transparent 54%),
+    radial-gradient(ellipse at 8% 90%, rgba(49, 132, 235, .13), transparent 45%),
+    linear-gradient(135deg, rgba(226, 224, 255, .42), rgba(229, 237, 255, .26) 50%, rgba(239, 220, 255, .40)) !important;
+  box-shadow: 0 22px 58px rgba(95, 64, 170, .17), 0 0 32px rgba(133, 82, 232, .12), inset 0 1px 0 rgba(255,255,255,.55) !important;
+}
+[data-theme="dark"] .destacadas-marco {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(145, 91, 255, .25), transparent 54%),
+    radial-gradient(ellipse at 8% 90%, rgba(49, 132, 235, .16), transparent 45%),
+    linear-gradient(135deg, rgba(23, 24, 59, .96), rgba(12, 25, 51, .96) 52%, rgba(40, 22, 68, .96)) !important;
+  box-shadow: 0 24px 62px rgba(0,0,0,.23), 0 0 36px rgba(133, 82, 232, .19), inset 0 1px 0 rgba(194,177,255,.09) !important;
+}
+.destacadas-carrusel {
+  perspective: 1200px;
+  overflow-x: auto !important;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth !important;
+  overscroll-behavior-inline: contain;
+}
+.destacada-card {
+  transform-origin: center center;
+  transition: transform .72s cubic-bezier(.2,.8,.2,1), opacity .55s ease, box-shadow .55s ease, border-color .4s ease !important;
+  box-shadow: 0 18px 42px rgba(29, 29, 72, .15), 0 0 0 1px rgba(131, 91, 225, .08) !important;
+  backface-visibility: hidden;
+}
+.destacada-card:hover {
+  transform: translateY(-7px) scale(1.015) !important;
+  border-color: rgba(140, 93, 235, .62) !important;
+  box-shadow: 0 26px 55px rgba(73, 47, 145, .22), 0 0 28px rgba(136, 83, 230, .18) !important;
+}
+.destacada-imagen { overflow: hidden; }
+.destacada-imagen img {
+  transform: scale(1.001);
+  transition: transform 1s cubic-bezier(.2,.75,.25,1), filter .7s ease !important;
+}
+.destacada-card:hover .destacada-imagen img { transform: scale(1.09) !important; filter: saturate(1.08); }
+.destacada-oro { box-shadow: 0 6px 22px rgba(212, 165, 55, .22), 0 0 16px rgba(245, 207, 102, .13); }
+.destacada-cuerpo h3 { letter-spacing: -.015em; }
+.destacada-pie strong { text-shadow: 0 0 18px rgba(131, 91, 225, .10); }
+/* Las flechas permanecen dentro del marco y encima de la galería. */
+.destacadas-controles { inset-inline: 0 !important; padding-inline: 12px !important; pointer-events: none !important; }
+.destacadas-flecha { pointer-events: auto !important; transition: transform .25s ease, box-shadow .25s ease, background .25s ease !important; }
+.destacadas-flecha:hover:not(:disabled) { transform: scale(1.08) !important; box-shadow: 0 10px 26px rgba(100, 64, 185, .3), 0 0 18px rgba(143, 88, 238, .22) !important; }
+@media (prefers-reduced-motion: reduce) {
+  .destacada-card, .destacada-imagen img, .destacadas-flecha { transition: none !important; }
+}
+
+/* =========================================================
+   UMBRAL — ajuste definitivo: menú en una sola línea y
+   tarjetas Oro con acabado premium. Sin una caja de color
+   adicional dentro del marco del carrusel.
+   ========================================================= */
+@media (min-width: 901px) {
+  .navbar {
+    display: grid !important;
+    grid-template-columns: minmax(165px, 1fr) max-content minmax(300px, 1fr) !important;
+    align-items: center !important;
+    column-gap: clamp(12px, 1.4vw, 22px) !important;
+    padding-inline: clamp(18px, 2.2vw, 36px) !important;
+  }
+  .navbar > .marca {
+    grid-column: 1 !important;
+    justify-self: start !important;
+    min-width: 0 !important;
+    max-width: 100%;
+  }
+  .navbar-panel { display: contents !important; }
+  .navbar .menu-enlaces {
+    grid-column: 2 !important;
+    justify-self: center !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+    min-width: max-content !important;
+    gap: clamp(8px, .95vw, 16px) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .navbar .menu-enlaces li { flex: 0 0 auto !important; white-space: nowrap !important; }
+  .navbar .menu-enlaces a {
+    display: inline-block !important;
+    white-space: nowrap !important;
+    font-size: clamp(.72rem, .72vw, .86rem) !important;
+    letter-spacing: -.015em;
+  }
+  .navbar .nav-acciones {
+    grid-column: 3 !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+    min-width: max-content !important;
+    gap: clamp(4px, .45vw, 8px) !important;
+    margin: 0 !important;
+  }
+  .navbar .nav-acciones > * { flex: 0 0 auto !important; }
+  .navbar .nav-acciones .btn-secundario,
+  .navbar .nav-acciones .btn-compacto {
+    padding-inline: clamp(7px, .65vw, 12px) !important;
+    font-size: clamp(.7rem, .7vw, .82rem) !important;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1199px) {
+  .navbar { grid-template-columns: minmax(135px, 1fr) max-content minmax(265px, 1fr) !important; column-gap: 8px !important; padding-inline: 12px !important; }
+  .navbar .marca { gap: 6px !important; }
+  .navbar .marca img { height: 36px !important; }
+  .navbar .marca strong { font-size: .88rem !important; }
+  .navbar .marca em { font-size: .68rem !important; }
+  .navbar .menu-enlaces { gap: 7px !important; }
+  .navbar .menu-enlaces a { font-size: .69rem !important; }
+  .navbar .nav-acciones { gap: 4px !important; }
+  .navbar .nav-acciones .btn-secundario,
+  .navbar .nav-acciones .btn-compacto { padding-inline: 6px !important; font-size: .67rem !important; }
+  .navbar .selector-idioma button { padding-inline: 5px !important; font-size: .68rem !important; }
+}
+
+/* El contenedor de la galería deja de parecer otra tarjeta coloreada. */
+.destacadas-marco {
+  overflow: visible !important;
+  padding: clamp(10px, 1.5vw, 18px) 0 22px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.destacadas-carrusel,
+[data-theme="dark"] .destacadas-carrusel {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 20px 42px 30px !important;
+  gap: clamp(16px, 1.8vw, 24px) !important;
+  overflow-y: visible !important;
+}
+.destacada-card {
+  position: relative !important;
+  isolation: isolate;
+  flex-basis: min(28%, 290px) !important;
+  border: 1px solid rgba(147, 119, 225, .28) !important;
+  border-radius: 24px !important;
+  overflow: hidden !important;
+  background: linear-gradient(155deg, var(--tarjeta) 0%, color-mix(in srgb, var(--tarjeta) 91%, #9b7aff 9%) 100%) !important;
+  box-shadow: 0 16px 32px rgba(25, 25, 65, .13), 0 3px 10px rgba(101, 68, 173, .08), inset 0 1px 0 rgba(255,255,255,.6) !important;
+  transform: translateY(0) scale(.985) !important;
+  transition: transform .55s cubic-bezier(.2,.8,.2,1), box-shadow .55s ease, border-color .4s ease, filter .4s ease !important;
+}
+[data-theme="dark"] .destacada-card {
+  background: linear-gradient(155deg, #141b31 0%, #19172f 58%, #211833 100%) !important;
+  border-color: rgba(159, 130, 255, .32) !important;
+  box-shadow: 0 18px 38px rgba(0,0,0,.28), 0 0 0 1px rgba(134, 99, 235, .07), inset 0 1px 0 rgba(211,199,255,.08) !important;
+}
+.destacada-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(145deg, rgba(255,255,255,.17), transparent 24%, transparent 72%, rgba(131,88,225,.10));
+  opacity: .7;
+  transition: opacity .4s ease;
+}
+.destacada-card.is-active,
+.destacada-card:hover {
+  transform: translateY(-9px) scale(1.015) !important;
+  border-color: rgba(157, 118, 255, .78) !important;
+  box-shadow: 0 28px 58px rgba(66, 43, 132, .23), 0 0 0 1px rgba(157, 118, 255, .23), 0 0 32px rgba(139, 89, 242, .2), inset 0 1px 0 rgba(255,255,255,.65) !important;
+  filter: saturate(1.04);
+}
+.destacada-card.is-active::after,
+.destacada-card:hover::after { opacity: 1; }
+.destacada-imagen {
+  height: clamp(165px, 15vw, 205px) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  background: #14172c !important;
+}
+.destacada-imagen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(10,12,28,.04) 35%, rgba(10,12,28,.7) 100%), linear-gradient(120deg, rgba(104,75,213,.14), transparent 55%);
+}
+.destacada-imagen img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  transform: scale(1.02);
+  transition: transform 1.1s cubic-bezier(.16,1,.3,1), filter .7s ease !important;
+}
+.destacada-card:hover .destacada-imagen img,
+.destacada-card.is-active .destacada-imagen img { transform: scale(1.105) !important; filter: saturate(1.12) contrast(1.03); }
+.destacada-oro {
+  top: 13px !important;
+  left: 13px !important;
+  z-index: 3;
+  padding: 7px 12px !important;
+  border: 1px solid rgba(255,245,190,.7) !important;
+  background: linear-gradient(115deg, #fff0ad 0%, #e7bd55 46%, #b98222 100%) !important;
+  box-shadow: 0 7px 22px rgba(184,132,31,.35), inset 0 1px 0 rgba(255,255,255,.7) !important;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+.destacada-cuerpo { padding: 20px 21px 22px !important; }
+.destacada-operacion {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #8660df !important;
+  font-size: .69rem !important;
+  letter-spacing: .17em !important;
+}
+[data-theme="dark"] .destacada-operacion { color: #b8a0ff !important; }
+.destacada-cuerpo h3 {
+  margin: 9px 0 7px !important;
+  font-size: clamp(1.08rem, 1.1vw, 1.28rem) !important;
+  line-height: 1.3 !important;
+  letter-spacing: -.035em !important;
+}
+.destacada-lugar { display: flex; align-items: center; gap: 6px; font-size: .83rem !important; }
+.destacada-detalles { gap: 8px 12px !important; padding: 13px 0 17px !important; }
+.destacada-detalles > * {
+  padding: 5px 8px;
+  border: 1px solid rgba(133, 107, 200, .14);
+  border-radius: 9px;
+  background: rgba(137, 110, 209, .055);
+  font-size: .76rem;
+}
+[data-theme="dark"] .destacada-detalles > * { background: rgba(155,128,237,.08); border-color: rgba(159,130,255,.14); }
+.destacada-pie {
+  align-items: center !important;
+  border-top: 1px solid rgba(135, 109, 202, .2) !important;
+  padding-top: 15px !important;
+}
+.destacada-pie strong {
+  font-size: 1.05rem !important;
+  letter-spacing: -.025em;
+  color: var(--texto) !important;
+}
+.destacada-ver {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 11px;
+  border: 1px solid rgba(135, 102, 224, .26);
+  border-radius: 11px;
+  background: rgba(132, 91, 220, .08);
+  transition: transform .25s ease, background .25s ease, box-shadow .25s ease;
+}
+.destacada-ver:hover { transform: translateX(2px); background: rgba(132,91,220,.16); box-shadow: 0 5px 16px rgba(113,76,192,.13); text-decoration: none !important; }
+.destacadas-flecha {
+  border: 1px solid rgba(151, 119, 237, .52) !important;
+  background: color-mix(in srgb, var(--tarjeta) 86%, #a98bff 14%) !important;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 10px 26px rgba(63, 42, 123, .22), 0 0 18px rgba(138, 90, 236, .13) !important;
+}
+@media (max-width: 900px) {
+  .destacadas-marco { padding: 8px 0 16px !important; }
+  .destacadas-carrusel { padding: 18px 34px 25px !important; }
+  .destacada-card { flex-basis: min(43%, 290px) !important; }
+}
+@media (max-width: 600px) {
+  .destacadas-carrusel { padding: 14px 25px 22px !important; }
+  .destacada-card { flex-basis: 82% !important; max-width: 290px !important; }
+  .destacada-cuerpo { padding: 17px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .destacada-card, .destacada-imagen img, .destacada-ver, .destacadas-flecha { transition: none !important; }
+}
+
+/* CORRECCIÓN SOLO DE NAVEGACIÓN: marca izquierda, enlaces centrados
+   en el espacio REAL entre marca y controles, acciones a la derecha.
+   Se restauran tamaños legibles; no se reduce la tipografía ni botones. */
+@media (min-width: 1101px) {
+  .navbar {
+    display: grid !important;
+    grid-template-columns: max-content minmax(0, 1fr) max-content !important;
+    align-items: center !important;
+    column-gap: clamp(22px, 2vw, 34px) !important;
+    padding-inline: clamp(24px, 2.5vw, 42px) !important;
+  }
+  .navbar > .marca {
+    grid-column: 1 !important;
+    justify-self: start !important;
+    min-width: max-content !important;
+    max-width: none !important;
+  }
+  .navbar-panel { display: contents !important; }
+  .navbar .menu-enlaces {
+    grid-column: 2 !important;
+    justify-self: stretch !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+    min-width: 0 !important;
+    gap: clamp(12px, 1.15vw, 20px) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .navbar .menu-enlaces li,
+  .navbar .menu-enlaces a {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+  }
+  .navbar .menu-enlaces a {
+    font-size: .9rem !important;
+    letter-spacing: normal !important;
+  }
+  .navbar .nav-acciones {
+    grid-column: 3 !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+    min-width: max-content !important;
+    gap: 9px !important;
+    margin: 0 !important;
+  }
+  .navbar .nav-acciones > * { flex: 0 0 auto !important; }
+  .navbar .nav-acciones .btn-secundario,
+  .navbar .nav-acciones .btn-compacto {
+    padding-inline: 12px !important;
+    font-size: .84rem !important;
+  }
+  .navbar .selector-idioma button {
+    padding-inline: 10px !important;
+    font-size: .84rem !important;
+  }
+}
+
+/* ==========================================================
+   UMBRAL · CARRUSEL DESTACADAS — REDISEÑO PREMIUM DE TARJETAS
+   Mantiene el HTML, la carga de propiedades y la lógica del carrusel.
+   ========================================================== */
+#propiedades .destacadas-marco {
+  width: min(100%, 1240px) !important;
+  padding: clamp(20px, 2.3vw, 30px) clamp(18px, 2.1vw, 28px) !important;
+  border-radius: 30px !important;
+  background:
+    radial-gradient(ellipse at 12% 0%, rgba(125, 91, 255, .17), transparent 42%),
+    radial-gradient(ellipse at 88% 100%, rgba(171, 132, 255, .13), transparent 42%),
+    rgba(255,255,255,.14) !important;
+  border: 1px solid rgba(132, 107, 231, .22) !important;
+  box-shadow: 0 22px 64px rgba(46, 36, 100, .12), inset 0 1px 0 rgba(255,255,255,.52) !important;
+}
+[data-theme="dark"] #propiedades .destacadas-marco {
+  background:
+    radial-gradient(ellipse at 12% 0%, rgba(125, 91, 255, .2), transparent 43%),
+    radial-gradient(ellipse at 88% 100%, rgba(171, 132, 255, .12), transparent 43%),
+    rgba(9, 14, 31, .28) !important;
+  border-color: rgba(151, 130, 255, .25) !important;
+  box-shadow: 0 26px 72px rgba(0,0,0,.22), 0 0 38px rgba(104,75,220,.10), inset 0 1px 0 rgba(211,202,255,.07) !important;
+}
+#propiedades .destacadas-carrusel {
+  width: 100% !important;
+  max-width: 1160px !important;
+  padding: 16px 46px 24px !important;
+  gap: clamp(16px, 1.65vw, 24px) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scroll-padding-inline: 12px;
+}
+#propiedades .destacada-card {
+  flex: 0 0 clamp(300px, 28vw, 344px) !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  position: relative !important;
+  isolation: isolate;
+  border-radius: 25px !important;
+  border: 1px solid rgba(132, 111, 213, .23) !important;
+  background: linear-gradient(155deg, #fff 0%, #fbfaff 56%, #f2f5ff 100%) !important;
+  box-shadow: 0 15px 36px rgba(29, 28, 65, .13), 0 3px 9px rgba(72, 55, 140, .07), inset 0 1px 0 rgba(255,255,255,.95) !important;
+  opacity: .96 !important;
+  transform: translateY(0) scale(.975) !important;
+  transition: transform .48s cubic-bezier(.2,.8,.2,1), box-shadow .48s ease, border-color .35s ease, filter .4s ease !important;
+}
+[data-theme="dark"] #propiedades .destacada-card {
+  background: linear-gradient(155deg, #171b31 0%, #11172a 58%, #17162e 100%) !important;
+  border-color: rgba(153, 131, 255, .24) !important;
+  box-shadow: 0 18px 42px rgba(0,0,0,.30), 0 3px 10px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.055) !important;
+}
+#propiedades .destacada-card::before {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(125deg, transparent 15%, rgba(255,255,255,.18) 43%, transparent 65%);
+  transform: translateX(-65%);
+  transition: opacity .35s ease, transform .75s ease;
+}
+#propiedades .destacada-card:hover,
+#propiedades .destacada-card.is-active {
+  opacity: 1 !important;
+  transform: translateY(-7px) scale(1) !important;
+  border-color: rgba(132, 97, 245, .62) !important;
+  box-shadow: 0 27px 58px rgba(49, 36, 115, .20), 0 0 0 1px rgba(139, 103, 245, .12), 0 0 30px rgba(124, 83, 242, .15) !important;
+}
+#propiedades .destacada-card:hover::before { opacity: 1; transform: translateX(65%); }
+[data-theme="dark"] #propiedades .destacada-card:hover,
+[data-theme="dark"] #propiedades .destacada-card.is-active {
+  box-shadow: 0 28px 60px rgba(0,0,0,.4), 0 0 0 1px rgba(154, 124, 255, .22), 0 0 34px rgba(123, 83, 255, .18) !important;
+}
+#propiedades .destacada-imagen {
+  height: 232px !important;
+  position: relative !important;
+  overflow: hidden !important;
+  background: linear-gradient(135deg, #27204e, #7954c8) !important;
+}
+#propiedades .destacada-imagen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(8,10,24,.02) 30%, rgba(8,10,24,.18) 64%, rgba(8,10,24,.72) 100%);
+}
+#propiedades .destacada-imagen img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+  transform: scale(1.015);
+  transition: transform .85s cubic-bezier(.2,.75,.25,1), filter .5s ease !important;
+}
+#propiedades .destacada-card:hover .destacada-imagen img { transform: scale(1.09) !important; filter: saturate(1.12) contrast(1.03); }
+#propiedades .destacada-oro {
+  z-index: 2 !important;
+  top: 16px !important;
+  left: 16px !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 13px !important;
+  border-radius: 999px !important;
+  color: #382407 !important;
+  background: linear-gradient(110deg, #fff1b8 0%, #f2cf70 42%, #d9a52e 100%) !important;
+  border: 1px solid rgba(255,255,255,.75) !important;
+  font-size: .72rem !important;
+  font-weight: 900 !important;
+  letter-spacing: .09em !important;
+  text-transform: uppercase;
+  box-shadow: 0 8px 22px rgba(15,12,30,.25), inset 0 1px 0 rgba(255,255,255,.8) !important;
+}
+#propiedades .destacada-cuerpo {
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 21px 22px 22px !important;
+  min-height: 238px;
+}
+#propiedades .destacada-operacion {
+  display: inline-flex !important;
+  align-self: flex-start;
+  align-items: center;
+  padding: 6px 10px;
+  margin-bottom: 7px;
+  border-radius: 7px;
+  color: #6742cb !important;
+  background: linear-gradient(100deg, rgba(124, 87, 226, .12), rgba(167, 126, 255, .12));
+  font-size: .7rem !important;
+  letter-spacing: .13em !important;
+  font-weight: 900 !important;
+}
+[data-theme="dark"] #propiedades .destacada-operacion { color: #c5b4ff !important; background: linear-gradient(100deg, rgba(124,87,226,.22), rgba(167,126,255,.18)); }
+#propiedades .destacada-cuerpo h3 {
+  margin: 5px 0 8px !important;
+  color: #17182c !important;
+  font-size: clamp(1.13rem, 1.2vw, 1.3rem) !important;
+  font-weight: 850 !important;
+  line-height: 1.28 !important;
+  letter-spacing: -.025em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.56em;
+}
+[data-theme="dark"] #propiedades .destacada-cuerpo h3 { color: #f5f3ff !important; }
+#propiedades .destacada-lugar {
+  display: flex !important;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 16px !important;
+  color: #73748d !important;
+  font-size: .86rem !important;
+  line-height: 1.45;
+}
+#propiedades .destacada-lugar::before { content: "⌖"; color: #8562e9; font-size: 1.15rem; font-weight: 800; }
+[data-theme="dark"] #propiedades .destacada-lugar { color: #b6bad0 !important; }
+#propiedades .destacada-detalles {
+  display: flex !important;
+  align-items: center;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  padding: 0 0 18px !important;
+  margin-top: auto;
+  color: #555873 !important;
+  font-size: .79rem !important;
+}
+#propiedades .destacada-detalles > * {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #f1efff, #f5f8ff) !important;
+  border: 1px solid rgba(131, 111, 213, .13);
+  color: #565575 !important;
+  font-weight: 700;
+}
+[data-theme="dark"] #propiedades .destacada-detalles > * { background: linear-gradient(135deg, rgba(126,97,220,.16), rgba(126,91,204,.13)) !important; border-color: rgba(157,137,239,.17); color: #d1d3e8 !important; }
+#propiedades .destacada-pie {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  margin-top: 2px;
+  padding-top: 17px !important;
+  border-top: 1px solid rgba(117, 105, 174, .17) !important;
+}
+#propiedades .destacada-pie strong {
+  display: block;
+  color: #5b3bc4 !important;
+  font-size: clamp(1.02rem, 1.1vw, 1.18rem) !important;
+  font-weight: 900 !important;
+  letter-spacing: -.025em;
+  line-height: 1.2;
+}
+[data-theme="dark"] #propiedades .destacada-pie strong { color: #c8b7ff !important; }
+#propiedades .destacada-ver {
+  display: inline-flex !important;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  color: #fff !important;
+  background: linear-gradient(115deg, #6441cf, #8755e9 55%, #a17aff) !important;
+  text-decoration: none !important;
+  font-size: .82rem !important;
+  font-weight: 850 !important;
+  box-shadow: 0 8px 18px rgba(100, 65, 207, .24), inset 0 1px 0 rgba(255,255,255,.22);
+  transition: transform .25s ease, box-shadow .25s ease, filter .25s ease;
+}
+#propiedades .destacada-ver::after { content: "↗"; font-size: 1rem; transition: transform .25s ease; }
+#propiedades .destacada-ver:hover { transform: translateY(-2px); filter: brightness(1.06); box-shadow: 0 12px 24px rgba(100,65,207,.32); }
+#propiedades .destacada-ver:hover::after { transform: translate(2px,-2px); }
+#propiedades .destacadas-controles { z-index: 7 !important; }
+#propiedades .destacadas-flecha { backdrop-filter: blur(14px); transition: transform .25s ease, box-shadow .25s ease, background .25s ease !important; }
+#propiedades .destacadas-flecha:hover:not(:disabled) { transform: scale(1.1) !important; box-shadow: 0 10px 26px rgba(83,55,177,.28), 0 0 18px rgba(128,86,232,.18) !important; }
+@media (max-width: 900px) {
+  #propiedades .destacadas-marco { padding: 20px 12px 22px !important; }
+  #propiedades .destacadas-carrusel { padding: 14px 36px 22px !important; }
+  #propiedades .destacada-card { flex-basis: min(44vw, 340px) !important; }
+  #propiedades .destacada-imagen { height: 220px !important; }
+}
+@media (max-width: 600px) {
+  #propiedades .destacadas-marco { padding: 14px 6px 18px !important; border-radius: 22px !important; }
+  #propiedades .destacadas-carrusel { padding: 12px 26px 20px !important; gap: 14px !important; }
+  #propiedades .destacada-card { flex-basis: min(82vw, 344px) !important; }
+  #propiedades .destacada-imagen { height: 218px !important; }
+  #propiedades .destacada-cuerpo { padding: 18px !important; min-height: 225px; }
+  #propiedades .destacada-pie { gap: 8px !important; }
+  #propiedades .destacada-pie strong { font-size: 1rem !important; }
+  #propiedades .destacada-ver { padding: 10px 11px; font-size: .78rem !important; }
+  #propiedades .destacadas-flecha { width: 35px !important; height: 35px !important; flex-basis: 35px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #propiedades .destacada-card,
+  #propiedades .destacada-card::before,
+  #propiedades .destacada-imagen img,
+  #propiedades .destacada-ver { transition: none !important; }
+}
+
+
+/* AJUSTE FINAL: CTA limpios, sin flechas decorativas; no afecta las flechas de navegación del carrusel. */
+.hero-botones > .btn-principal > span[aria-hidden="true"],
+#contacto form > .btn-principal > span[aria-hidden="true"],
+#login form > .btn-principal > span[aria-hidden="true"],
+#registro form > .btn-principal > span[aria-hidden="true"],
+form .btn-principal > span[aria-hidden="true"] {
+  display: none !important;
+}
+/* La etiqueta Consultar/Ver detalles queda solo con texto, sin pseudo-flecha. */
+#propiedades .destacada-ver::after,
+#propiedades .destacada-ver::before {
+  content: none !important;
+  display: none !important;
+}
+#propiedades .destacada-ver {
+  gap: 0 !important;
+}
+/* Filete dorado muy sutil, inspirado en el acabado Oro del panel de invitado. */
+#propiedades .destacada-card {
+  border-color: rgba(206, 170, 91, .30) !important;
+  box-shadow:
+    0 12px 30px rgba(42, 31, 78, .12),
+    0 0 0 1px rgba(222, 190, 116, .07),
+    0 0 11px rgba(211, 174, 91, .075),
+    inset 0 1px 0 rgba(255, 249, 225, .72) !important;
+}
+#propiedades .destacada-card:hover,
+#propiedades .destacada-card.is-active {
+  border-color: rgba(218, 183, 103, .58) !important;
+  box-shadow:
+    0 24px 48px rgba(48, 34, 100, .17),
+    0 0 0 1px rgba(218, 183, 103, .16),
+    0 0 17px rgba(211, 174, 91, .13),
+    0 0 28px rgba(119, 82, 210, .10) !important;
+}
+[data-theme="dark"] #propiedades .destacada-card {
+  border-color: rgba(201, 166, 87, .28) !important;
+  box-shadow:
+    0 18px 40px rgba(0,0,0,.30),
+    0 0 0 1px rgba(211, 176, 96, .07),
+    0 0 12px rgba(211, 176, 96, .07),
+    inset 0 1px 0 rgba(255,255,255,.055) !important;
+}
+[data-theme="dark"] #propiedades .destacada-card:hover,
+[data-theme="dark"] #propiedades .destacada-card.is-active {
+  border-color: rgba(220, 187, 108, .50) !important;
+  box-shadow:
+    0 26px 54px rgba(0,0,0,.40),
+    0 0 0 1px rgba(220,187,108,.13),
+    0 0 18px rgba(211,176,96,.11),
+    0 0 28px rgba(123,83,255,.13) !important;
+}
+
+/* UMBRAL — selector de idiomas: lista vertical, no columnas */
+.selector-idioma {
+  position: relative !important;
+}
+#idioma-menu {
+  position: absolute !important;
+  z-index: 3000 !important;
+  top: calc(100% + 10px) !important;
+  right: 0 !important;
+  left: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex-wrap: nowrap !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  gap: 4px !important;
+  width: max-content !important;
+  min-width: 180px !important;
+  max-width: min(240px, calc(100vw - 32px)) !important;
+  padding: 8px !important;
+  margin: 0 !important;
+  border: 1px solid rgba(170, 145, 235, .35) !important;
+  border-radius: 14px !important;
+  background: var(--superficie, #fff) !important;
+  box-shadow: 0 16px 42px rgba(20, 12, 45, .22) !important;
+}
+#idioma-menu[hidden] {
+  display: none !important;
+}
+#idioma-menu > button {
+  display: flex !important;
+  width: 100% !important;
+  min-height: 40px !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+  padding: 9px 12px !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 9px !important;
+  background: transparent !important;
+  cursor: pointer !important;
+}
+#idioma-menu > button:hover {
+  background: rgba(135, 102, 225, .13) !important;
+  color: #35245d !important;
+}
+#idioma-menu > button[aria-selected="true"] {
+  background: #e9e0ff !important;
+  color: #302052 !important;
+  font-weight: 700 !important;
+  box-shadow: inset 0 0 0 1px rgba(112, 78, 190, .22) !important;
+}
+[data-theme="dark"] #idioma-menu {
+  background: #171426 !important;
+  border-color: rgba(183, 158, 255, .28) !important;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, .42) !important;
+}
+[data-theme="dark"] #idioma-menu > button { color: #f5f1ff !important; }
+[data-theme="dark"] #idioma-menu > button:hover {
+  background: rgba(174, 145, 255, .16) !important;
+  color: #ffffff !important;
+}
+[data-theme="dark"] #idioma-menu > button[aria-selected="true"] {
+  background: #6f50b5 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: inset 0 0 0 1px rgba(220, 204, 255, .35) !important;
+}
+
+/* UMBRAL — móvil: desplegable alineado con el borde izquierdo del botón */
+@media (max-width: 900px) {
+  .selector-idioma {
+    position: relative !important;
+    overflow: visible !important;
+    flex: 0 0 auto !important;
+  }
+
+  .navbar-panel,
+  .navbar.abierto .navbar-panel,
+  .navbar-panel .nav-acciones,
+  .navbar-panel .selector-idioma {
+    overflow: visible !important;
+  }
+
+  .navbar-panel .selector-idioma #idioma-menu,
+  .selector-idioma #idioma-menu,
+  #idioma-menu {
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    left: 0 !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    z-index: 99999 !important;
+    width: max-content !important;
+    min-width: 180px !important;
+    max-width: calc(100vw - 24px) !important;
+    box-sizing: border-box !important;
+    max-height: min(60vh, 360px) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    margin: 0 !important;
+  }
+
+  #idioma-menu > button {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* UMBRAL — navegación responsiva: evita que los enlaces se metan debajo
+   del selector de idioma y del control de tema en anchos intermedios.
+   Hasta 1100 px se usa la hamburguesa; desde 1101 px los enlaces quedan
+   centrados entre la marca y los controles mediante la rejilla de escritorio. */
+@media (min-width: 901px) and (max-width: 1100px) {
+  .navbar {
+    position: sticky !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    padding-inline: clamp(16px, 3vw, 28px) !important;
+  }
+
+  .navbar > .marca {
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    max-width: calc(100% - 60px) !important;
+  }
+
+  .navbar > .hamburguesa {
+    display: flex !important;
+    flex: 0 0 44px !important;
+    margin-left: auto !important;
+  }
+
+  .navbar > .navbar-panel,
+  .navbar-panel {
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    display: none !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 18px !important;
+    padding: 18px clamp(18px, 4vw, 36px) 22px !important;
+    background: var(--fondo) !important;
+    background: color-mix(in srgb, var(--fondo) 96%, transparent) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid var(--campo-borde) !important;
+    box-shadow: var(--sombra) !important;
+    z-index: 1000 !important;
+  }
+
+  .navbar.abierto .navbar-panel {
+    display: flex !important;
+  }
+
+  .navbar .menu-enlaces {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 2px !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    white-space: normal !important;
+  }
+
+  .navbar .menu-enlaces li,
+  .navbar .menu-enlaces a {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    white-space: normal !important;
+  }
+
+  .navbar .menu-enlaces a {
+    display: block !important;
+    padding: 11px 8px !important;
+    font-size: 1rem !important;
+  }
+
+  .navbar .menu-enlaces a::after { display: none !important; }
+
+  .navbar .nav-acciones {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    white-space: normal !important;
+    margin: 0 !important;
+  }
+
+  .navbar .nav-acciones > * {
+    flex: 0 0 auto !important;
+    max-width: 100% !important;
+  }
+}
+

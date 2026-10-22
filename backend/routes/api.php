@@ -28,6 +28,7 @@ use App\Http\Controllers\Api\V1\Vendedor\PropiedadController as VendedorPropieda
 use App\Http\Controllers\Api\V1\Vendedor\SesionController as VendedorSesionController;
 use App\Http\Controllers\Api\V1\GeocodificarController;
 use App\Http\Controllers\Api\V1\Vendedor\PerfilController as VendedorPerfilController;
+use App\Http\Controllers\Api\V1\PagoController;
 
 
 /*
@@ -96,7 +97,14 @@ Route::prefix('v1/public')->group(function () {
     Route::get('geocodificar', GeocodificarController::class)->middleware('throttle:30,1');
     Route::get('propiedades/{id}', [PublicPropiedadController::class, 'show']);
     Route::post('leads', [LeadController::class, 'store'])->middleware('throttle:10,1');
+
+    // Pagos con Wompi (compra o arriendo desde el portal y resultado del pago)
+    Route::post('pagos/propiedad', [PagoController::class, 'propiedad'])->middleware('throttle:5,1');
+    Route::get('pagos/estado', [PagoController::class, 'estado'])->middleware('throttle:30,1');
 });
+
+// Webhook de Wompi: avisa cuando una transacción cambia de estado (configurar en comercios.wompi.co)
+Route::post('v1/pagos/wompi/eventos', [PagoController::class, 'eventos'])->middleware('throttle:60,1');
 
 
 

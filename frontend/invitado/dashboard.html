@@ -3130,9 +3130,21 @@
       $('#pseForm').onsubmit = e => {
         e.preventDefault(); const f = e.target;
         if (!f.n.value.trim() || !f.e.value.trim() || !f.d.value.trim() || !f.ok.checked) return toast(t('req'));
+        // El servidor crea el pago en Wompi y devuelve a dónde ir (checkout de Wompi o resultado si es simulado)
+        const boton = f.querySelector('[type="submit"]'); boton.disabled = true;
         toast(t('redirecting'));
-        const q = new URLSearchParams({ propiedad: p.id, operacion: p.op, monto: p.price, nombre: f.n.value, correo: f.e.value, documento: f.d.value });
-        setTimeout(() => { if (PSE_URL) window.location.href = PSE_URL + '?' + q; else { toast(t('demo_pse')); closeModals() } }, 1100);
+        fetch('/api/v1/public/pagos/propiedad', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({ propiedad_id: p.id, nombre: f.n.value.trim(), correo: f.e.value.trim(), documento: f.d.value.trim(), consentimiento: f.ok.checked })
+        })
+          .then(r => r.json().then(j => ({ ok: r.ok, j })))
+          .then(({ ok, j }) => {
+            if (ok && j.url) { window.location.href = j.url; return; }
+            const errores = j.errors ? Object.values(j.errors).map(e => e[0]) : [];
+            toast(errores[0] || j.message || t('req')); boton.disabled = false;
+          })
+          .catch(() => { toast(t('req')); boton.disabled = false; });
       };
     }
 

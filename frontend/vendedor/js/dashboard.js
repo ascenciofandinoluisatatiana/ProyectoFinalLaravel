@@ -672,6 +672,8 @@
         if (boton) boton.disabled = true;
         try {
             var r = await V.api('/membresia', { metodo: 'POST', datos: { plan: planElegido } });
+            // Con Wompi la API devuelve a dónde ir a pagar (la membresía se activa al aprobarse el pago)
+            if (r.checkout_url) { V.toast(r.message); window.location.href = r.checkout_url; return; }
             ventanaPlanes.close();
             V.toast(r.message || 'Membresía activada.');
             await cargar();

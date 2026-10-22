@@ -1,0 +1,945 @@
+/* ===== PREMIUM v2: carrusel top 10 con medallas ===== */
+    .prem-wrap {
+      grid-column: 1/-1;
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      padding: 28px 26px 22px;
+      margin-bottom: 6px;
+      color: #fff;
+      background: linear-gradient(135deg, #1f0f55 0%, #3b1a8f 48%, #5b2ff0 100%);
+      border: 1px solid rgba(252, 211, 77, .38);
+      box-shadow: 0 22px 56px rgba(60, 30, 160, .34)
+    }
+
+    .prem-wrap .pcard {
+      color: var(--text)
+    }
+
+    .prem-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(70px);
+      pointer-events: none
+    }
+
+    .prem-orb.o1 {
+      width: 300px;
+      height: 300px;
+      background: #fbbf24;
+      top: -150px;
+      right: -80px;
+      opacity: .28
+    }
+
+    .prem-orb.o2 {
+      width: 320px;
+      height: 320px;
+      background: #8b5cf6;
+      bottom: -170px;
+      left: -90px;
+      opacity: .5
+    }
+
+    .prem-head {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 10px;
+      flex-wrap: wrap
+    }
+
+    .prem-crown {
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      font-size: 25px;
+      color: #3b2400;
+      flex: none;
+      background: linear-gradient(135deg, #fde68a, #f59e0b);
+      box-shadow: 0 10px 26px rgba(245, 158, 11, .5)
+    }
+
+    .prem-head h3 {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -.01em;
+      background: linear-gradient(90deg, #fff, #fde68a);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent
+    }
+
+    .prem-head p {
+      color: rgba(255, 255, 255, .78);
+      font-size: 14px;
+      margin-top: 4px;
+      max-width: 560px
+    }
+
+    .prem-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px
+    }
+
+    .prem-top {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: .06em;
+      color: #3b2400;
+      background: linear-gradient(135deg, #fde68a, #f59e0b)
+    }
+
+    .prem-arrow {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #fde68a;
+      background: rgba(255, 255, 255, .1);
+      border: 1px solid rgba(253, 230, 138, .45);
+      transition: .2s
+    }
+
+    .prem-arrow:hover:not(:disabled) {
+      background: #fde68a;
+      color: #3b2400;
+      transform: scale(1.06)
+    }
+
+    .prem-arrow:disabled {
+      opacity: .3;
+      cursor: default
+    }
+
+    .prem-track {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 18px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      padding: 12px 4px 24px;
+      margin: 0 -4px;
+      scrollbar-width: none;
+      outline: none;
+      -webkit-overflow-scrolling: touch
+    }
+
+    .prem-track::-webkit-scrollbar {
+      display: none
+    }
+
+    .prem-track .pcard {
+      flex: 0 0 clamp(250px, 27%, 300px);
+      scroll-snap-align: start
+    }
+
+    .prem-bar {
+      position: relative;
+      z-index: 1;
+      height: 4px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, .14);
+      overflow: hidden
+    }
+
+    .prem-bar span {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 30%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, #fde68a, #f59e0b);
+      transition: left .15s, width .15s
+    }
+
+    .rest-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 18px;
+      grid-column: 1/-1
+    }
+
+    /* medalla de posición */
+    .rank {
+      position: absolute;
+      left: 14px;
+      bottom: -20px;
+      z-index: 4;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 14px;
+      color: #fff;
+      border: 3px solid var(--card);
+      box-shadow: 0 6px 16px rgba(30, 10, 80, .35);
+      background: linear-gradient(135deg, #a78bfa, #6c3df5)
+    }
+
+    .rank.t-oro,
+    .tier-chip.t-oro {
+      background: linear-gradient(135deg, #fde68a, #f59e0b);
+      color: #3b2400
+    }
+
+    .rank.t-plata,
+    .tier-chip.t-plata {
+      background: linear-gradient(135deg, #f8fafc, #94a3b8);
+      color: #1e293b
+    }
+
+    .rank.t-bronce,
+    .tier-chip.t-bronce {
+      background: linear-gradient(135deg, #fdba74, #b45309);
+      color: #fff
+    }
+
+    .tier-chip {
+      position: absolute;
+      left: 64px;
+      bottom: -12px;
+      z-index: 4;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      box-shadow: 0 4px 12px rgba(30, 10, 80, .28);
+      border: 2px solid var(--card)
+    }
+
+    .rest-sub {
+      grid-column: 1/-1;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      margin: -2px 0 6px
+    }
+
+    .pcard.has-rank .pbody {
+      padding-top: 28px
+    }
+
+    .pcard.has-rank .b-prem {
+      display: none
+    }
+
+    /* tarjeta premium */
+    .pcard.is-prem {
+      border: 1.5px solid #f5c451;
+      box-shadow: 0 12px 32px rgba(245, 158, 11, .22)
+    }
+
+    .pcard.is-prem:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 0 0 1px #f5c451, 0 22px 46px rgba(245, 158, 11, .4)
+    }
+
+    .pcard.is-prem .price {
+      font-size: 22px
+    }
+
+    .pcard.is-prem .mini-seller .avatar {
+      box-shadow: 0 0 0 2px var(--card), 0 0 0 4px #f5c451
+    }
+
+    /* ver más */
+    .more-bar {
+      grid-column: 1/-1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      padding: 22px 10px 10px;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 600
+    }
+
+    .more-bar::before {
+      content: "";
+      order: -1;
+      width: 100%;
+      max-width: 520px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent)
+    }
+
+    .btn-more {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 30px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 15px;
+      color: #fff;
+      background: linear-gradient(135deg, #5b2ff0, #7c4dff);
+      box-shadow: 0 10px 26px rgba(108, 61, 245, .38);
+      transition: .25s
+    }
+
+    .btn-more:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 32px rgba(108, 61, 245, .5)
+    }
+
+    .btn-more i {
+      animation: moreBounce 1.6s ease-in-out infinite
+    }
+
+    @keyframes moreBounce {
+
+      0%,
+      100% {
+        transform: translateY(-2px)
+      }
+
+      50% {
+        transform: translateY(3px)
+      }
+    }
+
+    .rest-head {
+      grid-column: 1/-1;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 14px 0 4px;
+      font-size: 20px;
+      font-weight: 800
+    }
+
+    .rest-head::before,
+    .rest-head::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--border)
+    }
+
+    .rest-grid.anim .pcard {
+      animation: premIn .5s ease both;
+      animation-delay: calc(min(var(--i, 0), 12)*45ms)
+    }
+
+    @keyframes premIn {
+      from {
+        opacity: 0;
+        transform: translateY(14px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    /* esqueleto de carga */
+    .pcard.sk {
+      pointer-events: none
+    }
+
+    .sk-b,
+    .sk-l {
+      background: linear-gradient(90deg, var(--soft) 25%, var(--border) 50%, var(--soft) 75%);
+      background-size: 200% 100%;
+      animation: skShine 1.3s linear infinite
+    }
+
+    .sk-l {
+      display: block;
+      height: 14px;
+      border-radius: 8px
+    }
+
+    .sk-l.w40 {
+      width: 40%
+    }
+
+    .sk-l.w60 {
+      width: 60%
+    }
+
+    .sk-l.w90 {
+      width: 90%
+    }
+
+    .sk-btn {
+      display: block;
+      height: 36px;
+      border-radius: 12px;
+      flex: 1
+    }
+
+    @keyframes skShine {
+      to {
+        background-position: -200% 0
+      }
+    }
+
+    @media(max-width:600px) {
+      .prem-wrap {
+        padding: 20px 14px 18px;
+        border-radius: 22px
+      }
+
+      .prem-head h3 {
+        font-size: 22px
+      }
+
+      .prem-right {
+        margin-left: 0
+      }
+
+      .prem-crown {
+        width: 46px;
+        height: 46px;
+        font-size: 20px
+      }
+
+      .prem-arrow {
+        display: none
+      }
+
+      .prem-track .pcard {
+        flex-basis: 72vw
+      }
+
+      .rest-grid {
+        grid-template-columns: 1fr
+      }
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+
+      .btn-more i,
+      .rest-grid.anim .pcard,
+      .sk-b,
+      .sk-l {
+        animation: none
+      }
+
+      .prem-track {
+        scroll-behavior: auto
+      }
+    }
+
+    /* ===== TEMA OSCURO (predeterminado) - solo colores ===== */
+    [data-theme="dark"] {
+      --bg: #0b0810;
+      --card: #121016;
+      --text: #ffffff;
+      --muted: #a1a1aa;
+      --border: #2a2433;
+      --primary: #c084fc;
+      --primary2: #9333ea;
+      --soft: #1c142b;
+      --shadow: 0 6px 24px rgba(0, 0, 0, .45);
+      --banner: linear-gradient(120deg, #0d0a12 0%, #2a0a4a 55%, #4c0580 100%);
+    }
+
+    /* botones y marca */
+    [data-theme="dark"] .btn-primary,
+    [data-theme="dark"] .op.active,
+    [data-theme="dark"] .btn-more {
+      background: linear-gradient(135deg, #6b21a8, #9333ea);
+      color: #fff;
+      box-shadow: 0 6px 16px rgba(126, 34, 206, .4)
+    }
+
+    [data-theme="dark"] .btn-green {
+      background: linear-gradient(135deg, #6b21a8, #7e22ce);
+      color: #fff;
+      box-shadow: 0 6px 16px rgba(126, 34, 206, .35)
+    }
+
+    [data-theme="dark"] .btn-orange {
+      background: #e9d5ff;
+      color: #1a0b2e;
+      box-shadow: none
+    }
+
+    [data-theme="dark"] .avatar,
+    [data-theme="dark"] .logo {
+      background: linear-gradient(135deg, #7e22ce, #9333ea)
+    }
+
+    [data-theme="dark"] .toast {
+      background: #1c142b
+    }
+
+    [data-theme="dark"] .stat {
+      border-top-color: #9333ea
+    }
+
+    /* hero */
+    [data-theme="dark"] .hero {
+      background:
+        linear-gradient(110deg, rgba(13, 10, 18, .92) 0%, rgba(42, 10, 74, .82) 55%, rgba(76, 5, 128, .72) 100%),
+        url(/img/hero.jpg) center/cover no-repeat,
+        linear-gradient(120deg, #0d0a12 0%, #2a0a4a 55%, #4c0580 100%);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, .5)
+    }
+
+    [data-theme="dark"] .hero::before {
+      background: #9333ea
+    }
+
+    [data-theme="dark"] .hero::after {
+      background: #7e22ce
+    }
+
+    [data-theme="dark"] .hero .tag {
+      color: #c084fc
+    }
+
+    [data-theme="dark"] .hero .op.active {
+      background: #c084fc;
+      color: #1a0b2e;
+      border-color: #c084fc
+    }
+
+    /* insignias */
+    [data-theme="dark"] .b-sale {
+      background: #0b0810;
+      border: 1px solid #7e22ce;
+      color: #fff
+    }
+
+    [data-theme="dark"] .b-rent {
+      background: #c084fc;
+      color: #1a0b2e
+    }
+
+    [data-theme="dark"] .b-ver {
+      background: #e5e7eb;
+      color: #1f1f23
+    }
+
+    [data-theme="dark"] .b-prem {
+      background: #f5c451;
+      color: #3b2400
+    }
+
+    /* imagen de tarjeta sin foto (las que tienen foto no se tocan) */
+    [data-theme="dark"] .pimg:not([style*="url"]),
+    [data-theme="dark"] .mhero:not([style*="url"]) {
+      background: linear-gradient(135deg, #1c142b, #3a2557) !important
+    }
+
+    [data-theme="dark"] .pcard:hover {
+      box-shadow: 0 14px 34px rgba(147, 51, 234, .25)
+    }
+
+    /* panel premium */
+    [data-theme="dark"] .prem-wrap {
+      background: linear-gradient(135deg, #0f0c14 0%, #15101c 100%);
+      border: 1px solid rgba(245, 196, 81, .45);
+      box-shadow: 0 22px 56px rgba(0, 0, 0, .55)
+    }
+
+    [data-theme="dark"] .prem-orb.o1 {
+      opacity: .12
+    }
+
+    [data-theme="dark"] .prem-orb.o2 {
+      opacity: .22;
+      background: #7e22ce
+    }
+
+    /* ===== AJUSTES JS (tema oscuro) - solo colores ===== */
+    [data-theme="dark"] .fbadge {
+      background: #9333ea;
+      color: #fff
+    }
+
+    [data-theme="dark"] .topbar.scrolled {
+      box-shadow: 0 8px 28px rgba(0, 0, 0, .5)
+    }
+
+    /* ===== TEMA CLARO (mejorado) - solo colores ===== */
+    [data-theme="light"] {
+      --bg: #faf7ff;
+      --card: #ffffff;
+      --text: #1a1026;
+      --muted: #6b6280;
+      --border: #e9ddf7;
+      --primary: #7e22ce;
+      --primary2: #9333ea;
+      --soft: #f3e8ff;
+      --shadow: 0 6px 24px rgba(126, 34, 206, .08);
+      --banner: linear-gradient(120deg, #f3e8ff 0%, #e9d5ff 55%, #ddd6fe 100%);
+    }
+
+    /* botones y marca */
+    [data-theme="light"] .btn-primary,
+    [data-theme="light"] .op.active,
+    [data-theme="light"] .btn-more {
+      background: linear-gradient(135deg, #7e22ce, #9333ea);
+      color: #fff;
+      box-shadow: 0 6px 16px rgba(126, 34, 206, .3)
+    }
+
+    [data-theme="light"] .btn-green {
+      background: linear-gradient(135deg, #6b21a8, #7e22ce);
+      color: #fff;
+      box-shadow: 0 6px 16px rgba(126, 34, 206, .28)
+    }
+
+    [data-theme="light"] .btn-orange {
+      background: #f3e8ff;
+      color: #581c87;
+      border: 1px solid #d8b4fe;
+      box-shadow: none
+    }
+
+    [data-theme="light"] .avatar,
+    [data-theme="light"] .logo {
+      background: linear-gradient(135deg, #7e22ce, #9333ea)
+    }
+
+    [data-theme="light"] .logo {
+      box-shadow: 0 6px 16px rgba(126, 34, 206, .35)
+    }
+
+    [data-theme="light"] .toast {
+      background: #2e1065
+    }
+
+    [data-theme="light"] .stat {
+      border-top-color: #9333ea
+    }
+
+    [data-theme="light"] .topbar.scrolled {
+      box-shadow: 0 8px 28px rgba(126, 34, 206, .14)
+    }
+
+    [data-theme="light"] .pcard:hover {
+      box-shadow: 0 14px 34px rgba(126, 34, 206, .18)
+    }
+
+    [data-theme="light"] .fbadge {
+      background: #7e22ce;
+      color: #fff
+    }
+
+    /* hero */
+    [data-theme="light"] .hero {
+      background:
+        linear-gradient(110deg, rgba(46, 16, 101, .9) 0%, rgba(107, 33, 168, .78) 55%, rgba(147, 51, 234, .62) 100%),
+        url(/img/hero.jpg) center/cover no-repeat,
+        linear-gradient(120deg, #2e1065 0%, #6b21a8 55%, #9333ea 100%);
+      box-shadow: 0 18px 50px rgba(88, 28, 135, .3)
+    }
+
+    [data-theme="light"] .hero::before {
+      background: #c084fc
+    }
+
+    [data-theme="light"] .hero::after {
+      background: #e879f9
+    }
+
+    [data-theme="light"] .hero .tag,
+    [data-theme="light"] .hero h2 .hl {
+      color: #e9d5ff
+    }
+
+    /* insignias */
+    [data-theme="light"] .b-sale {
+      background: #7e22ce;
+      color: #fff
+    }
+
+    [data-theme="light"] .b-rent {
+      background: #e9d5ff;
+      color: #581c87
+    }
+
+    [data-theme="light"] .b-ver {
+      background: #10b981;
+      color: #fff
+    }
+
+    [data-theme="light"] .b-prem {
+      background: #f5c451;
+      color: #3b2400
+    }
+
+    /* imagen de tarjeta sin foto (las que tienen foto no se tocan) */
+    [data-theme="light"] .pimg:not([style*="url"]),
+    [data-theme="light"] .mhero:not([style*="url"]) {
+      background: linear-gradient(135deg, #a855f7, #6b21a8) !important
+    }
+
+    /* panel premium */
+    [data-theme="light"] .prem-wrap {
+      background: linear-gradient(135deg, #2e1065 0%, #4c1d95 50%, #7e22ce 100%);
+      border: 1px solid rgba(245, 196, 81, .55);
+      box-shadow: 0 22px 56px rgba(88, 28, 135, .35)
+    }
+
+    [data-theme="light"] .prem-orb.o2 {
+      background: #c084fc
+    }
+
+    /* ===== NIVELES PREMIUM (bordes) - como el diseño ===== */
+    .pcard.is-prem:has(.rank.t-oro) {
+      border: 1.5px solid #b8892b;
+      box-shadow: none
+    }
+
+    .pcard.is-prem:has(.rank.t-plata) {
+      border: 1.5px solid #b4b4c0;
+      box-shadow: none
+    }
+
+    .pcard.is-prem:has(.rank.t-bronce) {
+      border: 1.5px solid #9a6a2e;
+      box-shadow: none
+    }
+
+    .pcard.is-prem:has(.rank.t-oro):hover {
+      box-shadow: 0 0 0 1px #b8892b, 0 18px 40px rgba(0, 0, 0, .45)
+    }
+
+    .pcard.is-prem:has(.rank.t-plata):hover {
+      box-shadow: 0 0 0 1px #b4b4c0, 0 18px 40px rgba(0, 0, 0, .45)
+    }
+
+    .pcard.is-prem:has(.rank.t-bronce):hover {
+      box-shadow: 0 0 0 1px #9a6a2e, 0 18px 40px rgba(0, 0, 0, .45)
+    }
+
+    /* ===== ROTACION PREMIUM: botón seguir viendo premium ===== */
+    .more-btns {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center
+    }
+
+    [data-theme] .btn-more.btn-more-prem {
+      background: linear-gradient(135deg, #fde68a, #f59e0b);
+      color: #3b2400;
+      box-shadow: 0 10px 26px rgba(245, 158, 11, .35)
+    }
+
+    [data-theme] .btn-more.btn-more-prem:hover {
+      box-shadow: 0 14px 32px rgba(245, 158, 11, .5)
+    }
+
+    /* ===== SIN CARRUSEL: 4 premium visibles en cuadrícula ===== */
+    .prem-track {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      overflow: visible;
+      scroll-snap-type: none;
+      padding: 12px 4px 12px;
+      margin: 0
+    }
+
+    .prem-track .pcard {
+      flex: none;
+      min-width: 0
+    }
+
+    @media(max-width:1100px) {
+      .prem-track {
+        grid-template-columns: repeat(2, 1fr)
+      }
+    }
+
+    @media(max-width:600px) {
+      .prem-track {
+        grid-template-columns: 1fr
+      }
+    }
+
+    /* ===== Carrusel del detalle ===== */
+    .mhero .badges {
+      z-index: 3
+    }
+
+    .car {
+      position: absolute;
+      inset: 0;
+      overflow: hidden
+    }
+
+    .car-track {
+      display: flex;
+      height: 100%;
+      transition: transform .7s ease
+    }
+
+    .car-track img {
+      flex: 0 0 100%;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block
+    }
+
+    .car-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 3;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .9);
+      color: #333;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      opacity: 0;
+      transition: .2s
+    }
+
+    .car:hover .car-btn {
+      opacity: 1
+    }
+
+    .car-btn.prev {
+      left: 14px
+    }
+
+    .car-btn.next {
+      right: 14px
+    }
+
+    .car-dots {
+      position: absolute;
+      bottom: 14px;
+      right: 18px;
+      z-index: 3;
+      display: flex;
+      gap: 6px
+    }
+
+    .car-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .5);
+      cursor: pointer;
+      transition: .2s
+    }
+
+    .car-dots span.on {
+      background: #fff;
+      width: 22px;
+      border-radius: 6px
+    }
+
+    @media(hover:none) {
+      .car-btn {
+        opacity: 1
+      }
+    }
+
+    .mcols p {
+      white-space: pre-line
+    }
+
+    /* ===== Carrusel como tarjeta, foto completa ===== */
+    .mhero:has(.car) {
+      height: 380px;
+      margin: 20px 26px 0;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid var(--border)
+    }
+
+    .car-slide {
+      flex: 0 0 100%;
+      position: relative;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      overflow: hidden
+    }
+
+    .car-slide::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: inherit;
+      filter: blur(24px) brightness(.55);
+      transform: scale(1.2)
+    }
+
+    .car-slide img {
+      position: relative;
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain
+    }
+
+    .mhero:has(.car) .badges {
+      left: 16px;
+      bottom: 14px
+    }
+
+    @media(max-width:600px) {
+      .mhero:has(.car) {
+        height: 240px;
+        margin: 16px 16px 0
+      }
+    }
+
+    /* ===== Botones de la tarjeta alineados ===== */
+    .pactions {
+      display: flex;
+      gap: 8px;
+      width: 100%
+    }
+
+    .pactions .btn {
+      flex: 1 1 0;
+      min-width: 0;
+      padding: 10px 8px;
+      gap: 6px;
+      font-size: 12.5px;
+      white-space: nowrap
+    }
+
+    .pactions .btn i {
+      font-size: 12px
+    }
+
+    .pcard {
+      min-width: 0
+    }
+
+    @media(max-width:1280px) {
+      .pactions {
+        flex-direction: column
+      }
+    }
+  

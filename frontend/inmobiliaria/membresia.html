@@ -49,11 +49,16 @@
                     <div class="i-planes" id="d-planes"></div>
                     <p class="v-nota" style="margin-top:12px"><i class="fa-solid fa-circle-info"></i>
                         Si renuevas antes de que venza, el nuevo periodo empieza cuando termina el actual: no pierdes días.
-                        El pago por PSE se conectará cuando el proyecto defina el proveedor; por ahora el pago es simulado.</p>
+                        <span id="d-modo-pago"></span></p>
                 </section>
 
                 <section class="v-tarjeta">
-                    <div class="v-tarjeta-cabeza"><h2>Historial de pagos</h2><small id="d-historial-total"></small></div>
+                    <div class="v-tarjeta-cabeza"><h2>Intentos de pago</h2><small>Últimos 10, con su resultado</small></div>
+                    <div class="i-tabla-caja" id="d-pagos"></div>
+                </section>
+
+                <section class="v-tarjeta">
+                    <div class="v-tarjeta-cabeza"><h2>Historial de membresías</h2><small id="d-historial-total"></small></div>
                     <div class="i-tabla-caja" id="d-historial"></div>
                 </section>
             </div>

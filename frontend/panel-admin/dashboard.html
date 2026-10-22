@@ -19,8 +19,11 @@
         })();
     </script>
 
-    <!-- Recursos del panel: Tailwind compilado, FontAwesome, Chart.js y la fuente Inter.
+    <!-- Recursos del panel: Tailwind compilado, FontAwesome, Chart.js y la fuente Plus Jakarta Sans.
          Hoy los entrega Laravel desde public/assets/admin (nginx reenvía /assets). -->
+    <!-- Fuente del panel: la misma del dashboard de invitado -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/admin/admin.css">
     <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
     <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
@@ -29,11 +32,11 @@
     <script src="/assets/admin/chart.umd.min.js"></script>
 
     <style>
-        /* Barra de desplazamiento oscura y discreta */
+        /* Barra de desplazamiento discreta */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 8px; }
-        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        ::-webkit-scrollbar-thumb { background: var(--ad-borde); border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--ad-borde2); }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-200 font-sans antialiased" data-pagina="panel" data-titulo="Panel principal">

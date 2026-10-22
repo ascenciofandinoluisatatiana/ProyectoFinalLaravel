@@ -82,6 +82,38 @@
         }
     });
 
+        /* ---------- Cambiar contraseña ---------- */
+    var formClave = document.getElementById('p-clave-form');
+
+    // Cada vez que se abre la ventana, los campos de contraseña empiezan vacíos
+    document.getElementById('p-editar-abrir').addEventListener('click', function () { formClave.reset(); });
+
+    formClave.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var actual = formClave.actual.value, nueva = formClave.nueva.value, repetir = formClave.repetir.value;
+
+        if (!actual || !nueva || !repetir) { V.toast('Completa los tres campos de contraseña.'); return; }
+        if (nueva.length < 8) { V.toast('La nueva contraseña debe tener al menos 8 caracteres.'); formClave.nueva.focus(); return; }
+        if (nueva !== repetir) { V.toast('Las contraseñas nuevas no coinciden.'); formClave.repetir.focus(); return; }
+        if (nueva === actual) { V.toast('La nueva contraseña debe ser distinta a la actual.'); formClave.nueva.focus(); return; }
+
+        var boton = formClave.querySelector('[type="submit"]');
+        boton.disabled = true;
+        try {
+            var r = await V.api('/perfil/clave', {
+                metodo: 'POST',
+                datos: { actual: actual, password: nueva, password_confirmation: repetir }
+            });
+            formClave.reset();
+            ventana.close();
+            V.toast(r.message || 'Contraseña actualizada.');
+        } catch (err) {
+            if (err.message !== 'Sin acceso') V.toast(err.message || 'No se pudo cambiar la contraseña.');
+        } finally {
+            boton.disabled = false;
+        }
+    });
+
     /* ---------- Resumen de cada operación (desde la API) ---------- */
     function dato(valor, texto) { return '<div><b>' + valor + '</b><span>' + texto + '</span></div>'; }
 

@@ -18,6 +18,9 @@
         })();
     </script>
 
+    <!-- Fuente del panel: la misma del dashboard de invitado -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/admin/admin.css">
     <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
     <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
@@ -27,8 +30,8 @@
     <style>
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 8px; }
-        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        ::-webkit-scrollbar-thumb { background: var(--ad-borde); border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--ad-borde2); }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-200 font-sans antialiased" data-pagina="usuarios" data-titulo="Gestión de usuarios">
@@ -178,26 +181,51 @@
             </div>
         </div>
 
+        
         <!-- Modal: confirmar eliminación -->
         <div id="modal-eliminar" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-            <div class="w-full max-w-sm rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl shadow-black/60">
+            <div class="w-full max-w-sm rounded-2xl border border-red-500/30 bg-slate-900 p-6 shadow-2xl shadow-black/60">
                 <div class="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-xl bg-red-500/10 text-red-400 ring-1 ring-red-500/25">
                     <i class="fa-solid fa-triangle-exclamation"></i>
                 </div>
-                <h3 class="text-center font-bold text-white">Eliminar usuario</h3>
-                <p class="mt-2 text-center text-sm leading-relaxed text-slate-400">
-                    ¿Segura de que quieres eliminar a <span id="eliminar-nombre" class="font-semibold text-slate-200"></span>? Esta acción no se puede deshacer.
+
+                <h3 class="text-center font-bold text-white">¿Eliminar esta cuenta?</h3>
+
+                <p class="mt-3 text-center text-sm leading-relaxed text-slate-300">
+                    Vas a eliminar la cuenta de
+                    <span id="eliminar-nombre" class="font-semibold text-white"></span>.
                 </p>
+
+                <div class="mt-4 rounded-xl border border-red-500/20 bg-red-500/5 p-3">
+                    <p class="text-sm font-semibold text-red-300">
+                        <i class="fa-solid fa-circle-exclamation mr-1"></i>
+                        Atención: esta acción es permanente.
+                    </p>
+                    <p class="mt-2 text-sm leading-relaxed text-slate-300">
+                        También se eliminarán las publicaciones de esta cuenta y los datos asociados, como sus fotos, contactos y visitas relacionadas.
+                    </p>
+                    <p class="mt-2 text-sm leading-relaxed text-slate-400">
+                        No podrás recuperar la información eliminada. Comprueba que estás seleccionando la cuenta correcta antes de continuar.
+                    </p>
+                </div>
+
+                <p class="mt-4 text-center text-sm font-medium text-white">
+                    ¿Confirmas que deseas asumir este riesgo?
+                </p>
+
                 <div class="mt-6 flex justify-center gap-2.5">
                     <button type="button" data-cerrar-eliminar
-                            class="rounded-xl border border-slate-700 px-4 py-2.5 text-sm font-medium text-slate-300 transition-all hover:bg-slate-800">Cancelar</button>
+                            class="rounded-xl border border-slate-700 px-4 py-2.5 text-sm font-medium text-slate-300 transition-all hover:bg-slate-800">
+                        Cancelar
+                    </button>
                     <button type="button" id="boton-eliminar"
                             class="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-red-600/25 transition-all hover:bg-red-500 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60">
-                        <i class="fa-solid fa-trash mr-1.5"></i>Eliminar
+                        <i class="fa-solid fa-trash mr-1.5"></i> Sí, eliminar todo
                     </button>
                 </div>
             </div>
         </div>
+
 
         <!-- Notificaciones flotantes -->
         <div id="contenedor-toasts" class="fixed right-4 top-4 z-[60] flex w-80 flex-col gap-2.5"></div>

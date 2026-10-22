@@ -28,6 +28,21 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    /*
+     | Pasarela de pagos Wompi (Bancolombia). Las llaves salen del panel de comercios:
+     | comercios.wompi.co → Desarrolladores. Con llaves de PRUEBAS (pub_test_..., prv_test_...)
+     | no se cobra dinero real. Si no hay llaves, los pagos quedan en modo SIMULADO.
+     */
+    'wompi' => [
+        'public_key' => env('WOMPI_PUBLIC_KEY'),
+        'private_key' => env('WOMPI_PRIVATE_KEY'),
+        'integrity_secret' => env('WOMPI_INTEGRITY_SECRET'),
+        'events_secret' => env('WOMPI_EVENTS_SECRET'),
+        // sandbox (pruebas) o production
+        'api_url' => env('WOMPI_API_URL', 'https://sandbox.wompi.co/v1'),
+        'checkout_url' => env('WOMPI_CHECKOUT_URL', 'https://checkout.wompi.co/p/'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

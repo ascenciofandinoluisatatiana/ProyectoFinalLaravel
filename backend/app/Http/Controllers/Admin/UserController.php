@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
 
 /**
  * CRUD de usuarios del portal para el panel de administración.
@@ -123,21 +124,162 @@ class UserController extends Controller
         ]);
     }
 
+    
+    
     public function destroy(User $usuario): JsonResponse
     {
-        // Reglas de seguridad del panel
-        if ($usuario->id === auth()->id()) {
-            return response()->json(['mensaje' => 'No puedes eliminar tu propia cuenta.'], 422);
+        if ((int) $usuario->id === (int) auth()->id()) {
+            return response()->json([
+                'mensaje' => 'No puedes eliminar tu propia cuenta.',
+            ], 422);
         }
 
-        if ($usuario->tieneRol('administrador') && User::whereHas('role', fn ($consulta) => $consulta->where('nombre', 'administrador'))->count() <= 1) {
-            return response()->json(['mensaje' => 'No puedes eliminar a la única administradora del portal.'], 422);
+        if (
+            $usuario->tieneRol('administrador')
+            && User::whereHas(
+                'role',
+                fn ($consulta) => $consulta->where('nombre', 'administrador')
+            )->count() <= 1
+        ) {
+            return response()->json([
+                'mensaje' => 'No puedes eliminar a la única administradora del portal.',
+            ], 422);
         }
 
-        $usuario->delete();
+        $archivosImagen = [];
 
-        return response()->json(['mensaje' => 'Usuario eliminado correctamente.']);
+        try {
+            DB::transaction(function () use ($usuario, &$archivosImagen) {
+                $idUsuario = $usuario->id;
+
+                // Obtener las publicaciones que pertenecen a esta cuenta.
+                $propiedades = DB::table('propiedades')
+                    ->where('user_id', $idUsuario)
+                    ->get(['id', 'imagen']);
+
+                $idsPropiedades = $propiedades->pluck('id');
+
+                // Guardar las rutas de las imágenes principales.
+                foreach ($propiedades as $propiedad) {
+                    if (!empty($propiedad->imagen)) {
+                        $archivosImagen[] = $propiedad->imagen;
+                    }
+                }
+
+                // Obtener las fotos adicionales antes de eliminar sus registros.
+                $fotos = DB::table('propiedad_fotos')
+                    ->whereIn('propiedad_id', $idsPropiedades)
+                    ->pluck('ruta');
+
+                foreach ($fotos as $ruta) {
+                    if (!empty($ruta)) {
+                        $archivosImagen[] = $ruta;
+                    }
+                }
+
+                // Identificar los contactos asociados a las publicaciones propias.
+                $idsLeads = DB::table('leads')
+                    ->whereIn('propiedad_id', $idsPropiedades)
+                    ->pluck('id');
+
+                // Eliminar visitas vinculadas a esas publicaciones o contactos.
+                DB::table('visitas')
+                    ->whereIn('propiedad_id', $idsPropiedades)
+                    ->orWhereIn('lead_id', $idsLeads)
+                    ->delete();
+
+                // Eliminar contactos de las publicaciones propias.
+                DB::table('leads')
+                    ->whereIn('propiedad_id', $idsPropiedades)
+                    ->delete();
+
+                // Eliminar fotos adicionales y publicaciones propias.
+                DB::table('propiedad_fotos')
+                    ->whereIn('propiedad_id', $idsPropiedades)
+                    ->delete();
+
+                DB::table('propiedades')
+                    ->where('user_id', $idUsuario)
+                    ->delete();
+
+                // Conservar publicaciones ajenas y desvincular al agente eliminado.
+                DB::table('propiedades')
+                    ->where('agente_id', $idUsuario)
+                    ->update(['agente_id' => null]);
+
+                DB::table('leads')
+                    ->where('agente_id', $idUsuario)
+                    ->update(['agente_id' => null]);
+
+                DB::table('visitas')
+                    ->where('agente_id', $idUsuario)
+                    ->update(['agente_id' => null]);
+
+                // Conservar otras cuentas y desvincular su inmobiliaria.
+                DB::table('users')
+                    ->where('inmobiliaria_id', $idUsuario)
+                    ->update(['inmobiliaria_id' => null]);
+
+                // Eliminar los registros propios de membresías y verificaciones.
+                DB::table('membresias')
+                    ->where('user_id', $idUsuario)
+                    ->delete();
+
+                DB::table('verificaciones')
+                    ->where('user_id', $idUsuario)
+                    ->delete();
+
+                // Conservar el historial de otras cuentas.
+                DB::table('verificaciones')
+                    ->where('decidido_por', $idUsuario)
+                    ->update(['decidido_por' => null]);
+
+                // Eliminar la cuenta al final para respetar las claves foráneas.
+                $usuario->delete();
+            });
+
+            // Borrar archivos solo después de confirmar la transacción.
+            // No borrar imágenes que todavía estén referenciadas por otras publicaciones.
+            $archivosImagen = array_unique($archivosImagen);
+
+            foreach ($archivosImagen as $ruta) {
+                $ruta = ltrim(str_replace('\\', '/', $ruta), '/');
+
+                if (
+                    $ruta === ''
+                    || str_contains($ruta, '..')
+                    || str_starts_with($ruta, 'http://')
+                    || str_starts_with($ruta, 'https://')
+                ) {
+                    continue;
+                }
+
+                $enUsoEnPropiedades = DB::table('propiedades')
+                    ->where('imagen', $ruta)
+                    ->exists();
+
+                $enUsoEnFotos = DB::table('propiedad_fotos')
+                    ->where('ruta', $ruta)
+                    ->exists();
+
+                if (!$enUsoEnPropiedades && !$enUsoEnFotos) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($ruta);
+                }
+            }
+
+            return response()->json([
+                'mensaje' => 'Usuario, publicaciones y datos asociados eliminados correctamente.',
+            ]);
+        } catch (\Throwable $error) {
+            report($error);
+
+            return response()->json([
+                'mensaje' => 'No se pudo eliminar la cuenta. Revisa el registro del servidor.',
+            ], 500);
+        }
     }
+
+
 
     /** Forma uniforme del usuario para el JavaScript de la tabla. */
     private function serializar(User $usuario): array

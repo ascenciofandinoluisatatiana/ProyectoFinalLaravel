@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Reportes · UMBRAL</title>
+    <link rel="icon" type="image/png" href="/img/icono.png">
+
+    <!-- Aplica el tema guardado sin parpadeos -->
+    <script>
+        (function () {
+            var tema = 'light';
+            try {
+                var guardado = localStorage.getItem('umbral-tema');
+                if (guardado === 'dark' || guardado === 'light') tema = guardado;
+            } catch (e) {}
+            document.documentElement.setAttribute('data-theme', tema);
+        })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/admin/admin.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/regular.min.css">
+    <link rel="stylesheet" href="/assets/admin/tema.css">
+
+    <style>
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--ad-borde); border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--ad-borde2); }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 font-sans antialiased" data-pagina="reportes" data-titulo="Reportes y Rendimiento">
+
+    <div id="app" class="min-h-screen" style="visibility:hidden">
+        <div id="zona-menu"></div>
+
+        <div class="flex min-h-screen flex-col lg:pl-72 transition-all duration-300">
+            <div id="zona-barra"></div>
+
+            <main class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+                <div class="mx-auto max-w-7xl space-y-6">
+
+                    <!-- Encabezado -->
+                    <div class="hero-admin relative overflow-hidden rounded-2xl border border-slate-800 p-6 sm:p-8">
+                        <span class="hero-blob hero-blob-1"></span>
+                        <span class="hero-blob hero-blob-2"></span>
+
+                        <div class="relative flex flex-wrap items-center justify-between gap-4">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-violet-400">
+                                    <i class="fa-solid fa-chart-pie mr-1"></i>Módulo de analítica
+                                </p>
+                                <h1 class="titulo-grad mt-1 text-2xl font-extrabold sm:text-3xl">
+                                    Reportes y Rendimiento
+                                </h1>
+                                <p class="mt-1.5 max-w-xl text-sm text-slate-400">
+                                    Indicadores clave, membresías y movimiento del portal en el periodo elegido.
+                                </p>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <button id="btnExportTransacciones" type="button" class="inline-flex items-center gap-2 rounded-xl bg-slate-800 px-4 py-2.5 text-xs font-semibold text-white border border-slate-700 hover:bg-slate-700 transition-all">
+                                    <i class="fa-solid fa-download"></i> Exportar Transacciones CSV
+                                </button>
+                                <button id="btnExportPublicaciones" type="button" class="inline-flex items-center gap-2 rounded-xl bg-slate-800 px-4 py-2.5 text-xs font-semibold text-white border border-slate-700 hover:bg-slate-700 transition-all">
+                                    <i class="fa-solid fa-download"></i> Exportar Inmuebles CSV
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="aviso" class="hidden"></div>
+
+                    <!-- Filtro por fechas -->
+                    <div class="flex flex-wrap items-end gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 shadow-xl shadow-black/20">
+                        <div>
+                            <label for="fechaInicio" class="mb-1.5 block text-xs font-medium text-slate-400">Desde</label>
+                            <input type="date" id="fechaInicio"
+                                   class="rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2.5 text-sm text-slate-300 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
+                        </div>
+                        <div>
+                            <label for="fechaFin" class="mb-1.5 block text-xs font-medium text-slate-400">Hasta</label>
+                            <input type="date" id="fechaFin"
+                                   class="rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2.5 text-sm text-slate-300 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
+                        </div>
+                        <button id="btnFiltrar" type="button"
+                                class="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-600/25 transition-all hover:from-violet-500 hover:to-indigo-500 active:scale-[0.98]">
+                            <i class="fa-solid fa-filter mr-1.5"></i>Aplicar filtro
+                        </button>
+                    </div>
+
+                    <!-- Cifras -->
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                        <div class="kpi kpi-violeta rounded-2xl border border-slate-800 bg-slate-900/60 p-5" style="--i:0">
+                            <div class="grid h-11 w-11 place-items-center rounded-xl bg-violet-500/10 text-violet-400 ring-1 ring-violet-500/20"><i class="fa-solid fa-coins"></i></div>
+                            <p id="valIngresosTotal" class="mt-4 text-3xl font-extrabold tracking-tight text-white">$0</p>
+                            <p class="mt-0.5 text-sm text-slate-500">Ingresos por membresías</p>
+                        </div>
+                        <div class="kpi kpi-verde rounded-2xl border border-slate-800 bg-slate-900/60 p-5" style="--i:1">
+                            <div class="grid h-11 w-11 place-items-center rounded-xl bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20"><i class="fa-solid fa-circle-check"></i></div>
+                            <p id="valMembresiasActivas" class="mt-4 text-3xl font-extrabold tracking-tight text-white">0</p>
+                            <p id="valMembresiasVencer" class="mt-0.5 text-sm text-slate-500">0 por vencer</p>
+                        </div>
+                        <div class="kpi kpi-ambar rounded-2xl border border-slate-800 bg-slate-900/60 p-5" style="--i:2">
+                            <div class="grid h-11 w-11 place-items-center rounded-xl bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/20"><i class="fa-solid fa-house"></i></div>
+                            <p id="valPublicacionesActivas" class="mt-4 text-3xl font-extrabold tracking-tight text-white">0</p>
+                            <p id="valPublicacionesOtras" class="mt-0.5 text-sm text-slate-500">0 en otro estado</p>
+                        </div>
+                        <div class="kpi kpi-celeste rounded-2xl border border-slate-800 bg-slate-900/60 p-5" style="--i:3">
+                            <div class="grid h-11 w-11 place-items-center rounded-xl bg-sky-500/10 text-sky-400 ring-1 ring-sky-500/20"><i class="fa-solid fa-users"></i></div>
+                            <p id="valTotalVendedores" class="mt-4 text-3xl font-extrabold tracking-tight text-white">0</p>
+                            <p id="valInmobiliariasCount" class="mt-0.5 text-sm text-slate-500">0 inmobiliarias</p>
+                        </div>
+                    </div>
+
+                    <!-- Transacciones -->
+                    <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 shadow-xl shadow-black/20">
+                        <div class="border-b border-slate-800 px-5 py-4">
+                            <h2 class="text-base font-bold text-white">Pagos de membresías</h2>
+                            <p class="mt-1 text-sm text-slate-500">Pagos registrados en el periodo seleccionado.</p>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full min-w-[48rem] text-left text-sm">
+                                <thead class="border-b border-slate-800 text-[11px] uppercase tracking-wider text-slate-500">
+                                    <tr>
+                                        <th class="px-5 py-3.5 font-semibold">Referencia</th>
+                                        <th class="px-5 py-3.5 font-semibold">Usuario</th>
+                                        <th class="px-5 py-3.5 font-semibold">Plan</th>
+                                        <th class="px-5 py-3.5 font-semibold">Monto</th>
+                                        <th class="px-5 py-3.5 font-semibold">Estado</th>
+                                        <th class="px-5 py-3.5 font-semibold">Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaTransaccionesBody" class="divide-y divide-slate-800/70"></tbody>
+                            </table>
+                        </div>
+
+                        <div class="border-t border-slate-800 px-5 py-3.5">
+                            <p id="infoTransacciones" class="text-xs text-slate-500"></p>
+                        </div>
+                    </div>
+
+                    <!-- Visitas y países -->
+                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                        <div class="rounded-2xl border border-slate-800 bg-slate-900/60 shadow-xl shadow-black/20">
+                            <div class="border-b border-slate-800 px-5 py-4">
+                                <h2 class="text-base font-bold text-white">Visitas agendadas</h2>
+                                <p class="mt-1 text-sm text-slate-500">Por estado, en el periodo.</p>
+                            </div>
+                            <div id="tablaVisitasBody" class="divide-y divide-slate-800/70"></div>
+                        </div>
+
+                        <div class="rounded-2xl border border-slate-800 bg-slate-900/60 shadow-xl shadow-black/20">
+                            <div class="border-b border-slate-800 px-5 py-4">
+                                <h2 class="text-base font-bold text-white">Cuentas nuevas por país</h2>
+                                <p class="mt-1 text-sm text-slate-500">País de residencia, en el periodo.</p>
+                            </div>
+                            <div id="tablaPaisesBody" class="divide-y divide-slate-800/70"></div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="border-t border-slate-800/60 px-6 py-4 text-xs text-slate-600 flex flex-wrap items-center justify-between gap-2">
+                <span>UMBRAL · El paso hacia un nuevo hogar</span>
+                <span>Panel de administración · Colombia</span>
+            </footer>
+        </div>
+    </div>
+
+    <div id="fondo-menu" class="fixed inset-0 z-30 hidden bg-black/60 backdrop-blur-sm lg:hidden transition-opacity duration-300"></div>
+
+    <script src="/panel-admin/js/panel-admin.js"></script>
+    <script src="/panel-admin/js/reportes.js"></script>
+</body>
+</html>

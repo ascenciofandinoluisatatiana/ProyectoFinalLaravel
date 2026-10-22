@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Inmobiliaria;
 use App\Models\Membresia;
 use App\Models\Pago;
 use App\Services\Pagos\PagoService;
+use App\Models\PlanMembresia;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -41,7 +42,7 @@ class MembresiaController extends BaseInmobiliariaController
             ->get()
             ->map(fn (Membresia $m) => $this->formato($m));
 
-        $planes = collect(Membresia::PRECIOS_PLAN)->map(fn ($precio, $plan) => [
+        $planes = collect(PlanMembresia::precios())->map(fn ($precio, $plan) => [
             'plan' => $plan,
             'nombre' => Membresia::NOMBRES_PLAN[$plan],
             'precio' => $precio,
@@ -76,7 +77,7 @@ class MembresiaController extends BaseInmobiliariaController
      */
     public function contratar(Request $request, PagoService $pagos): JsonResponse
     {
-        $datos = $request->validate(['plan' => ['required', Rule::in(array_keys(Membresia::PRECIOS_PLAN))]]);
+        $datos = $request->validate(['plan' => ['required', Rule::in(array_keys(PlanMembresia::precios()))]]);
         $usuario = $this->inmobiliaria($request);
 
         $hoy = Carbon::now(self::ZONA)->toDateString();

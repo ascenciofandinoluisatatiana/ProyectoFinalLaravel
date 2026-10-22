@@ -97,15 +97,27 @@
                 <div class="mx-auto max-w-7xl space-y-5">
 
                     <!-- Encabezado de la sección -->
-                    <div class="flex flex-wrap items-end justify-between gap-3">
-                        <div>
-                            <h1 class="text-xl font-extrabold text-white sm:text-2xl">Verificaciones</h1>
-                            <p class="mt-1 text-sm text-slate-500">Aprueba o rechaza las cuentas pendientes. Cada decisión queda registrada.</p>
+                    <div class="hero-admin relative overflow-hidden rounded-2xl border border-slate-800 p-6 sm:p-8">
+                        <span class="hero-blob hero-blob-1"></span>
+                        <span class="hero-blob hero-blob-2"></span>
+
+                        <div class="relative flex flex-wrap items-center justify-between gap-4">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-violet-400">
+                                    <i class="fa-solid fa-shield-halved mr-1"></i>Módulo de verificación
+                                </p>
+                                <h1 class="titulo-grad mt-1 text-2xl font-extrabold sm:text-3xl">
+                                    Verificaciones
+                                </h1>
+                                <p class="mt-1.5 max-w-xl text-sm text-slate-400">
+                                    Aprueba o rechaza las cuentas pendientes. Cada decisión queda registrada.
+                                </p>
+                            </div>
+                            <span class="ver-contador">
+                                <i class="fa-solid fa-user-clock"></i>
+                                <span id="contador-pendientes">…</span> pendientes
+                            </span>
                         </div>
-                        <span class="ver-contador">
-                            <i class="fa-solid fa-user-clock"></i>
-                            <span id="contador-pendientes">…</span> pendientes
-                        </span>
                     </div>
 
                     <!-- Pestañas -->

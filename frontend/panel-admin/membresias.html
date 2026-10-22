@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Membresías · UMBRAL</title>
+    <link rel="icon" type="image/png" href="/img/icono.png">
+
+    <script>
+        (function () {
+            var tema = 'light';
+            try {
+                var guardado = localStorage.getItem('umbral-tema');
+                if (guardado === 'dark' || guardado === 'light') tema = guardado;
+            } catch (e) {}
+            document.documentElement.setAttribute('data-theme', tema);
+        })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/admin/admin.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/regular.min.css">
+    <link rel="stylesheet" href="/assets/admin/tema.css">
+</head>
+<body class="bg-slate-950 text-slate-200 font-sans antialiased" data-pagina="membresias" data-titulo="Membresías">
+
+    <div id="app" class="min-h-screen" style="visibility:hidden">
+        <div id="zona-menu"></div>
+
+        <div class="flex min-h-screen flex-col lg:pl-72 transition-all duration-300">
+            <div id="zona-barra"></div>
+
+            <main class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+                <div class="mx-auto max-w-7xl space-y-6">
+
+                    <div class="hero-admin relative overflow-hidden rounded-2xl border border-slate-800 p-6 sm:p-8">
+                        <span class="hero-blob hero-blob-1"></span>
+                        <span class="hero-blob hero-blob-2"></span>
+
+                        <div class="relative">
+                            <p class="text-xs font-semibold uppercase tracking-wider text-violet-400">
+                                <i class="fa-solid fa-crown mr-1"></i>Módulo de membresías
+                            </p>
+                            <h1 class="titulo-grad mt-1 text-2xl font-extrabold sm:text-3xl">
+                                Membresías
+                            </h1>
+                            <p class="mt-1.5 max-w-xl text-sm text-slate-400">
+                                Planes y precios, pagos de vendedores e inmobiliarias y estado de cada membresía.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div id="aviso" class="hidden"></div>
+
+                    <!-- Cifras -->
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                        <div class="kpi kpi-verde rounded-2xl border border-slate-800 bg-slate-900/60 p-5" style="--i:0">
+                            <div class="grid h-11 w-11 place-items-center rounded-xl bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20"><i class="fa-solid fa-circle-check"></i></div>
+                            <p id="valor-vigentes" class="mt-4 text-3xl font-extrabold tracking-tight text-white">0</p>
+                            <p class="mt-0.5 text-sm text-slate-500">Cuentas con membresía vigente</p>
+                        </div>
+                        <div class="kpi kpi-ambar rounded-2xl border border-slate-800 bg-slate-900/60 p-5" style="--i:1">
+                            <div class="grid h-11 w-11 place-items-center rounded-xl bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/20"><i class="fa-solid fa-hourglass-half"></i></div>
+                            <p id="valor-por-vencer" class="mt-4 text-3xl font-extrabold tracking-tight text-white">0</p>
+                            <p class="mt-0.5 text-sm text-slate-500">Vencen en los próximos 7 días</p>
+                        </div>
+                        <div class="kpi kpi-celeste rounded-2xl border border-slate-800 bg-slate-900/60 p-5" style="--i:2">
+                            <div class="grid h-11 w-11 place-items-center rounded-xl bg-sky-500/10 text-sky-400 ring-1 ring-sky-500/20"><i class="fa-solid fa-circle-xmark"></i></div>
+                            <p id="valor-vencidas" class="mt-4 text-3xl font-extrabold tracking-tight text-white">0</p>
+                            <p class="mt-0.5 text-sm text-slate-500">Cuentas con membresía vencida</p>
+                        </div>
+                        <div class="kpi kpi-violeta rounded-2xl border border-slate-800 bg-slate-900/60 p-5" style="--i:3">
+                            <div class="grid h-11 w-11 place-items-center rounded-xl bg-violet-500/10 text-violet-400 ring-1 ring-violet-500/20"><i class="fa-solid fa-coins"></i></div>
+                            <p id="valor-ingresos-mes" class="mt-4 text-3xl font-extrabold tracking-tight text-white">0</p>
+                            <p class="mt-0.5 text-sm text-slate-500">Ingresos del mes (COP)</p>
+                        </div>
+                    </div>
+
+                    <!-- Planes y precios -->
+                    <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 shadow-xl shadow-black/20">
+                        <div class="mb-4">
+                            <h3 class="font-bold text-white">Planes y precios</h3>
+                            <p class="text-xs text-slate-500">El nuevo precio se aplica a los pagos futuros. Los pagos ya hechos conservan el precio que pagaron.</p>
+                        </div>
+                        <div id="planes" class="grid grid-cols-1 gap-4 md:grid-cols-3"></div>
+                    </div>
+
+                    <!-- Lista de membresías -->
+                    <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 shadow-xl shadow-black/20">
+                        <div class="flex flex-col gap-3 border-b border-slate-800 p-4 sm:flex-row sm:items-center">
+                            <div class="relative flex-1">
+                                <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-500"></i>
+                                <input type="search" id="buscar" placeholder="Buscar por nombre o correo…"
+                                       class="w-full rounded-xl border border-slate-800 bg-slate-950/60 py-2.5 pl-10 pr-4 text-sm text-slate-200 placeholder-slate-600 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
+                            </div>
+                            <select id="filtro-estado" class="rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2.5 text-sm text-slate-300 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
+                                <option value="">Estado: Todos</option>
+                                <option value="vigente">Vigentes</option>
+                                <option value="por_vencer">Por vencer</option>
+                                <option value="vencida">Vencidas</option>
+                                <option value="cancelada">Canceladas</option>
+                            </select>
+                            <select id="filtro-plan" class="rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2.5 text-sm text-slate-300 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
+                                <option value="">Plan: Todos</option>
+                                <option value="semanal">Semanal</option>
+                                <option value="quincenal">Quincenal</option>
+                                <option value="mensual">Mensual</option>
+                            </select>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full min-w-[48rem] text-left text-sm">
+                                <thead class="border-b border-slate-800 text-[11px] uppercase tracking-wider text-slate-500">
+                                    <tr>
+                                        <th class="px-5 py-3.5 font-semibold">Cuenta</th>
+                                        <th class="px-5 py-3.5 font-semibold">Plan</th>
+                                        <th class="px-5 py-3.5 font-semibold">Pago</th>
+                                        <th class="px-5 py-3.5 font-semibold">Vigencia</th>
+                                        <th class="px-5 py-3.5 font-semibold">Estado</th>
+                                        <th class="px-5 py-3.5 text-right font-semibold">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-membresias" class="divide-y divide-slate-800/70 transition-opacity"></tbody>
+                            </table>
+                        </div>
+
+                        <div id="tabla-vacia" class="hidden px-5 py-14 text-center">
+                            <div class="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-xl bg-slate-800 text-slate-500"><i class="fa-solid fa-credit-card"></i></div>
+                            <p class="text-sm font-medium text-slate-400">No hay membresías para mostrar</p>
+                            <p class="mt-0.5 text-xs text-slate-600">Prueba con otro nombre, correo o filtro.</p>
+                        </div>
+
+                        <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 px-5 py-3.5">
+                            <p id="paginacion-info" class="text-xs text-slate-500"></p>
+                            <div id="paginacion-botones" class="flex items-center gap-1"></div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="border-t border-slate-800/60 px-6 py-4 text-xs text-slate-600 flex flex-wrap items-center justify-between gap-2">
+                <span>UMBRAL · El paso hacia un nuevo hogar</span>
+                <span>Panel de administración · Colombia</span>
+            </footer>
+        </div>
+    </div>
+
+    <div id="fondo-menu" class="fixed inset-0 z-30 hidden bg-black/60 backdrop-blur-sm lg:hidden transition-opacity duration-300"></div>
+
+    <script src="/panel-admin/js/panel-admin.js"></script>
+    <script src="/panel-admin/js/membresias.js"></script>
+</body>
+</html>

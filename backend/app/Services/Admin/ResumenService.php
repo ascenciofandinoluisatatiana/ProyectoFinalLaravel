@@ -30,7 +30,8 @@ class ResumenService
             ->whereBetween('created_at', [$inicioMesAnterior, $inicioMes])->count();
 
         // ---------- Membresías ----------
-        $membresiasActivas = Membresia::where('estado', 'activa')->count();
+        $membresiasActivas = Membresia::where('estado', 'activa')
+            ->whereDate('fecha_fin', '>=', $ahora->toDateString())->count();
         $membresiasEsteMes = Membresia::where('created_at', '>=', $inicioMes)->count();
         $membresiasMesAnterior = Membresia::whereBetween('created_at', [$inicioMesAnterior, $inicioMes])->count();
 

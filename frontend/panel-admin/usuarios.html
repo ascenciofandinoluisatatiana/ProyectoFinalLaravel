@@ -46,15 +46,27 @@
                 <div class="mx-auto max-w-7xl space-y-5">
 
                     <!-- Encabezado de la sección -->
-                    <div class="flex flex-wrap items-end justify-between gap-3">
-                        <div>
-                            <h1 class="text-xl font-extrabold text-white sm:text-2xl">Gestión de usuarios</h1>
-                            <p class="mt-1 text-sm text-slate-500">Crea, edita y administra las cuentas del portal UMBRAL.</p>
+                    <div class="hero-admin relative overflow-hidden rounded-2xl border border-slate-800 p-6 sm:p-8">
+                        <span class="hero-blob hero-blob-1"></span>
+                        <span class="hero-blob hero-blob-2"></span>
+
+                        <div class="relative flex flex-wrap items-center justify-between gap-4">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-violet-400">
+                                    <i class="fa-solid fa-users mr-1"></i>Módulo de usuarios
+                                </p>
+                                <h1 class="titulo-grad mt-1 text-2xl font-extrabold sm:text-3xl">
+                                    Gestión de usuarios
+                                </h1>
+                                <p class="mt-1.5 max-w-xl text-sm text-slate-400">
+                                    Crea, edita y administra las cuentas del portal UMBRAL.
+                                </p>
+                            </div>
+                            <button type="button" data-abrir-crear
+                                    class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-all hover:from-violet-500 hover:to-indigo-500 active:scale-[0.98]">
+                                <i class="fa-solid fa-user-plus"></i>Nuevo usuario
+                            </button>
                         </div>
-                        <button type="button" data-abrir-crear
-                                class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-600/25 transition-all hover:from-violet-500 hover:to-indigo-500 hover:shadow-violet-500/40 active:scale-[0.98]">
-                            <i class="fa-solid fa-user-plus"></i>Nuevo usuario
-                        </button>
                     </div>
 
                     <!-- Tabla con búsqueda y filtros -->

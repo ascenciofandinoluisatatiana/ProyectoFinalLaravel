@@ -344,3 +344,8 @@ body.panel-violeta::after { display: none; }
     .panel-violeta .i-lateral { box-shadow: none; }
     .panel-violeta .i-velo.abierto { background: rgba(10, 4, 20, 0.58); }
 }
+
+/* ===== Logo sin cuadro (como en la inmobiliaria) ===== */
+.panel-violeta .i-marca .i-logo-marca { width: 46px; height: 46px; border-radius: 0; background: none; box-shadow: none; }
+[data-theme="dark"] .panel-violeta .i-marca .i-logo-marca { background: none; }
+.panel-violeta .i-marca .i-logo-marca img { width: 100%; height: 100%; filter: brightness(1.9) saturate(1.1); }

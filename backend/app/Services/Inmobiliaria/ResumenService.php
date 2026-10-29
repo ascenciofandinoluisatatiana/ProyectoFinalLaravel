@@ -63,6 +63,7 @@ class ResumenService
                 'visitas_proximas' => $visitasProximas,
             ],
             'membresia' => $this->membresia($inmobiliaria, $ahora),
+            'destacadas' => $this->destacadas($idsPropiedades, $ahora),
             'contactos_7_dias' => $this->contactosUltimosDias($idsPropiedades, $ahora, 7),
             'agentes' => $this->rendimientoAgentes($agentes, $idsPropiedades, $ahora),
             'ultimos_contactos' => $this->ultimosContactos($idsPropiedades),
@@ -75,6 +76,7 @@ class ResumenService
     {
         $hoy = $ahora->copy()->setTimezone(self::ZONA);
         $m = Membresia::where('user_id', $inmobiliaria->id)
+            ->whereNull('propiedad_id')               // la de toda la cuenta (si existe)
             ->where('estado', 'activa')
             ->whereDate('fecha_fin', '>=', $hoy->toDateString())
             ->orderByDesc('fecha_fin')
@@ -90,6 +92,24 @@ class ResumenService
             'fecha_inicio' => $m->fecha_inicio->toDateString(),
             'fecha_fin' => $m->fecha_fin->toDateString(),
             'dias_restantes' => (int) Carbon::parse($hoy->toDateString())->diffInDays(Carbon::parse($m->fecha_fin->toDateString())),
+        ];
+    }
+
+    /** Cuántas publicaciones tienen membresía vigente hoy y cuál vence primero. */
+    private function destacadas($idsPropiedades, Carbon $ahora): array
+    {
+        $hoy = $ahora->copy()->setTimezone(self::ZONA)->toDateString();
+        $vigentes = Membresia::whereIn('propiedad_id', $idsPropiedades)
+            ->where('estado', 'activa')
+            ->whereDate('fecha_inicio', '<=', $hoy)
+            ->whereDate('fecha_fin', '>=', $hoy)
+            ->get(['propiedad_id', 'fecha_fin']);
+
+        $finPorPropiedad = $vigentes->groupBy('propiedad_id')->map(fn ($g) => $g->max(fn ($m) => $m->fecha_fin->toDateString()));
+
+        return [
+            'total' => $finPorPropiedad->count(),
+            'proximo_vencimiento' => $finPorPropiedad->min(),
         ];
     }
 

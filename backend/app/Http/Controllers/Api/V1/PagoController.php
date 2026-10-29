@@ -99,14 +99,16 @@ class PagoController extends Controller
 
         return response()->json(['ok' => $valido], $valido ? 200 : 400);
     }
-        private function detalle(Pago $pago): string
+
+    private function detalle(Pago $pago): string
     {
         $p = $pago->propiedad;
+        if ($pago->plan === \App\Models\PaqueteMembresia::PLAN) {
+            return 'Paquete mensual de ' . \App\Models\PaqueteMembresia::PUBLICACIONES . ' publicaciones destacadas';
+        }
         if ($pago->concepto === 'membresia') {
-            $texto = 'Membresía ' . mb_strtolower(Membresia::NOMBRES_PLAN[$pago->plan] ?? $pago->plan);
-
-            // Membresía por publicación: se dice de cuál inmueble es
-            return $p ? $texto . ' · ' . ucfirst($p->tipo) . ' en ' . $p->barrio . ', ' . $p->ciudad : $texto;
+            return 'Membresía ' . mb_strtolower(Membresia::NOMBRES_PLAN[$pago->plan] ?? $pago->plan)
+                . ($p ? ' · ' . ucfirst($p->tipo) . ' en ' . $p->barrio . ', ' . $p->ciudad : '');
         }
 
         return $p ? (ucfirst($p->tipo) . ' en ' . $p->barrio . ', ' . $p->ciudad . ' · ' . ($p->operacion === 'venta' ? 'compra' : 'arriendo')) : 'Inmueble';
@@ -116,12 +118,11 @@ class PagoController extends Controller
     private function volver(Pago $pago): string
     {
         if ($pago->concepto === 'membresia') {
-            if ($pago->usuario?->role?->nombre !== 'vendedor') {
-                return '/inmobiliaria/membresia.html';
-            }
+            if ($pago->usuario?->role?->nombre === 'vendedor') {
+                return $pago->propiedad?->operacion === 'arriendo' ? '/vendedor/arrendar.html' : '/vendedor/vender.html';            }
 
-            // El vendedor vuelve a la pantalla donde está ese inmueble (vender o arrendar)
-            return $pago->propiedad?->operacion === 'arriendo' ? '/vendedor/arrendar.html' : '/vendedor/vender.html';
+            // Membresía de una publicación → vuelve a Propiedades, donde se ve destacada
+            return $pago->propiedad_id ? '/inmobiliaria/propiedades.html' : '/inmobiliaria/membresia.html';
         }
 
         return '/invitado/dashboard.html';

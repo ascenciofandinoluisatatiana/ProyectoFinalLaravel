@@ -1,6 +1,6 @@
 /* =========================================================
    UMBRAL — Panel del agente: "Mi día"
-   API: GET /api/v1/agente/resumen
+   API: GET /api/v1/agente/resumen y GET /api/v1/agente/comisiones
    ========================================================= */
 (function () {
     'use strict';
@@ -43,11 +43,31 @@
             : '<div class="v-vacio"><i class="fa-solid fa-inbox"></i>No tienes contactos nuevos.</div>';
     }
 
+    // Comisiones: 4 % de cada venta o arriendo cerrado; la inmobiliaria las marca como pagadas
+    function pintarComisiones(c) {
+        $('d-comisiones-nota').textContent = c.porcentaje + ' % de cada venta o canon de arriendo';
+        $('d-comisiones-totales').innerHTML =
+            '<div><span>Por cobrar</span><b>' + A.cop(c.totales.pendiente) + '</b></div>' +
+            '<div><span>Pagado</span><b>' + A.cop(c.totales.pagada) + '</b></div>' +
+            '<div><span>Cierres</span><b>' + Number(c.totales.cierres) + '</b></div>';
+        $('d-comisiones').innerHTML = c.data.length
+            ? '<table class="i-tabla"><thead><tr><th>Inmueble</th><th>Operación</th><th>Cierre</th><th class="num">Valor base</th><th class="num">Comisión</th><th>Estado</th></tr></thead><tbody>' +
+              c.data.map(function (x) {
+                  return '<tr><td>' + A.esc(x.inmueble) + '</td><td>' + (x.operacion === 'venta' ? 'Venta' : 'Arriendo') + '</td>' +
+                      '<td>' + A.esc(A.fecha(x.cerrada_en)) + '</td><td class="num">' + A.cop(x.base) + '</td>' +
+                      '<td class="num"><b>' + A.cop(x.valor) + '</b></td>' +
+                      '<td><span class="v-insignia ' + (x.estado === 'pagada' ? 'activo' : 'pendiente') + '">' + (x.estado === 'pagada' ? 'Pagada' : 'Por cobrar') + '</span></td></tr>';
+              }).join('') + '</tbody></table>'
+            : '<div class="v-vacio"><i class="fa-solid fa-hand-holding-dollar"></i>Aún no tienes cierres. Cuando tu inmobiliaria marque como vendida o arrendada una propiedad a tu cargo, aquí verás tu comisión.</div>';
+    }
+
     (async function () {
         var usuario = await A.iniciar('dashboard');
         if (!usuario) return;
         try {
-            pintar(usuario, await A.api('/resumen'));
+            var res = await Promise.all([A.api('/resumen'), A.api('/comisiones')]);
+            pintar(usuario, res[0]);
+            pintarComisiones(res[1]);
             $('d-cargando').hidden = true;
             $('d-panel').hidden = false;
         } catch (err) {

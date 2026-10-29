@@ -47,6 +47,8 @@ class PanelController extends Controller
                 'contactos' => (clone $leads)->count(),
                 'contactos_nuevos' => (clone $leads)->where('estado', 'nuevo')->count(),
                 'visitas_proximas' => (clone $visitasProximas)->count(),
+                'comision_pendiente' => (int) \App\Models\Comision::where('agente_id', $yo->id)
+                    ->where('inmobiliaria_id', $yo->inmobiliaria_id)->where('estado', 'pendiente')->sum('valor'),
                 'visitas_hoy' => (clone $visitasProximas)
                     ->where('fecha', '<', $ahora->copy()->setTimezone(self::$zonaColombia)->endOfDay()->utc())->count(),
             ],

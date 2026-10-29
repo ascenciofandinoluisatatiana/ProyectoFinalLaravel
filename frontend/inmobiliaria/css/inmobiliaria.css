@@ -300,3 +300,77 @@ body.vendedor .v-hero h1 { color: #fff; }
 body.vendedor .v-hero p { color: rgba(255, 255, 255, 0.82); }
 body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
 [data-theme="dark"] body.vendedor .v-hero .v-etiqueta { color: #c084fc; }
+
+/* ---------- Membresía por publicación ---------- */
+.i-destacado {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; padding: 10px 12px;
+    border-radius: 14px; border: 1px dashed var(--campo-borde); font-size: 0.8rem; color: var(--texto-suave);
+}
+.i-destacado > i { color: var(--texto-suave); opacity: 0.6; }
+.i-destacado span { flex: 1 1 140px; min-width: 0; }
+.i-destacado b { display: block; color: var(--texto); font-size: 0.85rem; }
+.i-destacado.activo { border-style: solid; border-color: rgba(245, 196, 81, 0.6); background: rgba(245, 196, 81, 0.10); }
+.i-destacado.activo > i { color: #f5b301; opacity: 1; }
+.v-prop.i-prop-destacada { border-color: rgba(245, 196, 81, 0.75); box-shadow: 0 12px 30px rgba(245, 158, 11, 0.18); }
+.i-sello-destacada {
+    position: absolute; top: 12px; right: 12px; display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 11px; border-radius: 999px; font-size: 0.72rem; font-weight: 800; color: #3b2400;
+    background: linear-gradient(135deg, #fde68a, #f59e0b);
+}
+
+.i-ventana-destacar { max-width: 520px; }
+.i-ventana-destacar > p, .i-ventana-destacar > .i-planes-opciones { margin-left: 26px; margin-right: 26px; }
+.i-ventana-destacar > p:last-child { margin-bottom: 24px; }
+.i-destacar-de { display: flex; align-items: center; gap: 8px; margin-top: 10px; margin-bottom: 6px; }
+.i-planes-opciones { display: grid; gap: 10px; margin: 16px 0; }
+.i-plan-opcion {
+    display: flex; align-items: center; gap: 14px; width: 100%; padding: 14px 16px; text-align: left; cursor: pointer;
+    border-radius: 16px; border: 1px solid var(--campo-borde); background: var(--campo); color: var(--texto); font: inherit;
+    transition: border-color 0.2s, transform 0.2s;
+}
+.i-plan-opcion:hover { border-color: var(--op-1); transform: translateY(-1px); }
+.i-plan-opcion:disabled { opacity: 0.6; cursor: wait; }
+.i-plan-opcion span:nth-child(2) { flex: 1; min-width: 0; }
+.i-plan-opcion small { display: block; color: var(--texto-suave); font-size: 0.78rem; }
+.i-plan-puesto {
+    width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; flex: none;
+    font-weight: 800; color: #fff; background: linear-gradient(135deg, var(--op-1), var(--op-2));
+}
+.i-plan-opcion:first-child .i-plan-puesto { color: #3b2400; background: linear-gradient(135deg, #fde68a, #f59e0b); }
+.i-plan-precio { font-size: 1.05rem; white-space: nowrap; }
+
+/* ---------- Comisiones de los agentes ---------- */
+.i-comision-totales { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 14px 22px 0; }
+.i-comision-totales div { padding: 12px 14px; border-radius: 14px; background: var(--neutro-fondo); }
+.i-comision-totales span { display: block; font-size: 0.75rem; color: var(--texto-suave); }
+.i-comision-totales b { font-size: 1.15rem; }
+.i-sub { display: block; font-size: 0.75rem; color: var(--texto-suave); }
+#d-comisiones-filtro { align-items: center; }
+#d-comisiones-filtro select { margin-left: auto; width: auto; padding: 7px 10px; border-radius: 10px; border: 1px solid var(--campo-borde); background: var(--campo); color: var(--texto); font: inherit; font-size: 0.82rem; }
+
+/* ---------- Paquete mensual de 10 publicaciones ---------- */
+.i-paquete { padding: 22px; display: grid; gap: 12px; }
+.i-paquete-oferta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px; }
+.i-paquete-oferta > div:first-child { flex: 1 1 320px; min-width: 0; }
+.i-paquete-oferta h2 { font-size: 1.25rem; margin: 4px 0 6px; }
+.i-paquete-precio { display: grid; justify-items: end; gap: 6px; text-align: right; }
+.i-paquete-precio s { color: var(--texto-suave); font-size: 0.9rem; }
+.i-paquete-precio b { font-size: 1.7rem; font-weight: 800; }
+.i-paquete-barra { height: 10px; border-radius: 999px; background: var(--neutro-fondo); overflow: hidden; }
+.i-paquete-barra span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #f59e0b, #fde68a); }
+.i-paquete-lista { display: flex; flex-wrap: wrap; gap: 8px; }
+.i-paquete-item {
+    display: inline-flex; align-items: center; gap: 8px; padding: 6px 6px 6px 12px; border-radius: 999px; font-size: 0.82rem;
+    border: 1px solid rgba(245, 196, 81, 0.6); background: rgba(245, 196, 81, 0.10);
+}
+.i-paquete-item > i { color: #f5b301; }
+.i-paquete-item button { width: 24px; height: 24px; border: 0; border-radius: 50%; cursor: pointer; display: grid; place-items: center; color: var(--texto-suave); background: transparent; }
+.i-paquete-item button:hover { color: #fff; background: var(--peligro); }
+.i-paquete-agregar { display: flex; flex-wrap: wrap; gap: 10px; }
+.i-paquete-agregar select { flex: 1 1 260px; min-width: 0; padding: 9px 12px; border-radius: 12px; border: 1px solid var(--campo-borde); background: var(--campo); color: var(--texto); font: inherit; font-size: 0.88rem; }
+.v-campo[hidden] { display: none; }
+
+@media (max-width: 600px) {
+    .i-comision-totales { grid-template-columns: 1fr; }
+    .i-paquete-precio { justify-items: start; text-align: left; }
+}

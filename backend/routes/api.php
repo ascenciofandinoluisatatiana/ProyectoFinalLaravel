@@ -30,6 +30,8 @@ use App\Http\Controllers\Api\V1\Vendedor\SesionController as VendedorSesionContr
 use App\Http\Controllers\Api\V1\GeocodificarController;
 use App\Http\Controllers\Api\V1\Vendedor\PerfilController as VendedorPerfilController;
 use App\Http\Controllers\Api\V1\PagoController;
+use App\Http\Controllers\Api\V1\Inmobiliaria\ComisionController as InmobiliariaComisionController;
+use App\Http\Controllers\Api\V1\Agente\ComisionController as AgenteComisionController;
 use App\Http\Controllers\Api\V1\Admin\ReporteController;
 use App\Http\Controllers\Api\V1\Vendedor\MembresiaController as VendedorMembresiaController;
 
@@ -151,6 +153,8 @@ Route::prefix('v1/inmobiliaria')->middleware('web')->group(function () {
         Route::post('propiedades/{id}', [InmobiliariaPropiedadController::class, 'update'])->whereNumber('id');
         Route::patch('propiedades/{id}/estado', [InmobiliariaPropiedadController::class, 'estado'])->whereNumber('id');
         Route::patch('propiedades/{id}/agente', [InmobiliariaPropiedadController::class, 'asignar'])->whereNumber('id');
+        // Membresía por publicación: destaca solo esta propiedad en el portal
+        Route::post('propiedades/{id}/destacar', [InmobiliariaMembresiaController::class, 'destacar'])->whereNumber('id');
         Route::post('propiedades/{id}/fotos', [InmobiliariaPropiedadController::class, 'agregarFoto'])->whereNumber('id');
         Route::delete('propiedades/{id}/fotos/{foto}', [InmobiliariaPropiedadController::class, 'quitarFoto'])->whereNumber(['id', 'foto']);
         Route::delete('propiedades/{id}', [InmobiliariaPropiedadController::class, 'destroy'])->whereNumber('id');
@@ -171,6 +175,14 @@ Route::prefix('v1/inmobiliaria')->middleware('web')->group(function () {
         // Membresía (pago simulado hasta integrar PSE) y perfil de la empresa
         Route::get('membresia', [InmobiliariaMembresiaController::class, 'show']);
         Route::post('membresia', [InmobiliariaMembresiaController::class, 'contratar']);
+        // Paquete mensual de 10 publicaciones destacadas (elegidas libremente)
+        Route::post('membresia/paquete', [InmobiliariaMembresiaController::class, 'comprarPaquete']);
+        Route::post('membresia/paquete/publicaciones', [InmobiliariaMembresiaController::class, 'agregarAlPaquete']);
+        Route::delete('membresia/paquete/publicaciones/{propiedad}', [InmobiliariaMembresiaController::class, 'quitarDelPaquete'])->whereNumber('propiedad');
+
+        // Comisiones de los agentes (4 % al cerrar una venta o un arriendo)
+        Route::get('comisiones', [InmobiliariaComisionController::class, 'index']);
+        Route::patch('comisiones/{id}', [InmobiliariaComisionController::class, 'update'])->whereNumber('id');
         Route::get('perfil', [InmobiliariaPerfilController::class, 'show']);
         Route::post('perfil', [InmobiliariaPerfilController::class, 'update']);
         Route::post('perfil/clave', [InmobiliariaPerfilController::class, 'cambiarClave']);
@@ -222,6 +234,7 @@ Route::prefix('v1/agente')->middleware('web')->group(function () {
 
         Route::get('resumen', [AgentePanelController::class, 'resumen']);
         Route::get('propiedades', [AgentePanelController::class, 'propiedades']);
+        Route::get('comisiones', [AgenteComisionController::class, 'index']);
 
         Route::get('contactos', [AgenteContactoController::class, 'index']);
         Route::patch('contactos/{id}', [AgenteContactoController::class, 'update'])->whereNumber('id');

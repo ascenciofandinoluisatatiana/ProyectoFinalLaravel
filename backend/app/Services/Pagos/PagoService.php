@@ -5,8 +5,11 @@ namespace App\Services\Pagos;
 use App\Models\Lead;
 use App\Models\Membresia;
 use App\Models\Pago;
+use App\Models\PaqueteMembresia;
+use App\Models\PlanMembresia;
 use App\Models\Propiedad;
 use App\Models\User;
+use App\Services\Inmobiliaria\ComisionService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -53,15 +56,20 @@ class PagoService
 
     /* =================== Iniciar pagos =================== */
 
-    /** Membresía de una inmobiliaria o un vendedor. */
-    public function iniciarMembresia(User $usuario, string $plan): array
+    /**
+     * Membresía. Con $propiedad se destaca SOLO esa publicación (inmobiliaria);
+     * sin ella aplica a toda la cuenta (así la usa el vendedor).
+     * El precio es el vigente que define el administrador (planes_membresia).
+     */
+    public function iniciarMembresia(User $usuario, string $plan, ?Propiedad $propiedad = null): array
     {
         $pago = Pago::create([
-            'referencia' => $this->nuevaReferencia('MEM'),
+            'referencia' => $this->nuevaReferencia($plan === PaqueteMembresia::PLAN ? 'PAQ' : ($propiedad ? 'DES' : 'MEM')),
             'concepto' => 'membresia',
             'user_id' => $usuario->id,
+            'propiedad_id' => $propiedad?->id,
             'plan' => $plan,
-            'monto_centavos' => (int) round(Membresia::PRECIOS_PLAN[$plan] * 100),
+            'monto_centavos' => (int) round($this->precioPlan($plan) * 100),
             'moneda' => 'COP',
             'proveedor' => $this->modo(),
             'pagador_nombre' => $usuario->name,
@@ -69,6 +77,12 @@ class PagoService
         ]);
 
         return $this->siguientePaso($pago);
+    }
+
+    /** Precio vigente: los planes los define el administrador; el paquete sale del plan mensual con descuento. */
+    public function precioPlan(string $plan): float
+    {
+        return $plan === PaqueteMembresia::PLAN ? PaqueteMembresia::precio() : (float) PlanMembresia::precios()[$plan];
     }
 
     /** Compra o arriendo de un inmueble publicado (pagador sin cuenta). */
@@ -245,6 +259,11 @@ class PagoService
 
     private function aplicar(Pago $pago): void
     {
+        if ($pago->concepto === 'membresia' && $pago->plan === PaqueteMembresia::PLAN) {
+            $this->activarPaquete($pago);
+
+            return;
+        }
         if ($pago->concepto === 'membresia') {
             $pago->membresia_id = $this->activarMembresia($pago)->id;
 
@@ -256,9 +275,10 @@ class PagoService
             return;
         }
 
-        // El inmueble sale del portal (RF-063): vendido o arrendado
+        // El inmueble sale del portal (RF-063): vendido o arrendado, y el agente gana su comisión
         if ($propiedad->estado === 'publicada') {
             $propiedad->update(['estado' => $propiedad->operacion === 'venta' ? 'vendida' : 'arrendada']);
+            app(ComisionService::class)->registrarCierre($propiedad, 'portal');
         }
 
         // Quien publicó (y su agente) recibe los datos del comprador como un contacto
@@ -274,19 +294,43 @@ class PagoService
         ]);
     }
 
-    /** Activa o renueva la membresía. Renovar antes de vencer no hace perder días (RF-055). */
+    /** Paquete de 10 publicaciones por 30 días; las publicaciones se eligen después en el panel. */
+    private function activarPaquete(Pago $pago): PaqueteMembresia
+    {
+        $hoy = Carbon::now(self::ZONA)->startOfDay();
+
+        return PaqueteMembresia::create([
+            'user_id' => $pago->user_id,
+            'pago_id' => $pago->id,
+            'cupos' => PaqueteMembresia::PUBLICACIONES,
+            'precio' => $pago->monto,
+            'fecha_inicio' => $hoy->toDateString(),
+            'fecha_fin' => $hoy->copy()->addDays(PaqueteMembresia::DIAS)->toDateString(),
+            'referencia_pago' => $pago->referencia,
+        ]);
+    }
+
+    /**
+     * Activa o renueva la membresía. Renovar antes de vencer no hace perder días (RF-055).
+     * La renovación se cuenta por publicación (o por cuenta si no es de una publicación).
+     */
     private function activarMembresia(Pago $pago): Membresia
     {
         $hoy = Carbon::now(self::ZONA)->startOfDay();
         $ultimaVigente = Membresia::where('user_id', $pago->user_id)
+            ->when($pago->propiedad_id,
+                fn ($q) => $q->where('propiedad_id', $pago->propiedad_id),
+                fn ($q) => $q->whereNull('propiedad_id'))
             ->where('estado', 'activa')
             ->whereDate('fecha_fin', '>=', $hoy->toDateString())
             ->orderByDesc('fecha_fin')
             ->first();
         $inicio = $ultimaVigente ? Carbon::parse($ultimaVigente->fecha_fin->toDateString()) : $hoy;
 
-        return Membresia::create([
+        // forceCreate: propiedad_id no está en el $fillable del modelo (que es de otro módulo)
+        return Membresia::forceCreate([
             'user_id' => $pago->user_id,
+            'propiedad_id' => $pago->propiedad_id,
             'plan' => $pago->plan,
             'precio' => $pago->monto,                       // el precio que se cobró (RF-058)
             'estado' => 'activa',

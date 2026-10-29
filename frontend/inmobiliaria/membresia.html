@@ -38,16 +38,29 @@
                     <div>
                         <p class="v-etiqueta"><i class="fa-solid fa-credit-card"></i> Membresía</p>
                         <h1 class="titulo-serif">Posicionamiento de tus propiedades</h1>
-                        <p>Con la membresía activa, tus propiedades aparecen primero cuando un visitante busca en su zona.</p>
+                        <p>La membresía se paga por publicación. Las destacadas salen primero en el portal según su plan;
+                           las demás se siguen viendo, después.</p>
+                    </div>
+                    <div class="v-chips" style="margin-top:0">
+                        <a class="v-btn v-btn-principal" href="/inmobiliaria/propiedades.html"><i class="fa-solid fa-star"></i> Destacar una publicación</a>
                     </div>
                 </section>
 
                 <section class="v-tarjeta v-membresia" id="d-vigente"></section>
 
+                <!-- Paquete mensual: 10 publicaciones destacadas con descuento, elegidas libremente -->
+                <section class="v-tarjeta i-paquete" id="d-paquete"></section>
+
+                <section class="v-tarjeta">
+                    <div class="v-tarjeta-cabeza"><h2>Publicaciones destacadas hoy</h2><small id="d-destacadas-total"></small></div>
+                    <div class="i-tabla-caja" id="d-destacadas"></div>
+                </section>
+
                 <section>
-                    <h2 class="v-titulo-seccion" style="margin-bottom:14px">Elige la duración</h2>
+                    <h2 class="v-titulo-seccion" style="margin-bottom:14px">Planes por publicación</h2>
                     <div class="i-planes" id="d-planes"></div>
                     <p class="v-nota" style="margin-top:12px"><i class="fa-solid fa-circle-info"></i>
+                        Orden en el portal: primero el plan más alto, luego los siguientes y al final las publicaciones sin plan.
                         Si renuevas antes de que venza, el nuevo periodo empieza cuando termina el actual: no pierdes días.
                         <span id="d-modo-pago"></span></p>
                 </section>

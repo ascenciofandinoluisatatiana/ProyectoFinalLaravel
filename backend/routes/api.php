@@ -31,7 +31,7 @@ use App\Http\Controllers\Api\V1\GeocodificarController;
 use App\Http\Controllers\Api\V1\Vendedor\PerfilController as VendedorPerfilController;
 use App\Http\Controllers\Api\V1\PagoController;
 use App\Http\Controllers\Api\V1\Admin\ReporteController;
-
+use App\Http\Controllers\Api\V1\Vendedor\MembresiaController as VendedorMembresiaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -202,8 +202,8 @@ Route::prefix('v1/vendedor')->middleware('web')->group(function () {
         Route::post('visitas', [InmobiliariaVisitaController::class, 'store']);
         Route::patch('visitas/{id}', [InmobiliariaVisitaController::class, 'update'])->whereNumber('id');
 
-        Route::get('membresia', [InmobiliariaMembresiaController::class, 'show']);
-        Route::post('membresia', [InmobiliariaMembresiaController::class, 'contratar']);
+        Route::get('membresia', [VendedorMembresiaController::class, 'show']);
+        Route::post('membresia', [VendedorMembresiaController::class, 'contratar']);
     });
 });
 /*

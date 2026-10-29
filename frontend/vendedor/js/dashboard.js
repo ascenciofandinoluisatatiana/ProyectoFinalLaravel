@@ -14,7 +14,7 @@
 
     var clave = document.body.getAttribute('data-operacion');
     var OP = V.OPERACIONES[clave];
-    var datos = { propiedades: [], contactos: [], visitas: [], vigente: null, planes: [] };
+    var datos = { propiedades: [], contactos: [], visitas: [], planes: [] };
     var grafica = null;
 
     V.barra(usuario, clave);
@@ -33,7 +33,6 @@
             datos.propiedades = r[0].data || [];
             datos.contactos = r[1].data || [];
             datos.visitas = r[2].data || [];
-            datos.vigente = r[3].vigente || null;
             datos.planes = r[3].planes || [];
         } catch (e) {
             if (e.message !== 'Sin acceso') V.toast(e.message || 'No se pudieron cargar tus datos.');
@@ -51,28 +50,27 @@
     }
     function inmueble(id) { return datos.propiedades.filter(function (p) { return p.id === id; })[0]; }
     function titulo(p) { return p ? (V.TIPOS[p.tipo] || p.tipo) + ' en ' + p.barrio : 'Inmueble eliminado'; }
-    function membresiaActiva() { return !!datos.vigente; }
-
+    // Membresía por publicación: cada inmueble trae en p.membresia la suya vigente (o null)
+    function posicionado(p) { return !!(p && p.membresia); }
+    function fechaLarga(iso) { return new Date(iso + 'T00:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' }); }
     /* ---------- Cabecera ---------- */
     $('d-icono').classList.add(OP.icono);
     $('d-etiqueta').textContent = OP.etiqueta;
     $('d-titulo').textContent = OP.titulo;
     $('d-desc').textContent = OP.descripcion;
 
-    /* ---------- Membresía ---------- */
+    /* ---------- Membresía (por publicación) ---------- */
     function pintarMembresia() {
-        var activa = membresiaActiva();
-        var m = datos.vigente;
-        var venceTxt = m ? new Date(m.fecha_fin + 'T00:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+        var props = misInmuebles().filter(function (p) { return p.estado === 'publicada'; });
+        var destacados = props.filter(posicionado).length;
 
         $('d-membresia').innerHTML =
-            '<div class="v-membresia-info"><i class="fa-solid ' + (activa ? 'fa-circle-check' : 'fa-credit-card') + '"></i><div>' +
-            (activa
-                ? '<b>Membresía ' + V.esc(String(m.nombre_plan).toLowerCase()) + ' activa</b><small>Vence el ' + V.esc(venceTxt) + ' · tus inmuebles publicados son visibles.</small>'
-                : '<b>Sin membresía activa</b><small>Contrátala para publicar tus inmuebles en el portal.</small>') +
-            '</div></div>' +
-            '<button type="button" class="v-btn ' + (activa ? 'v-btn-suave' : 'v-btn-principal') + '" data-accion="planes">' +
-            '<i class="fa-solid fa-credit-card"></i>' + (activa ? 'Renovar' : 'Contratar membresía') + '</button>';
+            '<div class="v-membresia-info"><i class="fa-solid ' + (destacados ? 'fa-crown' : 'fa-bullhorn') + '"></i><div>' +
+            '<b>Publicar es gratis · la membresía se paga por inmueble</b>' +
+            '<small>' + (destacados
+                ? destacados + (destacados === 1 ? ' inmueble está posicionado' : ' inmuebles están posicionados') + ' en las zonas destacadas. Los demás aparecen en la zona normal.'
+                : 'Todos tus inmuebles publicados aparecen en la zona normal. Usa “Posicionar” en cada uno para subirlo a las zonas destacadas.') +
+            '</small></div></div>';
     }
 
     /* ---------- Cifras ---------- */
@@ -116,6 +114,8 @@
         if (p.estado === 'borrador') botones += boton('publicar', 'fa-bullhorn', 'Publicar');
         if (p.estado === 'publicada') botones += boton('pausar', 'fa-pause', 'Pausar') + boton('cerrar', 'fa-handshake', OP.cierreAccion);
         if (p.estado === 'pausada') botones += boton('reanudar', 'fa-play', 'Reanudar');
+        // Membresía de ESTE inmueble: lo sube a las zonas posicionadas mientras esté vigente
+        if (!cerrado) botones += boton('posicionar', 'fa-crown', posicionado(p) ? 'Renovar posición' : 'Posicionar');
 
         var herramientas = '<div class="v-prop-herramientas">' +
             (cerrado ? '' : iconoCirc('editar', SVG_EDITAR, 'Editar inmueble')) +
@@ -128,17 +128,18 @@
         return '<article class="v-prop">' +
             '<div class="v-prop-foto"><i class="fa-solid fa-house"></i>' +
             (p.imagen ? '<img src="' + V.esc(p.imagen) + '" alt="" loading="lazy">' : '') +
-            '<span class="v-estado ' + V.esc(p.estado) + '">' + V.esc(ESTADOS[p.estado] || p.estado) + '</span>' + herramientas +
+            '<span class="v-estado ' + V.esc(p.estado) + '">' + V.esc(ESTADOS[p.estado] || p.estado) + '</span>' +
+            (posicionado(p) ? '<span class="v-posicionado" title="Vence el ' + V.esc(fechaLarga(p.membresia.fecha_fin)) + '"><i class="fa-solid fa-crown"></i> ' + V.esc(p.membresia.nombre_plan) + ' · ' + Number(p.membresia.dias_restantes) + ' d</span>' : '') + herramientas +
             '<span class="v-prop-nfotos" title="Fotos del inmueble"><i class="fa-solid fa-camera"></i> ' + ((p.imagen ? 1 : 0) + (p.fotos ? p.fotos.length : 0)) + '</span></div>' +
             '<div class="v-prop-cuerpo">' +
-                '<div class="v-prop-precio">' + V.cop(p.precio) + '<small>' + OP.sufijoPrecio + '</small></div>' +
-                '<h3>' + V.esc(titulo(p)) + '</h3>' +
-                '<div class="v-prop-lugar"><i class="fa-solid fa-location-dot"></i> ' + V.esc(p.ciudad) + ', ' + V.esc(p.departamento) + verMapa + '</div>' +
-                '<div class="v-prop-datos">' +
-                    '<span><i class="fa-solid fa-bed"></i>' + Number(p.habitaciones) + '</span>' +
-                    '<span><i class="fa-solid fa-bath"></i>' + Number(p.banos) + '</span>' +
-                    '<span><i class="fa-solid fa-ruler-combined"></i>' + Number(p.area) + ' m²</span>' +
-                '</div>' +
+            '<div class="v-prop-precio">' + V.cop(p.precio) + '<small>' + OP.sufijoPrecio + '</small></div>' +
+            '<h3>' + V.esc(titulo(p)) + '</h3>' +
+            '<div class="v-prop-lugar"><i class="fa-solid fa-location-dot"></i> ' + V.esc(p.ciudad) + ', ' + V.esc(p.departamento) + verMapa + '</div>' +
+            '<div class="v-prop-datos">' +
+            '<span><i class="fa-solid fa-bed"></i>' + Number(p.habitaciones) + '</span>' +
+            '<span><i class="fa-solid fa-bath"></i>' + Number(p.banos) + '</span>' +
+            '<span><i class="fa-solid fa-ruler-combined"></i>' + Number(p.area) + ' m²</span>' +
+            '</div>' +
             '</div>' +
             '<div class="v-prop-metricas"><span><b>' + contactos + '</b> contactos</span><span><b>' + visitas + '</b> visitas</span></div>' +
             (botones ? '<div class="v-prop-acciones">' + botones + '</div>' : '') + '</article>';
@@ -169,7 +170,7 @@
             var nuevo = c.estado === 'nuevo';
             return '<div class="v-fila"><span class="v-fila-avatar">' + V.esc(V.iniciales(c.nombre)) + '</span>' +
                 '<div class="v-fila-texto"><b>' + V.esc(c.nombre) + '</b>' +
-                '<span class="v-fila-contacto"><i class="fa-solid ' + (esCorreo ? 'fa-envelope' : 'fa-phone') + '"></i> ' + V.esc(c.contacto) + '</span><span>' + V.esc(c.mensaje) + '</span>' +                '<small>' + V.esc(c.propiedad.titulo) + ' · ' + V.esc(V.relativo(c.fecha)) + '</small></div>' +
+                '<span class="v-fila-contacto"><i class="fa-solid ' + (esCorreo ? 'fa-envelope' : 'fa-phone') + '"></i> ' + V.esc(c.contacto) + '</span><span>' + V.esc(c.mensaje) + '</span>' + '<small>' + V.esc(c.propiedad.titulo) + ' · ' + V.esc(V.relativo(c.fecha)) + '</small></div>' +
                 '<span class="v-insignia ' + (nuevo ? 'nuevo' : 'atendido') + '">' + V.esc(ETIQUETA_CONTACTO[c.estado] || c.estado) + '</span>' +
                 '<a class="v-btn v-btn-suave v-btn-mini" href="' + enlace + '" title="' + (esCorreo ? 'Escribir' : 'Llamar') + '" aria-label="' + (esCorreo ? 'Escribir' : 'Llamar') + '">' +
                 '<i class="fa-solid ' + (esCorreo ? 'fa-envelope' : 'fa-phone') + '"></i></a>' +
@@ -536,9 +537,7 @@
         form.reset();
         form.id.value = p ? p.id : '';
         $('d-form-titulo').textContent = p ? 'Editar inmueble' : 'Registrar inmueble';
-        $('d-form-nota').textContent = membresiaActiva()
-            ? 'Con tu membresía activa, el inmueble se publica al guardarlo.'
-            : 'Sin membresía activa se guarda como borrador; se publicará cuando la contrates.';
+        $('d-form-nota').textContent = 'Publicar es gratis: el inmueble aparece en la zona normal al guardarlo. Después puedes posicionarlo con una membresía.';
         if (p) {
             ['tipo', 'precio', 'barrio', 'direccion', 'habitaciones', 'banos', 'parqueaderos', 'area', 'estrato'].forEach(function (c) {
                 form[c].value = p[c] == null ? '' : p[c];
@@ -619,7 +618,7 @@
 
             // Inmueble nuevo: solo se publica si TODAS las fotos quedaron guardadas
             var publicado = false;
-            if (!existente && !fallas && membresiaActiva()) {
+            if (!existente && !fallas) {
                 try {
                     await V.api('/propiedades/' + id + '/estado', { metodo: 'PATCH', datos: { estado: 'publicada' } });
                     publicado = true;
@@ -632,8 +631,7 @@
             } else if (existente) {
                 V.toast('Inmueble actualizado.');
             } else {
-                V.toast(publicado ? 'Inmueble publicado.' : 'Guardado como borrador: activa tu membresía para publicarlo.');
-            }
+                V.toast(publicado ? 'Inmueble publicado. Usa “Posicionar” si quieres destacarlo.' : 'Guardado como borrador. Publícalo desde su tarjeta.');            }
             await cargar();
         } catch (err) {
             if (err.message !== 'Sin acceso') V.toast(err.message);
@@ -645,6 +643,7 @@
     /* ---------- Ventana: planes de membresía ---------- */
     var ventanaPlanes = $('d-planes');
     var planElegido = 'quincenal';
+    var inmuebleAPosicionar = null;
     V.prepararVentana(ventanaPlanes);
 
     function listaPlanes() {
@@ -668,14 +667,14 @@
 
     $('d-planes-form').addEventListener('submit', async function (e) {
         e.preventDefault();
+        if (!inmuebleAPosicionar) return;
         var boton = this.querySelector('[type="submit"]');
         if (boton) boton.disabled = true;
         try {
-            var r = await V.api('/membresia', { metodo: 'POST', datos: { plan: planElegido } });
-            // Con Wompi la API devuelve a dónde ir a pagar (la membresía se activa al aprobarse el pago)
+            var r = await V.api('/membresia', { metodo: 'POST', datos: { plan: planElegido, propiedad_id: inmuebleAPosicionar.id } });            // Con Wompi la API devuelve a dónde ir a pagar (la membresía se activa al aprobarse el pago)
             if (r.checkout_url) { V.toast(r.message); window.location.href = r.checkout_url; return; }
             ventanaPlanes.close();
-            V.toast(r.message || 'Membresía activada.');
+            V.toast(r.message || 'Inmueble posicionado.');
             await cargar();
         } catch (err) {
             if (err.message !== 'Sin acceso') V.toast(err.message);
@@ -684,7 +683,13 @@
         }
     });
 
-    function abrirPlanes() { pintarPlanes(); ventanaPlanes.showModal(); }
+    function abrirPlanes(p) {
+        inmuebleAPosicionar = p;
+        $('d-planes-inmueble').textContent = titulo(p) + (posicionado(p) ? ' · posicionado hasta el ' + fechaLarga(p.membresia.fecha_fin) : '');
+        pintarPlanes();
+        ventanaPlanes.showModal();
+    }
+
 
     /* ---------- Acciones (botones de la pantalla) ---------- */
     $('d-registrar').addEventListener('click', function () { abrirForm(null); });
@@ -701,12 +706,9 @@
         var id = Number(b.getAttribute('data-id'));
         var p = inmueble(id);
 
-        if (accion === 'planes') return abrirPlanes();
+        if (accion === 'posicionar' && p) return abrirPlanes(p);
         if (accion === 'editar' && p) return abrirForm(p);
-        if ((accion === 'publicar' || accion === 'reanudar') && !membresiaActiva()) {
-            V.toast('Necesitas una membresía activa para publicar.');
-            return abrirPlanes();
-        }
+        
         if (accion === 'eliminar' && !window.confirm('¿Eliminar este inmueble? También se quitarán sus contactos y visitas.')) return;
 
         b.disabled = true;

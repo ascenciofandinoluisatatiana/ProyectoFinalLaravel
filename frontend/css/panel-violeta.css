@@ -349,3 +349,19 @@ body.panel-violeta::after { display: none; }
 .panel-violeta .i-marca .i-logo-marca { width: 46px; height: 46px; border-radius: 0; background: none; box-shadow: none; }
 [data-theme="dark"] .panel-violeta .i-marca .i-logo-marca { background: none; }
 .panel-violeta .i-marca .i-logo-marca img { width: 100%; height: 100%; filter: brightness(1.9) saturate(1.1); }
+/* ===== Listas desplegables legibles (el campo es translúcido y la lista nativa quedaba blanca con texto claro) ===== */
+.panel-violeta select { color-scheme: light; }
+[data-theme="dark"] .panel-violeta select { color-scheme: dark; }
+
+.panel-violeta select option,
+.panel-violeta select optgroup { background-color: #ffffff; color: #1c1230; }
+[data-theme="dark"] .panel-violeta select option,
+[data-theme="dark"] .panel-violeta select optgroup { background-color: #1a1625; color: #f3ecfb; }
+
+/* Opción marcada o resaltada */
+.panel-violeta select option:checked { background-color: #e7d5fa; color: #1c1230; }
+[data-theme="dark"] .panel-violeta select option:checked { background-color: #5b2a86; color: #ffffff; }
+
+/* Opciones no disponibles: atenuadas pero legibles */
+.panel-violeta select option:disabled { color: #8a7a9e; }
+[data-theme="dark"] .panel-violeta select option:disabled { color: #8d84a0; }

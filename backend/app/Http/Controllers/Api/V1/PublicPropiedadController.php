@@ -25,7 +25,7 @@ class PublicPropiedadController extends Controller
         // Nivel de membresía vigente HOY: 3 = Oro (mensual), 2 = Plata (quincenal), 1 = Bronce (semanal), 0 = sin membresía
         $nivel = "COALESCE((SELECT MAX(CASE m.plan WHEN 'mensual' THEN 3 WHEN 'quincenal' THEN 2 WHEN 'semanal' THEN 1 ELSE 0 END)
             FROM membresias m
-            WHERE m.user_id = propiedades.user_id
+            WHERE (m.propiedad_id = propiedades.id OR (m.propiedad_id IS NULL AND m.user_id = propiedades.user_id))
               AND m.estado = 'activa'
               AND m.fecha_inicio <= '{$hoy}'
               AND m.fecha_fin >= '{$hoy}'), 0)";

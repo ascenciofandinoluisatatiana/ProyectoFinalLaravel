@@ -54,12 +54,13 @@ class PagoService
     /* =================== Iniciar pagos =================== */
 
     /** Membresía de una inmobiliaria o un vendedor. */
-    public function iniciarMembresia(User $usuario, string $plan): array
+    public function iniciarMembresia(User $usuario, string $plan, Propiedad $propiedad = null): array
     {
         $pago = Pago::create([
-            'referencia' => $this->nuevaReferencia('MEM'),
+            'referencia' => $this->nuevaReferencia('MEM'), 
             'concepto' => 'membresia',
             'user_id' => $usuario->id,
+            'propiedad_id' => $propiedad?->id,
             'plan' => $plan,
             'monto_centavos' => (int) round(Membresia::PRECIOS_PLAN[$plan] * 100),
             'moneda' => 'COP',
@@ -279,6 +280,7 @@ class PagoService
     {
         $hoy = Carbon::now(self::ZONA)->startOfDay();
         $ultimaVigente = Membresia::where('user_id', $pago->user_id)
+            ->where('propiedad_id', $pago->propiedad_id)
             ->where('estado', 'activa')
             ->whereDate('fecha_fin', '>=', $hoy->toDateString())
             ->orderByDesc('fecha_fin')
@@ -287,6 +289,7 @@ class PagoService
 
         return Membresia::create([
             'user_id' => $pago->user_id,
+            'propiedad_id' => $pago->propiedad_id, 
             'plan' => $pago->plan,
             'precio' => $pago->monto,                       // el precio que se cobró (RF-058)
             'estado' => 'activa',

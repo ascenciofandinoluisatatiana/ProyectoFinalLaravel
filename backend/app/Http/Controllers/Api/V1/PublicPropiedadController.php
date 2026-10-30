@@ -27,9 +27,8 @@ class PublicPropiedadController extends Controller
             FROM membresias m
             WHERE (m.propiedad_id = propiedades.id OR (m.propiedad_id IS NULL AND m.user_id = propiedades.user_id))
               AND m.estado = 'activa'
-              AND m.fecha_inicio <= '{$hoy}'
-              AND m.fecha_fin >= '{$hoy}'), 0)";
-
+              AND DATE(m.fecha_inicio) <= '{$hoy}'
+              AND DATE(m.fecha_fin) >= '{$hoy}'), 0)";
         // Puntaje orgánico (posicionamiento sin pago): ficha completa + verificación + frescura + contactos
         $score = "CAST(ROUND(
               (CASE WHEN propiedades.verificada THEN 20 ELSE 0 END)

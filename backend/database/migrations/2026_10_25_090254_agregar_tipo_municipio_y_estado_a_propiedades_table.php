@@ -21,7 +21,7 @@ return new class extends Migration
         });
 
         // Tipo: por nombre
-        DB::statement("
+        if (DB::getDriverName() === 'pgsql') DB::statement("
             UPDATE propiedades
             SET tipo_id = tp.id
             FROM tipos_propiedad tp
@@ -29,7 +29,7 @@ return new class extends Migration
         ");
 
         // Municipio: por nombre de ciudad y de departamento juntos
-        DB::statement("
+        if (DB::getDriverName() === 'pgsql') DB::statement("
             UPDATE propiedades
             SET municipio_id = m.id
             FROM municipios m
@@ -39,7 +39,7 @@ return new class extends Migration
         ");
 
         // Estado: vendida y arrendada se conservan; el resto queda disponible
-        DB::statement("
+        if (DB::getDriverName() === 'pgsql') DB::statement("
             UPDATE propiedades
             SET estado_id = e.id
             FROM estados_propiedad e

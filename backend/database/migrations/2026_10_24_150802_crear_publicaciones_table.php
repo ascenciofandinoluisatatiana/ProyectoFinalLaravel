@@ -31,7 +31,7 @@ return new class extends Migration
 
         // Una publicación por cada propiedad existente.
         // El título provisional se arma con tipo, operación, barrio y ciudad.
-        DB::statement("
+        if (DB::getDriverName() === 'pgsql') DB::statement("
             INSERT INTO publicaciones
                 (propiedad_id, operacion_id, publicador_id, titulo, descripcion,
                  precio_cop, estado, nivel_posicionamiento, created_at)

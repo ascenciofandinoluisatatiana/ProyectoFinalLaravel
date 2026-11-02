@@ -23,7 +23,7 @@ return new class extends Migration
         });
 
         // A cada contacto existente, la publicación de su propiedad
-        DB::statement("
+        if (DB::getDriverName() === 'pgsql') DB::statement("
             UPDATE leads
             SET publicacion_id = publicaciones.id
             FROM publicaciones

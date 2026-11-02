@@ -7,6 +7,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
@@ -31,9 +32,44 @@ class AuthController extends Controller
 
         $usuario = User::with('role')->where('email', $datos['email'])->first();
 
+                // Cuenta bloqueada temporalmente por demasiados intentos fallidos
+        if ($usuario && $usuario->bloqueado_hasta && now()->lt($usuario->bloqueado_hasta)) {
+            $minutos = (int) ceil(now()->diffInSeconds($usuario->bloqueado_hasta, true) / 60);
+
+            return response()->json([
+                'message' => "Tu cuenta está bloqueada temporalmente por varios intentos fallidos. Intenta de nuevo en {$minutos} minuto(s).",
+            ], 423);
+        }
+
         // Mismo mensaje si el correo no existe o la clave está mal (no revelar cuál falló)
         if (! $usuario || ! Hash::check($datos['password'], $usuario->password)) {
+            if ($usuario) {
+                $intentos = $usuario->intentos_fallidos + 1;
+                $bloquear = $intentos >= 5; // valor de partida, por definir con el equipo
+
+                DB::table('users')->where('id', $usuario->id)->update([
+                    'intentos_fallidos' => $bloquear ? 0 : $intentos,
+                    'bloqueado_hasta'   => $bloquear ? now()->addMinutes(15) : null, // valor de partida
+                ]);
+
+                DB::table('eventos_seguridad')->insert([
+                    'user_id'     => $usuario->id,
+                    'tipo'        => $bloquear ? 'cuenta_bloqueada' : 'login_fallido',
+                    'ip'          => $request->ip(),
+                    'dispositivo' => mb_substr((string) $request->userAgent(), 0, 200),
+                    'fecha'       => now(),
+                ]);
+            }
+
             return response()->json(['message' => 'Correo o contraseña incorrectos.'], 401);
+        }
+
+        // Clave correcta: se borra la cuenta de intentos fallidos
+        if ($usuario->intentos_fallidos > 0 || $usuario->bloqueado_hasta) {
+            DB::table('users')->where('id', $usuario->id)->update([
+                'intentos_fallidos' => 0,
+                'bloqueado_hasta'   => null,
+            ]);
         }
 
         // Soporte (proceso del sistema) e invitado no inician sesión con formulario
@@ -130,6 +166,9 @@ class AuthController extends Controller
             'numero_documento'  => ['required', 'string', 'max:30'],
             'representante_legal' => [Rule::requiredIf($esInmobiliaria), 'nullable', 'string', 'max:255'],
             'password'          => ['required', 'string', 'min:8', 'confirmed'],
+            'idioma_preferido'  => ['nullable', 'string', 'size:2', 'exists:idiomas,codigo'],
+            'acepta_terminos'   => ['nullable', 'boolean'],
+            'acepta_datos'      => ['nullable', 'boolean'],
         ]);
 
         // El mismo tipo y número de documento no puede registrarse dos veces
@@ -153,6 +192,33 @@ class AuthController extends Controller
             'pais_residencia'    => 'CO',
             'estado'             => 'pendiente', // Espera aprobación del administrador
         ]);
+
+        
+        // Idioma preferido (opcional): se guarda solo si el formulario lo envía
+        if (! empty($datos['idioma_preferido'])) {
+            DB::table('users')->where('id', $usuario->id)->update([
+                'idioma_preferido' => $datos['idioma_preferido'],
+            ]);
+        }
+
+        // Aceptaciones legales (opcionales): una fila por cada casilla marcada.
+        // La versión "1.0" es provisional hasta que el equipo defina los textos oficiales.
+        $aceptaciones = [
+            'terminos'         => $datos['acepta_terminos'] ?? false,
+            'datos_personales' => $datos['acepta_datos'] ?? false,
+        ];
+
+        foreach ($aceptaciones as $tipo => $acepto) {
+            if ($acepto) {
+                DB::table('aceptaciones_legales')->insert([
+                    'user_id' => $usuario->id,
+                    'tipo'    => $tipo,
+                    'version' => '1.0',
+                    'fecha'   => now(),
+                    'ip'      => $request->ip(),
+                ]);
+            }
+        }
 
         // Respondemos 201 con estado "pendiente" para que el frontend
         // muestre la pantalla de espera en vez de redirigir al panel.

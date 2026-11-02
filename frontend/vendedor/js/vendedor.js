@@ -185,7 +185,7 @@
         });
         html += '<div class="i-tarjeta-lateral"><b><i class="fa-solid fa-globe"></i> ' + esc(tx('portal')) + '</b>' +
             '<p>' + esc(tx('portal_nota')) + '</p>' +
-            '<a class="v-btn v-btn-principal v-btn-mini" href="/invitado/dashboard.html" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i>' + esc(tx('ver_portal')) + '</a></div>';
+            '<a class="v-btn v-btn-principal v-btn-mini" href="/inmuebles" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i>' + esc(tx('ver_portal')) + '</a></div>';
         document.getElementById('i-lateral').innerHTML = html;
 
         // Barra superior: título, idioma, tema y sesión

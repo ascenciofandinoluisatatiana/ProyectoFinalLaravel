@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['user_id', 'plan', 'precio', 'estado', 'fecha_inicio', 'fecha_fin', 'referencia_pago'])]
+#[Fillable(['user_id', 'propiedad_id', 'plan', 'precio', 'estado', 'fecha_inicio', 'fecha_fin', 'referencia_pago'])]
 class Membresia extends Model
 {
     /** Etiquetas en español de cada plan. */
@@ -28,6 +28,11 @@ class Membresia extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function propiedad(): BelongsTo
+{
+    return $this->belongsTo(Propiedad::class, 'propiedad_id');
+}
+
     protected function casts(): array
     {
         return [
@@ -47,3 +52,4 @@ class Membresia extends Model
         };
     }
 }
+

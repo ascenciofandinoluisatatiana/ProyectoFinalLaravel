@@ -38,7 +38,7 @@
                     <div>
                         <p class="v-etiqueta"><i class="fa-solid fa-user-tie"></i> Agentes y equipo</p>
                         <h1 class="titulo-serif">Tu equipo de agentes</h1>
-                        <p>Da de alta a tus agentes, actualiza sus datos y desactívalos cuando ya no trabajen contigo.</p>
+                        <p>Da de alta a tus agentes, sigue sus resultados y paga sus comisiones (4 % de cada venta o arriendo que cierran).</p>
                     </div>
                     <div class="v-chips" style="margin-top:0">
                         <button type="button" class="v-btn v-btn-principal" id="d-nuevo"><i class="fa-solid fa-user-plus"></i> Agregar agente</button>
@@ -50,6 +50,19 @@
                     <div class="i-tabla-caja" id="d-agentes"></div>
                 </section>
                 <p class="v-nota"><i class="fa-solid fa-circle-info"></i> Al desactivar un agente, sus propiedades quedan sin agente para que las asignes a otro. Su historial de contactos y visitas se conserva.</p>
+
+                <!-- Comisiones: se generan solas al marcar una propiedad como vendida o arrendada -->
+                <section class="v-tarjeta">
+                    <div class="v-tarjeta-cabeza"><h2>Comisiones</h2><small id="d-comisiones-nota"></small></div>
+                    <div class="i-comision-totales" id="d-comisiones-totales"></div>
+                    <div class="i-pestanas" id="d-comisiones-filtro">
+                        <button type="button" class="i-pestana" data-estado="pendiente" aria-pressed="true">Por pagar</button>
+                        <button type="button" class="i-pestana" data-estado="pagada" aria-pressed="false">Pagadas</button>
+                        <button type="button" class="i-pestana" data-estado="" aria-pressed="false">Todas</button>
+                        <select class="i-select-mini" id="d-comisiones-agente" aria-label="Filtrar por agente"></select>
+                    </div>
+                    <div class="i-tabla-caja" id="d-comisiones"></div>
+                </section>
             </div>
         </main>
     </div>

@@ -12,16 +12,23 @@
     function $(id) { return document.getElementById(id); }
 
     /* ---------- Membresía ---------- */
+    // La membresía es por publicación: se muestra cuántas están destacadas hoy
     function pintarMembresia() {
-        var m = datos.membresia;
-        $('d-membresia').innerHTML =
-            '<div class="v-membresia-info"><i class="fa-solid ' + (m ? 'fa-circle-check' : 'fa-credit-card') + '"></i><div>' +
-            (m
-                ? '<b>Membresía ' + I.esc(m.nombre_plan.toLowerCase()) + ' activa</b>' +
-                  '<small>Vence el ' + I.esc(I.fechaLarga(m.fecha_fin)) + ' · quedan ' + Number(m.dias_restantes) +
-                  (m.dias_restantes === 1 ? ' día' : ' días') + '. Tus propiedades tienen mejor posicionamiento.</small>'
-                : '<b>Sin membresía activa</b><small>Tus propiedades se publican, pero sin posicionamiento destacado.</small>') +
-            '</div></div>';
+        var d = datos.destacadas || { total: 0 };
+        var m = datos.membresia;   // membresía de toda la cuenta (solo si quedó una de antes)
+        var texto;
+        if (d.total) {
+            texto = '<b>' + d.total + (d.total === 1 ? ' publicación destacada' : ' publicaciones destacadas') + '</b>' +
+                '<small>Aparecen primero en el portal. La próxima vence el ' + I.esc(I.fechaLarga(d.proximo_vencimiento)) + '.</small>';
+        } else if (m) {
+            texto = '<b>Membresía ' + I.esc(m.nombre_plan.toLowerCase()) + ' de la cuenta activa</b>' +
+                '<small>Vence el ' + I.esc(I.fechaLarga(m.fecha_fin)) + '. Desde ahora la membresía se compra por publicación en Propiedades.</small>';
+        } else {
+            texto = '<b>Ninguna publicación destacada</b><small>Tus propiedades se ven en el portal, pero después de las destacadas. ' +
+                'Destácalas desde <a href="/inmobiliaria/propiedades.html">Propiedades</a>.</small>';
+        }
+        $('d-membresia').innerHTML = '<div class="v-membresia-info"><i class="fa-solid ' +
+            (d.total || m ? 'fa-star' : 'fa-credit-card') + '"></i><div>' + texto + '</div></div>';
     }
 
     /* ---------- Cifras ---------- */

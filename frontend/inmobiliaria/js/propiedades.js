@@ -17,6 +17,9 @@
     var quitarFoto = false;
     var fotoPrincipal = null; // foto principal ya reducida (Blob)
     var catalogo = {};        // características: { clave: 'Texto' }
+    var planes = [];          // planes para destacar una publicación (precio del administrador)
+    var captchaClave = null;  // clave de sitio de Cloudflare Turnstile (null = sin captcha)
+    var captchaWidget = null, captchaToken = '';
     var maxFotos = 9;
     // Galería del formulario: fotos que ya existen, nuevas por subir y las que se van a borrar
     var galeria = { existentes: [], nuevas: [], quitar: [] };
@@ -38,6 +41,8 @@
         propiedades = r.data;
         if (r.caracteristicas) catalogo = r.caracteristicas;
         if (r.max_fotos) maxFotos = r.max_fotos;
+        if (r.planes) planes = r.planes;
+        captchaClave = r.captcha_site_key || null;
         pintar();
     }
 
@@ -59,6 +64,23 @@
         if (!cerrada) botones += boton('editar', 'fa-pen', 'Editar');
         botones += boton('eliminar', 'fa-trash', 'Eliminar');
 
+        // Membresía de ESTA publicación: con plan sale primero en el portal; sin plan, después
+        var d = p.destacado;
+        var destacado = '';
+        if (d && d.en_paquete) {
+            destacado = '<div class="i-destacado activo"><i class="fa-solid fa-layer-group"></i><span><b>Destacada · en tu paquete</b>' +
+                'Hasta el ' + I.esc(I.fechaLarga(d.fecha_fin)) + ' · cuenta como plan mensual</span>' +
+                '<a class="v-btn v-btn-suave v-btn-mini" href="/inmobiliaria/membresia.html"><i class="fa-solid fa-layer-group"></i>Ver paquete</a></div>';
+        } else if (d) {
+            destacado = '<div class="i-destacado activo"><i class="fa-solid fa-star"></i><span><b>Destacada · plan ' + I.esc(d.nombre_plan.toLowerCase()) + '</b>' +
+                'Hasta el ' + I.esc(I.fechaLarga(d.fecha_fin)) + ' · ' + Number(d.dias_restantes) + (d.dias_restantes === 1 ? ' día' : ' días') + '</span>' +
+                (!cerrada ? '<button type="button" class="v-btn v-btn-suave v-btn-mini" data-accion="destacar" data-id="' + p.id + '"><i class="fa-solid fa-rotate"></i>Renovar</button>' : '') +
+                '</div>';
+        } else if (!cerrada) {
+            destacado = '<div class="i-destacado"><i class="fa-solid fa-star"></i><span><b>Sin destacar</b>Se ve en el portal después de las destacadas.</span>' +
+                '<button type="button" class="v-btn v-btn-principal v-btn-mini" data-accion="destacar" data-id="' + p.id + '"><i class="fa-solid fa-star"></i>Destacar</button></div>';
+        }
+
         var precio = I.cop(p.precio) + (p.operacion === 'arriendo' ? '<small> / mes</small>' : '');
         var totalFotos = (p.imagen ? 1 : 0) + (p.fotos ? p.fotos.length : 0);
 
@@ -71,9 +93,10 @@
             ? '<p class="i-incompleta"><i class="fa-solid fa-circle-exclamation"></i><span>Para que el invitado la vea completa, falta: ' + I.esc(falta.join(', ')) + '.</span></p>'
             : '';
 
-        return '<article class="v-prop">' +
+        return '<article class="v-prop' + (d ? ' i-prop-destacada' : '') + '">' +
             '<div class="v-prop-foto"><i class="fa-solid fa-house"></i>' + I.foto(p.imagen) +
-                '<span class="v-estado ' + I.esc(p.estado) + '">' + I.esc(I.ESTADOS_PROPIEDAD[p.estado] || p.estado) + '</span></div>' +
+                '<span class="v-estado ' + I.esc(p.estado) + '">' + I.esc(I.ESTADOS_PROPIEDAD[p.estado] || p.estado) + '</span>' +
+                (d ? '<span class="i-sello-destacada"><i class="fa-solid fa-crown"></i>' + I.esc(d.en_paquete ? 'Paquete' : d.nombre_plan) + '</span>' : '') + '</div>' +
             '<div class="v-prop-cuerpo">' +
                 '<div class="v-prop-precio">' + precio + '</div>' +
                 '<h3>' + I.esc((I.TIPOS[p.tipo] || p.tipo) + ' en ' + p.barrio) + (p.verificada ? ' <i class="fa-solid fa-circle-check i-verificada" title="Propiedad verificada"></i>' : '') + '</h3>' +
@@ -84,7 +107,7 @@
                     '<span><i class="fa-solid fa-ruler-combined"></i>' + Number(p.area) + ' m²</span>' +
                     '<span><i class="fa-solid fa-camera"></i>' + totalFotos + '</span>' +
                     '<span>' + (p.operacion === 'venta' ? 'Venta' : 'Arriendo') + '</span>' +
-                '</div>' + aviso +
+                '</div>' + aviso + destacado +
                 '<div class="v-campo i-asignar"><label for="ag-' + p.id + '">Agente</label>' +
                     '<select id="ag-' + p.id + '" data-asignar="' + p.id + '">' +
                     I.opcionesAgentes(agentes, p.agente ? p.agente.id : null) + '</select></div>' +
@@ -116,6 +139,7 @@
 
         try {
             if (accion === 'editar') { abrirForm(p); return; }
+            if (accion === 'destacar') { abrirDestacar(p); return; }
             if (accion === 'eliminar') {
                 if (!window.confirm('¿Eliminar este inmueble? También se borran sus contactos y visitas.')) return;
                 var r1 = await I.api('/propiedades/' + id, { metodo: 'DELETE' });
@@ -427,9 +451,44 @@
 
         ventana.showModal();
         iniciarMapa(p ? p.lat : null, p ? p.lng : null);
+        prepararCaptcha(!p);
     }
 
     $('d-registrar').addEventListener('click', function () { abrirForm(null); });
+
+    /* ---------- Captcha (Cloudflare Turnstile) solo al registrar un inmueble nuevo ---------- */
+    function cargarScriptCaptcha() {
+        return new Promise(function (ok, falla) {
+            if (window.turnstile) return ok();
+            var s = document.createElement('script');
+            s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+            s.async = true;
+            s.onload = function () { ok(); };
+            s.onerror = function () { falla(new Error('No se pudo cargar el captcha. Revisa tu conexión.')); };
+            document.head.appendChild(s);
+        });
+    }
+
+    async function prepararCaptcha(nuevo) {
+        var caja = $('f-captcha');
+        captchaToken = '';
+        caja.hidden = !(nuevo && captchaClave);
+        if (caja.hidden) return;
+        try {
+            await cargarScriptCaptcha();
+            if (captchaWidget !== null) { window.turnstile.reset(captchaWidget); return; }
+            captchaWidget = window.turnstile.render('#f-captcha-widget', {
+                sitekey: captchaClave,
+                language: 'es',
+                theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light',
+                callback: function (token) { captchaToken = token; },
+                'expired-callback': function () { captchaToken = ''; },
+                'error-callback': function () { captchaToken = ''; }
+            });
+        } catch (err) {
+            $('f-captcha-widget').textContent = err.message;
+        }
+    }
 
     form.addEventListener('submit', async function (e) {
         e.preventDefault();
@@ -441,8 +500,16 @@
             return;
         }
 
+        if (!editando && captchaClave && !captchaToken) {
+            error.textContent = 'Confirma que no eres un robot (casilla del captcha).';
+            error.hidden = false;
+            return;
+        }
+
         var datos = new FormData(form);
         datos.delete('imagen');
+        datos.delete('cf-turnstile-response');                 // el widget agrega su propio campo
+        if (!editando && captchaClave) datos.append('captcha', captchaToken);
         if (fotoPrincipal) datos.append('imagen', fotoPrincipal, 'principal.jpg');
         if (editando) datos.delete('estado');
         if (editando && quitarFoto && !fotoPrincipal) datos.append('quitar_imagen', '1');
@@ -466,6 +533,8 @@
         } catch (err) {
             error.textContent = err.message;
             error.hidden = false;
+            // Un token del captcha solo sirve una vez: se pide de nuevo
+            if (!editando && captchaWidget !== null && window.turnstile) { window.turnstile.reset(captchaWidget); captchaToken = ''; }
         } finally {
             boton.disabled = false;
             boton.innerHTML = '<i class="fa-solid fa-check"></i> Guardar inmueble';
@@ -473,6 +542,50 @@
     });
 
     I.prepararVentana(ventana);
+
+    /* ---------- Destacar una publicación (membresía por publicación) ---------- */
+    var ventanaDestacar = $('d-destacar');
+    var destacando = null;
+    I.prepararVentana(ventanaDestacar);
+
+    function abrirDestacar(p) {
+        destacando = p;
+        $('d-destacar-titulo').textContent = (I.TIPOS[p.tipo] || p.tipo) + ' en ' + p.barrio;
+        $('d-destacar-actual').textContent = p.destacado
+            ? 'Ya está destacada con el plan ' + p.destacado.nombre_plan.toLowerCase() + ' hasta el ' + I.fechaLarga(p.destacado.fecha_fin) +
+              '. Si renuevas, el nuevo plan empieza cuando termine el actual: no pierdes días.'
+            : 'Mientras más alto el plan, más arriba aparece en el portal. Sin plan, se sigue viendo después de las destacadas.';
+        // De mayor a menor precio: el más caro va más arriba en el portal
+        $('d-destacar-planes').innerHTML = planes.slice().sort(function (a, b) { return b.precio - a.precio; }).map(function (pl, i) {
+            return '<button type="button" class="i-plan-opcion" data-plan="' + I.esc(pl.plan) + '">' +
+                '<span class="i-plan-puesto">' + (i + 1) + '°</span>' +
+                '<span><b>' + I.esc(pl.nombre) + '</b><small>' + Number(pl.dias) + ' días · ' + ['primeros lugares del portal', 'segundo grupo de destacadas', 'tercer grupo, antes de las no destacadas'][i] + '</small></span>' +
+                '<b class="i-plan-precio">' + I.cop(pl.precio) + '</b></button>';
+        }).join('');
+        ventanaDestacar.showModal();
+    }
+
+    $('d-destacar-planes').addEventListener('click', async function (e) {
+        var b = e.target.closest('[data-plan]');
+        if (!b || !destacando) return;
+        var botones = this.querySelectorAll('button');
+        botones.forEach(function (x) { x.disabled = true; });
+        try {
+            var r = await I.api('/propiedades/' + destacando.id + '/destacar', { metodo: 'POST', datos: { plan: b.getAttribute('data-plan') } });
+            if (r.checkout_url) {                 // Wompi: a pagar
+                I.toast(r.message);
+                window.location.href = r.checkout_url;
+                return;
+            }
+            ventanaDestacar.close();              // simulado: ya quedó destacada
+            I.toast(r.message);
+            await cargarPropiedades();
+        } catch (err) {
+            I.toast(err.message);
+        } finally {
+            botones.forEach(function (x) { x.disabled = false; });
+        }
+    });
 
     /* ---------- Arranque ---------- */
     async function iniciar() {

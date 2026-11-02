@@ -15,7 +15,11 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
-/** Panel de la inmobiliaria: propiedades, agentes, contactos, visitas, membresía y perfil. */
+/**
+ * Panel de la inmobiliaria: propiedades, agentes, contactos, visitas, membresía y perfil.
+ * Las fotos de prueba se crean con create(..., 'image/jpeg') y no con image(): así no se
+ * necesita la extensión GD de PHP, que el contenedor de Docker no trae.
+ */
 class InmobiliariaGestionTest extends TestCase
 {
     use RefreshDatabase;
@@ -25,6 +29,8 @@ class InmobiliariaGestionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        // El captcha se prueba aparte (CaptchaComisionesPaqueteTest)
+        config(['services.turnstile.site_key' => null, 'services.turnstile.secret_key' => null]);
 
         $dep = DB::table('departamentos')->insertGetId(['codigo_dane' => '73', 'nombre' => 'Tolima', 'activo' => true]);
         DB::table('municipios')->insert(['departamento_id' => $dep, 'codigo_dane' => '73001', 'nombre' => 'Ibagué', 'activo' => true]);
@@ -67,7 +73,7 @@ class InmobiliariaGestionTest extends TestCase
         $agente = $this->usuario('agente', ['inmobiliaria_id' => $this->inmo->id]);
 
         $r = $this->actingAs($this->inmo)->post('/api/v1/inmobiliaria/propiedades',
-            $this->datosPropiedad(['agente_id' => $agente->id, 'imagen' => UploadedFile::fake()->image('casa.jpg')]),
+            $this->datosPropiedad(['agente_id' => $agente->id, 'imagen' => UploadedFile::fake()->create('casa.jpg', 120, 'image/jpeg')]),
             ['Accept' => 'application/json'])
             ->assertCreated()
             ->assertJsonPath('data.agente.id', $agente->id)
@@ -90,7 +96,7 @@ class InmobiliariaGestionTest extends TestCase
         Storage::fake('public');
 
         $r = $this->actingAs($this->inmo)->post('/api/v1/inmobiliaria/propiedades', $this->datosPropiedad([
-            'imagen' => UploadedFile::fake()->image('principal.jpg'),
+            'imagen' => UploadedFile::fake()->create('principal.jpg', 120, 'image/jpeg'),
             'descripcion' => '  Apartamento con vista a la montaña.  ',
             'pisos' => 1,
             'antiguedad' => 5,
@@ -102,9 +108,9 @@ class InmobiliariaGestionTest extends TestCase
         $id = $r->json('data.id');
 
         // Galería: de a una foto, con tope
-        $foto = $this->post("/api/v1/inmobiliaria/propiedades/{$id}/fotos", ['foto' => UploadedFile::fake()->image('sala.jpg')], ['Accept' => 'application/json'])
+        $foto = $this->post("/api/v1/inmobiliaria/propiedades/{$id}/fotos", ['foto' => UploadedFile::fake()->create('sala.jpg', 120, 'image/jpeg')], ['Accept' => 'application/json'])
             ->assertCreated()->json('data');
-        $this->post("/api/v1/inmobiliaria/propiedades/{$id}/fotos", ['foto' => UploadedFile::fake()->image('cocina.jpg')], ['Accept' => 'application/json'])
+        $this->post("/api/v1/inmobiliaria/propiedades/{$id}/fotos", ['foto' => UploadedFile::fake()->create('cocina.jpg', 120, 'image/jpeg')], ['Accept' => 'application/json'])
             ->assertCreated();
         $this->post("/api/v1/inmobiliaria/propiedades/{$id}/fotos", ['foto' => UploadedFile::fake()->create('doc.pdf', 10, 'application/pdf')], ['Accept' => 'application/json'])
             ->assertStatus(422);

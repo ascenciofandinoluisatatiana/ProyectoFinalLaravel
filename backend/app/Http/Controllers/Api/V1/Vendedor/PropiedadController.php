@@ -3,10 +3,8 @@
 namespace App\Http\Controllers\Api\V1\Vendedor;
 
 use App\Http\Controllers\Api\V1\Inmobiliaria\PropiedadController as BasePropiedadController;
-use App\Models\Membresia;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -29,34 +27,19 @@ class PropiedadController extends BasePropiedadController
 
     public const MAX_FOTOS_TOTAL = 15;
 
-    /** GET /propiedades — igual que la base, pero informa los límites de fotos del vendedor. */
-    public function index(Request $request): JsonResponse
+        public function index(Request $request): JsonResponse
     {
         $respuesta = parent::index($request);
         $cuerpo = $respuesta->getData(true);
         $cuerpo['min_fotos'] = self::MIN_FOTOS_TOTAL;
         $cuerpo['max_fotos'] = self::MAX_FOTOS_TOTAL;
+
+        $vigentes = MembresiaController::vigentesPorPropiedad($request->user()->id);
+        foreach ($cuerpo['data'] as $i => $inmueble) {
+            $m = $vigentes->get($inmueble['id']);
+            $cuerpo['data'][$i]['membresia'] = $m ? MembresiaController::formato($m) : null;
+        }
         $respuesta->setData($cuerpo);
-
-        return $respuesta;
-    }
-
-    /** POST /propiedades — sin membresía activa se guarda como borrador. */
-    public function store(Request $request): JsonResponse
-    {
-        $sinMembresia = ! $this->tieneMembresiaActiva($request);
-
-        if ($sinMembresia) {
-            $request->merge(['estado' => 'borrador']);
-        }
-
-        $respuesta = parent::store($request);
-
-        if ($sinMembresia && $respuesta->getStatusCode() === 201) {
-            $cuerpo = $respuesta->getData(true);
-            $cuerpo['message'] = 'Inmueble guardado como borrador. Activa una membresía para publicarlo.';
-            $respuesta->setData($cuerpo);
-        }
 
         return $respuesta;
     }
@@ -91,26 +74,5 @@ class PropiedadController extends BasePropiedadController
         ]);
 
         return response()->json(['message' => 'Foto agregada.', 'data' => ['id' => $foto->id, 'url' => $foto->url]], 201);
-    }
-
-    /** PATCH /propiedades/{id}/estado — publicar o reanudar exige membresía activa. */
-    public function estado(Request $request, $id): JsonResponse
-    {
-        if ($request->input('estado') === 'publicada' && ! $this->tieneMembresiaActiva($request)) {
-            throw ValidationException::withMessages([
-                'estado' => 'Necesitas una membresía activa para publicar.',
-            ]);
-        }
-
-        return parent::estado($request, $id);
-    }
-
-    /** Misma regla de vigencia que MembresiaController (hora de Colombia). */
-    private function tieneMembresiaActiva(Request $request): bool
-    {
-        return Membresia::where('user_id', $request->user()->id)
-            ->where('estado', 'activa')
-            ->whereDate('fecha_fin', '>=', Carbon::now('America/Bogota')->toDateString())
-            ->exists();
     }
 }

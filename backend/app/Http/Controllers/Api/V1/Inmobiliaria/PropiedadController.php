@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Api\V1\Inmobiliaria;
 
+use App\Models\Comision;
 use App\Models\Propiedad;
 use App\Models\PropiedadFoto;
+use App\Services\CaptchaService;
+use App\Services\Inmobiliaria\ComisionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -51,7 +54,16 @@ class PropiedadController extends BaseInmobiliariaController
         }
 
         return response()->json([
-            'data' => $consulta->latest()->get()->map(fn (Propiedad $p) => $this->formato($p))->all(),
+            'data' => $this->conDestacados($consulta->latest()->get())->map(fn (Propiedad $p) => $this->formato($p))->all(),
+            // Captcha del formulario "Registrar inmueble" (null = desactivado)
+            'captcha_site_key' => app(CaptchaService::class)->claveSitio(),
+            // Planes para destacar una publicación (precio vigente del administrador)
+            'planes' => collect(\App\Models\PlanMembresia::precios())->map(fn ($precio, $plan) => [
+                'plan' => $plan,
+                'nombre' => \App\Models\Membresia::NOMBRES_PLAN[$plan] ?? $plan,
+                'precio' => $precio,
+                'dias' => ['semanal' => 7, 'quincenal' => 15, 'mensual' => 30][$plan] ?? null,
+            ])->values()->all(),
             // Catálogo para pintar las casillas del formulario
             'caracteristicas' => Propiedad::CARACTERISTICAS,
             'max_fotos' => Propiedad::MAX_FOTOS,
@@ -61,6 +73,10 @@ class PropiedadController extends BaseInmobiliariaController
     /** POST /propiedades */
     public function store(Request $request): JsonResponse
     {
+        // Captcha anti-bots, solo en el formulario de la inmobiliaria (el vendedor reutiliza este método)
+        if ($request->is('api/v1/inmobiliaria/*')) {
+            app(CaptchaService::class)->validar($request);
+        }
         $datos = $this->validar($request, true);
         $datos['user_id'] = $this->inmobiliaria($request)->id;
         $datos['verificada'] = false;
@@ -111,9 +127,24 @@ class PropiedadController extends BaseInmobiliariaController
             throw ValidationException::withMessages(['estado' => 'Solo una propiedad en arriendo se puede marcar como arrendada.']);
         }
 
+        $antes = $propiedad->estado;
         $propiedad->update(['estado' => $datos['estado']]);
 
-        return response()->json(['message' => 'Estado actualizado.', 'estado' => $propiedad->estado]);
+        // Comisión del agente (4 %): se crea al cerrar y se anula si se vuelve a abrir
+        $comisiones = app(ComisionService::class);
+        $comision = null;
+        if (in_array($propiedad->estado, ['vendida', 'arrendada'], true)) {
+            $comision = $comisiones->registrarCierre($propiedad);
+        } elseif (in_array($antes, ['vendida', 'arrendada'], true)) {
+            $comisiones->anularCierre($propiedad);
+        }
+
+        return response()->json([
+            'message' => 'Estado actualizado.' . ($comision && $comision->wasRecentlyCreated
+                ? ' Comisión de ' . $comision->agente->name . ': $' . number_format($comision->valor, 0, ',', '.') . ' (' . Comision::PORCENTAJE . ' %).'
+                : ''),
+            'estado' => $propiedad->estado,
+        ]);
     }
 
     /** PATCH /propiedades/{id}/agente  { agente_id | null } */
@@ -264,6 +295,16 @@ class PropiedadController extends BaseInmobiliariaController
         }
     }
 
+    /** Membresías vigentes de las propiedades del listado (una sola consulta). */
+    private ?array $destacadosCache = null;
+
+    private function conDestacados($propiedades)
+    {
+        $this->destacadosCache = $this->destacados($propiedades->pluck('id')->all());
+
+        return $propiedades;
+    }
+
     private function formato(Propiedad $p): array
     {
         return [
@@ -296,6 +337,8 @@ class PropiedadController extends BaseInmobiliariaController
             'contactos' => (int) ($p->leads_count ?? 0),
             'visitas' => (int) ($p->visitas_count ?? 0),
             'creada' => $p->created_at?->toIso8601String(),
+            // Membresía vigente de esta publicación (null = no destacada)
+            'destacado' => $this->destacadosCache[$p->id] ?? ($this->destacadosCache === null ? ($this->destacados([$p->id])[$p->id] ?? null) : null),
         ];
     }
 

@@ -25,6 +25,8 @@ class AgenteController extends BaseInmobiliariaController
         $ids = $this->idsPropiedades($request);
         $ahora = now();
 
+        $comisiones = ComisionController::resumenPorAgente($this->inmobiliaria($request));
+
         $agentes = User::where('inmobiliaria_id', $this->inmobiliaria($request)->id)
             ->whereHas('role', fn ($q) => $q->where('nombre', 'agente'))
             ->orderBy('name')
@@ -34,6 +36,10 @@ class AgenteController extends BaseInmobiliariaController
                 'contactos' => Lead::whereIn('propiedad_id', $ids)->where('agente_id', $a->id)->count(),
                 'visitas' => Visita::whereIn('propiedad_id', $ids)->where('agente_id', $a->id)
                     ->where('fecha', '>=', $ahora)->whereIn('estado', ['pendiente', 'confirmada'])->count(),
+                // Seguimiento: cierres y comisiones (4 %)
+                'cierres' => $comisiones[$a->id]['cierres'] ?? 0,
+                'comision_pendiente' => $comisiones[$a->id]['comision_pendiente'] ?? 0,
+                'comision_pagada' => $comisiones[$a->id]['comision_pagada'] ?? 0,
             ]);
 
         return response()->json(['data' => $agentes->all()]);

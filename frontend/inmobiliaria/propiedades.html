@@ -141,12 +141,29 @@
                 <input type="hidden" name="lng">
                 <p class="v-nota" id="f-coords">Haz clic en el mapa para marcar dónde está el inmueble. Puedes arrastrar el pin para ajustarlo.</p>
             </div>
+            <!-- Captcha anti-bots (solo al registrar un inmueble nuevo) -->
+            <div class="v-campo ancho" id="f-captcha" hidden>
+                <label>Verificación</label>
+                <div id="f-captcha-widget"></div>
+            </div>
             <p class="v-nota i-error" id="d-form-error" hidden></p>
             <div class="v-form-pie">
                 <button type="button" class="v-btn v-btn-suave" data-cerrar>Cancelar</button>
                 <button type="submit" class="v-btn v-btn-principal" id="d-form-guardar"><i class="fa-solid fa-check"></i> Guardar inmueble</button>
             </div>
         </form>
+    </dialog>
+
+    <!-- Ventana: destacar una publicación (membresía por publicación) -->
+    <dialog class="v-ventana i-ventana-destacar" id="d-destacar">
+        <div class="v-ventana-cabeza">
+            <h2 class="titulo-serif">Destacar publicación</h2>
+            <button type="button" class="v-icono-btn" data-cerrar aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <p class="i-destacar-de"><i class="fa-solid fa-house"></i> <b id="d-destacar-titulo"></b></p>
+        <p class="v-nota" id="d-destacar-actual"></p>
+        <div class="i-planes-opciones" id="d-destacar-planes"></div>
+        <p class="v-nota"><i class="fa-solid fa-lock"></i> El pago se hace con PSE, tarjeta o Nequi. La publicación sube apenas el pago queda aprobado.</p>
     </dialog>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>

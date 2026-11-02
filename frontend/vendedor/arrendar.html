@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" dir="ltr" data-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,7 +10,9 @@
     <!-- Fuentes del diseño (las mismas del inicio y el login) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
     <!-- Colores claro/oscuro del proyecto + iconos (los entrega Laravel en /assets) -->
     <link rel="stylesheet" href="/css/base.css">
@@ -26,9 +29,10 @@
         try {
             var tema = localStorage.getItem('umbral-tema');
             if (tema === 'dark' || tema === 'light') document.documentElement.setAttribute('data-theme', tema);
-        } catch (e) {}
+        } catch (e) { }
     </script>
 </head>
+
 <body class="vendedor panel-violeta op-arriendo" data-pagina="vendedor-arriendo" data-operacion="arriendo">
     <div class="v-pagina">
         <header class="v-topbar" id="v-topbar"></header>
@@ -42,8 +46,10 @@
                     <p id="d-desc"></p>
                 </div>
                 <div class="v-chips" style="margin-top:0">
-                    <a class="v-btn v-btn-suave" href="/vendedor/perfil.html"><i class="fa-solid fa-arrow-left"></i> Mi perfil</a>
-                    <button type="button" class="v-btn v-btn-principal" id="d-registrar"><i class="fa-solid fa-plus"></i> Registrar inmueble</button>
+                    <a class="v-btn v-btn-suave" href="/vendedor/perfil.html"><i class="fa-solid fa-arrow-left"></i> Mi
+                        perfil</a>
+                    <button type="button" class="v-btn v-btn-principal" id="d-registrar"><i
+                            class="fa-solid fa-plus"></i> Registrar inmueble</button>
                 </div>
             </section>
 
@@ -67,18 +73,26 @@
             <!-- Contactos, visitas y gráfica -->
             <div class="v-rejilla">
                 <section class="v-tarjeta">
-                    <div class="v-tarjeta-cabeza"><h2>Contactos recientes</h2><small>Personas interesadas en tus inmuebles</small></div>
+                    <div class="v-tarjeta-cabeza">
+                        <h2>Contactos recientes</h2><small>Personas interesadas en tus inmuebles</small>
+                    </div>
                     <div class="v-lista" id="d-contactos"></div>
                 </section>
 
                 <div style="display:grid;gap:24px">
                     <section class="v-tarjeta">
-                        <div class="v-tarjeta-cabeza"><h2>Próximas visitas</h2></div>
+                        <div class="v-tarjeta-cabeza">
+                            <h2>Próximas visitas</h2>
+                        </div>
                         <div class="v-lista" id="d-visitas"></div>
                     </section>
                     <section class="v-tarjeta">
-                        <div class="v-tarjeta-cabeza"><h2>Contactos de los últimos 7 días</h2></div>
-                        <div class="v-tarjeta-cuerpo"><div class="v-grafica"><canvas id="d-grafica" aria-label="Contactos por día"></canvas></div></div>
+                        <div class="v-tarjeta-cabeza">
+                            <h2>Contactos de los últimos 7 días</h2>
+                        </div>
+                        <div class="v-tarjeta-cuerpo">
+                            <div class="v-grafica"><canvas id="d-grafica" aria-label="Contactos por día"></canvas></div>
+                        </div>
                     </section>
                 </div>
             </div>
@@ -89,22 +103,34 @@
     <dialog class="v-ventana" id="d-form">
         <div class="v-ventana-cabeza">
             <h2 class="titulo-serif" id="d-form-titulo">Registrar inmueble</h2>
-            <button type="button" class="v-icono-btn" data-cerrar aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            <button type="button" class="v-icono-btn" data-cerrar aria-label="Cerrar"><i
+                    class="fa-solid fa-xmark"></i></button>
         </div>
         <form id="d-form-campos" novalidate>
             <input type="hidden" name="id">
             <div class="v-form-rejilla">
-                <div class="v-campo"><label for="f-tipo">Tipo de inmueble</label><select id="f-tipo" name="tipo" required></select></div>
-                <div class="v-campo"><label for="f-precio" id="f-precio-etiqueta">Precio (COP)</label><input id="f-precio" name="precio" type="number" min="1" step="1" required></div>
-                <div class="v-campo"><label for="f-departamento">Departamento</label><select id="f-departamento" name="departamento" required></select></div>
-                <div class="v-campo"><label for="f-ciudad">Ciudad</label><select id="f-ciudad" name="ciudad" required></select></div>
-                <div class="v-campo"><label for="f-barrio">Barrio</label><input id="f-barrio" name="barrio" type="text" maxlength="60" required></div>
-                <div class="v-campo"><label for="f-estrato">Estrato</label><select id="f-estrato" name="estrato"></select></div>
-                <div class="v-campo ancho"><label for="f-direccion">Dirección</label><input id="f-direccion" name="direccion" type="text" maxlength="120" required></div>
-                <div class="v-campo"><label for="f-habitaciones">Habitaciones</label><input id="f-habitaciones" name="habitaciones" type="number" min="0" max="50" value="0"></div>
-                <div class="v-campo"><label for="f-banos">Baños</label><input id="f-banos" name="banos" type="number" min="0" max="50" value="0"></div>
-                <div class="v-campo"><label for="f-parqueaderos">Parqueaderos</label><input id="f-parqueaderos" name="parqueaderos" type="number" min="0" max="50" value="0"></div>
-                <div class="v-campo"><label for="f-area">Área (m²)</label><input id="f-area" name="area" type="number" min="1" required></div>
+                <div class="v-campo"><label for="f-tipo">Tipo de inmueble</label><select id="f-tipo" name="tipo"
+                        required></select></div>
+                <div class="v-campo"><label for="f-precio" id="f-precio-etiqueta">Precio (COP)</label><input
+                        id="f-precio" name="precio" type="number" min="1" step="1" required></div>
+                <div class="v-campo"><label for="f-departamento">Departamento</label><select id="f-departamento"
+                        name="departamento" required></select></div>
+                <div class="v-campo"><label for="f-ciudad">Ciudad</label><select id="f-ciudad" name="ciudad"
+                        required></select></div>
+                <div class="v-campo"><label for="f-barrio">Barrio</label><input id="f-barrio" name="barrio" type="text"
+                        maxlength="60" required></div>
+                <div class="v-campo"><label for="f-estrato">Estrato</label><select id="f-estrato"
+                        name="estrato"></select></div>
+                <div class="v-campo ancho"><label for="f-direccion">Dirección</label><input id="f-direccion"
+                        name="direccion" type="text" maxlength="120" required></div>
+                <div class="v-campo"><label for="f-habitaciones">Habitaciones</label><input id="f-habitaciones"
+                        name="habitaciones" type="number" min="0" max="50" value="0"></div>
+                <div class="v-campo"><label for="f-banos">Baños</label><input id="f-banos" name="banos" type="number"
+                        min="0" max="50" value="0"></div>
+                <div class="v-campo"><label for="f-parqueaderos">Parqueaderos</label><input id="f-parqueaderos"
+                        name="parqueaderos" type="number" min="0" max="50" value="0"></div>
+                <div class="v-campo"><label for="f-area">Área (m²)</label><input id="f-area" name="area" type="number"
+                        min="1" required></div>
             </div>
             <!-- Fotos del inmueble: mínimo 5, máximo 15 -->
             <div class="v-campo ancho">
@@ -113,7 +139,8 @@
                 <div class="v-fotos" id="f-fotos-lista"></div>
                 <input class="v-oculto" id="f-fotos" type="file" accept="image/jpeg,image/png,image/webp" multiple>
                 <div class="v-ubic-acciones">
-                    <label class="v-btn v-btn-suave v-btn-mini" for="f-fotos" id="f-fotos-agregar"><i class="fa-solid fa-images"></i> Agregar fotos</label>
+                    <label class="v-btn v-btn-suave v-btn-mini" for="f-fotos" id="f-fotos-agregar"><i
+                            class="fa-solid fa-images"></i> Agregar fotos</label>
                 </div>
                 <p class="v-nota" id="f-fotos-nota"></p>
             </div>
@@ -122,39 +149,47 @@
             <div class="v-campo ancho">
                 <label>Ubicación en el mapa</label>
                 <div class="v-ubic-acciones">
-                    <button type="button" class="v-btn v-btn-suave v-btn-mini" id="f-buscar"><i class="fa-solid fa-magnifying-glass-location"></i> Buscar la dirección</button>
-                    <button type="button" class="v-btn v-btn-suave v-btn-mini" id="f-gps"><i class="fa-solid fa-crosshairs"></i> Usar mi ubicación</button>
+                    <button type="button" class="v-btn v-btn-suave v-btn-mini" id="f-buscar"><i
+                            class="fa-solid fa-magnifying-glass-location"></i> Buscar la dirección</button>
+                    <button type="button" class="v-btn v-btn-suave v-btn-mini" id="f-gps"><i
+                            class="fa-solid fa-crosshairs"></i> Usar mi ubicación</button>
                 </div>
                 <div class="v-mapa" id="d-mapa"></div>
                 <input type="hidden" name="lat">
                 <input type="hidden" name="lng">
-                <p class="v-nota" id="f-coords">Haz clic en el mapa para marcar dónde está el inmueble. Puedes arrastrar el pin para ajustarlo.</p>
+                <p class="v-nota" id="f-coords">Haz clic en el mapa para marcar dónde está el inmueble. Puedes arrastrar
+                    el pin para ajustarlo.</p>
             </div>
             <p class="v-nota" id="d-form-nota"></p>
             <div class="v-form-pie">
                 <button type="button" class="v-btn v-btn-suave" data-cerrar>Cancelar</button>
-                <button type="submit" class="v-btn v-btn-principal"><i class="fa-solid fa-check"></i> Guardar inmueble</button>
+                <button type="submit" class="v-btn v-btn-principal"><i class="fa-solid fa-check"></i> Guardar
+                    inmueble</button>
             </div>
         </form>
     </dialog>
 
-    <!-- Ventana: contratar membresía -->
+    <!-- Ventana: posicionar un inmueble con membresía (se paga por cada inmueble) -->
     <dialog class="v-ventana" id="d-planes">
         <div class="v-ventana-cabeza">
-            <h2 class="titulo-serif">Contrata tu membresía</h2>
-            <button type="button" class="v-icono-btn" data-cerrar aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            <h2 class="titulo-serif">Posiciona tu inmueble</h2>
+            <button type="button" class="v-icono-btn" data-cerrar aria-label="Cerrar"><i
+                    class="fa-solid fa-xmark"></i></button>
         </div>
         <form id="d-planes-form" novalidate>
-            <p class="v-nota">Con una membresía activa tus inmuebles se publican y son visibles en el portal. Elige la duración:</p>
+            <p class="v-nota"><b id="d-planes-inmueble"></b></p>
+            <p class="v-nota">Publicar es gratis. Con la membresía de este inmueble aparece en las zonas posicionadas
+                del portal mientras dure. Elige la duración:</p>
             <div class="v-planes" id="d-planes-lista"></div>
-            <p class="v-nota"><i class="fa-solid fa-circle-info"></i> Simulación: el cobro real por PSE llegará con el módulo de Membresías.</p>
+            <p class="v-nota"><i class="fa-solid fa-circle-info"></i> Simulación: el cobro real por PSE llegará con el
+                módulo de Membresías.</p>
             <div class="v-form-pie">
                 <button type="button" class="v-btn v-btn-suave" data-cerrar>Cancelar</button>
-                <button type="submit" class="v-btn v-btn-principal"><i class="fa-solid fa-credit-card"></i> Activar membresía</button>
+                <button type="submit" class="v-btn v-btn-principal"><i class="fa-solid fa-credit-card"></i> Pagar
+                    membresía</button>
             </div>
         </form>
     </dialog>
-
     <!-- Chart.js ya viene con el panel de administración (lo entrega Laravel en /assets) -->
     <script src="/assets/admin/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -162,4 +197,5 @@
     <script src="/vendedor/js/vendedor.js"></script>
     <script src="/vendedor/js/dashboard.js"></script>
 </body>
+
 </html>

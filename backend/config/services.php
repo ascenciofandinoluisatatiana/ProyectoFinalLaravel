@@ -43,6 +43,15 @@ return [
         'checkout_url' => env('WOMPI_CHECKOUT_URL', 'https://checkout.wompi.co/p/'),
     ],
 
+    /*
+     | Captcha Cloudflare Turnstile para el formulario "Registrar inmueble" de la inmobiliaria.
+     | Claves gratis en dash.cloudflare.com → Turnstile. Sin claves, el captcha no se pide.
+     */
+    'turnstile' => [
+        'site_key' => env('TURNSTILE_SITE_KEY'),
+        'secret_key' => env('TURNSTILE_SECRET_KEY'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

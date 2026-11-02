@@ -167,7 +167,7 @@ class PagoService
      * Webhook de Wompi (evento transaction.updated).
      * Se valida el checksum: SHA256(valores de signature.properties + timestamp + secreto de eventos).
      */
-    public function procesarEvento(array $evento, ?string $checksumCabecera): bool
+        public function procesarEvento(array $evento, ?string $checksumCabecera): bool
     {
         $secreto = config('services.wompi.events_secret');
         $firma = $evento['signature'] ?? [];
@@ -181,18 +181,35 @@ class PagoService
         }
         $calculado = hash('sha256', $cadena . $evento['timestamp'] . $secreto);
         $recibido = strtolower((string) ($checksumCabecera ?: ($firma['checksum'] ?? '')));
-
-        if (! hash_equals($calculado, $recibido)) {
-            return false;
-        }
+        $firmaValida = hash_equals($calculado, $recibido);
 
         $tx = data_get($evento, 'data.transaction');
-        if (($evento['event'] ?? '') !== 'transaction.updated' || ! $tx) {
-            return true; // evento válido que no nos interesa
+
+        // Wompi no manda un identificador del aviso: se arma con la transacción, su estado y la hora.
+        // Un aviso con firma falsa se guarda aparte, con un identificador propio.
+        $idEvento = $firmaValida
+            ? mb_substr(($tx['id'] ?? 'sin-id') . '-' . ($tx['status'] ?? 'sin-estado') . '-' . $evento['timestamp'], 0, 80)
+            : 'INV-' . sha1(json_encode($evento));
+
+        $pago = ($firmaValida && $tx) ? Pago::where('referencia', $tx['reference'] ?? '')->first() : null;
+
+        // Se guarda el aviso completo. Si ya existía (Wompi lo reenvió), no se duplica.
+        DB::table('eventos_webhook_pago')->insertOrIgnore([
+            'id_evento_proveedor' => $idEvento,
+            'pago_id' => $pago?->id,
+            'payload' => json_encode($evento),
+            'firma_valida' => $firmaValida,
+        ]);
+        $registro = DB::table('eventos_webhook_pago')->where('id_evento_proveedor', $idEvento)->first();
+
+        if (! $firmaValida) {
+            return false;
+        }
+        if ($registro->procesado) {
+            return true; // este aviso ya se procesó antes
         }
 
-        $pago = Pago::where('referencia', $tx['reference'] ?? '')->first();
-        if ($pago) {
+        if (($evento['event'] ?? '') === 'transaction.updated' && $tx && $pago) {
             $this->actualizar(
                 $pago,
                 self::ESTADOS_WOMPI[$tx['status'] ?? ''] ?? 'pendiente',
@@ -201,6 +218,8 @@ class PagoService
                 (int) ($tx['amount_in_cents'] ?? 0)
             );
         }
+
+        DB::table('eventos_webhook_pago')->where('id', $registro->id)->update(['procesado' => true]);
 
         return true;
     }

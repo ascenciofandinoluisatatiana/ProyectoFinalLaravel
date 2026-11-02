@@ -72,4 +72,10 @@ class Propiedad extends Model
     {
         return $this->hasMany(PropiedadFoto::class)->orderBy('orden')->orderBy('id');
     }
+
+    /** Publicaciones (anuncios) de esta propiedad. */
+    public function publicaciones(): HasMany
+    {
+        return $this->hasMany(Publicacion::class);
+    }
 }

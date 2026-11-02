@@ -2,8 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Lead;
 use App\Models\Membresia;
+use App\Models\Propiedad;
 use App\Models\User;
+use App\Observers\LeadObserver;
+use App\Observers\PropiedadObserver;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -20,8 +24,15 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
+        public function boot(): void
     {
+        // Mantiene al día las publicaciones cada vez que se guarda una propiedad
+        Propiedad::observe(PropiedadObserver::class);
+
+        
+        // Conecta cada contacto nuevo con la publicación de su propiedad
+        Lead::observe(LeadObserver::class);
+
         // Fechas relativas ("hace 2 horas") en español
         \Illuminate\Support\Carbon::setLocale('es');
 

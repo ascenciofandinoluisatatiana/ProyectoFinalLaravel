@@ -18,6 +18,12 @@ class Lead extends Model
         return $this->belongsTo(Propiedad::class);
     }
 
+    /** Publicación por la que escribió la persona interesada. */
+    public function publicacion(): BelongsTo
+    {
+        return $this->belongsTo(Publicacion::class);
+    }
+
     public function agente(): BelongsTo
     {
         return $this->belongsTo(User::class, 'agente_id');

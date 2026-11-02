@@ -252,6 +252,7 @@ class PagoService
 
             if ($estado === 'aprobado') {
                 $pago->pagado_en = now();
+                $pago->numero_comprobante = 'COMP-' . now()->format('Ymd') . '-' . str_pad((string) $pago->id, 6, '0', STR_PAD_LEFT);
                 $this->aplicar($pago);
             }
             $pago->save();

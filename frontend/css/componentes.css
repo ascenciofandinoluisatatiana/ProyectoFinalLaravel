@@ -357,8 +357,8 @@
     .login-page::before {
         background:
             linear-gradient(180deg, var(--fondo) 0%, transparent 45%),
-            var(--foto-casa) 30% bottom / auto 75% no-repeat;
-        opacity: 0.9;
+            var(--foto-casa) center bottom / cover no-repeat;
+        opacity: 0.5;
     }
 }
 

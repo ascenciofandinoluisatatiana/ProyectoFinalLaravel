@@ -98,7 +98,7 @@
         var filas = pagina.data || [];
 
         if (!filas.length) {
-            cuerpo.innerHTML = '<tr><td colspan="6" class="px-5 py-10 text-center text-sm text-slate-500">No hay pagos en el periodo seleccionado.</td></tr>';
+            cuerpo.innerHTML = '<tr><td colspan="6" class="px-5 py-10 text-center text-sm text-slate-500">No hay pagos en el periodo seleccionado. Prueba ampliando el rango de fechas.</td></tr>';
             poner('infoTransacciones', '');
             return;
         }
@@ -190,9 +190,9 @@
         descargar('/reportes/exportar/inmuebles', 'reporte_inmuebles_' + fechaLocal(new Date()) + '.csv');
     });
 
-    /* Fechas por defecto: del día 1 del mes a hoy */
+    /* Fechas por defecto: los últimos 30 días, hasta hoy */
     var hoy = new Date();
-    inicio.value = fechaLocal(new Date(hoy.getFullYear(), hoy.getMonth(), 1));
+    inicio.value = fechaLocal(new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - 30));
     fin.value = fechaLocal(hoy);
 
     P.listo.then(cargarTodo);

@@ -22,7 +22,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        marcarActivo(raiz.getAttribute('data-theme') || 'light');
+        marcarActivo(raiz.getAttribute('data-theme') || 'dark');
 
         document.querySelectorAll('[data-tema]').forEach(function (boton) {
             boton.addEventListener('click', function () {

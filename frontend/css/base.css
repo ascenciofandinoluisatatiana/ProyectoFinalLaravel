@@ -19,17 +19,17 @@
     --fondo: #f4f1fb;
     --fondo-degradado: linear-gradient(180deg, #ede6fb 0%, #f8f5fc 55%, #fbf9f6 100%);
     --tarjeta: rgba(255, 255, 255, 0.78);
-    --tarjeta-borde: rgba(99, 102, 241, 0.35);
+    --tarjeta-borde: rgba(165, 99, 241, 0.35);
     --campo: #ffffff;
     --campo-borde: #e3e1ee;
-    --texto: #111936;
-    --texto-suave: #5b6385;
-    --acento: #2563eb;
+    --texto: #221136;
+    --texto-suave: #6f5b85;
+    --acento: #8125eb;
     --acento-2: #7c3aed;
-    --boton-gradiente: linear-gradient(90deg, #2347e0 0%, #7c3aed 100%);
-    --boton-oscuro: #0f1a2e;
+    --boton-gradiente: linear-gradient(90deg, #7b23e0 0%, #7c3aed 100%);
+    --boton-oscuro: #1d0f2e;
     --boton-oscuro-texto: #ffffff;
-    --sombra: 0 20px 60px rgba(76, 60, 160, 0.18);
+    --sombra: 0 20px 60px rgba(107, 60, 160, 0.18);
 
     /* Velo que se pone sobre la foto de la casa (paso 4) */
     --foto-velo:
@@ -41,25 +41,25 @@
 
 /* ---------- TEMA OSCURO ---------- */
 [data-theme="dark"] {
-    --fondo: #060b1f;
-    --fondo-degradado: linear-gradient(180deg, #060b1f 0%, #0a1230 100%);
-    --tarjeta: rgba(13, 20, 46, 0.72);
-    --tarjeta-borde: rgba(56, 130, 246, 0.45);
-    --campo: rgba(255, 255, 255, 0.03);
-    --campo-borde: rgba(255, 255, 255, 0.10);
-    --texto: #f3f6ff;
-    --texto-suave: #9aa6cf;
-    --acento: #38a3f8;
-    --acento-2: #8b5cf6;
-    --boton-gradiente: linear-gradient(90deg, #2f55e8 0%, #8b3cf0 100%);
-    --boton-oscuro: rgba(255, 255, 255, 0.04);
-    --boton-oscuro-texto: #f3f6ff;
-    --sombra: 0 20px 60px rgba(0, 0, 0, 0.55);
+    --fondo: #140826;
+    --fondo-degradado: linear-gradient(180deg, #140826 0%, #140826 100%);
+    --tarjeta: rgba(20, 20, 24, 0.80);
+    --tarjeta-borde: rgba(255, 255, 255, 0.12);
+    --campo: rgba(255, 255, 255, 0.04);
+    --campo-borde: rgba(255, 255, 255, 0.12);
+    --texto: #f5f5f7;
+    --texto-suave: #a6a6b0;
+    --acento: #e3c985;
+    --acento-2: #c9a9ff;
+    --boton-gradiente: linear-gradient(90deg, #f3e2b0 0%, #d4b062 100%);
+    --boton-oscuro: rgba(255, 255, 255, 0.05);
+    --boton-oscuro-texto: #f5f5f7;
+    --sombra: 0 20px 60px rgba(0, 0, 0, 0.6);
 
     /* Velo oscuro sobre la foto de la casa (paso 4) */
     --foto-velo:
-        linear-gradient(90deg, rgba(6, 11, 31, 0.15) 0%, rgba(6, 11, 31, 0.55) 62%, rgba(6, 11, 31, 0.92) 100%),
-        linear-gradient(180deg, rgba(6, 11, 31, 0) 45%, rgba(6, 11, 31, 0.95) 100%);
+        linear-gradient(90deg, rgba(9, 9, 11, 0.15) 0%, rgba(9, 9, 11, 0.55) 62%, rgba(9, 9, 11, 0.92) 100%),
+        linear-gradient(180deg, rgba(9, 9, 11, 0) 45%, rgba(9, 9, 11, 0.95) 100%);
     --filtro-logo: brightness(1.9) saturate(1.1);
     color-scheme: dark;
 }

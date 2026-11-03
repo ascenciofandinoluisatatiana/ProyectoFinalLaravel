@@ -70,6 +70,8 @@ Route::prefix('v1')->group(function () {
 Route::prefix('v1/admin')->middleware('web')->group(function () {
     Route::get('csrf', [AdminSesionController::class, 'csrf']);
     Route::post('sesion', [AdminSesionController::class, 'entrar'])->middleware('throttle:10,1');
+    Route::post('sesion/codigo', [AdminSesionController::class, 'verificarCodigo'])->middleware('throttle:10,1');
+    Route::post('sesion/codigo/reenviar', [AdminSesionController::class, 'reenviarCodigo'])->middleware('throttle:3,1');
 });
 Route::prefix('v1/admin')->middleware(['web', 'admin.api'])->group(function () {
     // Reportes y Métricas (Fase 16 & RF-057 / RF-104)

@@ -460,6 +460,22 @@
                         <a href="#" class="enlace" data-i18n="login.olvido">¿Olvidaste tu contraseña?</a>
                     </div>
 
+                    <div id="bloque-codigo" class="verif" style="display:none">
+                        <div class="verif-icono" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M12 3 4 6v5c0 5 3.4 8.4 8 10 4.6-1.6 8-5 8-10V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+                        </div>
+                        <h3 class="verif-titulo" id="verif-saludo">¡Bienvenido!</h3>
+                        <p class="verif-sub">Verificación en dos pasos</p>
+                        <p class="verif-texto" id="texto-codigo"></p>
+                        <label class="verif-etiqueta" for="codigo">Código de verificación</label>
+                        <input type="text" id="codigo" name="codigo" class="verif-codigo" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code">
+                        <p class="verif-tiempo" id="verif-tiempo"></p>
+                        <div class="verif-enlaces">
+                            <a href="#" class="enlace" id="reenviar-codigo">Reenviar código</a>
+                            <a href="#" class="enlace" id="volver-paso1">Usar otra cuenta</a>
+                        </div>
+                    </div>
+
                     <p class="mensaje" id="mensaje" role="alert" hidden></p>
                     <button type="submit" class="btn-principal"><span data-i18n="login.entrar">INICIAR SESIÓN</span> <span aria-hidden="true">→</span></button>
 

@@ -2343,3 +2343,34 @@ form .btn-principal > span[aria-hidden="true"] {
   }
 }
 
+
+/* ---------- Verificación en dos pasos (login del administrador) ---------- */
+.verif { text-align: center; padding: 4px 0 8px; animation: verifEntrada .35s ease; }
+@keyframes verifEntrada { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+.verif-icono {
+    width: 64px; height: 64px; margin: 0 auto 14px; border-radius: 20px;
+    display: grid; place-items: center;
+    background: linear-gradient(135deg, #3b5bff, #8b3dff);
+    box-shadow: 0 10px 28px rgba(91, 80, 255, .35);
+}
+.verif-icono svg { width: 30px; height: 30px; fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+.verif-titulo { margin: 0; font-family: 'Cormorant Garamond', serif; font-size: 1.7rem; font-weight: 600; }
+.verif-sub { margin: 4px 0 14px; font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; color: #5aa7ff; }
+.verif-texto { margin: 0 0 18px; font-size: .9rem; line-height: 1.5; opacity: .8; }
+.verif-etiqueta { display: block; margin-bottom: 8px; font-size: .78rem; font-weight: 600; opacity: .85; }
+
+.verif-codigo {
+    width: 100%; box-sizing: border-box; padding: 14px 10px 14px calc(10px + .5em);
+    text-align: center; font-family: inherit; font-size: 1.9rem; font-weight: 600; line-height: 1;
+    letter-spacing: .5em; font-variant-numeric: tabular-nums; color: inherit;
+    background: rgba(120, 130, 200, .08); border: 1.5px solid rgba(120, 130, 200, .35);
+    border-radius: 14px; outline: none; transition: border-color .2s, box-shadow .2s;
+}
+.verif-codigo:focus { border-color: #5b6bff; box-shadow: 0 0 0 4px rgba(91, 107, 255, .2); }
+.verif-codigo::placeholder { opacity: .25; }
+
+.verif-tiempo { margin: 12px 0 0; font-size: .8rem; opacity: .75; font-variant-numeric: tabular-nums; }
+.verif-tiempo.verif-vencido { color: #ff6b7a; opacity: 1; }
+.verif-enlaces { display: flex; justify-content: center; gap: 22px; margin: 10px 0 4px; font-size: .85rem; }

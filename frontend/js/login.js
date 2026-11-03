@@ -7,6 +7,7 @@
     var form = document.getElementById('form-login');
     var boton = form.querySelector('.btn-principal');
     var mensaje = document.getElementById('mensaje');
+    var esperandoCodigo = false;   // true cuando el administrador ya puso su clave y falta el código del 2FA
 
     // El administrador entra a su panel (frontend/panel-admin); los demás roles
     // conservan su flujo actual mientras se construyen sus paneles específicos.
@@ -53,7 +54,7 @@
     // La API valida credenciales, pero la administración necesita una sesión
     // web de Laravel. La iniciamos usando el formulario oficial y su CSRF.
 
-    async function entrarAlPanelAdministrativo(email, password, recordar) {
+    async function entrarAlPanelAdministrativo(email, password, recordar, nombre) {
         // Preparar la sesión web de Laravel desde el login oficial.
         await fetch('/api/v1/admin/csrf', {
             credentials: 'same-origin'
@@ -91,6 +92,12 @@
                 datos.message ||
                 'No se pudo iniciar la sesión administrativa.'
             );
+        }
+
+        // 2FA: el servidor pide el código enviado al correo antes de abrir la sesión
+        if (datos.requiere_codigo) {
+            pasarAPedirCodigo(datos.message, nombre);
+            return;
         }
 
         window.location.replace('/panel-admin/dashboard.html');
@@ -135,8 +142,128 @@
         return window.t('msg.generico');
     }
 
+    // ---------- Doble autenticación del administrador ----------
+    var temporizadorCodigo = null;
+
+    function cabecerasAdmin() {
+        var fila = document.cookie.split('; ').find(function (f) { return f.indexOf('XSRF-TOKEN=') === 0; });
+        var xsrf = fila ? decodeURIComponent(fila.substring('XSRF-TOKEN='.length)) : '';
+        return { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-XSRF-TOKEN': xsrf };
+    }
+
+    // Cuenta regresiva "El código vence en 4:59"
+    function iniciarCuentaRegresiva(segundos) {
+        clearInterval(temporizadorCodigo);
+        var fin = Date.now() + segundos * 1000;
+        var etiqueta = document.getElementById('verif-tiempo');
+
+        function pintar() {
+            var resto = Math.max(0, Math.round((fin - Date.now()) / 1000));
+            var m = Math.floor(resto / 60);
+            var s = resto % 60;
+            etiqueta.textContent = resto > 0
+                ? 'El código vence en ' + m + ':' + (s < 10 ? '0' : '') + s
+                : 'El código venció. Pide uno nuevo.';
+            etiqueta.classList.toggle('verif-vencido', resto === 0);
+            if (resto === 0) clearInterval(temporizadorCodigo);
+        }
+
+        pintar();
+        temporizadorCodigo = setInterval(pintar, 1000);
+    }
+
+    // Elementos del paso 1 (correo, clave, pestañas...) que se esconden mientras se pide el código
+    function elementosDelPaso1() {
+        var lista = Array.prototype.slice.call(
+            form.querySelectorAll('.etiqueta, .campo, .fila-opciones, .subtitulo, .crear-cuenta'));
+        var extra = Array.prototype.slice.call(document.querySelectorAll('.modal-pestanas, #modal-titulo'));
+        return lista.concat(extra);
+    }
+
+    function pasarAPedirCodigo(texto, nombre) {
+        elementosDelPaso1().forEach(function (el) { el.style.display = 'none'; });
+
+        var primerNombre = String(nombre || '').trim().split(' ')[0];
+        document.getElementById('verif-saludo').textContent = primerNombre ? '¡Bienvenido, ' + primerNombre + '!' : '¡Bienvenido!';
+        document.getElementById('texto-codigo').textContent = texto;
+        document.getElementById('bloque-codigo').style.display = '';
+        document.getElementById('codigo').value = '';
+        boton.querySelector('span').textContent = 'VERIFICAR CÓDIGO';
+        mensaje.hidden = true;
+        esperandoCodigo = true;
+        iniciarCuentaRegresiva(300);
+        document.getElementById('codigo').focus();
+    }
+
+    // Vuelve al paso de correo y contraseña
+    function volverAlPaso1() {
+        clearInterval(temporizadorCodigo);
+        elementosDelPaso1().forEach(function (el) { el.style.display = ''; });
+        document.getElementById('bloque-codigo').style.display = 'none';
+        boton.querySelector('span').textContent = 'INICIAR SESIÓN';
+        document.getElementById('clave').value = '';
+        esperandoCodigo = false;
+    }
+
+    async function verificarCodigo() {
+        var codigo = document.getElementById('codigo').value.trim();
+        if (!/^\d{6}$/.test(codigo)) { mostrar('Escribe el código de 6 dígitos.', 'error'); return; }
+
+        boton.disabled = true;
+        mensaje.hidden = true;
+        try {
+            var r = await fetch('/api/v1/admin/sesion/codigo', {
+                method: 'POST', credentials: 'same-origin',
+                headers: cabecerasAdmin(), body: JSON.stringify({ codigo: codigo })
+            });
+            var d = await r.json().catch(function () { return {}; });
+
+            if (!r.ok) {
+                mostrar(d.message || 'No se pudo verificar el código.', 'error');
+                if (d.codigo === 'codigo_expirado') volverAlPaso1();
+                return;
+            }
+
+            clearInterval(temporizadorCodigo);
+            mostrar(window.t('msg.bienvenido', { nombre: d.usuario.nombre }), 'ok');
+            window.location.replace('/panel-admin/dashboard.html');
+        } catch (err) {
+            mostrar(window.t('msg.conexion'), 'error');
+        } finally {
+            boton.disabled = false;
+        }
+    }
+
+    // Solo números en la casilla del código
+    document.getElementById('codigo').addEventListener('input', function () {
+        this.value = this.value.replace(/\D/g, '').slice(0, 6);
+    });
+
+    document.getElementById('reenviar-codigo').addEventListener('click', async function (e) {
+        e.preventDefault();
+        try {
+            var r = await fetch('/api/v1/admin/sesion/codigo/reenviar', {
+                method: 'POST', credentials: 'same-origin', headers: cabecerasAdmin()
+            });
+            var d = await r.json().catch(function () { return {}; });
+            mostrar(d.message || 'No se pudo reenviar el código.', r.ok ? 'ok' : 'error');
+            if (r.ok) iniciarCuentaRegresiva(300);
+            if (d.codigo === 'codigo_expirado') volverAlPaso1();
+        } catch (err) {
+            mostrar(window.t('msg.conexion'), 'error');
+        }
+    });
+
+    document.getElementById('volver-paso1').addEventListener('click', function (e) {
+        e.preventDefault();
+        mensaje.hidden = true;
+        volverAlPaso1();
+    });
+
     form.addEventListener('submit', async function (e) {
         e.preventDefault();
+
+        if (esperandoCodigo) { await verificarCodigo(); return; }
 
         var email = document.getElementById('correo').value.trim();
         var password = document.getElementById('clave').value;
@@ -189,8 +316,8 @@
             // La autenticación de la API no crea la sesión web del administrador.
             // En ese caso iniciamos también la sesión Laravel antes de redirigir.
             if (datos.usuario.rol === 'administrador') {
-                mostrar(window.t('msg.bienvenido', { nombre: datos.usuario.nombre }), 'ok');
-                await entrarAlPanelAdministrativo(email, password, recordar);
+                // Sin "Bienvenido" todavía: primero falta el código del 2FA
+                await entrarAlPanelAdministrativo(email, password, recordar, datos.usuario.nombre);
                 return;
             }
 

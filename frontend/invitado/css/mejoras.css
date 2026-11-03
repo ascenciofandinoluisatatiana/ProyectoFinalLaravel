@@ -1,0 +1,661 @@
+/* =====================================================================
+   UMBRAL · invitado · MEJORAS
+   Tarjetas horizontales · premium completo · filtros abiertos
+   buscador con borde · compartir en redes · corazón de favoritos
+   Se carga DESPUÉS de invitado.css y premium.css (no toca los demás archivos)
+   ===================================================================== */
+
+/* ---------- 1. TARJETAS HORIZONTALES ---------- */
+.cards,
+.rest-grid,
+.prem-wrap .prem-track {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
+  gap: 22px;
+  overflow: visible;
+  scroll-snap-type: none;
+}
+
+.prem-wrap .prem-track {
+  padding: 14px 2px 10px;
+  margin: 0;
+}
+
+.prem-wrap .prem-track .pcard {
+  flex: none;
+  min-width: 0;
+}
+
+.pcard {
+  flex-direction: row;
+  min-height: 240px;
+  border-radius: 22px;
+}
+
+.pcard .pimg {
+  flex: 0 0 40%;
+  min-width: 150px;
+  height: auto;
+  min-height: 240px;
+  font-size: 54px;
+}
+
+/* degradado sobre la foto para que insignias y medalla se lean bien */
+.pcard .pimg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, .42) 0%, transparent 38%, transparent 58%, rgba(0, 0, 0, .55) 100%);
+  pointer-events: none;
+}
+
+.pcard .pimg .badges {
+  max-width: calc(100% - 74px);
+  z-index: 2;
+}
+
+.pcard .pbody,
+.pcard.has-rank .pbody {
+  padding: 18px 20px 16px;
+  gap: 8px;
+  min-width: 0;
+}
+
+.pcard .price {
+  font-size: 25px;
+  letter-spacing: -.01em;
+  line-height: 1.1;
+}
+
+.pcard.is-prem .price {
+  font-size: 27px;
+}
+
+.pcard .ptitle {
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+/* medalla y nivel dentro de la foto, abajo a la izquierda */
+.pcard .rank {
+  left: 14px;
+  bottom: 14px;
+}
+
+.pcard .tier-chip {
+  left: 64px;
+  bottom: 24px;
+}
+
+.pcard .pfoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 14px;
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+
+.pcard .pactions {
+  flex-direction: row;
+  margin-top: 2px;
+}
+
+.pcard .pactions .btn {
+  padding: 11px 8px;
+}
+
+@media (max-width: 640px) {
+  .pcard {
+    flex-direction: column;
+  }
+
+  .pcard .pimg {
+    flex: none;
+    width: 100%;
+    height: 210px;
+    min-height: 0;
+  }
+
+  .cards,
+  .rest-grid,
+  .prem-wrap .prem-track {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- 2. ZONA PREMIUM: contador ---------- */
+.prem-count {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 15px;
+  color: #3b2400;
+  background: linear-gradient(135deg, #fde68a, #f59e0b);
+  box-shadow: 0 8px 22px rgba(245, 158, 11, .4);
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- 3. FILTROS SIEMPRE ABIERTOS (en la página, no en ventana) ---------- */
+.panel#filters.fmodal {
+  position: static !important;
+  transform: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  width: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  margin: 0 0 22px;
+  padding: 22px 24px;
+  border: 1.5px solid var(--primary2);
+  border-radius: 22px;
+  box-shadow: 0 0 0 4px rgba(147, 51, 234, .12), var(--shadow);
+}
+
+.fmodal .grid-f {
+  overflow: visible !important;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+#fBackdrop,
+.fm-x,
+.hbar .hmore {
+  display: none !important;
+}
+
+.fm-head h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fm-head h3::before {
+  content: "\f1de";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  font-size: 18px;
+  color: var(--primary);
+}
+
+.field select,
+.field input {
+  border-color: color-mix(in srgb, var(--primary2) 45%, var(--border));
+}
+
+/* ---------- 4. BUSCADOR CON BORDE ---------- */
+.hbar {
+  border: 2px solid var(--primary2);
+  box-shadow: 0 0 0 5px rgba(168, 85, 247, .22), 0 22px 50px rgba(20, 10, 60, .4);
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.hbar:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 6px rgba(192, 132, 252, .38), 0 22px 50px rgba(20, 10, 60, .45);
+}
+
+.topbar .search {
+  border: 2px solid var(--primary2);
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.topbar .search:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(192, 132, 252, .28);
+}
+
+/* ---------- 5. COMPARTIR EN REDES ---------- */
+.pshare {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pshare .lbl {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.sh {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 15px;
+  transition: transform .15s, box-shadow .15s;
+}
+
+.sh:hover {
+  transform: translateY(-2px) scale(1.1);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, .35);
+}
+
+.sh:focus-visible,
+.fav:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.sh-wa {
+  background: #25d366;
+}
+
+.sh-fb {
+  background: #1877f2;
+}
+
+.sh-x {
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, .28);
+}
+
+.sh-cp {
+  background: var(--soft);
+  color: var(--primary);
+  border: 1px solid var(--border);
+}
+
+/* ---------- 6. CORAZÓN DE FAVORITOS ---------- */
+.pcard .fav {
+  top: 12px;
+  right: 12px;
+  width: 44px;
+  height: 44px;
+  z-index: 5;
+  font-size: 19px;
+  color: #fff;
+  background: rgba(18, 12, 30, .55);
+  border: 1.5px solid rgba(255, 255, 255, .6);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition: transform .2s, background .2s, border-color .2s, box-shadow .2s;
+}
+
+.pcard .fav:hover {
+  transform: scale(1.12);
+  background: rgba(147, 51, 234, .8);
+  border-color: #fff;
+}
+
+.pcard .fav.on {
+  color: #fff;
+  background: linear-gradient(135deg, #fb7185, #e11d48);
+  border-color: #fff;
+  box-shadow: 0 8px 20px rgba(225, 29, 72, .55);
+}
+
+.pcard .fav.pop {
+  animation: heartPop .6s cubic-bezier(.2, 1.4, .4, 1);
+}
+
+.pcard .fav.pop::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 2px solid #fb7185;
+  animation: heartRing .65s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes heartPop {
+  0% {
+    transform: scale(1);
+  }
+
+  30% {
+    transform: scale(1.45);
+  }
+
+  60% {
+    transform: scale(.92);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes heartRing {
+  from {
+    transform: scale(1);
+    opacity: .9;
+  }
+
+  to {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+/* contador de favoritos en el menú lateral */
+.nav-count {
+  margin-left: auto;
+  min-width: 24px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
+  display: inline-grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, #fb7185, #e11d48);
+}
+
+.nav-count[hidden] {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .pcard .fav.pop,
+  .pcard .fav.pop::after {
+    animation: none;
+  }
+
+  .sh,
+  .pcard .fav {
+    transition: none;
+  }
+}
+
+/* Evitar que el nombre de la inmobiliaria se monte sobre otros elementos */
+.pcard .mini-seller {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.pcard .mini-seller > div:last-child {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.pcard .mini-seller b {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.35;
+}
+
+.pcard .mini-seller small {
+    display: block;
+    line-height: 1.3;
+}
+
+/* =====================================================
+   UMBRAL — REDISEÑO COMPACTO Y RESPONSIVO DE TARJETAS
+   ===================================================== */
+
+.cards,
+.rest-grid,
+.prem-wrap .prem-track {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  width: 100%;
+  overflow: visible;
+  padding: 8px 2px 14px;
+}
+
+.pcard {
+  display: flex;
+  flex-direction: column !important;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.pcard:hover {
+  transform: translateY(-4px);
+}
+
+.pcard .pimg {
+  width: 100%;
+  height: 155px;
+  min-height: 155px;
+  flex: none;
+  font-size: 38px;
+  background-size: cover;
+  background-position: center;
+}
+
+.pcard .pimg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0,0,0,.28),
+    transparent 45%,
+    rgba(0,0,0,.20)
+  );
+  pointer-events: none;
+}
+
+.pcard .pimg .badges {
+  top: 9px;
+  left: 9px;
+  gap: 5px;
+  max-width: calc(100% - 55px);
+  z-index: 2;
+}
+
+.pcard .b {
+  padding: 4px 8px;
+  font-size: 10px;
+}
+
+.pcard .fav {
+  width: 34px;
+  height: 34px;
+  top: 9px;
+  right: 9px;
+  font-size: 15px;
+  z-index: 3;
+}
+
+.pcard .pbody,
+.pcard.has-rank .pbody {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  flex: 1;
+  min-width: 0;
+  padding: 13px;
+}
+
+.pcard .price,
+.pcard.is-prem .price {
+  font-size: 19px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.pcard .price small {
+  font-size: 11px;
+}
+
+.pcard .ptitle {
+  font-size: 14px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 37px;
+}
+
+.pcard .loc {
+  font-size: 11px;
+  line-height: 1.4;
+  min-width: 0;
+}
+
+.pcard .specs {
+  gap: 9px;
+  padding: 8px 0;
+  font-size: 11px;
+}
+
+.pcard .pfoot {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 9px;
+  margin-top: auto;
+  min-width: 0;
+}
+
+.pcard .mini-seller {
+  min-width: 0;
+  max-width: 100%;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.pcard .mini-seller .avatar {
+  width: 29px;
+  height: 29px;
+  min-width: 29px;
+  font-size: 10px;
+}
+
+.pcard .mini-seller > div:last-child {
+  min-width: 0;
+  flex: 1;
+}
+
+.pcard .mini-seller b {
+  display: block;
+  overflow-wrap: anywhere;
+  line-height: 1.3;
+}
+
+.pcard .mini-seller small {
+  display: block;
+  font-size: 10px;
+}
+
+.pcard .pshare {
+  gap: 5px;
+}
+
+.pcard .pshare .lbl {
+  font-size: 10px;
+}
+
+.pcard .sh {
+  width: 27px;
+  height: 27px;
+  font-size: 12px;
+}
+
+.pcard .pactions {
+  display: flex;
+  flex-direction: row;
+  gap: 7px;
+  margin-top: 3px;
+}
+
+.pcard .pactions .btn {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 5px;
+  font-size: 11px;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.pcard .rank {
+  left: 10px;
+  bottom: 10px;
+}
+
+.pcard .tier-chip {
+  left: 55px;
+  bottom: 18px;
+}
+
+/* Premium conserva su identidad, sin agrandar las tarjetas */
+.prem-wrap .prem-track .pcard {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Tablet */
+@media (max-width: 1050px) {
+  .cards,
+  .rest-grid,
+  .prem-wrap .prem-track {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Tabletas pequeñas */
+@media (max-width: 760px) {
+  .cards,
+  .rest-grid,
+  .prem-wrap .prem-track {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .pcard .pimg {
+    height: 140px;
+    min-height: 140px;
+  }
+}
+
+/* Celulares */
+@media (max-width: 480px) {
+  .cards,
+  .rest-grid,
+  .prem-wrap .prem-track {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .pcard .pimg {
+    height: 185px;
+    min-height: 185px;
+  }
+
+  .pcard .pbody,
+  .pcard.has-rank .pbody {
+    padding: 14px;
+  }
+
+  .pcard .price,
+  .pcard.is-prem .price {
+    font-size: 21px;
+  }
+}
+
+/* Evitar desbordamientos en cualquier pantalla */
+.cards *,
+.rest-grid *,
+.prem-wrap .prem-track * {
+  box-sizing: border-box;
+}
+
+
+/* Separación entre bienvenida y filtros */
+#hero {
+    margin-bottom: 20px !important;
+}

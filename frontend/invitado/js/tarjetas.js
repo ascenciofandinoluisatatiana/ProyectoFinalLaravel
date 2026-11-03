@@ -62,25 +62,42 @@
     window.addEventListener('resize', premNavUpdate);
     function cardsHTML(r) {
       if (typeof LOADING !== 'undefined' && LOADING) return skeletonHTML();
-      const premAll = S.view === 'cards' ? r.filter(p => p.prem) : [];
-      const prem = premAll.slice(0, 4), premRest = premAll.slice(4);
-      if (!prem.length || filtersActive()) return r.map((p, i) => card(p, i)).join('');
-      const shown = new Set(prem.map(p => p.id));
+
+      const prem = S.view === 'cards' ? r.filter(p => p.prem) : [];
+      if (!prem.length || filtersActive()) {
+        return r.map((p, i) => card(p, i)).join('');
+      }
+
       const rest = r.filter(p => !p.prem);
+
       let h = `<section class="prem-wrap" aria-label="${t('prem_title')}">
-    <div class="prem-orb o1"></div><div class="prem-orb o2"></div>
-    <header class="prem-head"><div class="prem-crown"><i class="fa-solid fa-crown"></i></div>
-      <div><h3>${t('prem_title')}</h3><p>${t('prem_sub')}</p></div>
-      </header>
-    <div class="prem-track" tabindex="0">${prem.map((p, i) => card(p, i, i + 1)).join('')}</div>
-    </section>`;
+        <div class="prem-orb o1"></div><div class="prem-orb o2"></div>
+        <header class="prem-head">
+          <div class="prem-crown"><i class="fa-solid fa-crown"></i></div>
+          <div><h3>${t('prem_title')}</h3><p>${t('prem_sub')}</p></div>
+          <span class="prem-count"><i class="fa-solid fa-gem"></i>${prem.length}</span>
+        </header>
+        <div class="prem-track" tabindex="0">${prem.map((p, i) => card(p, i, i + 1)).join('')}</div>
+      </section>`;
+
       setTimeout(premNavUpdate, 30);
-      if (premRest.length && S.showPrem) h += `<div class="rest-head"><span>${t('prem_more_title')}</span></div><div class="rest-grid${S._anim ? ' anim' : ''}">${premRest.map((p, i) => card(p, i, 4 + i + 1)).join('')}</div>`;
-      const bPrem = (premRest.length && !S.showPrem) ? `<button class="btn-more btn-more-prem" data-showprem="1"><i class="fa-solid fa-crown"></i>${t('see_prem')} · ${premRest.length}</button>` : '';
-      const barPrem = bPrem ? `<div class="more-bar"><div class="more-btns">${bPrem}</div></div>` : '';
-      if (!rest.length) return h + barPrem;
-      if (!S.showAll) return h + `<div class="more-bar"><span>${t('more_hint')}</span><div class="more-btns">${bPrem}<button class="btn-more" data-showall="1"><i class="fa-solid fa-chevron-down"></i>${t('see_more')} · ${rest.length}</button></div></div>`;
-      return h + barPrem + `<div class="rest-head"><span>${t('more_title')}</span></div><p class="rest-sub">${t('more_sub')}</p><div class="rest-grid${S._anim ? ' anim' : ''}">${rest.map((p, i) => card(p, i)).join('')}</div>`;
+
+      if (!rest.length) return h;
+
+      if (!S.showAll) {
+        return h + `<div class="more-bar">
+          <span>${t('more_hint')}</span>
+          <div class="more-btns">
+            <button class="btn-more" data-showall="1">
+              <i class="fa-solid fa-chevron-down"></i>${t('see_more')} · ${rest.length}
+            </button>
+          </div>
+        </div>`;
+      }
+
+      return h + `<div class="rest-head"><span>${t('more_title')}</span></div>
+        <p class="rest-sub">${t('more_sub')}</p>
+        <div class="rest-grid${S._anim ? ' anim' : ''}">${rest.map((p, i) => card(p, i)).join('')}</div>`;
     }
 
     function render() {
@@ -97,7 +114,7 @@
     function renderSellers() {
       $('#sellers').innerHTML = SELLERS.map((s, i) => `<div class="scard">
     <div class="top"><div class="avatar">${s.ini}</div><div><h4>${s.name}</h4><small>${t(s.kind === 'agency' ? 'agency' : 'person')} · ${P.filter(p => p.seller === i).length} ${t('props_n')}</small>
-    ${s.ver ? `<div class="ver-tag"><i class="fa-solid fa-circle-check"></i> ${t('verified_seller')}</div>` : ''}</div></div>
+    </div></div>
     <ul><li><i class="fa-solid fa-phone"></i>${s.phone}</li><li><i class="fa-solid fa-envelope"></i>${s.email}</li></ul>
     <button class="btn btn-ghost btn-sm" style="width:100%" data-seller="${i}"><i class="fa-solid fa-house"></i>${t('see_props')}</button></div>`).join('');
     }

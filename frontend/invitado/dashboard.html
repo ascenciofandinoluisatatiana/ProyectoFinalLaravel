@@ -12,7 +12,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
   <link rel="stylesheet" href="/invitado/css/invitado.css">
-<link rel="stylesheet" href="/invitado/css/premium.css">
+  <link rel="stylesheet" href="/invitado/css/premium.css">
+  <link rel="stylesheet" href="/invitado/css/mejoras.css">
 </head>
 
 <body>
@@ -97,6 +98,19 @@
           </div>
         </section>
 
+        <section class="panel" id="filters">
+          <div class="grid-f">
+            <div class="field"><label data-i18n="f_type"></label><select id="fType"></select></div>
+            <div class="field"><label data-i18n="f_dept"></label><select id="fDept"></select></div>
+            <div class="field"><label data-i18n="f_city"></label><select id="fCity"></select></div>
+            <div class="field"><label data-i18n="f_barrio"></label><select id="fBarrio"></select></div>
+            <div class="field"><label data-i18n="f_max"></label><input id="fMax" type="number" min="0"
+                placeholder="COP"></div>
+            <div class="field"><label data-i18n="f_beds"></label><select id="fBeds"></select></div>
+            <div class="field"><label data-i18n="f_sort"></label><select id="fSort"></select></div>
+          </div>
+        </section>
+
         <section class="stats">
           <div class="stat" style="--c:#6c3df5">
             <div class="ico"><i class="fa-solid fa-house"></i></div><b id="s1">0</b><span data-i18n="stat_props"></span>
@@ -114,18 +128,7 @@
           </div>
         </section>
 
-        <section class="panel" id="filters">
-          <div class="grid-f">
-            <div class="field"><label data-i18n="f_type"></label><select id="fType"></select></div>
-            <div class="field"><label data-i18n="f_dept"></label><select id="fDept"></select></div>
-            <div class="field"><label data-i18n="f_city"></label><select id="fCity"></select></div>
-            <div class="field"><label data-i18n="f_barrio"></label><select id="fBarrio"></select></div>
-            <div class="field"><label data-i18n="f_max"></label><input id="fMax" type="number" min="0"
-                placeholder="COP"></div>
-            <div class="field"><label data-i18n="f_beds"></label><select id="fBeds"></select></div>
-            <div class="field"><label data-i18n="f_sort"></label><select id="fSort"></select></div>
-          </div>
-        </section>
+
 
         <div class="res-head">
           <h3><span data-i18n="results"></span><small id="count"></small></h3>
@@ -200,6 +203,7 @@
   <script src="/invitado/js/pago-pse.js"></script>
   <script src="/invitado/js/modales.js"></script>
   <script src="/invitado/js/eventos.js"></script>
+  <script src="/invitado/js/mejoras.js"></script>
   <script src="/js/efectos.js"></script>
   <script src="/js/hero.js"></script>
   <script src="/js/vendedores.js"></script>

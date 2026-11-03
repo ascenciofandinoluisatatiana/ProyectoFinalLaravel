@@ -139,8 +139,10 @@
                     '<span class="h-1.5 w-1.5 rounded-full ' + estado.punto + '"></span>' + P.esc(u.estado) + '</span></td>' +
                 '<td class="px-5 py-3.5 text-slate-400">' + P.esc(u.creado || '—') + '</td>' +
                 '<td class="px-5 py-3.5 text-right">' +
-                    '<button type="button" data-editar="' + u.id + '" title="Editar" class="mr-1 grid h-8 w-8 place-items-center rounded-lg text-slate-500 transition-all hover:bg-violet-500/10 hover:text-violet-400"><i class="fa-solid fa-pen text-xs"></i></button>' +
-                    '<button type="button" data-eliminar="' + u.id + '" title="Eliminar" class="grid h-8 w-8 place-items-center rounded-lg text-slate-500 transition-all hover:bg-red-500/10 hover:text-red-400"><i class="fa-solid fa-trash text-xs"></i></button>' +
+                    '<div style="display:flex;align-items:center;justify-content:flex-end;gap:6px">' +
+                        '<button type="button" data-editar="' + u.id + '" title="Editar" class="grid h-8 w-8 place-items-center rounded-lg text-slate-500 transition-all hover:bg-violet-500/10 hover:text-violet-400"><i class="fa-solid fa-pen text-xs"></i></button>' +
+                        '<button type="button" data-eliminar="' + u.id + '" title="Eliminar" class="grid h-8 w-8 place-items-center rounded-lg text-slate-500 transition-all hover:bg-red-500/10 hover:text-red-400"><i class="fa-solid fa-trash text-xs"></i></button>' +
+                    '</div>' +
                 '</td>' +
             '</tr>';
         }).join('');

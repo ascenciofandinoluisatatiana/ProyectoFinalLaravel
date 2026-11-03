@@ -28,6 +28,10 @@ class MembresiaController extends Controller
             'q' => ['nullable', 'string', 'max:100'],
             'estado' => ['nullable', 'in:vigente,por_vencer,vencida,cancelada'],
             'plan' => ['nullable', 'in:semanal,quincenal,mensual'],
+            'desde' => ['nullable', 'date_format:Y-m-d'],
+            'hasta' => ['nullable', 'date_format:Y-m-d'],
+            'monto_min' => ['nullable', 'numeric', 'min:0'],
+            'monto_max' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $hoy = Carbon::now(self::ZONA)->startOfDay();
@@ -37,6 +41,29 @@ class MembresiaController extends Controller
 
         if (! empty($filtros['plan'])) {
             $consulta->where('plan', $filtros['plan']);
+        }
+
+        // Si las fechas vienen al revés, se invierten
+        if (! empty($filtros['desde']) && ! empty($filtros['hasta']) && $filtros['desde'] > $filtros['hasta']) {
+            [$filtros['desde'], $filtros['hasta']] = [$filtros['hasta'], $filtros['desde']];
+        }
+
+        // Fecha del pago (día completo, en hora de Colombia)
+        if (! empty($filtros['desde'])) {
+            $consulta->where('created_at', '>=',
+                Carbon::parse($filtros['desde'], self::ZONA)->startOfDay()->setTimezone(config('app.timezone')));
+        }
+        if (! empty($filtros['hasta'])) {
+            $consulta->where('created_at', '<=',
+                Carbon::parse($filtros['hasta'], self::ZONA)->endOfDay()->setTimezone(config('app.timezone')));
+        }
+
+        // Monto pagado
+        if (isset($filtros['monto_min'])) {
+            $consulta->where('precio', '>=', $filtros['monto_min']);
+        }
+        if (isset($filtros['monto_max'])) {
+            $consulta->where('precio', '<=', $filtros['monto_max']);
         }
 
         match ($filtros['estado'] ?? null) {

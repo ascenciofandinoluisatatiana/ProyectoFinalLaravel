@@ -149,7 +149,11 @@
             page: paginaActual,
             q: document.getElementById('buscar').value.trim(),
             estado: document.getElementById('filtro-estado').value,
-            plan: document.getElementById('filtro-plan').value
+            plan: document.getElementById('filtro-plan').value,
+            desde: document.getElementById('filtro-desde').value,
+            hasta: document.getElementById('filtro-hasta').value,
+            monto_min: document.getElementById('filtro-monto-min').value,
+            monto_max: document.getElementById('filtro-monto-max').value
         });
         try {
             var d = await P.api('/membresias?' + parametros.toString());
@@ -170,8 +174,17 @@
         clearTimeout(temporizador);
         temporizador = setTimeout(function () { cargar(1); }, 350);
     });
-    ['filtro-estado', 'filtro-plan'].forEach(function (id) {
+
+    // Cada filtro vuelve a cargar la tabla cuando cambia
+    ['filtro-estado', 'filtro-plan', 'filtro-desde', 'filtro-hasta', 'filtro-monto-min', 'filtro-monto-max'].forEach(function (id) {
         document.getElementById(id).addEventListener('change', function () { cargar(1); });
+    });
+
+    // Botón "Limpiar filtros"
+    document.getElementById('filtro-limpiar').addEventListener('click', function () {
+        ['buscar', 'filtro-estado', 'filtro-plan', 'filtro-desde', 'filtro-hasta', 'filtro-monto-min', 'filtro-monto-max']
+            .forEach(function (id) { document.getElementById(id).value = ''; });
+        cargar(1);
     });
 
     document.addEventListener('click', async function (evento) {

@@ -42,7 +42,7 @@ class SesionController extends Controller
 
         if (! Auth::attempt(
             ['email' => $datos['email'], 'password' => $datos['password']],
-            $request->boolean('recordar')
+            false   // el administrador no usa "recordar sesión": debe caducar por inactividad
         )) {
             return response()->json(['message' => 'Correo o contraseña incorrectos.'], 401);
         }
@@ -62,6 +62,8 @@ class SesionController extends Controller
         }
 
         $request->session()->regenerate();
+
+        $request->session()->put('admin_ultima_actividad', time());
 
         return response()->json([
             'message' => 'Sesión iniciada.',

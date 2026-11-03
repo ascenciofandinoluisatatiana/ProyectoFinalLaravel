@@ -94,7 +94,16 @@
         });
         var datos = await respuesta.json().catch(function () { return {}; });
 
-        if (respuesta.status === 401) irAlLogin();
+        if (respuesta.status === 401) {
+            if (datos && datos.codigo === 'sesion_expirada') {
+                // Sesión cerrada por inactividad: se deja una marca y se abre la ventana de login con el aviso
+                try { sessionStorage.setItem('umbral-sesion-expirada', '1'); } catch (e) {}
+                recordarSesion(false);
+                window.location.replace(LOGIN + '?login=1');
+            } else {
+                irAlLogin();
+            }
+        }
 
         if (!respuesta.ok) {
             var error = new Error(datos.message || datos.mensaje || ('Error ' + respuesta.status));

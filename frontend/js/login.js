@@ -109,6 +109,15 @@
         mensaje.hidden = false;
     }
 
+    
+    // Aviso cuando el panel cerró la sesión por inactividad (se muestra una sola vez)
+    try {
+        if (sessionStorage.getItem('umbral-sesion-expirada')) {
+            sessionStorage.removeItem('umbral-sesion-expirada');
+            mostrar('Tu sesión expiró por inactividad. Inicia sesión de nuevo.', 'error');
+        }
+    } catch (e) {}
+
     // Validación de formato (la validación real está en el servidor).
     // Devuelve la CLAVE del mensaje de error, o null si todo está bien.
     function validar(email, password) {

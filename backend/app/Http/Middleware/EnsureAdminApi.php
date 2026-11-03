@@ -18,13 +18,34 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class EnsureAdminApi
 {
+    /** Minutos sin actividad después de los cuales se cierra la sesión del administrador. */
+    private const MINUTOS_INACTIVIDAD = 15;
+
     public function handle(Request $request, Closure $next): Response
     {
+        
         $usuario = Auth::user();
 
         if (! $usuario) {
             return response()->json(['message' => 'No has iniciado sesión.'], 401);
         }
+
+        // Cierre por inactividad: si pasó demasiado tiempo desde la última petición, se cierra la sesión
+        $sesion = $request->session();
+        $ultima = $sesion->get('admin_ultima_actividad');
+
+        if ($ultima && (time() - $ultima) > self::MINUTOS_INACTIVIDAD * 60) {
+            Auth::guard('web')->logout();
+            $sesion->invalidate();
+            $sesion->regenerateToken();
+
+            return response()->json([
+                'message' => 'Tu sesión expiró por inactividad. Inicia sesión de nuevo.',
+                'codigo' => 'sesion_expirada',
+            ], 401);
+        }
+
+        $sesion->put('admin_ultima_actividad', time());
 
         if (in_array($usuario->estado, ['inactivo', 'pendiente'], true)) {
             return response()->json(['message' => 'Tu cuenta está inactiva o pendiente de verificación.'], 403);

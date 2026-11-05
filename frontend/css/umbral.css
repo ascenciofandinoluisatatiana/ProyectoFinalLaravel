@@ -2454,3 +2454,26 @@ form .btn-principal > span[aria-hidden="true"] {
     .app-telefono { width: 160px; height: 300px; transform: none; }
     .app-texto .btn-principal { width: 100%; justify-content: center; }
 }
+
+/* ===== Descargar app: ajustes responsivos ===== */
+.seccion-app { padding-inline: 16px; }
+.app-caja, .app-texto, .app-visual { min-width: 0; box-sizing: border-box; }
+.app-caja { width: 100%; }
+.app-caja img.app-logo { width: 54px; height: 54px; max-width: 54px; max-height: 54px; flex: 0 0 auto; }
+.app-telefono { flex: 0 0 auto; max-width: 100%; box-sizing: border-box; }
+.app-texto .btn-principal { max-width: 100%; box-sizing: border-box; }
+@media (max-width: 900px) {
+    .app-caja { grid-template-columns: 1fr; gap: 28px; padding: 36px 28px; }
+    .app-texto { align-items: flex-start; }
+    .app-visual { order: 2; }
+}
+@media (max-width: 560px) {
+    .seccion-app { padding-block: 40px; }
+    .app-caja { padding: 28px 20px; border-radius: 24px; }
+    .app-texto h2 { font-size: 1.75rem; line-height: 1.15; }
+    .app-texto p { font-size: .98rem; }
+    .app-texto .btn-principal { width: 100%; justify-content: center; text-align: center; }
+    .app-telefono { width: 150px; height: 280px; transform: none; border-radius: 28px; padding: 8px; }
+    .app-pantalla { padding: 18px 12px; border-radius: 21px; }
+    .app-mini i { height: 54px; }
+}

@@ -39,6 +39,7 @@
   "hero.p": "Houses, apartments and country estates selected across Colombia, from Bogotá to Cartagena.",
   "hero.cta1": "View properties",
   "hero.cta2": "Our services",
+  "hero.app": "Download app",
   "nav.inicio": "Home",
   "nav.servicios": "Services",
   "nav.propiedades": "Properties",
@@ -173,5 +174,10 @@
   "msg": {
     "cuenta_inactiva": "Your account has been deactivated. Contact the administrator if you think this is an error.",
     "cuenta_pendiente": "Your account is pending approval. We will let you know when it is ready."
-  }
+  },
+  "app.etiqueta": "MOBILE APP",
+  "app.titulo": "Download the Umbral app",
+  "app.sub": "Take your home search in your pocket: explore verified properties, save your favorites and check anytime from your Android phone.",
+  "app.nota": "Available for Android (APK)",
+  "nav.app": "Download app"
 }

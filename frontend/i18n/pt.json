@@ -39,6 +39,7 @@
   "hero.p": "Casas, apartamentos e fazendas selecionados em toda a Colômbia, de Bogotá a Cartagena.",
   "hero.cta1": "Ver imóveis",
   "hero.cta2": "Nossos serviços",
+  "hero.app": "Baixar app",
   "nav.inicio": "Início",
   "nav.servicios": "Serviços",
   "nav.propiedades": "Imóveis",
@@ -173,5 +174,10 @@
   "msg": {
     "cuenta_inactiva": "Sua conta foi desativada. Entre em contato com o administrador se achar que é um erro.",
     "cuenta_pendiente": "Sua conta está aguardando aprovação. Avisaremos quando estiver pronta."
-  }
+  },
+  "app.etiqueta": "APLICATIVO MÓVEL",
+  "app.titulo": "Baixe o aplicativo da Umbral",
+  "app.sub": "Leve sua busca por um lar no bolso: explore imóveis verificados, salve seus favoritos e consulte a qualquer momento no seu celular Android.",
+  "app.nota": "Disponível para Android (APK)",
+  "nav.app": "Baixar app"
 }

@@ -13,6 +13,7 @@
       nav_favs: ['Mis favoritos', 'My favorites', 'Meus favoritos', 'Mes favoris'],
       nav_calc: ['Calculadora hipotecaria', 'Mortgage calculator', 'Calculadora de financiamento', 'Calculateur de prêt'],
       nav_sellers: ['Vendedores', 'Sellers', 'Vendedores', 'Vendeurs'],
+      nav_app: ['Descargar app (APK)', 'Download app (APK)', 'Baixar app (APK)', 'Télécharger l\'app (APK)'],
       guest_mode: ['Modo invitado', 'Guest mode', 'Modo convidado', 'Mode invité'],
       guest_note: ['Explora sin registrarte. ¿Quieres vender o publicar? Crea tu cuenta de vendedor.', 'Browse without signing up. Want to sell or list? Create a seller account.', 'Explore sem se cadastrar. Quer vender ou anunciar? Crie sua conta de vendedor.', 'Explorez sans vous inscrire. Vous voulez vendre ? Créez un compte vendeur.'],
       register_sell: ['Registrarme para vender', 'Sign up to sell', 'Cadastrar para vender', 'S\'inscrire pour vendre'],

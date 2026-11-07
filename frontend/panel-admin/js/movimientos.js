@@ -1,36 +1,25 @@
 /* UMBRAL — Pantalla "Movimientos" del administrador.
-   Pide todo a /api/v1/admin/movimientos?tab=...&filtros...
-   Pestañas: seguridad | inmobiliaria | agente | vendedor.
-   Filtros: nombre o correo, acción, rol (solo seguridad), fechas, IP y orden. */
+   Cada pestaña (seguridad | inmobiliaria | agente | vendedor) dibuja varias tablas:
+     seguridad → cambios de contraseña y bloqueos
+     accesos   → inicios de sesión
+     acciones  → lo que hacen en su panel (no sale en la pestaña Seguridad)
+   Cada tabla tiene sus propios filtros y su propia paginación:
+   /api/v1/admin/movimientos?tab=...&seccion=...&filtros */
 (function () {
     'use strict';
 
     var P = window.PanelAdmin;
-
     var tabActual = 'seguridad';
-    var paginaActual = 1;
-    var temporizador = null;
-    var pedido = 0;                 // para ignorar respuestas viejas si se filtra rápido
+    var secciones = [];            // tablas de la pestaña actual
 
-    var tabla = document.getElementById('tabla-mov');
-    var tablaVacia = document.getElementById('tabla-vacia');
-    var campos = {
-        q: document.getElementById('buscar'),
-        accion: document.getElementById('filtro-accion'),
-        rol: document.getElementById('filtro-rol'),
-        desde: document.getElementById('filtro-desde'),
-        hasta: document.getElementById('filtro-hasta'),
-        ip: document.getElementById('filtro-ip'),
-        orden: document.getElementById('filtro-orden')
-    };
-
-    /* ================= Nombres amigables de las acciones ================= */
+    /* ================= Textos y colores ================= */
     var ACCIONES = {
-        login_fallido:           { texto: 'Intento de acceso fallido',       color: 'red' },
-        cuenta_bloqueada:        { texto: 'Cuenta bloqueada',                color: 'red' },
-        recuperacion_solicitada: { texto: 'Pidió recuperar su contraseña',   color: 'amber' },
-        clave_restablecida:      { texto: 'Cambió su contraseña',            color: 'emerald' },
-        enlace_enviado_admin:    { texto: 'Se le envió enlace de contraseña', color: 'violet' }
+        login_fallido:           { texto: 'Intento de acceso fallido',        color: 'red' },
+        cuenta_bloqueada:        { texto: 'Cuenta bloqueada',                 color: 'red' },
+        recuperacion_solicitada: { texto: 'Pidió recuperar su contraseña',    color: 'amber' },
+        clave_restablecida:      { texto: 'Cambió su contraseña',             color: 'emerald' },
+        enlace_enviado_admin:    { texto: 'Se le envió enlace de contraseña', color: 'violet' },
+        inicio_sesion:           { texto: 'Inicio de sesión',                 color: 'emerald' }
     };
     var COLORES = {
         red:     'bg-red-500/10 text-red-300 ring-red-500/30',
@@ -45,31 +34,42 @@
         inmobiliaria:  'bg-sky-500/10 text-sky-300 ring-sky-500/30',
         agente:        'bg-amber-500/10 text-amber-300 ring-amber-500/30'
     };
-    var TITULOS_TAB = { seguridad: 'de seguridad', inmobiliaria: 'de inmobiliarias', agente: 'de agentes', vendedor: 'de vendedores' };
+    var DEF = {
+        seguridad: { titulo: 'Cambios de contraseña y bloqueos', sub: 'Intentos fallidos, bloqueos y recuperaciones de contraseña.', icono: 'fa-shield-halved', conAccion: true,
+                     vacio: 'Aquí aparecerán los intentos fallidos, los bloqueos y los cambios de contraseña.' },
+        accesos:   { titulo: 'Inicios de sesión', sub: 'Cada vez que alguien entra a su panel.', icono: 'fa-right-to-bracket', conAccion: false,
+                     vacio: 'Aquí aparecerá cada inicio de sesión (se guardan desde ahora en adelante).' },
+        acciones:  { titulo: 'Acciones en su panel', sub: 'Lo que hacen dentro de su panel.', icono: 'fa-list-check', conAccion: true,
+                     vacio: 'Aparecerán aquí cuando este panel empiece a registrar sus acciones.' }
+    };
+    var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    var DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
 
-    function mayuscula(texto) {
-        texto = String(texto || '');
-        return texto.charAt(0).toUpperCase() + texto.slice(1);
-    }
-
-    // Si la acción no está en la lista, se muestra legible: "propiedad_publicada" → "Propiedad publicada"
+    function mayuscula(t) { t = String(t || ''); return t.charAt(0).toUpperCase() + t.slice(1); }
     function infoAccion(clave) {
-        if (ACCIONES[clave]) return ACCIONES[clave];
-        return { texto: mayuscula(String(clave || '').replace(/_/g, ' ')), color: 'sky' };
+        return ACCIONES[clave] || { texto: mayuscula(String(clave || '').replace(/_/g, ' ')), color: 'sky' };
     }
-
     function iniciales(nombre) {
-        return String(nombre || '?').trim().split(/\s+/).slice(0, 2)
-            .map(function (palabra) { return palabra.charAt(0).toUpperCase(); }).join('');
+        return String(nombre || '?').trim().split(/\s+/).slice(0, 2).map(function (p) { return p.charAt(0).toUpperCase(); }).join('');
+    }
+    function hora(texto) {
+        var m = /[ T](\d{2}):(\d{2})/.exec(String(texto || ''));
+        return m ? m[1] + ':' + m[2] : '—';
+    }
+    function claveDia(texto) { return String(texto || '').slice(0, 10); }
+
+    // "2026-11-07" → "Hoy" | "Ayer" | "Lunes 3 de noviembre" (con año si no es el actual)
+    function etiquetaDia(clave) {
+        var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(clave);
+        if (!m) return 'Sin fecha';
+        var f = new Date(+m[1], +m[2] - 1, +m[3]);
+        var hoy = new Date(); hoy = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+        var dif = Math.round((hoy - f) / 86400000);
+        if (dif === 0) return 'Hoy';
+        if (dif === 1) return 'Ayer';
+        return mayuscula(DIAS[f.getDay()]) + ' ' + f.getDate() + ' de ' + MESES[f.getMonth()] + (f.getFullYear() !== hoy.getFullYear() ? ' de ' + f.getFullYear() : '');
     }
 
-    // "2026-11-07 14:52:10" → "07/11/2026 · 14:52"
-    function formatoFecha(texto) {
-        var m = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/.exec(String(texto || ''));
-        return m ? m[3] + '/' + m[2] + '/' + m[1] + ' · ' + m[4] + ':' + m[5] : '—';
-    }
-
-    /* ================= Avisos ================= */
     function toast(titulo, mensaje) {
         var e = document.createElement('div');
         e.className = 'flex items-start gap-3 rounded-xl border border-red-500/40 bg-slate-900/95 p-3.5 shadow-2xl shadow-black/50';
@@ -80,175 +80,226 @@
         setTimeout(function () { e.remove(); }, 5000);
     }
 
-    /* ================= Filtros ================= */
-    function filtrosActivos() {
-        var n = 0;
-        ['q', 'accion', 'desde', 'hasta', 'ip'].forEach(function (k) { if (campos[k].value.trim()) n++; });
-        if (tabActual === 'seguridad' && campos.rol.value) n++;
-        if (campos.orden.value !== 'reciente') n++;
-        return n;
-    }
+    /* ================= Una tabla (con sus filtros y su paginación) ================= */
+    var INP = 'w-full rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2 text-sm text-slate-300 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20';
 
-    function actualizarContador() {
-        var n = filtrosActivos();
-        var c = document.getElementById('contador-filtros');
-        c.textContent = n;
-        c.classList.toggle('hidden', n === 0);
-    }
+    function crearSeccion(clave, primera) {
+        var d = DEF[clave];
+        var el = document.createElement('div');
+        el.className = '';
+        el.innerHTML =
+            '<div class="filtros-mov border-b border-slate-800 p-3.5">' +
+                '<div class="relative ancho"><i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-500"></i>' +
+                    '<input type="search" data-campo="q" placeholder="Buscar por nombre o correo…" autocomplete="off" class="w-full rounded-xl border border-slate-800 bg-slate-950/60 py-2 pl-10 pr-4 text-sm text-slate-200 placeholder-slate-600 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20"></div>' +
+                (d.conAccion ? '<select data-campo="accion" aria-label="Acción" class="' + INP + '"><option value="">Acción: Todas</option></select>' : '') +
+                (tabActual === 'seguridad'
+                    ? '<select data-campo="rol" aria-label="Rol" class="' + INP + '"><option value="">Rol: Todos</option><option value="administrador">Administrador</option><option value="inmobiliaria">Inmobiliaria</option><option value="agente">Agente</option><option value="vendedor">Vendedor</option></select>'
+                    : '') +
+                '<label class="campo-fecha"><span>Desde</span><input type="date" data-campo="desde" class="' + INP + '"></label>' +
+                '<label class="campo-fecha"><span>Hasta</span><input type="date" data-campo="hasta" class="' + INP + '"></label>' +
+                '<input type="text" data-campo="ip" placeholder="IP (ej: 190.25.)" autocomplete="off" aria-label="Dirección IP" class="' + INP + '">' +
+                '<select data-campo="orden" aria-label="Orden" class="' + INP + '"><option value="reciente">Más recientes primero</option><option value="antiguo">Más antiguos primero</option></select>' +
+                '<button type="button" data-limpiar class="rounded-xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-300 transition-all hover:bg-slate-800"><i class="fa-solid fa-filter-circle-xmark mr-1.5"></i>Limpiar<span data-contador class="ml-1.5 hidden rounded-full bg-violet-500/20 px-2 py-0.5 text-[11px] font-bold text-violet-300"></span></button>' +
+            '</div>' +
+            '<div class="overflow-x-auto"><table class="tabla-mov w-full min-w-[44rem] text-left text-sm">' +
+                '<thead class="border-b border-slate-800 text-[11px] uppercase tracking-wider text-slate-500"><tr>' +
+                    '<th class="px-5 py-3 font-semibold">Hora</th><th class="px-5 py-3 font-semibold">Usuario</th><th class="px-5 py-3 font-semibold">Rol</th><th class="px-5 py-3 font-semibold">Acción</th><th class="px-5 py-3 font-semibold">Detalle</th><th class="px-5 py-3 font-semibold">IP</th>' +
+                '</tr></thead><tbody data-cuerpo class="divide-y divide-slate-800/70 transition-opacity"></tbody></table></div>' +
+            '<div data-vacio class="vacio-mov hidden"><div class="icono"><i class="fa-solid fa-inbox"></i></div>' +
+                '<p data-vacio-titulo class="text-sm font-medium text-slate-400"></p><p data-vacio-texto class="mx-auto mt-0.5 max-w-md text-xs text-slate-600"></p></div>' +
+            '<div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 px-5 py-3">' +
+                '<p data-info class="text-xs text-slate-500"></p><div data-pag class="flex items-center gap-1"></div></div>';
 
-    function limpiarFiltros() {
-        campos.q.value = '';
-        campos.accion.value = '';
-        campos.rol.value = '';
-        campos.desde.value = '';
-        campos.hasta.value = '';
-        campos.ip.value = '';
-        campos.orden.value = 'reciente';
-        cargar(1);
-    }
+        var s = { clave: clave, el: el, pedido: 0, temporizador: null, primera: primera };
+        function campo(n) { return el.querySelector('[data-campo="' + n + '"]'); }
+        var nombres = ['q', 'accion', 'rol', 'desde', 'hasta', 'ip', 'orden'];
 
-    // El rol solo se filtra en Seguridad: en las otras pestañas la pestaña ya es el rol
-    function ajustarFiltrosDeLaPestana() {
-        campos.rol.classList.toggle('hidden', tabActual !== 'seguridad');
-    }
+        function filtrosActivos() {
+            var n = 0;
+            nombres.forEach(function (k) {
+                var c = campo(k); if (!c) return;
+                if (k === 'orden' ? c.value !== 'reciente' : c.value.trim() !== '') n++;
+            });
+            return n;
+        }
 
-    function llenarAcciones(lista) {
-        var elegida = campos.accion.value;
-        campos.accion.innerHTML = '<option value="">Acción: Todas</option>' +
-            (lista || []).map(function (a) {
+        s.cargar = async function (pagina) {
+            var n = filtrosActivos();
+            var cont = el.querySelector('[data-contador]');
+            cont.textContent = n; cont.classList.toggle('hidden', n === 0);
+
+            var cuerpo = el.querySelector('[data-cuerpo]');
+            cuerpo.style.opacity = '0.45';
+            var mi = ++s.pedido;
+
+            var q = new URLSearchParams({ tab: tabActual, seccion: clave, page: pagina || 1 });
+            nombres.forEach(function (k) { var c = campo(k); if (c && c.value.trim() !== '') q.set(k, c.value.trim()); });
+            if (s.primera) q.set('conteos', '1');
+
+            try {
+                var r = await P.api('/movimientos?' + q.toString());
+                if (mi !== s.pedido) return;
+                if (r.conteos) pintarConteos(r.conteos);
+                llenarAcciones(r.acciones);
+                dibujarFilas(r.datos);
+                dibujarPaginacion(r);
+                dibujarVacio(r.total === 0, n);
+            } catch (e) {
+                if (mi !== s.pedido || e.estado === 401) return;
+                toast(e.estado === 422 ? 'Revisa los filtros' : 'No se pudo cargar el historial',
+                      e.estado ? (e.message || 'Intenta de nuevo.') : 'No se pudo contactar al servidor.');
+            } finally {
+                if (mi === s.pedido) cuerpo.style.opacity = '1';
+            }
+        };
+
+        function llenarAcciones(lista) {
+            var c = campo('accion'); if (!c) return;
+            var elegida = c.value;
+            c.innerHTML = '<option value="">Acción: Todas</option>' + (lista || []).map(function (a) {
                 return '<option value="' + P.esc(a) + '">' + P.esc(infoAccion(a).texto) + '</option>';
             }).join('');
-        // Si la acción elegida sigue existiendo, se conserva
-        campos.accion.value = (lista || []).indexOf(elegida) >= 0 ? elegida : '';
-    }
+            c.value = (lista || []).indexOf(elegida) >= 0 ? elegida : '';
+        }
 
-    /* ================= Cargar y dibujar ================= */
-    async function cargar(pagina) {
-        paginaActual = pagina || 1;
-        actualizarContador();
-        tabla.style.opacity = '0.45';
-        var miPedido = ++pedido;
+        function dibujarFilas(filas) {
+            var html = '', diaPrevio = null;
+            filas.forEach(function (f) {
+                var dia = claveDia(f.fecha);
+                if (dia !== diaPrevio) {
+                    html += '<tr class="fila-dia"><td colspan="6">' + P.esc(etiquetaDia(dia)) + '</td></tr>';
+                    diaPrevio = dia;
+                }
+                var a = infoAccion(f.accion);
+                var usuario = f.nombre
+                    ? '<div class="flex items-center gap-2.5">' +
+                        '<span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-violet-500/80 to-indigo-600/80 text-[11px] font-bold text-white">' + P.esc(iniciales(f.nombre)) + '</span>' +
+                        '<div class="min-w-0"><p class="truncate font-semibold text-slate-200">' + P.esc(f.nombre) +
+                        '</p><p class="truncate text-xs text-slate-500">' + P.esc(f.correo || '') + '</p></div></div>'
+                    : '<span class="text-xs italic text-slate-500">Cuenta eliminada o desconocida</span>';
+                html += '<tr class="fila-mov align-middle transition-colors hover:bg-slate-800/40">' +
+                    '<td class="c-hora whitespace-nowrap px-5 text-slate-400">' + P.esc(hora(f.fecha)) + '</td>' +
+                    '<td class="c-usuario px-5">' + usuario + '</td>' +
+                    '<td class="c-rol px-5">' + (f.rol ? '<span class="pildora ring-1 ' + (COLORES_ROL[f.rol] || COLORES.sky) + '">' + P.esc(mayuscula(f.rol)) + '</span>' : '<span class="text-slate-600">—</span>') + '</td>' +
+                    '<td class="c-accion px-5"><span class="pildora ring-1 ' + COLORES[a.color] + '">' + P.esc(a.texto) + '</span></td>' +
+                    '<td class="c-detalle px-5 text-slate-400">' + P.esc(f.detalle || '—') + '</td>' +
+                    '<td class="c-ip whitespace-nowrap px-5 text-slate-400" title="' + P.esc(f.dispositivo || '') + '">' + P.esc(f.ip || '—') + '</td>' +
+                '</tr>';
+            });
+            el.querySelector('[data-cuerpo]').innerHTML = html;
+        }
 
-        var parametros = new URLSearchParams({ tab: tabActual, page: paginaActual, orden: campos.orden.value });
-        ['q', 'accion', 'desde', 'hasta', 'ip'].forEach(function (k) {
-            var v = campos[k].value.trim();
-            if (v) parametros.set(k, v);
+        function dibujarVacio(vacio, filtros) {
+            el.querySelector('[data-vacio]').classList.toggle('hidden', !vacio);
+            if (!vacio) return;
+            el.querySelector('[data-vacio-titulo]').textContent = filtros ? 'Ningún movimiento coincide con estos filtros' : 'Todavía no hay movimientos aquí';
+            el.querySelector('[data-vacio-texto]').textContent = filtros ? 'Prueba quitando algún filtro o con “Limpiar”.' : d.vacio;
+        }
+
+        function dibujarPaginacion(r) {
+            el.querySelector('[data-info]').textContent = r.total === 0 ? 'Sin resultados'
+                : 'Mostrando ' + r.desde + '–' + r.hasta + ' de ' + r.total + ' movimientos';
+            var cont = el.querySelector('[data-pag]');
+            cont.innerHTML = '';
+            if (r.ultima_pagina <= 1) return;
+
+            function boton(texto, destino, activo, off) {
+                var b = document.createElement('button');
+                b.type = 'button'; b.innerHTML = texto; b.disabled = off;
+                b.className = 'grid h-8 min-w-[2rem] place-items-center rounded-lg px-2 text-xs font-medium transition-all ' +
+                    (activo ? 'bg-violet-600 text-white shadow shadow-violet-600/30'
+                            : 'border border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-slate-200') +
+                    (off ? ' cursor-not-allowed opacity-40' : '');
+                if (!off && !activo) b.addEventListener('click', function () { s.cargar(destino); });
+                cont.appendChild(b);
+            }
+            boton('<i class="fa-solid fa-chevron-left"></i>', r.pagina_actual - 1, false, r.pagina_actual <= 1);
+            var ini = Math.max(1, r.pagina_actual - 1), fin = Math.min(r.ultima_pagina, ini + 2);
+            for (var p = ini; p <= fin; p++) boton(p, p, p === r.pagina_actual, false);
+            boton('<i class="fa-solid fa-chevron-right"></i>', r.pagina_actual + 1, false, r.pagina_actual >= r.ultima_pagina);
+        }
+
+        // Eventos de los filtros de esta tabla
+        function conEspera() { clearTimeout(s.temporizador); s.temporizador = setTimeout(function () { s.cargar(1); }, 300); }
+        ['q', 'ip'].forEach(function (k) { campo(k).addEventListener('input', conEspera); });
+        ['accion', 'rol', 'desde', 'hasta', 'orden'].forEach(function (k) {
+            var c = campo(k); if (c) c.addEventListener('change', function () { s.cargar(1); });
         });
-        if (tabActual === 'seguridad' && campos.rol.value) parametros.set('rol', campos.rol.value);
+        el.querySelector('[data-limpiar]').addEventListener('click', function () {
+            nombres.forEach(function (k) { var c = campo(k); if (c) c.value = (k === 'orden' ? 'reciente' : ''); });
+            s.cargar(1);
+        });
 
-        try {
-            var datos = await P.api('/movimientos?' + parametros.toString());
-            if (miPedido !== pedido) return;          // llegó una respuesta más nueva
-            llenarAcciones(datos.acciones);
-            dibujarFilas(datos.datos);
-            dibujarPaginacion(datos);
-            dibujarVacio(datos.total === 0);
-        } catch (error) {
-            if (miPedido !== pedido) return;
-            if (error.estado === 401) return;
-            if (error.estado === 422) { toast('Revisa los filtros', error.message); return; }
-            toast('No se pudo cargar el historial', error.estado ? (error.message || 'Intenta de nuevo.') : 'No se pudo contactar al servidor.');
-        } finally {
-            if (miPedido === pedido) tabla.style.opacity = '1';
-        }
-    }
-
-    function dibujarFilas(filas) {
-        tabla.innerHTML = filas.map(function (f) {
-            var a = infoAccion(f.accion);
-            var usuario = f.nombre
-                ? '<div class="flex items-center gap-3">' +
-                    '<span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-violet-500/80 to-indigo-600/80 text-xs font-bold text-white">' + P.esc(iniciales(f.nombre)) + '</span>' +
-                    '<div class="min-w-0">' +
-                        '<p class="truncate font-semibold text-slate-200">' + P.esc(f.nombre) + '</p>' +
-                        '<p class="truncate text-xs text-slate-500">' + P.esc(f.correo || '') + '</p>' +
-                        (f.rol ? '<span class="mt-1 inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ' + (COLORES_ROL[f.rol] || COLORES.sky) + '">' + P.esc(mayuscula(f.rol)) + '</span>' : '') +
-                    '</div></div>'
-                : '<span class="text-xs italic text-slate-500">Cuenta eliminada o desconocida</span>';
-
-            return '<tr class="align-top transition-colors hover:bg-slate-800/40">' +
-                '<td class="whitespace-nowrap px-5 py-3.5 text-slate-400">' + P.esc(formatoFecha(f.fecha)) + '</td>' +
-                '<td class="px-5 py-3.5">' + usuario + '</td>' +
-                '<td class="px-5 py-3.5"><span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ' + COLORES[a.color] + '">' + P.esc(a.texto) + '</span></td>' +
-                '<td class="px-5 py-3.5 text-slate-400">' + P.esc(f.detalle || '—') + '</td>' +
-                '<td class="whitespace-nowrap px-5 py-3.5 text-slate-400" title="' + P.esc(f.dispositivo || '') + '">' + P.esc(f.ip || '—') + '</td>' +
-            '</tr>';
-        }).join('');
-    }
-
-    function dibujarVacio(vacio) {
-        tablaVacia.classList.toggle('hidden', !vacio);
-        if (!vacio) return;
-        var conFiltros = filtrosActivos() > 0;
-        document.getElementById('vacio-titulo').textContent = conFiltros
-            ? 'Ningún movimiento coincide con estos filtros'
-            : 'Todavía no hay movimientos ' + TITULOS_TAB[tabActual];
-        document.getElementById('vacio-texto').textContent = conFiltros
-            ? 'Prueba quitando algún filtro o con “Limpiar filtros”.'
-            : (tabActual === 'seguridad'
-                ? 'Aquí aparecerán los intentos de acceso, los bloqueos y los cambios de contraseña.'
-                : 'Aparecerán aquí cuando este panel empiece a registrar sus acciones.');
-    }
-
-    function dibujarPaginacion(datos) {
-        document.getElementById('paginacion-info').textContent =
-            datos.total === 0 ? 'Sin resultados' :
-            'Mostrando ' + datos.desde + '–' + datos.hasta + ' de ' + datos.total + ' movimientos';
-
-        var contenedor = document.getElementById('paginacion-botones');
-        contenedor.innerHTML = '';
-        if (datos.ultima_pagina <= 1) return;
-
-        function boton(texto, pagina, activo, deshabilitado) {
-            var b = document.createElement('button');
-            b.type = 'button';
-            b.innerHTML = texto;
-            b.disabled = deshabilitado;
-            b.className = 'grid h-8 min-w-[2rem] place-items-center rounded-lg px-2 text-xs font-medium transition-all ' +
-                (activo ? 'bg-violet-600 text-white shadow shadow-violet-600/30'
-                        : 'border border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-slate-200') +
-                (deshabilitado ? ' cursor-not-allowed opacity-40' : '');
-            if (!deshabilitado && !activo) b.addEventListener('click', function () { cargar(pagina); });
-            contenedor.appendChild(b);
-        }
-
-        boton('<i class="fa-solid fa-chevron-left"></i>', datos.pagina_actual - 1, false, datos.pagina_actual <= 1);
-        var inicio = Math.max(1, datos.pagina_actual - 1);
-        var fin = Math.min(datos.ultima_pagina, inicio + 2);
-        for (var p = inicio; p <= fin; p++) boton(p, p, p === datos.pagina_actual, false);
-        boton('<i class="fa-solid fa-chevron-right"></i>', datos.pagina_actual + 1, false, datos.pagina_actual >= datos.ultima_pagina);
+        return s;
     }
 
     /* ================= Pestañas ================= */
-    function elegirTab(tab, recargar) {
+    var conteosSubs = null;   // { seguridad: {seguridad, accesos}, inmobiliaria: {seguridad, accesos, acciones}, ... }
+
+    function pintarConteos(c) {
+        Object.keys(c).forEach(function (k) {
+            if (k === 'subs') { conteosSubs = c[k]; return; }
+            var e = document.querySelector('[data-cuenta="' + k + '"]');
+            if (e) e.textContent = c[k];
+        });
+        pintarSubConteos();
+    }
+
+    // Número al lado de cada submenú (cambios de contraseña, inicios de sesión, acciones)
+    function pintarSubConteos() {
+        if (!conteosSubs || !conteosSubs[tabActual]) return;
+        document.querySelectorAll('#subpestanas [data-subcuenta]').forEach(function (e) {
+            var n = conteosSubs[tabActual][e.getAttribute('data-subcuenta')];
+            e.textContent = (n === undefined ? '–' : n);
+        });
+    }
+
+    var SUBS = {
+        seguridad: { texto: 'Cambios de contraseña y bloqueos', icono: 'fa-key' },
+        accesos:   { texto: 'Inicios de sesión',                icono: 'fa-right-to-bracket' },
+        acciones:  { texto: 'Acciones en su panel',             icono: 'fa-list-check' }
+    };
+    var subActual = 'seguridad';
+    var primeraCarga = true;
+
+    function elegirTab(tab) {
         tabActual = tab;
         document.querySelectorAll('#pestanas [data-tab]').forEach(function (b) {
             b.classList.toggle('activa', b.getAttribute('data-tab') === tab);
         });
-        ajustarFiltrosDeLaPestana();
-        // Cada pestaña empieza con filtros limpios
-        campos.q.value = ''; campos.accion.value = ''; campos.rol.value = '';
-        campos.desde.value = ''; campos.hasta.value = ''; campos.ip.value = ''; campos.orden.value = 'reciente';
         try { history.replaceState(null, '', '?tab=' + tab); } catch (e) {}
-        if (recargar !== false) cargar(1);
+
+        // Submenú de la pestaña: "Acciones en su panel" solo existe para un rol, no en Seguridad
+        var claves = tab === 'seguridad' ? ['seguridad', 'accesos'] : ['seguridad', 'accesos', 'acciones'];
+        document.getElementById('subpestanas').innerHTML = claves.map(function (k) {
+            return '<button type="button" role="tab" data-sub="' + k + '" class="mov-pestana"><i class="fa-solid ' + SUBS[k].icono + '"></i>' + P.esc(SUBS[k].texto) + '<span class="cuenta" data-subcuenta="' + k + '">–</span></button>';
+        }).join('');
+        pintarSubConteos();
+        elegirSub('seguridad');
+    }
+
+    function elegirSub(sub) {
+        subActual = sub;
+        document.querySelectorAll('#subpestanas [data-sub]').forEach(function (b) {
+            b.classList.toggle('activa', b.getAttribute('data-sub') === sub);
+        });
+        var cont = document.getElementById('secciones');
+        cont.innerHTML = '';
+        var s = crearSeccion(sub, primeraCarga);
+        primeraCarga = false;
+        secciones = [s];
+        cont.appendChild(s.el);
+        s.cargar(1);
     }
 
     document.getElementById('pestanas').addEventListener('click', function (e) {
         var b = e.target.closest('[data-tab]');
         if (b && b.getAttribute('data-tab') !== tabActual) elegirTab(b.getAttribute('data-tab'));
     });
-
-    /* ================= Eventos de los filtros ================= */
-    function conEspera() {
-        clearTimeout(temporizador);
-        temporizador = setTimeout(function () { cargar(1); }, 300);
-    }
-    campos.q.addEventListener('input', conEspera);
-    campos.ip.addEventListener('input', conEspera);
-    ['accion', 'rol', 'desde', 'hasta', 'orden'].forEach(function (k) {
-        campos[k].addEventListener('change', function () { cargar(1); });
+    document.getElementById('subpestanas').addEventListener('click', function (e) {
+        var b = e.target.closest('[data-sub]');
+        if (b && b.getAttribute('data-sub') !== subActual) elegirSub(b.getAttribute('data-sub'));
     });
-    document.getElementById('limpiar').addEventListener('click', limpiarFiltros);
 
     /* ================= Arranque ================= */
     P.listo.then(function () {

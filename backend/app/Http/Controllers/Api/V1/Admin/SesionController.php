@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -53,6 +54,14 @@ class SesionController extends Controller
         $usuario = $proveedor->retrieveByCredentials($credenciales);
 
         if (! $usuario || ! $proveedor->validateCredentials($usuario, $credenciales)) {
+            $this->registrarEvento(
+                $request,
+                $usuario?->id,
+                'login_fallido',
+                $usuario ? 'Contraseña incorrecta en el panel de administración'
+                         : 'Correo no registrado: ' . mb_substr($datos['email'], 0, 120)
+            );
+
             return response()->json(['message' => 'Correo o contraseña incorrectos.'], 401);
         }
 
@@ -135,6 +144,8 @@ class SesionController extends Controller
         $request->session()->regenerate();
         $request->session()->put('admin_ultima_actividad', time());
 
+        $this->registrarEvento($request, $usuario->id, 'inicio_sesion', 'Panel de administración (con código de verificación)');
+
         return response()->json([
             'message' => 'Sesión iniciada.',
             'usuario' => [
@@ -193,6 +204,23 @@ class SesionController extends Controller
         });
 
         Log::info('2FA admin: código enviado', ['admin_id' => $usuario->id, 'ip' => $request->ip()]);
+    }
+
+    /** Anota un evento de seguridad. Nunca debe romper el inicio de sesión. */
+    private function registrarEvento(Request $request, ?int $userId, string $tipo, ?string $detalle = null): void
+    {
+        try {
+            DB::table('eventos_seguridad')->insert([
+                'user_id'     => $userId,
+                'tipo'        => $tipo,
+                'ip'          => $request->ip(),
+                'dispositivo' => mb_substr((string) $request->userAgent(), 0, 150),
+                'detalle'     => $detalle !== null ? mb_substr($detalle, 0, 255) : null,
+                'fecha'       => now(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('No se pudo guardar el evento de seguridad: ' . $e->getMessage(), ['tipo' => $tipo]);
+        }
     }
 
     /** juan.perez@dominio.com → ju******@dominio.com */

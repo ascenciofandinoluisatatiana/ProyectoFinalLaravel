@@ -384,6 +384,19 @@
                     mostrar(datos.message || window.t('msg.cuenta_inactiva'), 'error');
                     return;
                 }
+                // Intentos fallidos: se avisa en rojo cuántos van, y cuando se bloquea, por cuántos minutos
+                if (respuesta.status === 423) {
+                    mostrar(window.t('msg.bloqueada', { min: datos.bloqueado_minutos || 15 }), 'error');
+                    return;
+                }
+                if (respuesta.status === 401 && datos && datos.codigo === 'correo_no_registrado') {
+                    mostrar(window.t('msg.correo_no_registrado'), 'error');
+                    return;
+                }
+                if (respuesta.status === 401 && datos && datos.intento) {
+                    mostrar(window.t('msg.intento', { n: datos.intento, max: datos.max_intentos || 5 }), 'error');
+                    return;
+                }
                 mostrar(mensajeDeError(respuesta.status), 'error');
                 return;
             }

@@ -34,16 +34,46 @@
         ::-webkit-scrollbar-thumb:hover { background: var(--ad-borde2); }
         html[data-theme="dark"] input[type="date"] { color-scheme: dark; }
         html[data-theme="light"] input[type="date"] { color-scheme: light; }
-        .filtros-mov { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; }
+        .filtros-mov { display:grid; grid-template-columns:repeat(auto-fit,minmax(165px,1fr)); gap:10px; }
         .filtros-mov .ancho { grid-column: span 2; }
+        .filtros-mov [hidden] { display:none !important; }
+        @media (max-width: 480px) { .filtros-mov .ancho { grid-column: auto; } }
         .campo-fecha { display:flex; align-items:center; gap:8px; font-size:12px; font-weight:600; color: var(--ad-muted, #a1a1aa); }
         .campo-fecha input { min-width:0; }
-        .filtros-mov .hidden { display:none; }
-        @media (max-width: 480px) { .filtros-mov .ancho { grid-column: auto; } }
-        .pestana-mov { display:inline-flex; align-items:center; gap:8px; padding:9px 16px; border-radius:12px; font-size:14px; font-weight:600;
-                       color: var(--ad-text2, #94a3b8); border:1px solid transparent; background:transparent; cursor:pointer; transition:all .15s; }
-        .pestana-mov:hover { background: rgba(148,163,184,.12); }
-        .pestana-mov.activa { color:#fff; background: linear-gradient(90deg,#7c3aed,#4f46e5); box-shadow:0 6px 16px rgba(124,58,237,.28); }
+        /* Pestañas (mismo estilo que Verificaciones: Pendientes / Historial) */
+        .mov-pestanas { display:flex; gap:.25rem; border-bottom:1px solid var(--ad-borde); overflow-x:auto; white-space:nowrap; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+        .mov-pestanas::-webkit-scrollbar { display:none; }
+        .mov-pestana { display:inline-flex; align-items:center; gap:.5rem; padding:.7rem 1.1rem; margin-bottom:-1px; font-size:.875rem; font-weight:600; color:var(--ad-muted); background:transparent; border:0; border-bottom:2px solid transparent; cursor:pointer; transition:all .15s ease; flex:0 0 auto; }
+        .mov-pestana:hover { color:var(--ad-text); }
+        .mov-pestana.activa { color:var(--ad-primary); border-bottom-color:var(--ad-primary2); }
+        .mov-pestana .cuenta { min-width:22px; padding:1px 7px; border-radius:999px; font-size:11px; font-weight:800; text-align:center; background:var(--ad-soft); color:var(--ad-primary); }
+        .mov-sub { padding:0 .75rem; border-bottom:1px solid var(--ad-borde); }
+        .mov-sub .mov-pestana { font-size:.8rem; padding:.6rem .9rem; }
+        .fila-dia td { padding:7px 20px; font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; background:var(--ad-soft); color:var(--ad-primary); }
+        .tabla-mov td { padding-top:9px; padding-bottom:9px; }
+        .tabla-mov .det-movil { display:none; }
+        .vacio-mov { padding:48px 20px; text-align:center; }
+        .vacio-mov .icono { margin:0 auto 14px; display:grid; place-items:center; width:48px; height:48px; border-radius:14px; background:var(--ad-soft); color:var(--ad-primary); }
+
+        /* Celular: cada registro es una tarjetita sin desbordes (nada se corta ni se desliza) */
+        @media (max-width: 900px) {
+            .tabla-mov { min-width:0 !important; display:block; font-size:13px; }
+            .tabla-mov thead { display:none; }
+            .tabla-mov tbody { display:block; }
+            .tabla-mov tr.fila-mov { display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; padding:12px 14px; border-bottom:1px solid var(--ad-borde); }
+            .tabla-mov tr.fila-mov td { display:block; padding:0 !important; min-width:0; }
+            .tabla-mov td.c-usuario { order:1; flex:1 1 100%; }
+            .tabla-mov td.c-accion  { order:2; }
+            .tabla-mov td.c-rol     { order:3; }
+            .tabla-mov td.c-detalle { order:4; flex:1 1 100%; font-size:12px; overflow-wrap:anywhere; }
+            .tabla-mov td.c-hora    { order:5; font-size:12px; }
+            .tabla-mov td.c-ip      { order:6; font-size:12px; }
+            .tabla-mov td.c-hora::before { content:"\1F552  "; }
+            .tabla-mov td.c-ip::before   { content:"IP  "; font-weight:700; }
+            .tabla-mov tr.fila-dia { display:block; }
+            .tabla-mov tr.fila-dia td { display:block; padding:7px 14px !important; }
+            .mov-pestana { padding:.65rem .85rem; }
+        }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-200 font-sans antialiased" data-pagina="movimientos" data-titulo="Movimientos">
@@ -68,77 +98,23 @@
                             </p>
                             <h1 class="titulo-grad mt-1 text-2xl font-extrabold sm:text-3xl">Movimientos</h1>
                             <p class="mt-1.5 max-w-xl text-sm text-slate-400">
-                                Qué pasó en el portal: la seguridad de las cuentas y lo que hacen inmobiliarias, agentes y vendedores.
+                                Qué pasó en el portal: seguridad de las cuentas, inicios de sesión y lo que hacen inmobiliarias, agentes y vendedores.
                             </p>
                         </div>
                     </div>
 
+                    <!-- Pestañas principales -->
+                    <div id="pestanas" class="mov-pestanas" role="tablist">
+                        <button type="button" role="tab" data-tab="seguridad"    class="mov-pestana"><i class="fa-solid fa-shield-halved"></i>Seguridad<span class="cuenta" data-cuenta="seguridad">–</span></button>
+                        <button type="button" role="tab" data-tab="inmobiliaria" class="mov-pestana"><i class="fa-solid fa-building"></i>Inmobiliarias<span class="cuenta" data-cuenta="inmobiliaria">–</span></button>
+                        <button type="button" role="tab" data-tab="agente"       class="mov-pestana"><i class="fa-solid fa-user-tie"></i>Agentes<span class="cuenta" data-cuenta="agente">–</span></button>
+                        <button type="button" role="tab" data-tab="vendedor"     class="mov-pestana"><i class="fa-solid fa-store"></i>Vendedores<span class="cuenta" data-cuenta="vendedor">–</span></button>
+                    </div>
+
+                    <!-- Tarjeta con el submenú y la tabla de la pestaña elegida -->
                     <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 shadow-xl shadow-black/20">
-
-                        <!-- Pestañas -->
-                        <div id="pestanas" class="flex flex-wrap gap-1.5 border-b border-slate-800 p-3">
-                            <button type="button" data-tab="seguridad"    class="pestana-mov"><i class="fa-solid fa-shield-halved"></i>Seguridad</button>
-                            <button type="button" data-tab="inmobiliaria" class="pestana-mov"><i class="fa-solid fa-building"></i>Inmobiliarias</button>
-                            <button type="button" data-tab="agente"       class="pestana-mov"><i class="fa-solid fa-user-tie"></i>Agentes</button>
-                            <button type="button" data-tab="vendedor"     class="pestana-mov"><i class="fa-solid fa-store"></i>Vendedores</button>
-                        </div>
-
-                        <!-- Filtros -->
-                        <div class="filtros-mov border-b border-slate-800 p-4">
-                            <div class="relative ancho">
-                                <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-500"></i>
-                                <input type="search" id="buscar" placeholder="Buscar por nombre o correo…"
-                                       class="w-full rounded-xl border border-slate-800 bg-slate-950/60 py-2.5 pl-10 pr-4 text-sm text-slate-200 placeholder-slate-600 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
-                            </div>
-                            <select id="filtro-accion" class="w-full rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2.5 text-sm text-slate-300 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20"><option value="">Acción: Todas</option></select>
-                            <select id="filtro-rol" class="w-full rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2.5 text-sm text-slate-300 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
-                                <option value="">Rol: Todos</option>
-                                <option value="administrador">Administrador</option>
-                                <option value="inmobiliaria">Inmobiliaria</option>
-                                <option value="agente">Agente</option>
-                                <option value="vendedor">Vendedor</option>
-                            </select>
-                            <label class="campo-fecha"><span>Desde</span><input type="date" id="filtro-desde" class="w-full rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2.5 text-sm text-slate-300 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20"></label>
-                            <label class="campo-fecha"><span>Hasta</span><input type="date" id="filtro-hasta" class="w-full rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2.5 text-sm text-slate-300 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20"></label>
-                            <input type="text" id="filtro-ip" placeholder="IP (ej: 190.25.)" autocomplete="off" aria-label="Dirección IP" class="w-full rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2.5 text-sm text-slate-300 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
-                            <select id="filtro-orden" aria-label="Orden" class="w-full rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2.5 text-sm text-slate-300 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
-                                <option value="reciente">Más recientes primero</option>
-                                <option value="antiguo">Más antiguos primero</option>
-                            </select>
-                            <button type="button" id="limpiar"
-                                    class="rounded-xl border border-slate-700 px-4 py-2.5 text-sm font-medium text-slate-300 transition-all hover:bg-slate-800">
-                                <i class="fa-solid fa-filter-circle-xmark mr-1.5"></i>Limpiar filtros<span id="contador-filtros" class="ml-1.5 hidden rounded-full bg-violet-500/20 px-2 py-0.5 text-[11px] font-bold text-violet-300"></span>
-                            </button>
-                        </div>
-
-                        <!-- Tabla -->
-                        <div class="overflow-x-auto">
-                            <table class="w-full min-w-[48rem] text-left text-sm">
-                                <thead class="border-b border-slate-800 text-[11px] uppercase tracking-wider text-slate-500">
-                                    <tr>
-                                        <th class="px-5 py-3.5 font-semibold">Fecha</th>
-                                        <th class="px-5 py-3.5 font-semibold">Usuario</th>
-                                        <th class="px-5 py-3.5 font-semibold">Acción</th>
-                                        <th class="px-5 py-3.5 font-semibold">Detalle</th>
-                                        <th class="px-5 py-3.5 font-semibold">IP</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tabla-mov" class="divide-y divide-slate-800/70 transition-opacity"></tbody>
-                            </table>
-                        </div>
-
-                        <!-- Sin resultados -->
-                        <div id="tabla-vacia" class="hidden px-5 py-14 text-center">
-                            <div class="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-xl bg-slate-800 text-slate-500"><i class="fa-solid fa-inbox"></i></div>
-                            <p id="vacio-titulo" class="text-sm font-medium text-slate-400"></p>
-                            <p id="vacio-texto" class="mx-auto mt-0.5 max-w-md text-xs text-slate-600"></p>
-                        </div>
-
-                        <!-- Paginación -->
-                        <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 px-5 py-3.5">
-                            <p id="paginacion-info" class="text-xs text-slate-500"></p>
-                            <div id="paginacion-botones" class="flex items-center gap-1"></div>
-                        </div>
+                        <div id="subpestanas" class="mov-pestanas mov-sub" role="tablist"></div>
+                        <div id="secciones"></div>
                     </div>
                 </div>
             </main>

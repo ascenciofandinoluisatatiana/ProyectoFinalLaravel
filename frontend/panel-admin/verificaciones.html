@@ -65,9 +65,9 @@
 
         /* Tarjetas de resumen del historial */
         .ver-resumen { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; }
-        .ver-resumen-item { border-radius: 20px; border: 1px solid var(--ad-borde); background: var(--ad-card); padding: .9rem 1.1rem; }
-        .ver-resumen-item p:first-child { font-size: 1.5rem; font-weight: 800; color: var(--ad-text); line-height: 1.2; }
-        .ver-resumen-item p:last-child { font-size: .75rem; color: var(--ad-muted); margin-top: .15rem; }
+        .ver-resumen-item { display: flex; align-items: center; gap: .9rem; border-radius: 20px; border: 1px solid var(--ad-borde); background: var(--ad-card); padding: .8rem 1.1rem; min-width: 0; }
+        .ver-resumen-item p:first-child { font-size: 1.6rem; font-weight: 800; color: var(--ad-text); line-height: 1.1; flex-shrink: 0; }
+        .ver-resumen-item p:last-child { font-size: .8rem; font-weight: 600; color: var(--ad-muted); margin: 0; line-height: 1.25; min-width: 0; }
         .ver-resumen-ok p:first-child { color: #6ee7b7; }
         .ver-resumen-no p:first-child { color: #fca5a5; }
         @media (max-width: 480px) { .ver-resumen { grid-template-columns: 1fr; } }

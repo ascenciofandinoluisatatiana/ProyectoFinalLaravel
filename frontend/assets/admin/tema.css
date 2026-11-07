@@ -632,3 +632,64 @@ html .kpi.kpi-compacta > p:nth-of-type(2) {
 html .kpi.kpi-compacta > span[id^="variacion-"] { position: absolute; right: 12px; bottom: 10px; }
 html .kpi.kpi-compacta:has(> span[id^="variacion-"]) > p:nth-of-type(2) { padding-right: 58px; }
 html .kpi.kpi-compacta:hover { transform: translateY(-2px); }
+
+/* =====================================================================
+   PASO 5H — Responsive de todo el panel de administración
+   ===================================================================== */
+html body { overflow-x: hidden; }
+html #app > div, html main { min-width: 0; }
+/* Las celdas de una cuadrícula no pueden ser más anchas que la pantalla (gráficas, tarjetas, tablas) */
+html .grid > *, html .flex > * { min-width: 0; }
+html canvas { max-width: 100%; }
+
+/* Título de la barra: siempre visible y sin cortarse a media palabra */
+html .barra-titulo {
+    display: block; flex: 1 1 0; min-width: 0;
+    white-space: normal; overflow-wrap: break-word; word-break: normal; line-height: 1.15;
+    font-size: clamp(13px, 4.2vw, 19px);
+}
+html .barra-sup > div { gap: 8px; }
+
+@media (max-width: 640px) {
+    html .barra-sup > div { padding-left: 12px; padding-right: 12px; }
+    /* Menús desplegables (notificaciones y perfil): ocupan el ancho de la pantalla, sin salirse */
+    html #menu-notificaciones, html #menu-perfil {
+        position: fixed !important; top: 62px; left: 10px; right: 10px; width: auto !important; max-width: none;
+    }
+    html main.flex-1 { padding-left: 12px; padding-right: 12px; }
+    html .hero-admin { padding: 18px 16px; }
+    html .hero-admin h1 { font-size: clamp(1.35rem, 6.2vw, 1.75rem); overflow-wrap: anywhere; }
+    html .hero-admin p { overflow-wrap: anywhere; }
+
+    /* Tablas: más compactas; si no caben, se deslizan de lado dentro de su tarjeta */
+    html .overflow-x-auto > table { min-width: 32rem !important; font-size: 12.5px; }
+    html .overflow-x-auto th, html .overflow-x-auto td { padding-left: 10px !important; padding-right: 10px !important; }
+    html .overflow-x-auto { -webkit-overflow-scrolling: touch; }
+}
+@media (max-width: 480px) {
+    /* En celular: el perfil muestra solo el avatar, así el título cabe completo */
+    html .chip-usuario { padding: 3px; gap: 0; }
+    html .chip-usuario > i { display: none !important; }
+    html .chip-usuario > span:not(.avatar-admin) { display: none !important; }
+}
+@media (max-width: 380px) {
+    html .barra-sup > div { gap: 6px; padding-left: 8px; padding-right: 8px; }
+    html .hero-admin { padding: 16px 12px; }
+}
+
+/* =====================================================================
+   PASO 5I — Etiquetas (píldoras) de las tablas: una sola línea, nunca partidas
+   ===================================================================== */
+html .pildora {
+    display: inline-block; max-width: 100%; white-space: nowrap; text-align: center;
+    padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; line-height: 1.3;
+}
+/* Cualquier otra etiqueta redonda dentro de una tabla (usuarios, reportes, verificaciones…) */
+html td span[class*="rounded-full"], html td a[class*="rounded-full"] { white-space: nowrap; text-align: center; line-height: 1.3; }
+/* Tabla de Movimientos: celdas más justas para que quepa en tablets sin cortar la columna Acción */
+@media (min-width: 901px) {
+    html .tabla-mov th, html .tabla-mov td { padding-left: 12px !important; padding-right: 12px !important; }
+    html .tabla-mov { min-width: 0 !important; }
+    html .tabla-mov .c-usuario { max-width: 15rem; }
+    html .tabla-mov .c-detalle { min-width: 9rem; }
+}

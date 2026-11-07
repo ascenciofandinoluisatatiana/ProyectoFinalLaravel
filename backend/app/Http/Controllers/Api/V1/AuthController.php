@@ -14,6 +14,9 @@ use Illuminate\Validation\Rule;
 
 class AuthController extends Controller
 {
+    private const MAX_INTENTOS = 5;        // intentos fallidos antes de bloquear
+    private const MINUTOS_BLOQUEO = 15;    // minutos que dura el bloqueo
+
     /**
      * POST /api/v1/login
      * Recibe correo y contraseña. Si son correctos, responde con los datos del usuario y su rol.
@@ -38,27 +41,40 @@ class AuthController extends Controller
 
             return response()->json([
                 'message' => "Tu cuenta está bloqueada temporalmente por varios intentos fallidos. Intenta de nuevo en {$minutos} minuto(s).",
+                'bloqueado_minutos' => $minutos,
             ], 423);
         }
 
-        // Mismo mensaje si el correo no existe o la clave está mal (no revelar cuál falló)
+        // Correo que no existe, o contraseña mal
         if (! $usuario || ! Hash::check($datos['password'], $usuario->password)) {
+            // Correo que no existe: se le avisa y el intento queda anotado (no hay cuenta que bloquear)
+            if (! $usuario) {
+                $this->registrarEvento($request, null, 'login_fallido', 'Correo no registrado: ' . mb_substr($datos['email'], 0, 120));
+
+                return response()->json([
+                    'message' => 'Este correo no está registrado.',
+                    'codigo'  => 'correo_no_registrado',
+                ], 401);
+            }
+
             if ($usuario) {
                 $intentos = $usuario->intentos_fallidos + 1;
-                $bloquear = $intentos >= 5; // valor de partida, por definir con el equipo
+                $bloquear = $intentos >= self::MAX_INTENTOS;
 
                 DB::table('users')->where('id', $usuario->id)->update([
                     'intentos_fallidos' => $bloquear ? 0 : $intentos,
-                    'bloqueado_hasta'   => $bloquear ? now()->addMinutes(15) : null, // valor de partida
+                    'bloqueado_hasta'   => $bloquear ? now()->addMinutes(self::MINUTOS_BLOQUEO) : null,
                 ]);
 
-                DB::table('eventos_seguridad')->insert([
-                    'user_id'     => $usuario->id,
-                    'tipo'        => $bloquear ? 'cuenta_bloqueada' : 'login_fallido',
-                    'ip'          => $request->ip(),
-                    'dispositivo' => mb_substr((string) $request->userAgent(), 0, 200),
-                    'fecha'       => now(),
-                ]);
+                $this->registrarEvento(
+                    $request,
+                    $usuario->id,
+                    $bloquear ? 'cuenta_bloqueada' : 'login_fallido',
+                    $bloquear ? 'Bloqueada ' . self::MINUTOS_BLOQUEO . ' minutos tras ' . self::MAX_INTENTOS . ' intentos fallidos'
+                              : "Contraseña incorrecta (intento {$intentos} de " . self::MAX_INTENTOS . ')'
+                );
+
+                return $this->respuestaFallo($intentos, $bloquear);
             }
 
             return response()->json(['message' => 'Correo o contraseña incorrectos.'], 401);
@@ -95,6 +111,12 @@ class AuthController extends Controller
             ], 403);
         }
 
+        // Entró bien: queda anotado en el historial (Movimientos del administrador)
+        // (el administrador se anota aparte, cuando termina de poner el código de verificación)
+        if (! $usuario->tieneRol('administrador')) {
+            $this->registrarEvento($request, $usuario->id, 'inicio_sesion', 'Panel de ' . ($usuario->role?->nombre ?? 'usuario'));
+        }
+
         return response()->json([
             'message' => 'Inicio de sesión correcto.',
             'usuario' => [
@@ -104,6 +126,40 @@ class AuthController extends Controller
                 'rol'    => $usuario->role?->nombre,
             ],
         ]);
+    }
+
+    /** Respuesta de un intento fallido: 401 con el número de intento, o 423 si ya se bloqueó. */
+    private function respuestaFallo(int $intentos, bool $bloqueada): JsonResponse
+    {
+        if ($bloqueada) {
+            return response()->json([
+                'message' => 'Cuenta bloqueada durante ' . self::MINUTOS_BLOQUEO . ' minutos por varios intentos fallidos.',
+                'bloqueado_minutos' => self::MINUTOS_BLOQUEO,
+            ], 423);
+        }
+
+        return response()->json([
+            'message' => 'Correo o contraseña incorrectos.',
+            'intento' => $intentos,
+            'max_intentos' => self::MAX_INTENTOS,
+        ], 401);
+    }
+
+    /** Anota un evento de seguridad (intento fallido, bloqueo, inicio de sesión). Nunca debe romper el login. */
+    private function registrarEvento(Request $request, ?int $userId, string $tipo, ?string $detalle = null): void
+    {
+        try {
+            DB::table('eventos_seguridad')->insert([
+                'user_id'     => $userId,
+                'tipo'        => $tipo,
+                'ip'          => $request->ip(),
+                'dispositivo' => mb_substr((string) $request->userAgent(), 0, 150),   // la columna acepta 150
+                'detalle'     => $detalle !== null ? mb_substr($detalle, 0, 255) : null,
+                'fecha'       => now(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('No se pudo guardar el evento de seguridad: ' . $e->getMessage(), ['tipo' => $tipo]);
+        }
     }
 
     /**

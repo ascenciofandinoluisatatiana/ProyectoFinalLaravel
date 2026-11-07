@@ -218,12 +218,8 @@
                 '<button type="button" id="boton-menu" class="boton-barra" title="Mostrar u ocultar el menú" aria-label="Mostrar u ocultar el menú" aria-controls="menu-lateral">' +
                     '<i class="fa-solid fa-bars"></i>' +
                 '</button>' +
-                '<h2 class="barra-titulo hidden truncate sm:block">' + esc(titulo) + '</h2>' +
-                '<form action="' + url('usuarios') + '" method="GET" class="buscador-barra relative ml-auto hidden w-64 md:block lg:w-80">' +
-                    '<i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-500"></i>' +
-                    '<input type="search" name="q" placeholder="Buscar usuarios por nombre o correo…" class="w-full rounded-xl border border-slate-800 bg-slate-900/70 py-2 pl-10 pr-4 text-sm text-slate-200 placeholder-slate-600 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">' +
-                '</form>' +
-                '<div class="ml-auto flex items-center gap-2 md:ml-0">' +
+                '<h2 class="barra-titulo">' + esc(titulo) + '</h2>' +
+                '<div class="ml-auto flex shrink-0 items-center gap-2">' +
                     '<button type="button" id="boton-tema" class="tema-boton" title="Cambiar entre modo claro y oscuro" aria-label="Cambiar entre modo claro y oscuro">' +
                         '<i class="fa-solid fa-moon icono-luna"></i><i class="fa-solid fa-sun icono-sol"></i>' +
                     '</button>' +

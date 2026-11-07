@@ -65,6 +65,37 @@
                '&fecha_fin=' + encodeURIComponent(fin.value);
     }
 
+    /* Filtros propios de la tabla de pagos */
+    var campos = {
+        q: document.getElementById('buscarPago'),
+        plan: document.getElementById('filtroPlan'),
+        estado: document.getElementById('filtroEstado'),
+        monto_min: document.getElementById('montoMin'),
+        monto_max: document.getElementById('montoMax')
+    };
+    var temporizador = null;
+    var pedido = 0;                 // ignora respuestas viejas si se filtra rápido
+
+    function filtrosPagos() {
+        var texto = '';
+        Object.keys(campos).forEach(function (k) {
+            var v = campos[k].value.trim();
+            if (v !== '') texto += '&' + k + '=' + encodeURIComponent(v);
+        });
+        return texto;
+    }
+
+    function cuantosFiltros() {
+        return Object.keys(campos).filter(function (k) { return campos[k].value.trim() !== ''; }).length;
+    }
+
+    function actualizarContador() {
+        var n = cuantosFiltros();
+        var c = document.getElementById('contadorPagos');
+        c.textContent = n;
+        c.classList.toggle('hidden', n === 0);
+    }
+
     function filaConteo(etiqueta, total) {
         return '<div class="flex items-center justify-between gap-3 px-5 py-3.5">' +
             '<span class="text-sm text-slate-300">' + esc(etiqueta) + '</span>' +
@@ -91,33 +122,98 @@
         poner('valInmobiliariasCount', d.usuarios.inmobiliarias + ' inmobiliarias');
     }
 
-    async function cargarTransacciones() {
-        var respuesta = await P.api('/reportes/transacciones' + consulta() + '&per_page=50');
-        var pagina = respuesta.data;
+    async function cargarTransacciones(numeroPagina) {
+        actualizarContador();
+        var miPedido = ++pedido;
         var cuerpo = document.getElementById('tablaTransaccionesBody');
-        var filas = pagina.data || [];
+        cuerpo.style.opacity = '0.45';
 
-        if (!filas.length) {
-            cuerpo.innerHTML = '<tr><td colspan="6" class="px-5 py-10 text-center text-sm text-slate-500">No hay pagos en el periodo seleccionado. Prueba ampliando el rango de fechas.</td></tr>';
-            poner('infoTransacciones', '');
-            return;
+        try {
+            var respuesta = await P.api('/reportes/transacciones' + consulta() + filtrosPagos() +
+                '&per_page=15&page=' + (numeroPagina || 1));
+            if (miPedido !== pedido) return;           // llegó una respuesta más nueva
+
+            var pagina = respuesta.data;
+            var filas = pagina.data || [];
+            llenarPlanes(respuesta.planes || []);
+
+            if (!filas.length) {
+                var conFiltros = cuantosFiltros() > 0;
+                cuerpo.innerHTML = '<tr><td colspan="6" class="px-5 py-10 text-center text-sm text-slate-500">' +
+                    (conFiltros ? 'Ningún pago coincide con estos filtros. Prueba quitando alguno o con «Limpiar».'
+                                : 'No hay pagos en el periodo seleccionado. Prueba ampliando el rango de fechas.') +
+                    '</td></tr>';
+                poner('infoTransacciones', 'Sin resultados');
+                document.getElementById('paginacionPagos').innerHTML = '';
+                return;
+            }
+
+            cuerpo.innerHTML = filas.map(function (t) {
+                var e = ESTADOS_PAGO[t.estado] || ESTADOS_PAGO.activa;
+                return '<tr>' +
+                    '<td class="px-5 py-3.5 font-semibold text-slate-200">' + esc(t.referencia || 'N/A') +
+                        '<p class="text-[11px] font-normal text-slate-500">ID ' + esc(t.id) + '</p></td>' +
+                    '<td class="px-5 py-3.5"><p class="font-medium text-slate-200">' + esc(t.usuario_nombre || '') + '</p>' +
+                        '<p class="text-xs text-slate-500">' + esc(t.usuario_email) + '</p></td>' +
+                    '<td class="px-5 py-3.5 text-slate-300">' + esc(mayuscula(t.plan)) + '</td>' +
+                    '<td class="px-5 py-3.5 text-slate-300">' + esc(pesos.format(Number(t.monto))) + '</td>' +
+                    '<td class="px-5 py-3.5"><span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ' + e.clase + '">' +
+                        '<span class="h-1.5 w-1.5 rounded-full ' + e.punto + '"></span>' + e.texto + '</span></td>' +
+                    '<td class="px-5 py-3.5 text-slate-400">' + esc(fechaCorta(t.created_at)) + '</td>' +
+                '</tr>';
+            }).join('');
+
+            poner('infoTransacciones', 'Mostrando ' + pagina.from + '–' + pagina.to + ' de ' + pagina.total + ' pagos');
+            dibujarPaginacion(pagina);
+        } finally {
+            if (miPedido === pedido) cuerpo.style.opacity = '1';
+        }
+    }
+
+    /* Opciones del selector de plan (vienen de lo que hay guardado) */
+    function llenarPlanes(lista) {
+        var elegido = campos.plan.value;
+        campos.plan.innerHTML = '<option value="">Plan: Todos</option>' + lista.map(function (p) {
+            return '<option value="' + esc(p) + '">' + esc(mayuscula(p)) + '</option>';
+        }).join('');
+        campos.plan.value = lista.indexOf(elegido) >= 0 ? elegido : '';
+    }
+
+    function dibujarPaginacion(pagina) {
+        var cont = document.getElementById('paginacionPagos');
+        cont.innerHTML = '';
+        if (pagina.last_page <= 1) return;
+
+        function boton(texto, destino, activo, deshabilitado) {
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.innerHTML = texto;
+            b.disabled = deshabilitado;
+            b.className = 'grid h-8 min-w-[2rem] place-items-center rounded-lg px-2 text-xs font-medium transition-all ' +
+                (activo ? 'bg-violet-600 text-white shadow shadow-violet-600/30'
+                        : 'border border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-slate-200') +
+                (deshabilitado ? ' cursor-not-allowed opacity-40' : '');
+            if (!deshabilitado && !activo) b.addEventListener('click', function () { recargarPagos(destino); });
+            cont.appendChild(b);
         }
 
-        cuerpo.innerHTML = filas.map(function (t) {
-            var e = ESTADOS_PAGO[t.estado] || ESTADOS_PAGO.activa;
-            return '<tr>' +
-                '<td class="px-5 py-3.5 font-semibold text-slate-200">' + esc(t.referencia || 'N/A') + '</td>' +
-                '<td class="px-5 py-3.5 text-slate-400">' + esc(t.usuario_email) + '</td>' +
-                '<td class="px-5 py-3.5 text-slate-300">' + esc(mayuscula(t.plan)) + '</td>' +
-                '<td class="px-5 py-3.5 text-slate-300">' + esc(pesos.format(Number(t.monto))) + '</td>' +
-                '<td class="px-5 py-3.5"><span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ' + e.clase + '">' +
-                    '<span class="h-1.5 w-1.5 rounded-full ' + e.punto + '"></span>' + e.texto + '</span></td>' +
-                '<td class="px-5 py-3.5 text-slate-400">' + esc(fechaCorta(t.created_at)) + '</td>' +
-            '</tr>';
-        }).join('');
+        boton('<i class="fa-solid fa-chevron-left"></i>', pagina.current_page - 1, false, pagina.current_page <= 1);
+        var inicio = Math.max(1, pagina.current_page - 1);
+        var fin = Math.min(pagina.last_page, inicio + 2);
+        for (var n = inicio; n <= fin; n++) boton(n, n, n === pagina.current_page, false);
+        boton('<i class="fa-solid fa-chevron-right"></i>', pagina.current_page + 1, false, pagina.current_page >= pagina.last_page);
+    }
 
-        poner('infoTransacciones', 'Mostrando ' + filas.length + ' de ' + pagina.total +
-            ' pagos. Para ver todos, usa «Exportar Transacciones CSV».');
+    /* Vuelve a pedir solo la tabla de pagos (los filtros de la tabla no tocan las cifras de arriba) */
+    async function recargarPagos(numeroPagina) {
+        limpiarAviso();
+        if (!inicio.value || !fin.value || inicio.value > fin.value) return;
+        try {
+            await cargarTransacciones(numeroPagina);
+        } catch (error) {
+            if (error.estado === 401) return;
+            mostrarAviso(error.estado === 422 ? error.message : 'No se pudieron cargar los pagos: ' + error.message);
+        }
     }
 
     async function cargarVisitas() {
@@ -146,7 +242,7 @@
         }
 
         try {
-            await Promise.all([cargarResumen(), cargarTransacciones(), cargarVisitas()]);
+            await Promise.all([cargarResumen(), cargarTransacciones(1), cargarVisitas()]);
         } catch (error) {
             if (error.estado === 401) return;
             mostrarAviso('No se pudieron cargar los reportes: ' + error.message);
@@ -155,10 +251,11 @@
 
     /* ---------- exportar CSV ---------- */
 
-    async function descargar(ruta, nombre) {
+    async function descargar(ruta, nombre, extra) {
+        extra = extra || '';
         limpiarAviso();
         try {
-            var respuesta = await fetch('/api/v1/admin' + ruta + consulta(), {
+            var respuesta = await fetch('/api/v1/admin' + ruta + consulta() + extra, {
                 credentials: 'same-origin',
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             });
@@ -182,8 +279,24 @@
 
     document.getElementById('btnFiltrar').addEventListener('click', cargarTodo);
 
+    // Filtros de los pagos: se aplican solos (con una pequeña espera al escribir)
+    function conEspera() {
+        clearTimeout(temporizador);
+        temporizador = setTimeout(function () { recargarPagos(1); }, 300);
+    }
+    campos.q.addEventListener('input', conEspera);
+    campos.monto_min.addEventListener('input', conEspera);
+    campos.monto_max.addEventListener('input', conEspera);
+    campos.plan.addEventListener('change', function () { recargarPagos(1); });
+    campos.estado.addEventListener('change', function () { recargarPagos(1); });
+    document.getElementById('limpiarPagos').addEventListener('click', function () {
+        Object.keys(campos).forEach(function (k) { campos[k].value = ''; });
+        recargarPagos(1);
+    });
+
     document.getElementById('btnExportTransacciones').addEventListener('click', function () {
-        descargar('/reportes/exportar/transacciones', 'reporte_transacciones_' + inicio.value + '_' + fin.value + '.csv');
+        // El CSV sale con los mismos filtros que estás viendo en la tabla
+        descargar('/reportes/exportar/transacciones', 'reporte_transacciones_' + inicio.value + '_' + fin.value + '.csv', filtrosPagos());
     });
 
     document.getElementById('btnExportPublicaciones').addEventListener('click', function () {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -163,12 +164,14 @@ class ReporteController extends Controller
     public function transacciones(Request $request): JsonResponse
     {
         [$desdeHora, $hastaHora] = $this->rango($request);
+        $filtros = $this->filtrosPagos($request);
 
         $consulta = DB::table('membresias')
             ->join('users', 'membresias.user_id', '=', 'users.id')
             ->select(
                 'membresias.id',
                 'membresias.referencia_pago as referencia',
+                'users.name as usuario_nombre',
                 'users.email as usuario_email',
                 'membresias.plan',
                 'membresias.precio as monto',
@@ -177,9 +180,7 @@ class ReporteController extends Controller
             )
             ->whereBetween('membresias.created_at', [$desdeHora, $hastaHora]);
 
-        if ($request->filled('estado')) {
-            $consulta->where('membresias.estado', $request->input('estado'));
-        }
+        $this->aplicarFiltrosPagos($consulta, $filtros);
 
         $porPagina = min(max((int) $request->input('per_page', 15), 1), 50);
 
@@ -188,14 +189,81 @@ class ReporteController extends Controller
             ->orderByDesc('membresias.id')
             ->paginate($porPagina);
 
-        return response()->json(['success' => true, 'data' => $pagina]);
+        // Opciones del selector "Plan": los planes que de verdad existen en los pagos
+        $planes = DB::table('membresias')->distinct()->orderBy('plan')->pluck('plan');
+
+        return response()->json(['success' => true, 'data' => $pagina, 'planes' => $planes]);
+    }
+
+    /**
+     * Filtros de la tabla de pagos (todos opcionales y combinables):
+     *   q          → nombre o correo del usuario, referencia de pago o ID del pago
+     *   plan       → plan exacto
+     *   estado     → estado del pago
+     *   monto_min / monto_max → rango del monto en COP
+     * La fecha se maneja aparte con fecha_inicio y fecha_fin.
+     */
+    private function filtrosPagos(Request $request): array
+    {
+        $filtros = $request->validate([
+            'q' => ['nullable', 'string', 'max:100'],
+            'plan' => ['nullable', 'string', 'max:40'],
+            'estado' => ['nullable', 'string', 'max:20'],
+            'monto_min' => ['nullable', 'numeric', 'min:0'],
+            'monto_max' => ['nullable', 'numeric', 'min:0'],
+        ], [
+            'monto_min.numeric' => 'El monto mínimo debe ser un número.',
+            'monto_max.numeric' => 'El monto máximo debe ser un número.',
+        ]);
+
+        // Si pusieron el mínimo mayor que el máximo, se acomodan solos
+        if (isset($filtros['monto_min'], $filtros['monto_max']) && $filtros['monto_min'] > $filtros['monto_max']) {
+            [$filtros['monto_min'], $filtros['monto_max']] = [$filtros['monto_max'], $filtros['monto_min']];
+        }
+
+        return $filtros;
+    }
+
+    private function aplicarFiltrosPagos(Builder $consulta, array $filtros): void
+    {
+        if (! empty($filtros['q'])) {
+            $q = trim($filtros['q']);
+            $like = '%' . str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $q) . '%';
+
+            $consulta->where(function ($sub) use ($q, $like) {
+                $sub->where('users.email', 'ilike', $like)
+                    ->orWhere('users.name', 'ilike', $like)
+                    ->orWhere('membresias.referencia_pago', 'ilike', $like);
+
+                // Si escribieron solo números, también se busca por el ID del pago
+                if (ctype_digit($q) && strlen($q) <= 9) {
+                    $sub->orWhere('membresias.id', (int) $q);
+                }
+            });
+        }
+
+        if (! empty($filtros['plan'])) {
+            $consulta->where('membresias.plan', $filtros['plan']);
+        }
+
+        if (! empty($filtros['estado'])) {
+            $consulta->where('membresias.estado', $filtros['estado']);
+        }
+
+        if (isset($filtros['monto_min'])) {
+            $consulta->where('membresias.precio', '>=', $filtros['monto_min']);
+        }
+
+        if (isset($filtros['monto_max'])) {
+            $consulta->where('membresias.precio', '<=', $filtros['monto_max']);
+        }
     }
 
     /** GET /reportes/exportar/transacciones — CSV compatible con Excel. */
     public function exportarTransaccionesCsv(Request $request): StreamedResponse
     {
         [$desdeHora, $hastaHora] = $this->rango($request);
-        $estado = $request->input('estado');
+        $filtros = $this->filtrosPagos($request);
 
         $cabeceras = [
             'Content-Type' => 'text/csv; charset=UTF-8',
@@ -203,7 +271,7 @@ class ReporteController extends Controller
             'Cache-Control' => 'no-store',
         ];
 
-        return response()->stream(function () use ($desdeHora, $hastaHora, $estado) {
+        return response()->stream(function () use ($desdeHora, $hastaHora, $filtros) {
             $archivo = fopen('php://output', 'w');
             fwrite($archivo, "\xEF\xBB\xBF"); // BOM UTF-8: Excel muestra bien las tildes
 
@@ -224,9 +292,7 @@ class ReporteController extends Controller
                 )
                 ->whereBetween('membresias.created_at', [$desdeHora, $hastaHora]);
 
-            if (! empty($estado)) {
-                $consulta->where('membresias.estado', $estado);
-            }
+            $this->aplicarFiltrosPagos($consulta, $filtros);
 
             $consulta->orderBy('membresias.id')->chunk(200, function ($filas) use ($archivo) {
                 foreach ($filas as $fila) {

@@ -31,6 +31,9 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--ad-borde); border-radius: 8px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--ad-borde2); }
+        .filtros-pagos { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; }
+        .filtros-pagos .ancho { grid-column: span 2; }
+        @media (max-width: 480px) { .filtros-pagos .ancho { grid-column: auto; } }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-200 font-sans antialiased" data-pagina="reportes" data-titulo="Reportes y Rendimiento">
@@ -120,7 +123,29 @@
                     <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 shadow-xl shadow-black/20">
                         <div class="border-b border-slate-800 px-5 py-4">
                             <h2 class="text-base font-bold text-white">Pagos de membresías</h2>
-                            <p class="mt-1 text-sm text-slate-500">Pagos registrados en el periodo seleccionado.</p>
+                            <p class="mt-1 text-sm text-slate-500">Pagos registrados en el periodo de arriba (Desde / Hasta). Puedes combinar los filtros.</p>
+                        </div>
+
+                        <!-- Filtros de los pagos -->
+                        <div class="filtros-pagos border-b border-slate-800 p-4">
+                            <div class="relative ancho">
+                                <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-500"></i>
+                                <input type="search" id="buscarPago" placeholder="Nombre, correo, referencia o ID…" autocomplete="off"
+                                       class="w-full rounded-xl border border-slate-800 bg-slate-950/60 py-2.5 pl-10 pr-4 text-sm text-slate-200 placeholder-slate-600 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
+                            </div>
+                            <select id="filtroPlan" aria-label="Plan" class="w-full rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2.5 text-sm text-slate-300 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20"><option value="">Plan: Todos</option></select>
+                            <select id="filtroEstado" aria-label="Estado" class="w-full rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2.5 text-sm text-slate-300 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
+                                <option value="">Estado: Todos</option>
+                                <option value="activa">Activa</option>
+                                <option value="vencida">Vencida</option>
+                                <option value="cancelada">Cancelada</option>
+                            </select>
+                            <input type="number" id="montoMin" min="0" step="1000" inputmode="numeric" placeholder="Monto mínimo" aria-label="Monto mínimo" class="w-full rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2.5 text-sm text-slate-300 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
+                            <input type="number" id="montoMax" min="0" step="1000" inputmode="numeric" placeholder="Monto máximo" aria-label="Monto máximo" class="w-full rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2.5 text-sm text-slate-300 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
+                            <button type="button" id="limpiarPagos"
+                                    class="rounded-xl border border-slate-700 px-4 py-2.5 text-sm font-medium text-slate-300 transition-all hover:bg-slate-800">
+                                <i class="fa-solid fa-filter-circle-xmark mr-1.5"></i>Limpiar<span id="contadorPagos" class="ml-1.5 hidden rounded-full bg-violet-500/20 px-2 py-0.5 text-[11px] font-bold text-violet-300"></span>
+                            </button>
                         </div>
 
                         <div class="overflow-x-auto">
@@ -139,8 +164,9 @@
                             </table>
                         </div>
 
-                        <div class="border-t border-slate-800 px-5 py-3.5">
+                        <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 px-5 py-3.5">
                             <p id="infoTransacciones" class="text-xs text-slate-500"></p>
+                            <div id="paginacionPagos" class="flex items-center gap-1"></div>
                         </div>
                     </div>
 

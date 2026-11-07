@@ -175,7 +175,8 @@
     // Elementos del paso 1 (correo, clave, pestañas...) que se esconden mientras se pide el código
     function elementosDelPaso1() {
         var lista = Array.prototype.slice.call(
-            form.querySelectorAll('.etiqueta, .campo, .fila-opciones, .subtitulo, .crear-cuenta'));
+            form.querySelectorAll('.etiqueta, .campo, .fila-opciones, .subtitulo, .crear-cuenta'))
+            .filter(function (el) { return !el.closest('#bloque-olvido'); });   // el bloque de recuperar clave se maneja aparte
         var extra = Array.prototype.slice.call(document.querySelectorAll('.modal-pestanas, #modal-titulo'));
         return lista.concat(extra);
     }
@@ -260,10 +261,94 @@
         volverAlPaso1();
     });
 
+    // ---------- Recuperar contraseña por correo ----------
+    var modoOlvido = false;   // true cuando se muestra "Recupera tu contraseña"
+
+    function crearBloqueOlvido() {
+        var bloque = document.getElementById('bloque-olvido');
+        if (bloque) return bloque;
+
+        bloque = document.createElement('div');
+        bloque.id = 'bloque-olvido';
+        bloque.className = 'verif';
+        bloque.innerHTML =
+            '<h3 class="verif-titulo" data-i18n="olvido.titulo"></h3>' +
+            '<p class="verif-texto" data-i18n="olvido.sub"></p>' +
+            '<label class="etiqueta" for="olvido-correo" data-i18n="login.correo"></label>' +
+            '<div class="campo">' +
+                '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>' +
+                '<input type="email" id="olvido-correo" autocomplete="email">' +
+            '</div>' +
+            '<div class="verif-enlaces"><a href="#" class="enlace" id="olvido-volver" data-i18n="olvido.volver"></a></div>';
+        form.insertBefore(bloque, mensaje);
+
+        bloque.querySelectorAll('[data-i18n]').forEach(function (el) {
+            el.textContent = window.t(el.getAttribute('data-i18n'));
+        });
+        bloque.querySelector('input').setAttribute('placeholder', window.t('login.correo_ph'));
+        document.getElementById('olvido-volver').addEventListener('click', function (e) {
+            e.preventDefault();
+            volverDeOlvido();
+        });
+        return bloque;
+    }
+
+    function pasarAOlvido() {
+        elementosDelPaso1().forEach(function (el) { el.style.display = 'none'; });
+        var bloque = crearBloqueOlvido();
+        bloque.style.display = '';
+        var campo = document.getElementById('olvido-correo');
+        campo.value = document.getElementById('correo').value.trim();
+        boton.querySelector('span').textContent = window.t('olvido.enviar');
+        mensaje.hidden = true;
+        modoOlvido = true;
+        campo.focus();
+    }
+
+    function volverDeOlvido() {
+        var bloque = document.getElementById('bloque-olvido');
+        if (bloque) bloque.style.display = 'none';
+        elementosDelPaso1().forEach(function (el) { el.style.display = ''; });
+        boton.querySelector('span').textContent = window.t('login.entrar');
+        mensaje.hidden = true;
+        modoOlvido = false;
+    }
+
+    async function enviarEnlaceClave() {
+        var email = document.getElementById('olvido-correo').value.trim();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { mostrar(window.t('msg.correo'), 'error'); return; }
+
+        boton.disabled = true;
+        mensaje.hidden = true;
+        try {
+            var r = await fetch(API + '/recuperar-clave', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({ email: email })
+            });
+            if (r.status === 422) { mostrar(window.t('msg.correo'), 'error'); return; }
+            if (!r.ok) { mostrar(window.t('msg.generico'), 'error'); return; }
+            mostrar(window.t('olvido.enviado'), 'ok');
+        } catch (err) {
+            mostrar(window.t('msg.conexion'), 'error');
+        } finally {
+            boton.disabled = false;
+        }
+    }
+
+    var enlaceOlvido = form.querySelector('.fila-opciones .enlace');
+    if (enlaceOlvido) {
+        enlaceOlvido.addEventListener('click', function (e) {
+            e.preventDefault();
+            pasarAOlvido();
+        });
+    }
+
     form.addEventListener('submit', async function (e) {
         e.preventDefault();
 
         if (esperandoCodigo) { await verificarCodigo(); return; }
+        if (modoOlvido) { await enviarEnlaceClave(); return; }
 
         var email = document.getElementById('correo').value.trim();
         var password = document.getElementById('clave').value;

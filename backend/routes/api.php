@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\Admin\MembresiaController as AdminMembresiaContr
 use App\Http\Controllers\Api\V1\Admin\ResumenController;
 use App\Http\Controllers\Api\V1\Admin\SesionController as AdminSesionController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\RecuperarClaveController;
 use App\Http\Controllers\Api\V1\Agente\ContactoController as AgenteContactoController;
 use App\Http\Controllers\Api\V1\Agente\PanelController as AgentePanelController;
 use App\Http\Controllers\Api\V1\Agente\PerfilController as AgentePerfilController;
@@ -56,6 +57,11 @@ Route::prefix('v1')->group(function () {
     // Consulta pública del estado de una cuenta (para la pantalla de espera).
     // Solo devuelve el estado (pendiente/activo/inactivo), nunca datos sensibles.
     Route::get('/estado-cuenta', [AuthController::class, 'estadoCuenta']);
+
+    // Recuperar contraseña por correo (todos los roles)
+    Route::post('/recuperar-clave', [RecuperarClaveController::class, 'solicitar'])->middleware('throttle:5,1');
+    Route::get('/restablecer-clave/verificar', [RecuperarClaveController::class, 'verificar'])->middleware('throttle:30,1');
+    Route::post('/restablecer-clave', [RecuperarClaveController::class, 'restablecer'])->middleware('throttle:10,1');
 });
 
 /*

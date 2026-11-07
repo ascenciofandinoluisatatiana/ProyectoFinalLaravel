@@ -179,5 +179,19 @@
   "app.titulo": "Téléchargez l'application Umbral",
   "app.sub": "Emportez votre recherche de logement partout : explorez des biens vérifiés, enregistrez vos favoris et consultez à tout moment depuis votre téléphone Android.",
   "app.nota": "Disponible pour Android (APK)",
-  "nav.app": "Télécharger l'app"
+  "nav.app": "Télécharger l'app",
+  "meta.titulo_restablecer": "Nouveau mot de passe · Umbral",
+  "olvido.titulo": "Récupérez votre mot de passe",
+  "olvido.sub": "Saisissez votre e-mail et nous vous enverrons un lien pour choisir un nouveau mot de passe.",
+  "olvido.enviar": "ENVOYER LE LIEN",
+  "olvido.volver": "Retour à la connexion",
+  "olvido.enviado": "Si l'adresse e-mail est enregistrée, nous vous avons envoyé un lien. Vérifiez votre boîte de réception : il expire dans 60 minutes.",
+  "restablecer.titulo": "Choisissez votre nouveau mot de passe",
+  "restablecer.sub": "Saisissez un nouveau mot de passe pour votre compte.",
+  "restablecer.nueva": "Nouveau mot de passe",
+  "restablecer.guardar": "ENREGISTRER LE MOT DE PASSE",
+  "restablecer.ok_titulo": "C'est fait !",
+  "restablecer.ok": "Votre mot de passe a été modifié. Vous pouvez vous connecter.",
+  "restablecer.ir_login": "Se connecter",
+  "restablecer.enlace_invalido": "Le lien n'est pas valide ou a expiré. Demandez-en un nouveau depuis l'écran de connexion."
 }

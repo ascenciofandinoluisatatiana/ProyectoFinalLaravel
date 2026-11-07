@@ -179,5 +179,19 @@
   "app.titulo": "Baixe o aplicativo da Umbral",
   "app.sub": "Leve sua busca por um lar no bolso: explore imóveis verificados, salve seus favoritos e consulte a qualquer momento no seu celular Android.",
   "app.nota": "Disponível para Android (APK)",
-  "nav.app": "Baixar app"
+  "nav.app": "Baixar app",
+  "meta.titulo_restablecer": "Nova senha · Umbral",
+  "olvido.titulo": "Recupere sua senha",
+  "olvido.sub": "Digite seu e-mail e enviaremos um link para escolher uma nova senha.",
+  "olvido.enviar": "ENVIAR LINK",
+  "olvido.volver": "Voltar para o login",
+  "olvido.enviado": "Se o e-mail estiver cadastrado, enviamos um link. Verifique sua caixa de entrada: ele vence em 60 minutos.",
+  "restablecer.titulo": "Escolha sua nova senha",
+  "restablecer.sub": "Digite uma nova senha para sua conta.",
+  "restablecer.nueva": "Nova senha",
+  "restablecer.guardar": "SALVAR SENHA",
+  "restablecer.ok_titulo": "Pronto!",
+  "restablecer.ok": "Sua senha foi alterada. Agora você pode entrar.",
+  "restablecer.ir_login": "Entrar",
+  "restablecer.enlace_invalido": "O link não é válido ou já venceu. Peça um novo na tela de login."
 }

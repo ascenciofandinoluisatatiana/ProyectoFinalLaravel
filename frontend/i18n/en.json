@@ -179,5 +179,19 @@
   "app.titulo": "Download the Umbral app",
   "app.sub": "Take your home search in your pocket: explore verified properties, save your favorites and check anytime from your Android phone.",
   "app.nota": "Available for Android (APK)",
-  "nav.app": "Download app"
+  "nav.app": "Download app",
+  "meta.titulo_restablecer": "New password · Umbral",
+  "olvido.titulo": "Recover your password",
+  "olvido.sub": "Enter your email and we'll send you a link to choose a new password.",
+  "olvido.enviar": "SEND LINK",
+  "olvido.volver": "Back to sign in",
+  "olvido.enviado": "If the email is registered, we sent you a link. Check your inbox: it expires in 60 minutes.",
+  "restablecer.titulo": "Choose your new password",
+  "restablecer.sub": "Enter a new password for your account.",
+  "restablecer.nueva": "New password",
+  "restablecer.guardar": "SAVE PASSWORD",
+  "restablecer.ok_titulo": "Done!",
+  "restablecer.ok": "Your password was changed. You can now sign in.",
+  "restablecer.ir_login": "Sign in",
+  "restablecer.enlace_invalido": "The link is not valid or has expired. Request a new one from the sign-in screen."
 }

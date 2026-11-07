@@ -50,7 +50,7 @@
                     (p.baths ? '<span>' + escapar(p.baths) + ' baños</span>' : '') +
                     (p.area ? '<span>' + escapar(p.area) + ' m²</span>' : '') +
                 '</div>' +
-                '<div class="destacada-pie"><strong>' + escapar(dinero(p.price, p.op)) + '</strong><a href="#contacto" class="destacada-ver">Consultar <span aria-hidden="true">↗</span></a></div>' +
+                '<div class="destacada-pie"><strong>' + escapar(dinero(p.price, p.op)) + '</strong><a href="#descargar" class="destacada-ver">Consultar <span aria-hidden="true">↗</span></a></div>' +
             '</div>' +
         '</article>';
     }

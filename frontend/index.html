@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="css/componentes.css">
 
     <!-- Estilos propios de la página (landing y modal) -->
-    <link rel="stylesheet" href="css/umbral.css">
+    <link rel="stylesheet" href="css/umbral.css?v=20261104">
 
     <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
     <script>
@@ -50,7 +50,7 @@
                 <li><a href="#servicios" data-i18n="nav.servicios">Servicios</a></li>
                 <li><a href="#propiedades" data-i18n="nav.propiedades">Propiedades</a></li>
                 <li><a href="#nosotros" data-i18n="nav.nosotros">Nosotros</a></li>
-                <li><a href="#contacto" data-i18n="nav.contacto">Contacto</a></li>
+                <li><a href="#descargar" data-i18n="nav.app">Descargar app</a></li>
             </ul>
 
             <div class="nav-acciones">
@@ -233,12 +233,6 @@
                     <h2 class="titulo-serif" data-i18n="nos.titulo">Umbral nació de una mudanza imposible</h2>
                     <p data-i18n="nos.p1">Buscamos hogar en una ciudad que no conocíamos: fotos engañosas, datos incompletos y procesos que parecían diseñados para cansar a cualquiera.</p>
                     <p data-i18n="nos.p2">Por eso creamos Umbral: un portal donde cada propiedad está verificada, cada perfil validado y cada paso, acompañado. Un umbral de verdad entre tú y tu nuevo comienzo.</p>
-
-                    <div class="hero-botones">
-                        <a href="#contacto" class="btn-principal btn-ancho-auto">
-                            <span data-i18n="nos.cta">Conversemos</span> <span aria-hidden="true">→</span>
-                        </a>
-                    </div>
                 </div>
 
                 <div class="nosotros-tarjetas">
@@ -322,61 +316,29 @@
         </section>
 
         <!-- =========================================================
-             CONTACTO
+             DESCARGAR APP
              ========================================================= -->
-        <section class="seccion" id="contacto">
-            <header class="seccion-cabecera">
-                <span class="pais" data-i18n="con.etiqueta">CONTACTO</span>
-                <h2 class="titulo-serif" data-i18n="con.titulo">Hablemos de tu próximo comienzo</h2>
-                <p data-i18n="con.sub">Cuéntanos qué buscas y un experto te responde el mismo día.</p>
-            </header>
-
-            <div class="contacto-columnas">
-                <div class="contacto-info">
-                    <div class="tarjeta tarjeta-contacto">
-                        <span class="servicio-icono">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
-                        </span>
-                        <h3 data-i18n="con.info1.t">Oficina</h3>
-                        <p data-i18n="con.info1.d">El Poblado, Medellín · Antioquia, Colombia</p>
-                    </div>
-                    <div class="tarjeta tarjeta-contacto">
-                        <span class="servicio-icono">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
-                        </span>
-                        <h3 data-i18n="con.info2.t">Correo</h3>
-                        <p>hola@umbral.co</p>
-                    </div>
-                    <div class="tarjeta tarjeta-contacto">
-                        <span class="servicio-icono">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-                        </span>
-                        <h3 data-i18n="con.info3.t">Horario</h3>
-                        <p data-i18n="con.info3.d">Lunes a sábado · 8:00 a.m. – 6:00 p.m.</p>
+        <section class="seccion seccion-app" id="descargar">
+            <div class="app-caja">
+                <div class="app-texto">
+                    <span class="pais" data-i18n="app.etiqueta">APLICACIÓN MÓVIL</span>
+                    <h2 class="titulo-serif" data-i18n="app.titulo">Descarga el aplicativo de Umbral</h2>
+                    <p data-i18n="app.sub">Lleva tu búsqueda de hogar en el bolsillo: explora propiedades verificadas, guarda tus favoritas y consulta en cualquier momento desde tu celular Android.</p>
+                    <a href="descargas/umbral.apk" download="Umbral.apk" class="btn-principal btn-ancho-auto" id="descargar-app-seccion">
+                        <span data-i18n="hero.app">Descargar app</span> <span aria-hidden="true">↓</span>
+                    </a>
+                    <small class="app-nota" data-i18n="app.nota">Disponible para Android (APK)</small>
+                </div>
+                <div class="app-visual" aria-hidden="true">
+                    <div class="app-telefono">
+                        <div class="app-pantalla">
+                            <img src="img/icono.png" alt="" class="app-logo" width="54" height="54">
+                            <strong>Umbral</strong>
+                            <span class="app-linea"></span><span class="app-linea corta"></span>
+                            <div class="app-mini"><i></i><i></i><i></i><i></i></div>
+                        </div>
                     </div>
                 </div>
-
-                <form class="tarjeta tarjeta-formulario" id="form-contacto" novalidate>
-                    <label class="etiqueta" for="con-nombre" data-i18n="con.nombre">Nombre</label>
-                    <div class="campo">
-                        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.3 3.6-5 8-5s8 1.7 8 5"/></svg>
-                        <input type="text" id="con-nombre" name="nombre" placeholder="¿Cómo te llamas?" data-i18n-placeholder="con.nombre_ph" autocomplete="name">
-                    </div>
-
-                    <label class="etiqueta" for="con-correo" data-i18n="con.correo">Correo electrónico</label>
-                    <div class="campo">
-                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
-                        <input type="email" id="con-correo" name="correo" placeholder="Ingresa tu correo" data-i18n-placeholder="login.correo_ph" autocomplete="email">
-                    </div>
-
-                    <label class="etiqueta" for="con-mensaje" data-i18n="con.mensaje">Mensaje</label>
-                    <div class="campo campo-area">
-                        <textarea id="con-mensaje" name="mensaje" rows="4" placeholder="Cuéntanos qué estás buscando" data-i18n-placeholder="con.mensaje_ph"></textarea>
-                    </div>
-
-                    <p class="mensaje" id="mensaje-contacto" role="alert" hidden></p>
-                    <button type="submit" class="btn-principal"><span data-i18n="con.enviar">ENVIAR MENSAJE</span> <span aria-hidden="true">→</span></button>
-                </form>
             </div>
         </section>
     </main>
@@ -397,7 +359,7 @@
             <a href="#servicios" data-i18n="nav.servicios">Servicios</a>
             <a href="#propiedades" data-i18n="nav.propiedades">Propiedades</a>
             <a href="#nosotros" data-i18n="nav.nosotros">Nosotros</a>
-            <a href="#contacto" data-i18n="nav.contacto">Contacto</a>
+            <a href="#descargar" data-i18n="hero.app">Descargar app</a>
         </nav>
         <p class="pie-derechos">
             <span data-i18n="foot.derechos">© 2026 Umbral. Todos los derechos reservados.</span>

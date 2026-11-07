@@ -39,6 +39,7 @@
   "hero.p": "Casas, apartamentos y fincas seleccionadas en toda Colombia, de Bogotá a Cartagena.",
   "hero.cta1": "Ver propiedades",
   "hero.cta2": "Nuestros servicios",
+  "hero.app": "Descargar app",
   "nav.inicio": "Inicio",
   "nav.servicios": "Servicios",
   "nav.propiedades": "Propiedades",
@@ -173,5 +174,10 @@
   "msg": {
     "cuenta_inactiva": "Tu cuenta ha sido desactivada. Contacta al administrador si crees que es un error.",
     "cuenta_pendiente": "Tu cuenta está pendiente de aprobación. Te avisaremos cuando esté lista."
-  }
+  },
+  "app.etiqueta": "APLICACIÓN MÓVIL",
+  "app.titulo": "Descarga el aplicativo de Umbral",
+  "app.sub": "Lleva tu búsqueda de hogar en el bolsillo: explora propiedades verificadas, guarda tus favoritas y consulta en cualquier momento desde tu celular Android.",
+  "app.nota": "Disponible para Android (APK)",
+  "nav.app": "Descargar app"
 }

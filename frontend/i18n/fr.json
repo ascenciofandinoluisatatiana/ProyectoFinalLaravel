@@ -39,6 +39,7 @@
   "hero.p": "Maisons, appartements et fincas sélectionnés partout en Colombie, de Bogotá à Carthagène.",
   "hero.cta1": "Voir les propriétés",
   "hero.cta2": "Nos services",
+  "hero.app": "Télécharger l'app",
   "nav.inicio": "Accueil",
   "nav.servicios": "Services",
   "nav.propiedades": "Propriétés",
@@ -173,5 +174,10 @@
   "msg": {
     "cuenta_inactiva": "Votre compte a été désactivé. Contactez l'administrateur si vous pensez qu'il s'agit d'une erreur.",
     "cuenta_pendiente": "Votre compte est en attente d'approbation. Nous vous informerons quand il sera prêt."
-  }
+  },
+  "app.etiqueta": "APPLICATION MOBILE",
+  "app.titulo": "Téléchargez l'application Umbral",
+  "app.sub": "Emportez votre recherche de logement partout : explorez des biens vérifiés, enregistrez vos favoris et consultez à tout moment depuis votre téléphone Android.",
+  "app.nota": "Disponible pour Android (APK)",
+  "nav.app": "Télécharger l'app"
 }

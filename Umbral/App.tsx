@@ -1,20 +1,21 @@
+import { FontAwesome6 } from '@expo/vector-icons';
+import * as Font from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
-  Alert,
+  Animated,
+  Easing,
   Image,
   ImageBackground,
-  KeyboardAvoidingView,
   Platform,
   Pressable,
-  SafeAreaView,
   ScrollView,
+  StatusBar as BarraNativa,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
-
+import PanelInvitado from './Invitado';
 const idiomas = [
   { codigo: 'es', nombre: 'Español', detalle: 'Spanish', bandera: '🇨🇴' },
   { codigo: 'en', nombre: 'English', detalle: 'Inglés', bandera: '🇬🇧' },
@@ -23,9 +24,7 @@ const idiomas = [
   { codigo: 'ar', nombre: 'العربية', detalle: 'Árabe', bandera: '🇸🇦' },
 ];
 
-type Pantalla = 'inicio' | 'idioma' | 'acceso' | 'login' | 'registro' | 'invitado';
-type TipoCuenta = 'persona' | 'inmobiliaria';
-type TipoDocumento = 'CC' | 'CE' | 'NIT';
+type Pantalla = 'inicio' | 'idioma' | 'propiedades';
 
 const textos = {
   es: {
@@ -98,6 +97,8 @@ const textos = {
     guestSearch: 'Buscar propiedades',
     guestMap: 'Ver ubicaciones',
     guestDemo: 'La exploración de propiedades se conectará más adelante. Por ahora esta es una vista de demostración.',
+    guestWelcomeTitle: 'Vive tu experiencia como invitado',
+    guestWelcomeSub: 'Explora y visualiza casas, apartamentos y propiedades en venta o arriendo, sin necesidad de una cuenta. Tu próxima historia empieza aquí.',
     back: 'Volver',
   },
   en: {
@@ -170,6 +171,8 @@ const textos = {
     guestSearch: 'Search properties',
     guestMap: 'View locations',
     guestDemo: 'Property browsing will be connected later. This is a demo screen for now.',
+    guestWelcomeTitle: 'Live your experience as a guest',
+    guestWelcomeSub: 'Explore and view houses, apartments and properties for sale or rent, no account needed. Your next story starts here.',
     back: 'Back',
   },
   fr: {
@@ -242,6 +245,8 @@ const textos = {
     guestSearch: 'Rechercher des biens',
     guestMap: 'Voir les emplacements',
     guestDemo: 'La recherche de propriétés sera connectée plus tard. Voici une démonstration.',
+    guestWelcomeTitle: 'Vivez votre expérience en invité',
+    guestWelcomeSub: 'Explorez et visualisez maisons, appartements et biens à vendre ou à louer, sans compte. Votre prochaine histoire commence ici.',
     back: 'Retour',
   },
   pt: {
@@ -314,6 +319,8 @@ const textos = {
     guestSearch: 'Buscar imóveis',
     guestMap: 'Ver localizações',
     guestDemo: 'A busca de imóveis será conectada mais tarde. Esta é uma tela de demonstração.',
+    guestWelcomeTitle: 'Viva sua experiência como visitante',
+    guestWelcomeSub: 'Explore e visualize casas, apartamentos e imóveis à venda ou para alugar, sem precisar de conta. Sua próxima história começa aqui.',
     back: 'Voltar',
   },
   ar: {
@@ -386,65 +393,51 @@ const textos = {
     guestSearch: 'البحث عن العقارات',
     guestMap: 'عرض المواقع',
     guestDemo: 'سيتم ربط استكشاف العقارات لاحقًا. هذه شاشة تجريبية الآن.',
+    guestWelcomeTitle: 'عِش تجربتك كزائر',
+    guestWelcomeSub: 'استكشف وشاهد المنازل والشقق والعقارات للبيع أو للإيجار دون الحاجة إلى حساب. قصتك القادمة تبدأ هنا.',
     back: 'رجوع',
   },
 };
 
 export default function App() {
-  const [modoOscuro, setModoOscuro] = useState(false);
+  const [modoOscuro, setModoOscuro] = useState(true);
+
+  // Se cargan las fuentes de los íconos mientras la persona ve las pantallas de bienvenida.
+  useEffect(() => { Font.loadAsync(FontAwesome6.font).catch(() => undefined); }, []);
   const [pantalla, setPantalla] = useState<Pantalla>('inicio');
+
+  // Transición suave al cambiar de pantalla (inicio, idioma y panel): aparece con un leve deslizamiento.
+  // Corre en el hilo nativo, así que no frena la app.
+  const aparecer = useRef(new Animated.Value(1)).current;
+  useEffect(() => {
+    aparecer.setValue(0);
+    Animated.timing(aparecer, { toValue: 1, duration: 260, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
+  }, [pantalla, aparecer]);
   const [idiomaSeleccionado, setIdiomaSeleccionado] = useState('es');
 
-  const [tipoCuenta, setTipoCuenta] = useState<TipoCuenta>('persona');
-  const [correo, setCorreo] = useState('');
-  const [contrasena, setContrasena] = useState('');
-  const [confirmarContrasena, setConfirmarContrasena] = useState('');
-  const [nombre, setNombre] = useState('');
-  const [telefono, setTelefono] = useState('');
-  const [documento, setDocumento] = useState('');
-  const [tipoDocumento, setTipoDocumento] = useState<TipoDocumento>('CC');
-  const [representanteLegal, setRepresentanteLegal] = useState('');
-  const [mostrarContrasena, setMostrarContrasena] = useState(false);
 
   const t = textos[idiomaSeleccionado as keyof typeof textos];
   const esArabe = idiomaSeleccionado === 'ar';
 
   const colores = modoOscuro
     ? {
-        fondo: '#07102F',
-        texto: '#FFFFFF',
-        secundario: '#C7C9F8',
-        boton: '#27165E',
-        borde: '#9874FF',
-        tarjeta: '#111B40',
+        fondo: '#140826',
+        texto: '#F5F5F7',
+        secundario: '#C9C3D8',
+        boton: '#1B1B20',
+        borde: '#E3C985',
+        tarjeta: '#141418',
       }
     : {
         fondo: '#F8F7FF',
-        texto: '#101542',
-        secundario: '#5867B8',
+        texto: '#1B1035',
+        secundario: '#6B5F8A',
         boton: '#FFFFFF',
-        borde: '#BBA0FF',
+        borde: '#C9B2FF',
         tarjeta: '#FFFFFF',
       };
 
   const alternarModo = () => setModoOscuro((actual) => !actual);
-
-  const irARegistro = (tipo: TipoCuenta) => {
-    setTipoCuenta(tipo);
-    setTipoDocumento(tipo === 'inmobiliaria' ? 'NIT' : 'CC');
-    setPantalla('registro');
-  };
-
-  const limpiarFormulario = () => {
-    setCorreo('');
-    setContrasena('');
-    setConfirmarContrasena('');
-    setNombre('');
-    setTelefono('');
-    setDocumento('');
-    setRepresentanteLegal('');
-    setMostrarContrasena(false);
-  };
 
   const botonModo = (
     <Pressable
@@ -453,50 +446,16 @@ export default function App() {
       accessibilityRole="button"
       accessibilityLabel={modoOscuro ? 'Activar modo claro' : 'Activar modo oscuro'}
     >
-      <Text style={styles.iconoModo}>{modoOscuro ? '☾' : '☀'}</Text>
+      {modoOscuro ? (
+        <Text style={styles.iconoModo}>☾</Text>
+      ) : (
+        <View style={styles.sol}>
+          <View style={styles.solRayo} />
+          <View style={[styles.solRayo, { transform: [{ rotate: '45deg' }] }]} />
+          <View style={styles.solCirculo} />
+        </View>
+      )}
     </Pressable>
-  );
-
-  const campoEstilo = [
-    styles.campoFormulario,
-    {
-      color: colores.texto,
-      backgroundColor: colores.tarjeta,
-      borderColor: colores.borde,
-      textAlign: esArabe ? 'right' as const : 'left' as const,
-    },
-  ];
-
-  const etiqueta = (texto: string) => (
-    <Text style={[styles.etiquetaCampo, { color: colores.texto, textAlign: esArabe ? 'right' : 'left' }]}>
-      {texto}
-    </Text>
-  );
-
-  const campoTexto = (
-    etiquetaTexto: string,
-    valor: string,
-    cambiarValor: (texto: string) => void,
-    opciones: {
-      placeholder: string;
-      teclado?: 'default' | 'email-address' | 'phone-pad' | 'numeric';
-      mayusculas?: 'none' | 'sentences' | 'words' | 'characters';
-      ocultar?: boolean;
-    }
-  ) => (
-    <View style={styles.grupoCampo}>
-      {etiqueta(etiquetaTexto)}
-      <TextInput
-        style={campoEstilo}
-        placeholder={opciones.placeholder}
-        placeholderTextColor={colores.secundario}
-        value={valor}
-        onChangeText={cambiarValor}
-        keyboardType={opciones.teclado ?? 'default'}
-        autoCapitalize={opciones.mayusculas ?? 'sentences'}
-        secureTextEntry={opciones.ocultar ?? false}
-      />
-    </View>
   );
 
   const botonPrincipal = (texto: string, accion: () => void) => (
@@ -507,58 +466,16 @@ export default function App() {
 
   const fondoColorido = (
     <View pointerEvents="none" style={styles.decoracionFondo}>
-      <View style={[styles.formaDecorativa, styles.formaMorada]} />
-      <View style={[styles.formaDecorativa, styles.formaRosa]} />
-      <View style={[styles.formaDecorativa, styles.formaDorada]} />
-      <View style={[styles.formaDecorativa, styles.formaLavanda]} />
-      <View style={[styles.formaDecorativa, styles.formaTurquesa]} />
-      <View style={[styles.formaDecorativa, styles.formaPequenaRosa]} />
-      <View style={[styles.formaDecorativa, styles.formaDiamante]} />
     </View>
   );
 
-  const registrarVisualmente = () => {
-    if (!nombre.trim() || !correo.trim() || !telefono.trim() || !documento.trim()) {
-      Alert.alert(t.fillFields, t.fillRequired);
-      return;
-    }
-    if (tipoCuenta === 'inmobiliaria' && !representanteLegal.trim()) {
-      Alert.alert(t.missingRep, t.missingRepDesc);
-      return;
-    }
-    if (!correo.includes('@') || !correo.includes('.')) {
-      Alert.alert(t.invalidEmail, t.invalidEmailDesc);
-      return;
-    }
-    if (contrasena.length < 8) {
-      Alert.alert(t.shortPassword, t.shortPasswordDesc);
-      return;
-    }
-    if (contrasena !== confirmarContrasena) {
-      Alert.alert(t.differentPasswords, t.differentPasswordsDesc);
-      return;
-    }
-    Alert.alert(t.formComplete, t.demoRegister, [
-      {
-        text: t.goLogin,
-        onPress: () => {
-          setPantalla('login');
-          setContrasena('');
-          setConfirmarContrasena('');
-        },
-      },
-      { text: t.stayHere, style: 'cancel' },
-    ]);
-  };
-
-  const mostrarMensajeDemo = () => {
-    Alert.alert(t.demoTitle, t.demoLogin);
-  };
+  const barraSuperior = Platform.OS === 'android' ? BarraNativa.currentHeight ?? 24 : 44;
 
   return (
-    <SafeAreaView style={[styles.contenedor, { backgroundColor: colores.fondo }]}>
+    <View style={[styles.contenedor, { backgroundColor: colores.fondo, paddingTop: pantalla === 'propiedades' ? 0 : barraSuperior }]}>
       <StatusBar style={modoOscuro ? 'light' : 'dark'} />
 
+      <Animated.View style={{ flex: 1, opacity: aparecer, transform: [{ translateY: aparecer.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) }] }}>
       {pantalla === 'inicio' ? (
         <ImageBackground
           source={modoOscuro ? require('./assets/residence-night.png') : require('./assets/residence-dusk.png')}
@@ -566,7 +483,7 @@ export default function App() {
           imageStyle={styles.imagen}
           resizeMode="cover"
         >
-          <View style={[styles.capa, { backgroundColor: modoOscuro ? 'rgba(5, 12, 43, 0.24)' : 'rgba(255, 255, 255, 0.10)' }]}>
+          <View style={[styles.capa, { backgroundColor: modoOscuro ? 'rgba(9, 9, 11, 0.38)' : 'rgba(255, 255, 255, 0.10)' }]}>
             <View style={styles.encabezado}>
               <View>
                 <View style={styles.marca}>
@@ -613,7 +530,7 @@ export default function App() {
                   <Pressable
                     key={idioma.codigo}
                     onPress={() => setIdiomaSeleccionado(idioma.codigo)}
-                    style={[styles.tarjetaIdioma, { backgroundColor: seleccionado ? (modoOscuro ? '#28204D' : '#F0E9FF') : colores.tarjeta, borderColor: seleccionado ? '#9874FF' : colores.borde, borderWidth: seleccionado ? 2 : 1 }]}
+                    style={[styles.tarjetaIdioma, { backgroundColor: seleccionado ? (modoOscuro ? '#2A2414' : '#F0E9FF') : colores.tarjeta, borderColor: seleccionado ? '#E3C985' : colores.borde, borderWidth: seleccionado ? 2 : 1 }]}
                     accessibilityRole="radio"
                     accessibilityState={{ selected: seleccionado }}
                   >
@@ -627,176 +544,50 @@ export default function App() {
                 );
               })}
             </View>
-            {botonPrincipal(t.continue, () => setPantalla('acceso'))}
+            {botonPrincipal(t.continue, () => setPantalla('propiedades'))}
           </ScrollView>
         </View>
-      ) : pantalla === 'acceso' ? (
-        <View style={[styles.pantallaIdioma, { backgroundColor: colores.fondo }]}>
-          {fondoColorido}
-          <View style={styles.encabezadoIdioma}>
-            <Pressable onPress={() => setPantalla('idioma')} style={styles.botonVolver} accessibilityRole="button" accessibilityLabel={t.back}>
-              <Text style={[styles.volverTexto, { color: colores.texto }]}>‹</Text>
-            </Pressable>
-            {botonModo}
-          </View>
-          <ScrollView contentContainerStyle={styles.accesoContenido} showsVerticalScrollIndicator={false}>
-            <Image source={require('./assets/icono.png')} style={styles.accesoLogo} resizeMode="contain" />
-            <Text style={[styles.accesoTitulo, { color: colores.texto }]}>{t.welcome}</Text>
-            <Text style={[styles.accesoDescripcion, { color: colores.secundario }]}>{t.chooseProfile}</Text>
-
-            <Pressable style={[styles.tarjetaAcceso, { backgroundColor: colores.tarjeta, borderColor: colores.borde }]} onPress={() => setPantalla('invitado')}>
-              <View style={styles.accesoFilaIcono}>
-                <View style={styles.accesoIconoFondo}><Text style={styles.accesoIcono}>⌂</Text></View>
-                <View style={styles.accesoTextosTarjeta}>
-                  <Text style={[styles.accesoTituloTarjeta, { color: colores.texto }]}>{t.guest}</Text>
-                  <Text style={[styles.accesoDescripcionTarjeta, { color: colores.secundario }]}>{t.guestDesc}</Text>
-                </View>
-              </View>
-              <View style={styles.accesoAccionFila}>
-                <Text style={styles.accesoAccion}>{t.guestAction}</Text>
-              </View>
-            </Pressable>
-
-            <Pressable style={[styles.tarjetaAcceso, { backgroundColor: colores.tarjeta, borderColor: colores.borde }]} onPress={() => setPantalla('login')}>
-              <View style={styles.accesoFilaIcono}>
-                <View style={styles.accesoIconoFondo}><Text style={styles.accesoIcono}>♙</Text></View>
-                <View style={styles.accesoTextosTarjeta}>
-                  <Text style={[styles.accesoTituloTarjeta, { color: colores.texto }]}>{t.staff}</Text>
-                  <Text style={[styles.accesoDescripcionTarjeta, { color: colores.secundario }]}>{t.staffDesc}</Text>
-                </View>
-              </View>
-              <View style={styles.accesoAccionFila}>
-                <Text style={styles.accesoAccion}>{t.haveAccount}</Text>
-              </View>
-            </Pressable>
-
-            <Pressable style={styles.enlaceFormulario} onPress={() => irARegistro('persona')}>
-              <Text style={[styles.textoEnlace, { color: colores.secundario }]}>{t.noAccount} <Text style={styles.accesoAccion}>{t.createAccount}</Text></Text>
-            </Pressable>
-            <Text style={[styles.accesoNota, { color: colores.secundario }]}>{t.note}</Text>
-          </ScrollView>
-        </View>
-      ) : pantalla === 'invitado' ? (
-        <View style={[styles.pantallaIdioma, { backgroundColor: colores.fondo, flex: 1 }]}>{fondoColorido}
-          <View style={styles.encabezadoIdioma}>
-            <Pressable onPress={() => setPantalla('acceso')} style={styles.botonVolver} accessibilityRole="button" accessibilityLabel={t.back}>
-              <Text style={[styles.volverTexto, { color: colores.texto }]}>‹</Text>
-            </Pressable>
-            {botonModo}
-          </View>
-          <ScrollView contentContainerStyle={styles.accesoContenido}>
-            <Image source={require('./assets/icono.png')} style={styles.accesoLogo} resizeMode="contain" />
-            <Text style={[styles.accesoTitulo, { color: colores.texto }]}>{t.guestTitle}</Text>
-            <Text style={[styles.accesoDescripcion, { color: colores.secundario }]}>{t.guestSub}</Text>
-            <View style={[styles.tarjetaAcceso, { backgroundColor: colores.tarjeta, borderColor: colores.borde }]}>
-              <Text style={[styles.accesoTituloTarjeta, { color: colores.texto }]}>{t.guestSearch}</Text>
-              <Text style={[styles.accesoDescripcionTarjeta, { color: colores.secundario, marginTop: 8 }]}>{t.guestDemo}</Text>
-              <Pressable style={styles.botonConfirmar} onPress={() => Alert.alert(t.guestSearch, t.guestDemo)}>
-                <Text style={styles.textoConfirmar}>{t.guestSearch}</Text>
-              </Pressable>
-            </View>
-            <Pressable style={[styles.tarjetaAcceso, { backgroundColor: colores.tarjeta, borderColor: colores.borde }]} onPress={() => Alert.alert(t.guestMap, t.guestDemo)}>
-              <Text style={[styles.accesoTituloTarjeta, { color: colores.texto }]}>{t.guestMap}</Text>
-              <Text style={[styles.accesoDescripcionTarjeta, { color: colores.secundario, marginTop: 7 }]}>{t.guestDemo}</Text>
-            </Pressable>
-            <Pressable style={styles.enlaceFormulario} onPress={() => setPantalla('login')}>
-              <Text style={[styles.textoEnlace, { color: colores.secundario }]}>{t.haveAccount} <Text style={styles.accesoAccion}>{t.login}</Text></Text>
-            </Pressable>
-          </ScrollView>
-        </View>
-      ) : pantalla === 'login' ? (
-        <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colores.fondo }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-          <View style={[styles.pantallaIdioma, { flex: 1 }]}>
-            {fondoColorido}
-            <View style={styles.encabezadoIdioma}>
-              <Pressable onPress={() => setPantalla('acceso')} style={styles.botonVolver} accessibilityRole="button" accessibilityLabel={t.back}>
-                <Text style={[styles.volverTexto, { color: colores.texto }]}>‹</Text>
-              </Pressable>
-              {botonModo}
-            </View>
-            <ScrollView contentContainerStyle={styles.formularioContenido} keyboardShouldPersistTaps="handled">
-              <Image source={require('./assets/icono.png')} style={styles.accesoLogo} resizeMode="contain" />
-              <Text style={[styles.accesoTitulo, { color: colores.texto }]}>{t.login}</Text>
-              <Text style={[styles.accesoDescripcion, { color: colores.secundario }]}>{t.loginSub}</Text>
-              {campoTexto(t.email, correo, setCorreo, { placeholder: t.emailPlaceholder, teclado: 'email-address', mayusculas: 'none' })}
-              <View style={styles.grupoCampo}>
-                {etiqueta(t.password)}
-                <TextInput style={campoEstilo} placeholder={t.passwordPlaceholder} placeholderTextColor={colores.secundario} value={contrasena} onChangeText={setContrasena} secureTextEntry={!mostrarContrasena} autoCapitalize="none" />
-                <Pressable onPress={() => setMostrarContrasena((actual) => !actual)} style={styles.botonMostrar}>
-                  <Text style={styles.accesoAccion}>{mostrarContrasena ? t.hidePassword : t.showPassword}</Text>
-                </Pressable>
-              </View>
-              {botonPrincipal(t.enter, mostrarMensajeDemo)}
-              <Pressable onPress={() => { limpiarFormulario(); irARegistro('persona'); }} style={styles.enlaceFormulario}>
-                <Text style={[styles.textoEnlace, { color: colores.secundario }]}>{t.noAccount} <Text style={styles.accesoAccion}>{t.createAccount}</Text></Text>
-              </Pressable>
-            </ScrollView>
-          </View>
-        </KeyboardAvoidingView>
       ) : (
-        <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colores.fondo }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-          <View style={[styles.pantallaIdioma, { flex: 1 }]}>
-            {fondoColorido}
-            <View style={styles.encabezadoIdioma}>
-              <Pressable onPress={() => setPantalla('acceso')} style={styles.botonVolver} accessibilityRole="button" accessibilityLabel={t.back}>
-                <Text style={[styles.volverTexto, { color: colores.texto }]}>‹</Text>
-              </Pressable>
-              {botonModo}
-            </View>
-            <ScrollView contentContainerStyle={styles.formularioContenido} keyboardShouldPersistTaps="handled">
-              <Image source={require('./assets/icono.png')} style={styles.accesoLogo} resizeMode="contain" />
-              <Text style={[styles.accesoTitulo, { color: colores.texto }]}>{t.registerTitle}</Text>
-              <Text style={[styles.accesoDescripcion, { color: colores.secundario }]}>{t.registerSub}</Text>
-
-              {etiqueta(t.accountType)}
-              <View style={styles.opcionesFila}>
-                {([{ valor: 'persona', titulo: t.person }, { valor: 'inmobiliaria', titulo: t.agency }] as const).map((opcion) => (
-                  <Pressable key={opcion.valor} onPress={() => { setTipoCuenta(opcion.valor); setTipoDocumento(opcion.valor === 'inmobiliaria' ? 'NIT' : 'CC'); }} style={[styles.opcionCuenta, { backgroundColor: tipoCuenta === opcion.valor ? '#7652E8' : colores.tarjeta, borderColor: colores.borde }]}>
-                    <Text style={{ color: tipoCuenta === opcion.valor ? '#FFFFFF' : colores.texto, fontWeight: '700' }}>{opcion.titulo}</Text>
-                  </Pressable>
-                ))}
-              </View>
-
-              {campoTexto(tipoCuenta === 'inmobiliaria' ? t.agencyName : t.fullName, nombre, setNombre, { placeholder: t.namePlaceholder, mayusculas: 'words' })}
-              {tipoCuenta === 'inmobiliaria' && campoTexto(t.legalRep, representanteLegal, setRepresentanteLegal, { placeholder: t.legalRepPlaceholder, mayusculas: 'words' })}
-              {campoTexto(t.email, correo, setCorreo, { placeholder: t.emailPlaceholder, teclado: 'email-address', mayusculas: 'none' })}
-              {campoTexto(t.phone, telefono, setTelefono, { placeholder: t.phonePlaceholder, teclado: 'phone-pad' })}
-
-              {etiqueta(t.documentType)}
-              <View style={styles.opcionesFila}>
-                {(tipoCuenta === 'persona' ? ['CC', 'CE'] as const : ['NIT'] as const).map((tipo) => (
-                  <Pressable key={tipo} onPress={() => setTipoDocumento(tipo)} style={[styles.opcionDocumento, { backgroundColor: tipoDocumento === tipo ? '#7652E8' : colores.tarjeta, borderColor: colores.borde }]}>
-                    <Text style={{ color: tipoDocumento === tipo ? '#FFFFFF' : colores.texto, fontWeight: '700' }}>{tipo}</Text>
-                  </Pressable>
-                ))}
-              </View>
-
-              {campoTexto(t.documentNumber, documento, setDocumento, { placeholder: t.documentPlaceholder, mayusculas: 'none' })}
-              <View style={styles.grupoCampo}>
-                {etiqueta(t.password)}
-                <TextInput style={campoEstilo} placeholder={t.minPassword} placeholderTextColor={colores.secundario} value={contrasena} onChangeText={setContrasena} secureTextEntry={!mostrarContrasena} autoCapitalize="none" />
-              </View>
-              <View style={styles.grupoCampo}>
-                {etiqueta(t.confirmPassword)}
-                <TextInput style={campoEstilo} placeholder={t.confirmPlaceholder} placeholderTextColor={colores.secundario} value={confirmarContrasena} onChangeText={setConfirmarContrasena} secureTextEntry={!mostrarContrasena} autoCapitalize="none" />
-                <Pressable onPress={() => setMostrarContrasena((actual) => !actual)} style={styles.botonMostrar}>
-                  <Text style={styles.accesoAccion}>{mostrarContrasena ? t.hidePassword : t.showPassword}</Text>
-                </Pressable>
-              </View>
-              {botonPrincipal(t.prepareRegister, registrarVisualmente)}
-              <Pressable onPress={() => setPantalla('login')} style={styles.enlaceFormulario}>
-                <Text style={[styles.textoEnlace, { color: colores.secundario }]}>{t.alreadyAccount} <Text style={styles.accesoAccion}>{t.login}</Text></Text>
-              </Pressable>
-            </ScrollView>
-          </View>
-        </KeyboardAvoidingView>
+        <PanelInvitado
+          idioma={idiomaSeleccionado}
+          alCambiarIdioma={setIdiomaSeleccionado}
+          alVolver={() => setPantalla('idioma')}
+          oscuroInicial={modoOscuro}
+        />
       )}
-    </SafeAreaView>
+      </Animated.View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   contenedor: { flex: 1 },
+  tituloLista: { fontSize: 22, fontFamily: 'serif', fontWeight: '600', color: '#101542' },
+  centroLista: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 30, gap: 14 },
+  mensajeLista: { textAlign: 'center', fontSize: 14, lineHeight: 21 },
+  contenidoLista: { paddingHorizontal: 22, paddingTop: 18, paddingBottom: 30, gap: 16 },
+  tarjetaProp: { borderRadius: 22, borderWidth: 1, overflow: 'hidden', elevation: 3, shadowColor: '#E3C985', shadowOpacity: 0.12, shadowRadius: 10, shadowOffset: { width: 0, height: 4 } },
+  fotoProp: { width: '100%', height: 180 },
+  sinFotoProp: { backgroundColor: 'rgba(227, 201, 133, 0.18)', alignItems: 'center', justifyContent: 'center' },
+  sinFotoLogo: { width: 64, height: 64, opacity: 0.8 },
+  etiquetaOperacion: { position: 'absolute', top: 12, left: 12, backgroundColor: '#E3C985', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 5 },
+  etiquetaOperacionDetalle: { alignSelf: 'flex-start', backgroundColor: '#E3C985', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 5, marginTop: 14 },
+  textoEtiquetaOperacion: { color: '#14110A', fontSize: 12, fontWeight: '700' },
+  cuerpoProp: { padding: 14, gap: 6 },
+  precioProp: { fontSize: 20, fontWeight: '700' },
+  tipoProp: { fontSize: 13, lineHeight: 19 },
+  datosProp: { flexDirection: 'row', gap: 16, marginTop: 4 },
+  datoProp: { fontSize: 13, fontWeight: '600' },
+  contenidoDetalle: { paddingHorizontal: 22, paddingTop: 12, paddingBottom: 24 },
+  fotoDetalle: { width: '100%', height: 240, borderRadius: 22 },
+  precioDetalle: { fontSize: 26, fontWeight: '700', marginTop: 10, marginBottom: 4 },
+  datosDetalle: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 14 },
+  datoDetalle: { borderWidth: 1, borderRadius: 14, paddingHorizontal: 12, paddingVertical: 6, fontSize: 13, fontWeight: '600', overflow: 'hidden' },
+  subtituloDetalle: { fontSize: 17, fontWeight: '700', marginTop: 20, marginBottom: 6 },
+  textoDetalle: { fontSize: 14, lineHeight: 22 },
+  listaCaracteristicas: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  caracteristica: { borderWidth: 1, borderRadius: 14, paddingHorizontal: 12, paddingVertical: 6, fontSize: 13, overflow: 'hidden' },
+  pieDetalle: { paddingHorizontal: 22, paddingBottom: 20, paddingTop: 8 },
   fondoImagen: { flex: 1 },
   imagen: { width: '100%', height: '100%' },
   capa: { flex: 1, paddingHorizontal: 25, paddingTop: 20, paddingBottom: 25, justifyContent: 'space-between' },
@@ -805,12 +596,15 @@ const styles = StyleSheet.create({
   logoImagen: { width: 34, height: 34 },
   logo: { fontSize: 19, fontWeight: '700', letterSpacing: 4 },
   eslogan: { fontSize: 11, fontStyle: 'italic', marginTop: 5 },
-  botonModo: { width: 46, height: 46, borderRadius: 23, backgroundColor: 'rgba(125, 105, 255, 0.18)', borderWidth: 1, borderColor: 'rgba(137, 101, 255, 0.35)', alignItems: 'center', justifyContent: 'center', elevation: 3 },
-  iconoModo: { width: 34, height: 34, textAlign: 'center', textAlignVertical: 'center', includeFontPadding: false, lineHeight: 34, fontSize: 27, color: '#9672FF' },
+  botonModo: { width: 46, height: 46, borderRadius: 23, backgroundColor: 'rgba(227, 201, 133, 0.18)', borderWidth: 1, borderColor: 'rgba(227, 201, 133, 0.35)', alignItems: 'center', justifyContent: 'center', elevation: 3 },
+  sol: { width: 26, height: 26, alignItems: 'center', justifyContent: 'center' },
+  solRayo: { position: 'absolute', width: 20, height: 20, borderRadius: 4, backgroundColor: '#E3C985', opacity: 0.55 },
+  solCirculo: { width: 15, height: 15, borderRadius: 8, backgroundColor: '#E3C985' },
+  iconoModo: { width: 34, height: 34, textAlign: 'center', textAlignVertical: 'center', includeFontPadding: false, lineHeight: 34, fontSize: 27, color: '#E3C985' },
   contenido: { marginTop: 25, marginBottom: 'auto', paddingTop: 60 },
   titulo: { fontSize: 35, lineHeight: 43, fontWeight: '400', fontFamily: 'serif' },
-  tituloCursiva: { color: '#8B65FF', fontStyle: 'italic' },
-  descripcionPanel: { alignSelf: 'flex-start', maxWidth: 350, backgroundColor: 'rgba(24, 13, 48, 0.76)', borderColor: 'rgba(255,255,255,0.24)', borderWidth: 1, borderRadius: 18, paddingHorizontal: 16, paddingVertical: 13, marginTop: 17, shadowColor: '#160B2B', shadowOpacity: 0.28, shadowRadius: 12, shadowOffset: { width: 0, height: 5 }, elevation: 5 },
+  tituloCursiva: { color: '#E3C985', fontStyle: 'italic' },
+  descripcionPanel: { alignSelf: 'flex-start', maxWidth: 350, backgroundColor: 'rgba(9, 9, 11, 0.72)', borderColor: 'rgba(255,255,255,0.24)', borderWidth: 1, borderRadius: 18, paddingHorizontal: 16, paddingVertical: 13, marginTop: 17, shadowColor: '#160B2B', shadowOpacity: 0.28, shadowRadius: 12, shadowOffset: { width: 0, height: 5 }, elevation: 5 },
   descripcion: { fontSize: 15, lineHeight: 23, fontWeight: '700', maxWidth: 330, textShadowColor: 'rgba(0,0,0,0.45)', textShadowRadius: 3 },
   pie: { alignItems: 'center', gap: 12 },
   flecha: { display: 'none' },
@@ -818,46 +612,38 @@ const styles = StyleSheet.create({
   textoBoton: { fontSize: 14, fontWeight: '600' },
   pantallaIdioma: { flex: 1, paddingHorizontal: 22, paddingTop: 12 },
   encabezadoIdioma: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  botonVolver: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 22, backgroundColor: 'rgba(137, 101, 255, 0.16)', borderWidth: 1, borderColor: 'rgba(137, 101, 255, 0.28)' },
+  botonVolver: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 22, backgroundColor: 'rgba(227, 201, 133, 0.16)', borderWidth: 1, borderColor: 'rgba(227, 201, 133, 0.28)' },
   volverTexto: { fontSize: 43, lineHeight: 43, fontWeight: '300', marginTop: -3, marginLeft: -3 },
   decoracionFondo: { ...StyleSheet.absoluteFill, overflow: 'hidden' },
-  formaDecorativa: { position: 'absolute' },
-  formaMorada: { width: 260, height: 260, borderRadius: 130, top: 35, right: -115, backgroundColor: 'rgba(137, 101, 255, 0.25)' },
-  formaRosa: { width: 190, height: 190, borderRadius: 55, top: 230, left: -105, backgroundColor: 'rgba(239, 120, 190, 0.22)', transform: [{ rotate: '28deg' }] },
-  formaDorada: { width: 120, height: 120, borderRadius: 38, top: 410, right: -35, backgroundColor: 'rgba(255, 196, 112, 0.22)', transform: [{ rotate: '35deg' }] },
-  formaLavanda: { width: 90, height: 90, borderRadius: 45, top: 155, left: 20, backgroundColor: 'rgba(184, 164, 255, 0.22)' },
-  formaTurquesa: { width: 145, height: 145, borderRadius: 48, bottom: 70, left: '48%', backgroundColor: 'rgba(75, 220, 211, 0.15)', transform: [{ rotate: '35deg' }] },
-  formaPequenaRosa: { width: 34, height: 34, borderRadius: 17, top: '38%', right: 38, backgroundColor: 'rgba(255, 135, 195, 0.45)' },
-  formaDiamante: { width: 48, height: 48, borderRadius: 12, bottom: 170, left: 32, backgroundColor: 'rgba(255, 201, 112, 0.28)', transform: [{ rotate: '45deg' }] },
   contenidoIdioma: { paddingTop: 24, paddingBottom: 36 },
-  logoIdiomaMarco: { width: 100, height: 100, borderRadius: 32, alignSelf: 'center', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(137, 101, 255, 0.23)', borderWidth: 1, borderColor: 'rgba(137, 101, 255, 0.42)', marginBottom: 13, elevation: 6, shadowColor: '#7652E8', shadowOpacity: 0.20, shadowRadius: 14, shadowOffset: { width: 0, height: 6 } },
+  logoIdiomaMarco: { width: 100, height: 100, borderRadius: 32, alignSelf: 'center', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(227, 201, 133, 0.23)', borderWidth: 1, borderColor: 'rgba(227, 201, 133, 0.42)', marginBottom: 13 },
   logoIdioma: { width: 72, height: 72 },
-  etiquetaIdioma: { color: '#8965FF', textAlign: 'center', fontSize: 10, letterSpacing: 2, fontWeight: '800', marginBottom: 13 },
-  simboloIdioma: { color: '#9874FF', fontSize: 37, textAlign: 'center', marginBottom: 12 },
+  etiquetaIdioma: { color: '#E3C985', textAlign: 'center', fontSize: 10, letterSpacing: 2, fontWeight: '800', marginBottom: 13 },
+  simboloIdioma: { color: '#E3C985', fontSize: 37, textAlign: 'center', marginBottom: 12 },
   tituloIdioma: { fontSize: 30, fontFamily: 'serif', textAlign: 'center', fontWeight: '600' },
   descripcionIdioma: { textAlign: 'center', fontSize: 14, lineHeight: 21, marginTop: 9, marginBottom: 25 },
   listaIdiomas: { gap: 12 },
-  tarjetaIdioma: { minHeight: 76, borderRadius: 20, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 14, borderWidth: 1, elevation: 3, shadowColor: '#7652E8', shadowOpacity: 0.10, shadowRadius: 9, shadowOffset: { width: 0, height: 4 } },
+  tarjetaIdioma: { minHeight: 76, borderRadius: 20, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 14, borderWidth: 1, elevation: 3, shadowColor: '#E3C985', shadowOpacity: 0.10, shadowRadius: 9, shadowOffset: { width: 0, height: 4 } },
   bandera: { fontSize: 28 },
   textosIdioma: { flex: 1, gap: 4 },
   nombreIdioma: { fontSize: 16, fontWeight: '600' },
   detalleIdioma: { fontSize: 12 },
-  marcaSeleccion: { fontSize: 21, color: '#9874FF' },
-  botonConfirmar: { backgroundColor: '#7652E8', borderRadius: 18, minHeight: 56, alignItems: 'center', justifyContent: 'center', marginTop: 24, paddingHorizontal: 15, elevation: 5, shadowColor: '#5C36C9', shadowOpacity: 0.24, shadowRadius: 10, shadowOffset: { width: 0, height: 5 } },
-  textoConfirmar: { color: '#FFFFFF', fontWeight: '700', fontSize: 15 },
+  marcaSeleccion: { fontSize: 21, color: '#E3C985' },
+  botonConfirmar: { backgroundColor: '#E3C985', borderRadius: 18, minHeight: 56, alignItems: 'center', justifyContent: 'center', marginTop: 24, paddingHorizontal: 15, elevation: 5, shadowColor: '#E3C985', shadowOpacity: 0.24, shadowRadius: 10, shadowOffset: { width: 0, height: 5 } },
+  textoConfirmar: { color: '#14110A', fontWeight: '700', fontSize: 15 },
   accesoContenido: { flexGrow: 1, justifyContent: 'center', paddingTop: 18, paddingBottom: 30 },
-  accesoLogo: { width: 92, height: 92, alignSelf: 'center', marginBottom: 14, backgroundColor: 'rgba(255,255,255,0.78)', borderRadius: 30, borderWidth: 1, borderColor: 'rgba(137,101,255,0.28)', elevation: 5, shadowColor: '#7652E8', shadowOpacity: 0.18, shadowRadius: 12, shadowOffset: { width: 0, height: 5 } },
-  accesoTitulo: { fontSize: 32, lineHeight: 40, fontWeight: '700', fontFamily: 'serif', textAlign: 'center', letterSpacing: 0.2, textShadowColor: 'rgba(137,101,255,0.18)', textShadowRadius: 12, textShadowOffset: { width: 0, height: 3 } },
+  accesoLogo: { width: 92, height: 92, alignSelf: 'center', marginBottom: 14, backgroundColor: 'rgba(255,255,255,0.78)', borderRadius: 30, borderWidth: 1, borderColor: 'rgba(227,201,133,0.28)', elevation: 5, shadowColor: '#E3C985', shadowOpacity: 0.18, shadowRadius: 12, shadowOffset: { width: 0, height: 5 } },
+  accesoTitulo: { fontSize: 32, lineHeight: 40, fontWeight: '700', fontFamily: 'serif', textAlign: 'center', letterSpacing: 0.2, textShadowColor: 'rgba(227,201,133,0.18)', textShadowRadius: 12, textShadowOffset: { width: 0, height: 3 } },
   accesoDescripcion: { fontSize: 14, lineHeight: 22, textAlign: 'center', marginTop: 10, marginBottom: 25, paddingHorizontal: 8 },
-  tarjetaAcceso: { borderWidth: 1, borderRadius: 23, padding: 18, marginBottom: 15, elevation: 4, shadowColor: '#7652E8', shadowOpacity: 0.16, shadowRadius: 12, shadowOffset: { width: 0, height: 5 } },
+  tarjetaAcceso: { borderWidth: 1, borderRadius: 23, padding: 18, marginBottom: 15, elevation: 4, shadowColor: '#E3C985', shadowOpacity: 0.16, shadowRadius: 12, shadowOffset: { width: 0, height: 5 } },
   accesoFilaIcono: { flexDirection: 'row', alignItems: 'flex-start', gap: 13 },
-  accesoIconoFondo: { width: 48, height: 48, borderRadius: 16, backgroundColor: 'rgba(137, 101, 255, 0.16)', borderWidth: 1, borderColor: 'rgba(137, 101, 255, 0.20)', alignItems: 'center', justifyContent: 'center' },
-  accesoIcono: { color: '#8965FF', fontSize: 29, fontWeight: '600' },
+  accesoIconoFondo: { width: 48, height: 48, borderRadius: 16, backgroundColor: 'rgba(227, 201, 133, 0.16)', borderWidth: 1, borderColor: 'rgba(227, 201, 133, 0.20)', alignItems: 'center', justifyContent: 'center' },
+  accesoIcono: { color: '#E3C985', fontSize: 29, fontWeight: '600' },
   accesoTextosTarjeta: { flex: 1, gap: 7 },
   accesoTituloTarjeta: { fontSize: 17, fontWeight: '700' },
   accesoDescripcionTarjeta: { fontSize: 13, lineHeight: 19 },
-  accesoAccionFila: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: 'rgba(137, 101, 255, 0.22)', marginTop: 15, paddingTop: 13 },
-  accesoAccion: { color: '#8965FF', fontSize: 14, fontWeight: '700' },
+  accesoAccionFila: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: 'rgba(227, 201, 133, 0.22)', marginTop: 15, paddingTop: 13 },
+  accesoAccion: { color: '#E3C985', fontSize: 14, fontWeight: '700' },
   accesoFlecha: { display: 'none' },
   accesoNota: { fontSize: 12, lineHeight: 19, textAlign: 'center', marginTop: 9 },
   formularioContenido: { flexGrow: 1, paddingTop: 20, paddingBottom: 40, paddingHorizontal: 3 },

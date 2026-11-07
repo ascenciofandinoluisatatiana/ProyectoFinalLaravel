@@ -544,3 +544,60 @@ html[data-theme] .border-sky-500\/40     { border-color: rgba(var(--tono-2), .4)
 html[data-theme] .border-red-500\/40     { border-color: rgba(var(--tono-4), .4); }
 html[data-theme] .border-red-500\/30     { border-color: rgba(var(--tono-4), .3); }
 html[data-theme] .border-red-500\/20     { border-color: rgba(var(--tono-4), .2); }
+
+
+/* =========================================================
+   PASO 4 — Menú con botón de 3 rayitas, espacios más compactos
+   y barra de desplazamiento fina (dorada en noche, morada en día)
+   ========================================================= */
+
+/* ---------- Menú lateral: lo abre/cierra la clase .menu-abierto de <html> ---------- */
+html .menu-lateral { transform: translateX(-100%); }
+html.menu-abierto .menu-lateral { transform: none; }
+@media (max-width: 1023px) {
+    html.menu-abierto .menu-lateral { box-shadow: 0 0 40px rgba(0, 0, 0, .45); }
+}
+@media (min-width: 1024px) {
+    /* El contenido ocupa todo el ancho y se corre solo cuando el menú está abierto */
+    html .lg\:pl-72 { padding-left: 0; }
+    html.menu-abierto .lg\:pl-72 { padding-left: 18rem; }
+}
+/* El botón de las 3 rayitas se ve en todos los tamaños */
+html .boton-barra[aria-controls="menu-lateral"] { display: grid; }
+
+/* ---------- Espacios más compactos y contenido a todo el ancho ---------- */
+html .barra-sup > div { padding-top: 10px; padding-bottom: 10px; }
+html main.flex-1 { padding: 14px 14px; }
+@media (min-width: 640px)  { html main.flex-1 { padding: 16px 20px; } }
+@media (min-width: 1024px) { html main.flex-1 { padding: 18px 24px; } }
+html main .max-w-7xl { max-width: 1760px; }
+html main .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
+html main .space-y-5 > :not([hidden]) ~ :not([hidden]) { margin-top: .9rem; }
+html main .p-5 { padding: 1rem; }
+html main .p-6 { padding: 1.1rem; }
+html main .p-8, html main .sm\:p-8 { padding: 1.3rem 1.5rem; }
+html main .mb-6 { margin-bottom: 1rem; }
+html main .mb-8 { margin-bottom: 1.25rem; }
+html .pf-hero { padding: 20px 22px; }
+html .pf-card-cab { padding: 14px 18px; }
+html .pf-lista { padding: 6px 18px 10px; }
+html footer.border-t { padding-top: 12px; padding-bottom: 12px; }
+
+/* ---------- Barra de desplazamiento fina y estable ---------- */
+html { scrollbar-gutter: stable; --ad-scroll: #d4af37; --ad-scroll-hover: #e8c860; }
+html[data-theme="light"] { --ad-scroll: #9333ea; --ad-scroll-hover: #7e22ce; }
+
+html::-webkit-scrollbar, html ::-webkit-scrollbar { width: 12px; height: 12px; }
+html::-webkit-scrollbar-track, html ::-webkit-scrollbar-track { background: transparent; }
+html::-webkit-scrollbar-corner, html ::-webkit-scrollbar-corner { background: transparent; }
+html::-webkit-scrollbar-thumb, html ::-webkit-scrollbar-thumb {
+    background: var(--ad-scroll); background-clip: padding-box;
+    border: 4px solid transparent; border-radius: 999px; min-height: 40px; min-width: 40px;
+}
+html::-webkit-scrollbar-thumb:hover, html ::-webkit-scrollbar-thumb:hover {
+    background: var(--ad-scroll-hover); background-clip: padding-box; border-width: 2px;
+}
+/* Firefox y navegadores sin ::-webkit-scrollbar */
+@supports not selector(::-webkit-scrollbar) {
+    html, html * { scrollbar-width: thin; scrollbar-color: var(--ad-scroll) transparent; }
+}

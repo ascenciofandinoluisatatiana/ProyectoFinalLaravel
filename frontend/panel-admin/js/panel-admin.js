@@ -29,6 +29,16 @@
     var pagina = cuerpo.getAttribute('data-pagina') || 'panel';
     var titulo = cuerpo.getAttribute('data-titulo') || 'Panel';
 
+    /* Menú lateral: en pantallas grandes empieza ABIERTO y se recuerda lo último que
+       la persona eligió (clave umbral-admin-menu). En pantallas pequeñas empieza cerrado. */
+    var CLAVE_MENU = 'umbral-admin-menu';
+    var raiz = document.documentElement;
+    var pantallaGrande = window.matchMedia('(min-width: 1024px)');
+    function menuGuardado() {
+        try { return localStorage.getItem(CLAVE_MENU); } catch (e) { return null; }
+    }
+    if (pantallaGrande.matches && menuGuardado() !== 'cerrado') raiz.classList.add('menu-abierto');
+
     function url(nombre) {
         var p = PAGINAS[nombre];
         return MIGRADAS.indexOf(nombre) >= 0 ? p.nuevo : p.viejo;
@@ -132,7 +142,7 @@
         var sistema = resumen.sistema || {};
 
         return '' +
-        '<aside id="menu-lateral" class="fixed inset-y-0 left-0 z-40 flex w-72 -translate-x-full flex-col border-r border-slate-800 bg-slate-900/70 backdrop-blur transition-transform duration-300 lg:translate-x-0">' +
+        '<aside id="menu-lateral" class="menu-lateral fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-slate-800 bg-slate-900/70 backdrop-blur transition-transform duration-300">' +
             '<div class="flex items-center gap-3 border-b border-slate-800 px-6 py-5">' +
                 '<img class="marca-img" src="/img/icono.png" alt="Umbral">' +
                 '<div class="marca-txt">' +
@@ -203,7 +213,7 @@
         return '' +
         '<header class="barra-sup sticky top-0 z-20">' +
             '<div class="flex items-center gap-3 px-4 py-3 sm:px-6">' +
-                '<button type="button" id="boton-menu" class="boton-barra lg:hidden">' +
+                '<button type="button" id="boton-menu" class="boton-barra" title="Mostrar u ocultar el menú" aria-label="Mostrar u ocultar el menú" aria-controls="menu-lateral">' +
                     '<i class="fa-solid fa-bars"></i>' +
                 '</button>' +
                 '<h2 class="barra-titulo hidden truncate sm:block">' + esc(titulo) + '</h2>' +
@@ -261,20 +271,35 @@
         var fondo = document.getElementById('fondo-menu');
         var botonMenu = document.getElementById('boton-menu');
 
-        function abrirMenu() {
-            menu.classList.remove('-translate-x-full');
-            fondo.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+        function aplicarMenu(abierto, guardar) {
+            raiz.classList.toggle('menu-abierto', abierto);
+            if (botonMenu) botonMenu.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+            if (pantallaGrande.matches) {
+                // Pantalla grande: el menú empuja el contenido y se recuerda la elección
+                if (fondo) fondo.classList.add('hidden');
+                document.body.style.overflow = '';
+                if (guardar) { try { localStorage.setItem(CLAVE_MENU, abierto ? 'abierto' : 'cerrado'); } catch (e) {} }
+            } else {
+                // Pantalla pequeña: el menú se abre encima del contenido, con fondo oscuro
+                if (fondo) fondo.classList.toggle('hidden', !abierto);
+                document.body.style.overflow = abierto ? 'hidden' : '';
+            }
         }
-        function cerrarMenu() {
-            menu.classList.add('-translate-x-full');
-            fondo.classList.add('hidden');
-            document.body.style.overflow = '';
-        }
+        function cerrarMenu() { aplicarMenu(false, true); }
 
-        if (botonMenu) botonMenu.addEventListener('click', abrirMenu);
+        if (botonMenu) botonMenu.addEventListener('click', function () {
+            aplicarMenu(!raiz.classList.contains('menu-abierto'), true);
+        });
         if (fondo) fondo.addEventListener('click', cerrarMenu);
         document.querySelectorAll('[data-cierra-menu]').forEach(function (b) { b.addEventListener('click', cerrarMenu); });
+
+        // Al cambiar entre pantalla grande y pequeña se ajusta el estado del menú
+        function alCambiarTamano() {
+            aplicarMenu(pantallaGrande.matches ? menuGuardado() !== 'cerrado' : false, false);
+        }
+        if (pantallaGrande.addEventListener) pantallaGrande.addEventListener('change', alCambiarTamano);
+        else if (pantallaGrande.addListener) pantallaGrande.addListener(alCambiarTamano);
+        if (botonMenu) botonMenu.setAttribute('aria-expanded', raiz.classList.contains('menu-abierto') ? 'true' : 'false');
 
         // Menús desplegables de la barra superior
         function cerrarTodos() {

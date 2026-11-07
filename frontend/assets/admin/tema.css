@@ -601,3 +601,34 @@ html::-webkit-scrollbar-thumb:hover, html ::-webkit-scrollbar-thumb:hover {
 @supports not selector(::-webkit-scrollbar) {
     html, html * { scrollbar-width: thin; scrollbar-color: var(--ad-scroll) transparent; }
 }
+
+/* =====================================================================
+   PASO 5C — Tarjetas de números compactas (Panel, Membresías, Reportes)
+   Icono a la izquierda; número y título a la derecha, en una sola fila.
+   ===================================================================== */
+html .kpi.kpi-compacta {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    column-gap: 14px;
+    align-items: center;
+    padding: 14px 16px;
+}
+html .kpi.kpi-compacta > div:first-child {
+    grid-column: 1; grid-row: 1 / span 2;
+    width: 46px; height: 46px; border-radius: 14px;
+}
+html .kpi.kpi-compacta > p { grid-column: 2; margin: 0; min-width: 0; }
+html .kpi.kpi-compacta > p:nth-of-type(1) {
+    grid-row: 1; align-self: end;
+    font-size: 1.4rem; line-height: 1.15; letter-spacing: -.02em;
+    white-space: nowrap;
+}
+html .kpi.kpi-compacta > p:nth-of-type(2) {
+    grid-row: 2; align-self: start; margin-top: 2px;
+    font-size: .76rem; line-height: 1.25;
+}
+/* La variación (+12%) va abajo a la derecha y no le quita sitio al número */
+html .kpi.kpi-compacta > span[id^="variacion-"] { position: absolute; right: 12px; bottom: 10px; }
+html .kpi.kpi-compacta:has(> span[id^="variacion-"]) > p:nth-of-type(2) { padding-right: 58px; }
+html .kpi.kpi-compacta:hover { transform: translateY(-2px); }

@@ -579,7 +579,7 @@
 
 .ft-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 235px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 235px), 1fr));
   gap: 14px;
 }
 
@@ -632,7 +632,7 @@
 }
 
 .faq h3 i { color: var(--primary); }
-.faq-list { display: grid; gap: 10px; max-width: 880px; }
+.faq-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); align-items: start; gap: 10px; }
 
 .faq details {
   border: 1px solid var(--border);

@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\VerificacionController as AdminVerificacionController;
 use App\Http\Controllers\Api\V1\Admin\CuentaController;
 use App\Http\Controllers\Api\V1\Admin\MembresiaController as AdminMembresiaController;
+use App\Http\Controllers\Api\V1\Admin\MovimientoController as AdminMovimientoController;
 use App\Http\Controllers\Api\V1\Admin\ResumenController;
 use App\Http\Controllers\Api\V1\Admin\SesionController as AdminSesionController;
 use App\Http\Controllers\Api\V1\AuthController;
@@ -111,6 +112,10 @@ Route::prefix('v1/admin')->middleware(['web', 'admin.api'])->group(function () {
     Route::post('usuarios', [AdminUserController::class, 'store']);
     Route::put('usuarios/{usuario}', [AdminUserController::class, 'update']);
     Route::delete('usuarios/{usuario}', [AdminUserController::class, 'destroy']);
+    Route::post('usuarios/{usuario}/enlace-clave', [AdminUserController::class, 'enviarEnlaceClave'])->middleware('throttle:20,1');
+
+    // Movimientos: seguridad (eventos_seguridad) y acciones de inmobiliarias, agentes y vendedores
+    Route::get('movimientos', [AdminMovimientoController::class, 'index']);
 
     // Verificación de cuentas pendientes
     Route::get('verificaciones', [AdminVerificacionController::class, 'index']);

@@ -99,7 +99,7 @@ class RecuperarClaveController extends Controller
      * Crea el enlace y lo envía por correo. También lo usa el botón del administrador.
      * $tipoEvento: recuperacion_solicitada | enlace_enviado_admin
      */
-    public static function enviarEnlace(User $usuario, Request $request, string $tipoEvento): bool
+    public static function enviarEnlace(User $usuario, Request $request, string $tipoEvento, ?string $detalle = null): bool
     {
         $token = Password::createToken($usuario);
         $url = rtrim(config('app.url'), '/')
@@ -139,7 +139,7 @@ class RecuperarClaveController extends Controller
             'fecha'        => now(),
         ]);
 
-        self::registrarEvento($usuario->id, $tipoEvento, $request);
+        self::registrarEvento($usuario->id, $tipoEvento, $request, $detalle);
 
         return $estado === 'enviado';
     }
@@ -150,14 +150,21 @@ class RecuperarClaveController extends Controller
         return $usuario->tieneRol(...User::ROLES_PANEL) && $usuario->estado !== 'inactivo';
     }
 
-    private static function registrarEvento(int $userId, string $tipo, Request $request): void
+    private static function registrarEvento(int $userId, string $tipo, Request $request, ?string $detalle = null): void
     {
-        DB::table('eventos_seguridad')->insert([
+        $fila = [
             'user_id'     => $userId,
             'tipo'        => $tipo,
             'ip'          => $request->ip(),
             'dispositivo' => mb_substr((string) $request->userAgent(), 0, 150),
             'fecha'       => now(),
-        ]);
+        ];
+
+        // La columna "detalle" la crea la migración del paso 5B; solo se usa cuando hay algo que anotar
+        if ($detalle !== null) {
+            $fila['detalle'] = mb_substr($detalle, 0, 255);
+        }
+
+        DB::table('eventos_seguridad')->insert($fila);
     }
 }

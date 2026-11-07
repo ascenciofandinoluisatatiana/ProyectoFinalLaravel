@@ -20,10 +20,11 @@
         verificaciones: { nuevo: '/panel-admin/verificaciones.html', viejo: '/admin/verificaciones' },
         membresias:     { nuevo: '/panel-admin/membresias.html',     viejo: '/admin/membresias' },
         reportes:       { nuevo: '/panel-admin/reportes.html',       viejo: '/admin/reportes' },
+        movimientos:    { nuevo: '/panel-admin/movimientos.html',    viejo: '/panel-admin/movimientos.html' },
         ajustes:        { nuevo: '/panel-admin/ajustes.html',        viejo: '/admin/ajustes' },
         perfil:         { nuevo: '/panel-admin/perfil.html',         viejo: '/admin/perfil' }
     };
-    var MIGRADAS = ['panel', 'usuarios', 'verificaciones', 'ajustes', 'perfil', 'membresias', 'reportes'];
+    var MIGRADAS = ['panel', 'usuarios', 'verificaciones', 'ajustes', 'perfil', 'membresias', 'reportes', 'movimientos'];
 
     var cuerpo = document.body;
     var pagina = cuerpo.getAttribute('data-pagina') || 'panel';
@@ -162,6 +163,7 @@
                     '<span id="badge-pendientes" class="ml-auto rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-bold text-amber-300 ring-1 ring-amber-500/30 ' + (pendientes > 0 ? '' : 'hidden') + '">' + pendientes + '</span>') +
                 enlaceMenu('membresias', 'fa-credit-card', 'Membresías') +
                 enlaceMenu('reportes', 'fa-chart-bar', 'Reportes') +
+                enlaceMenu('movimientos', 'fa-clock-rotate-left', 'Movimientos') +
                 '<div class="menu-etiqueta">Sistema</div>' +
                 enlaceMenu('ajustes', 'fa-gear', 'Ajustes') +
                 enlaceMenu('perfil', 'fa-user', 'Mi perfil') +

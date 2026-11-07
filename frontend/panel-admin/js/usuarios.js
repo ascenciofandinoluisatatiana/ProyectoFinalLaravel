@@ -16,6 +16,8 @@
     var tablaVacia = document.getElementById('tabla-vacia');
     var modal = document.getElementById('modal-usuario');
     var modalEliminar = document.getElementById('modal-eliminar');
+    var modalEnlace = document.getElementById('modal-enlace');
+    var usuarioEnlace = null;        // a quién se le enviará el enlace de contraseña
     var formulario = document.getElementById('form-usuario');
 
     /* ================= Utilidades ================= */
@@ -140,6 +142,9 @@
                 '<td class="px-5 py-3.5 text-slate-400">' + P.esc(u.creado || '—') + '</td>' +
                 '<td class="px-5 py-3.5 text-right">' +
                     '<div style="display:flex;align-items:center;justify-content:flex-end;gap:6px">' +
+                        (u.estado === 'inactivo'
+                            ? '<button type="button" disabled title="Cuenta desactivada: no se le puede enviar enlace" class="grid h-8 w-8 cursor-not-allowed place-items-center rounded-lg text-slate-700 opacity-50"><i class="fa-solid fa-key text-xs"></i></button>'
+                            : '<button type="button" data-enlace="' + u.id + '" title="Enviar enlace para cambiar contraseña" class="grid h-8 w-8 place-items-center rounded-lg text-slate-500 transition-all hover:bg-amber-500/10 hover:text-amber-400"><i class="fa-solid fa-key text-xs"></i></button>') +
                         '<button type="button" data-editar="' + u.id + '" title="Editar" class="grid h-8 w-8 place-items-center rounded-lg text-slate-500 transition-all hover:bg-violet-500/10 hover:text-violet-400"><i class="fa-solid fa-pen text-xs"></i></button>' +
                         '<button type="button" data-eliminar="' + u.id + '" title="Eliminar" class="grid h-8 w-8 place-items-center rounded-lg text-slate-500 transition-all hover:bg-red-500/10 hover:text-red-400"><i class="fa-solid fa-trash text-xs"></i></button>' +
                     '</div>' +
@@ -305,21 +310,59 @@
         }
     });
 
+    /* ================= Enviar enlace para cambiar la contraseña ================= */
+    function abrirEnlace(id) {
+        var fila = buscarUsuario(id);
+        if (!fila) return;
+        usuarioEnlace = id;
+        document.getElementById('enlace-nombre').textContent = fila.name;
+        document.getElementById('enlace-correo').textContent = fila.email;
+        modalEnlace.classList.remove('hidden');
+        modalEnlace.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function cerrarModalEnlace() {
+        modalEnlace.classList.add('hidden');
+        modalEnlace.classList.remove('flex');
+        document.body.style.overflow = '';
+        usuarioEnlace = null;
+    }
+
+    modalEnlace.addEventListener('click', function (e) { if (e.target === modalEnlace) cerrarModalEnlace(); });
+
+    document.getElementById('boton-enlace').addEventListener('click', async function () {
+        if (!usuarioEnlace) return;
+        var boton = this;
+        boton.disabled = true;
+        try {
+            var datos = await P.api('/usuarios/' + usuarioEnlace + '/enlace-clave', { metodo: 'POST', cuerpo: {} });
+            toast('exito', 'Enlace enviado', datos.mensaje);
+            cerrarModalEnlace();
+        } catch (error) {
+            manejarError(error, 'No se pudo enviar el enlace');
+        } finally {
+            boton.disabled = false;
+        }
+    });
+
     /* ================= Eventos de la página ================= */
     document.querySelectorAll('[data-abrir-crear]').forEach(function (b) { b.addEventListener('click', abrirCrear); });
     document.querySelectorAll('[data-cerrar-modal]').forEach(function (b) { b.addEventListener('click', cerrarModal); });
     document.querySelectorAll('[data-cerrar-eliminar]').forEach(function (b) { b.addEventListener('click', cerrarModalEliminar); });
+    document.querySelectorAll('[data-cerrar-enlace]').forEach(function (b) { b.addEventListener('click', cerrarModalEnlace); });
 
     // Botones de editar y eliminar de cada fila (la tabla se redibuja, por eso se delega)
     tabla.addEventListener('click', function (e) {
-        var boton = e.target.closest('[data-editar], [data-eliminar]');
+        var boton = e.target.closest('[data-editar], [data-eliminar], [data-enlace]');
         if (!boton) return;
-        if (boton.hasAttribute('data-editar')) abrirEditar(Number(boton.getAttribute('data-editar')));
+        if (boton.hasAttribute('data-enlace')) abrirEnlace(Number(boton.getAttribute('data-enlace')));
+        else if (boton.hasAttribute('data-editar')) abrirEditar(Number(boton.getAttribute('data-editar')));
         else abrirEliminar(Number(boton.getAttribute('data-eliminar')));
     });
 
     document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') { cerrarModal(); cerrarModalEliminar(); }
+        if (e.key === 'Escape') { cerrarModal(); cerrarModalEliminar(); cerrarModalEnlace(); }
     });
 
     // Búsqueda y filtros en tiempo real

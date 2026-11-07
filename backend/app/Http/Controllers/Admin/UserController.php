@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Role;
 use App\Models\User;
+use App\Http\Controllers\Api\V1\RecuperarClaveController;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -126,6 +127,31 @@ class UserController extends Controller
 
     
     
+    /** Botón de la llave: el administrador le envía a la persona el enlace para cambiar su contraseña. */
+    public function enviarEnlaceClave(Request $request, User $usuario): JsonResponse
+    {
+        $usuario->loadMissing('role');
+
+        if (! RecuperarClaveController::puedeRecuperar($usuario)) {
+            return response()->json([
+                'mensaje' => 'Esta cuenta está desactivada o no puede entrar al portal, por eso no se le envió el enlace.',
+            ], 422);
+        }
+
+        $quien = auth()->user()?->name ?? 'un administrador';
+        $enviado = RecuperarClaveController::enviarEnlace($usuario, $request, 'enlace_enviado_admin', 'Enviado por ' . $quien);
+
+        if (! $enviado) {
+            return response()->json([
+                'mensaje' => 'No se pudo enviar el correo. Revisa la configuración de correo del servidor.',
+            ], 500);
+        }
+
+        return response()->json([
+            'mensaje' => 'Enviamos el enlace a ' . $usuario->email . '. Vence en 60 minutos.',
+        ]);
+    }
+
     public function destroy(User $usuario): JsonResponse
     {
         if ((int) $usuario->id === (int) auth()->id()) {

@@ -31,6 +31,12 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
+    /** Calificaciones y comentarios que los visitantes le dejaron a este vendedor o inmobiliaria. */
+    public function calificaciones(): HasMany
+    {
+        return $this->hasMany(CalificacionVendedor::class, 'vendedor_id');
+    }
+
     /** Membresías contratadas por este vendedor o inmobiliaria. */
     public function membresias(): HasMany
     {

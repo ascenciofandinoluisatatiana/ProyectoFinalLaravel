@@ -6,6 +6,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Explorar propiedades · UMBRAL</title>
+  <meta name="description" content="Encuentra tu próximo hogar en Colombia: casas, apartamentos y locales en venta y arriendo, con vendedores verificados. Explora en UMBRAL.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
@@ -14,6 +15,10 @@
   <link rel="stylesheet" href="/invitado/css/invitado.css">
   <link rel="stylesheet" href="/invitado/css/premium.css">
   <link rel="stylesheet" href="/invitado/css/mejoras.css">
+  <link rel="stylesheet" href="/invitado/css/calificaciones.css">
+  <link rel="stylesheet" href="/invitado/css/hero-visual.css">
+  <link rel="stylesheet" href="/invitado/css/comercial.css">
+  <link rel="stylesheet" href="/invitado/css/experiencia.css">
 </head>
 
 <body>
@@ -45,7 +50,8 @@
 
     <div class="main">
       <header class="topbar">
-        <button class="menu-btn" id="menuBtn"><i class="fa-solid fa-bars"></i></button>
+        <button class="menu-btn" id="menuBtn" type="button" aria-label="Menú" title="Menú" aria-controls="sidebar"
+          aria-expanded="true"><i class="fa-solid fa-bars"></i></button>
         <h1 data-i18n="page_title"></h1>
         <div class="search"><i class="fa-solid fa-magnifying-glass" style="color:var(--muted)"></i><input id="q"
             data-i18n-ph="search_ph"></div>
@@ -111,20 +117,24 @@
           </div>
         </section>
 
-        <section class="stats">
-          <div class="stat" style="--c:#6c3df5">
-            <div class="ico"><i class="fa-solid fa-house"></i></div><b id="s1">0</b><span data-i18n="stat_props"></span>
-          </div>
-          <div class="stat" style="--c:#10b981">
-            <div class="ico"><i class="fa-solid fa-city"></i></div><b id="s2">0</b><span data-i18n="stat_cities"></span>
-          </div>
-          <div class="stat" style="--c:#f59e0b">
-            <div class="ico"><i class="fa-solid fa-people-roof"></i></div><b id="s3">0</b><span
-              data-i18n="stat_sellers"></span>
-          </div>
-          <div class="stat" style="--c:#3b82f6">
-            <div class="ico"><i class="fa-solid fa-circle-check"></i></div><b id="s4">0</b><span
-              data-i18n="stat_verified"></span>
+        <section class="stats-wrap">
+          <div class="stats">
+            <div class="stat" style="--c:#6c3df5">
+              <div class="ico"><i class="fa-solid fa-house"></i></div><b id="s1">0</b><span
+                data-i18n="stat_props"></span>
+            </div>
+            <div class="stat" style="--c:#10b981">
+              <div class="ico"><i class="fa-solid fa-city"></i></div><b id="s2">0</b><span
+                data-i18n="stat_cities"></span>
+            </div>
+            <div class="stat" style="--c:#f59e0b">
+              <div class="ico"><i class="fa-solid fa-people-roof"></i></div><b id="s3">0</b><span
+                data-i18n="stat_sellers"></span>
+            </div>
+            <div class="stat" style="--c:#3b82f6">
+              <div class="ico"><i class="fa-solid fa-circle-check"></i></div><b id="s4">0</b><span
+                data-i18n="stat_verified"></span>
+            </div>
           </div>
         </section>
 
@@ -200,10 +210,15 @@
   <script src="/invitado/js/tarjetas.js"></script>
   <script src="/invitado/js/mapa.js"></script>
   <script src="/invitado/js/detalle.js"></script>
+  <script src="/invitado/js/calificaciones.js"></script>
   <script src="/invitado/js/pago-pse.js"></script>
   <script src="/invitado/js/modales.js"></script>
   <script src="/invitado/js/eventos.js"></script>
   <script src="/invitado/js/mejoras.js"></script>
+  <script src="/invitado/js/rutas.js"></script>
+  <script src="/invitado/js/hero-visual.js"></script>
+  <script src="/invitado/js/comercial.js"></script>
+  <script src="/invitado/js/experiencia.js"></script>
   <script src="/js/efectos.js"></script>
   <script src="/js/hero.js"></script>
   <script src="/js/vendedores.js"></script>

@@ -1,0 +1,336 @@
+/* =====================================================================
+   UMBRAL · banner principal "el umbral"
+   Puerta en arco con la casa de día y de noche + tarjeta de cristal con un inmueble real.
+   El banner se adapta a SU propio ancho (container query), así funciona igual con el
+   menú lateral visible u oculto. Se carga después de invitado.css, premium.css y mejoras.css.
+   ===================================================================== */
+
+.hero-shell {
+  container-type: inline-size;
+  container-name: hero;
+}
+
+/* ---------- una sola columna (por defecto): la imagen es una franja debajo del texto ---------- */
+.hero.has-art {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 28px;
+}
+
+.hero-art {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.ha-frame {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .28);
+  box-shadow: 0 24px 60px rgba(8, 3, 30, .55), 0 0 0 6px rgba(167, 139, 250, .12);
+  background: #12081f;
+  isolation: isolate;
+}
+
+.ha-stage {
+  position: absolute;
+  inset: 0;
+  animation: haZoom 28s ease-in-out infinite alternate;
+}
+
+.ha-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 66% 50%;
+  max-width: none;
+}
+
+/* la noche está encima y se desvanece: 7 s de noche, 7 s de día */
+.ha-night {
+  animation: haNoche 14s ease-in-out infinite;
+}
+
+@keyframes haNoche {
+  0%, 38% { opacity: 1; }
+  50%, 88% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes haZoom {
+  from { transform: scale(1.03); }
+  to   { transform: scale(1.12) translate(-1.5%, -1%); }
+}
+
+/* brillo suave que cruza la puerta */
+.ha-shine {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, .13) 50%, transparent 62%);
+  background-size: 250% 100%;
+  animation: haShine 7s ease-in-out infinite;
+}
+
+@keyframes haShine {
+  0%   { background-position: 130% 0; }
+  60%, 100% { background-position: -40% 0; }
+}
+
+/* ---------- tarjeta de cristal con un inmueble real ---------- */
+.ha-card {
+  position: absolute;
+  z-index: 3;
+  left: 14px;
+  right: auto;
+  width: min(300px, calc(100% - 28px));
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  text-align: left;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, .22);
+  background: rgba(18, 10, 38, .62);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
+  box-shadow: 0 16px 40px rgba(6, 2, 22, .5);
+  transition: opacity .26s ease, transform .26s ease, background .2s, border-color .2s;
+}
+
+.ha-card[hidden] { display: none; }
+
+.ha-card.swap {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.ha-card:hover,
+.ha-card:focus-visible {
+  background: rgba(30, 14, 60, .78);
+  border-color: rgba(216, 180, 254, .6);
+  transform: translateY(-3px);
+  outline: none;
+}
+
+.ha-thumb {
+  flex: none;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 18px;
+  background-size: cover;
+  background-position: center;
+  border: 1px solid rgba(255, 255, 255, .25);
+}
+
+.ha-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ha-badge {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  color: #3b2400;
+  background: linear-gradient(135deg, #fde68a, #f59e0b);
+}
+
+.ha-title {
+  font-size: 13px;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ha-loc,
+.ha-specs {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, .72);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ha-loc i,
+.ha-specs i {
+  margin-right: 5px;
+  color: #c4b5fd;
+}
+
+.ha-specs {
+  display: flex;
+  gap: 10px;
+}
+
+.ha-price {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.ha-price small {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, .7);
+}
+
+.ha-go {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  color: #fff;
+  background: linear-gradient(135deg, #7c3aed, #9333ea);
+  box-shadow: 0 6px 16px rgba(124, 58, 237, .5);
+  transition: transform .2s;
+}
+
+.ha-card:hover .ha-go { transform: translateX(3px); }
+
+/* ---------- datos de confianza ---------- */
+.ha-chip {
+  position: absolute;
+  z-index: 3;
+  top: 12px;
+  display: none;           /* solo en el modo de dos columnas */
+  align-items: center;
+  gap: 7px;
+  padding: 8px 13px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  border: 1px solid rgba(255, 255, 255, .26);
+  background: rgba(18, 10, 38, .6);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 26px rgba(6, 2, 22, .4);
+}
+
+.ha-chip i { color: #86efac; }
+.ha-c2 i { color: #c4b5fd; }
+
+/* =====================================================================
+   DOS COLUMNAS: texto y buscador a la izquierda, la puerta a la derecha
+   ===================================================================== */
+@container hero (min-width: 860px) {
+  .hero.has-art {
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 28px;
+    align-items: center;
+  }
+
+  .hero-art {
+    display: flex;
+    justify-content: center;
+    padding: 8px 0 8px 8px;
+  }
+
+  /* la puerta: un arco, como el umbral de la marca (pequeño, para no agrandar el banner) */
+  .ha-frame {
+    width: min(100%, 250px);
+    height: auto;
+    aspect-ratio: 1 / 1.1;
+    border-radius: 999px 999px 22px 22px;
+    border-width: 1.5px;
+    box-shadow: 0 22px 50px rgba(8, 3, 30, .55), 0 0 70px rgba(147, 51, 234, .34);
+  }
+
+  /* segundo arco más grande y fino, da profundidad */
+  .hero-art::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: min(100%, 250px);
+    transform: translateX(-50%) scale(1.08);
+    border-radius: 999px 999px 28px 28px;
+    border: 1px solid rgba(216, 180, 254, .34);
+    pointer-events: none;
+  }
+
+  .ha-card {
+    left: -4px;
+    right: auto;
+    bottom: 18px;
+    width: 236px;
+    padding: 8px 10px;
+    gap: 10px;
+  }
+
+  .ha-thumb { width: 46px; height: 46px; font-size: 18px; border-radius: 12px; }
+  .ha-title { font-size: 13px; }
+  .ha-price { font-size: 15px; }
+  .ha-go { width: 30px; height: 30px; font-size: 12px; }
+
+  .ha-chip { display: inline-flex; padding: 6px 11px; font-size: 11.5px; }
+  .ha-chip[hidden] { display: none; }
+  .ha-c1 { top: 44px; right: -6px; animation: haFlota 6s ease-in-out infinite; }
+  .ha-c2 { top: 8px; left: 10px; animation: haFlota 7s ease-in-out -2s infinite; }
+}
+
+@keyframes haFlota {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+/* banner muy ancho (pantalla grande o menú oculto): un poco más de aire, sin crecer en altura */
+@container hero (min-width: 1180px) {
+  .hero.has-art { grid-template-columns: minmax(0, 1fr) 340px; gap: 36px; }
+  .ha-frame { width: min(100%, 262px); }
+  .hero-art::before { width: min(100%, 262px); }
+  .ha-card { width: 244px; left: 0; }
+}
+
+/* celulares: se quita la imagen para que el buscador quede arriba */
+@container hero (max-width: 559px) {
+  .hero-art { display: none; }
+}
+
+/* ---------- accesibilidad: sin movimiento ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .ha-stage, .ha-night, .ha-shine, .ha-chip { animation: none !important; }
+  .ha-night { opacity: 1; }
+  .ha-stage.is-day .ha-night { opacity: 0; }
+  .ha-card { transition: none; }
+}
+
+/* ---------- banner más compacto: menos alto, mismo contenido ---------- */
+@media (min-width: 701px) {
+  .hero.has-art { padding: 28px 38px 24px; }
+  .hero.has-art h2 { font-size: 38px; margin: 6px 0 4px; }
+  .hero.has-art p { font-size: 15px; margin-bottom: 14px; }
+  .hero.has-art .ops { margin-bottom: 10px; }
+  .hero.has-art .hbar { padding: 6px 6px 6px 18px; }
+  .hero.has-art .pills { margin-top: 14px; }
+}

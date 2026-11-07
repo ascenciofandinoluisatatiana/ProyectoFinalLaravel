@@ -1,0 +1,223 @@
+/* =====================================================================
+   UMBRAL · invitado · aspecto comercial
+   1) Tarjetas de propiedad: precio protagonista, etiqueta "Nuevo" y pastilla "Verificada" sobre la foto
+   2) Recuadro del menú lateral: invitación a registrarse como vendedor
+   Se carga al final (después de hero-visual.css), así que gana a los estilos anteriores.
+   ===================================================================== */
+
+/* ---------- 1) TARJETAS ---------- */
+
+/* el precio es lo primero que se lee */
+.pcard .price,
+.pcard.is-prem .price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 4px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  line-height: 1.1;
+}
+
+.pcard .price small {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+/* "Nuevo": publicado en los últimos 14 días */
+.b-new {
+  color: #fff;
+  background: linear-gradient(135deg, #f43f5e, #fb923c);
+  box-shadow: 0 4px 14px rgba(244, 63, 94, .45);
+  animation: bNuevo 2.6s ease-in-out infinite;
+}
+
+.b-new i {
+  font-size: .9em;
+}
+
+@keyframes bNuevo {
+  0%, 100% { box-shadow: 0 4px 14px rgba(244, 63, 94, .45); }
+  50% { box-shadow: 0 4px 22px rgba(251, 146, 60, .8); }
+}
+
+/* "Verificada": sello de confianza abajo a la derecha de la foto (arriba a la izquierda quedan operación y Nuevo) */
+.pcard .pimg .ver-pill {
+  position: absolute;
+  right: 9px;
+  bottom: 9px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px 5px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  color: #047857;
+  background: rgba(255, 255, 255, .95);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, .3);
+  pointer-events: none;
+}
+
+.pcard .pimg .ver-pill i {
+  color: #10b981;
+  font-size: 13px;
+}
+
+/* ---------- 2) RECUADRO "REGISTRARME PARA VENDER" ---------- */
+.guest-card.gc-cta {
+  position: relative;
+  overflow: hidden;
+  padding: 12px 14px;
+  color: #fff;
+  border: 1px solid rgba(216, 180, 254, .38);
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgba(192, 132, 252, .5), transparent 58%),
+    linear-gradient(150deg, #2a0f5e 0%, #5b21b6 62%, #7e22ce 100%);
+  box-shadow: 0 16px 38px rgba(91, 33, 182, .38);
+}
+
+.guest-card.gc-cta::after { /* brillo suave en la esquina */
+  content: "";
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  right: -50px;
+  bottom: -60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .12);
+  filter: blur(26px);
+  pointer-events: none;
+}
+
+.gc-cta > * {
+  position: relative;
+  z-index: 1;
+}
+
+.gc-cta h4 {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 9.5px;
+  color: #e9d5ff;
+  background: rgba(255, 255, 255, .14);
+}
+
+.gc-cta > p {
+  display: none; /* el mensaje ahora lo da el título con los beneficios */
+}
+
+.gc-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 8px;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -.01em;
+}
+
+.gc-ico {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #3b2400;
+  background: linear-gradient(135deg, #fde68a, #f59e0b);
+  box-shadow: 0 8px 20px rgba(245, 158, 11, .45);
+}
+
+.gc-list {
+  list-style: none;
+  display: grid;
+  gap: 5px;
+  margin: 0 0 10px;
+  padding: 0;
+}
+
+.gc-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.3;
+  color: rgba(255, 255, 255, .9);
+}
+
+.gc-list i {
+  flex: none;
+  margin-top: 2px;
+  color: #86efac;
+}
+
+.gc-cta a.btn-primary {
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 12.5px;
+  white-space: nowrap;
+  color: #4c1d95;
+  font-weight: 800;
+  background: #fff;
+  border: 0;
+  box-shadow: 0 10px 24px rgba(8, 3, 30, .35);
+  transition: transform .2s, box-shadow .2s;
+}
+
+.gc-cta a.btn-primary i {
+  color: #7e22ce;
+}
+
+.gc-cta a.btn-primary::after {
+  content: "\f061"; /* flecha → */
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  font-size: 12px;
+  transition: transform .2s;
+}
+
+.gc-cta a.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(8, 3, 30, .5);
+}
+
+.gc-cta a.btn-primary:hover::after {
+  transform: translateX(3px);
+}
+
+.gc-foot {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, .75);
+}
+
+.gc-foot a {
+  color: #fff;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .b-new { animation: none; }
+  .gc-cta a.btn-primary,
+  .gc-cta a.btn-primary::after { transition: none; }
+}
+
+/* pantallas de poca altura (portátiles): se muestran solo los dos primeros beneficios */
+@media (max-height: 820px) {
+  .gc-list li:nth-child(3) { display: none; }
+}

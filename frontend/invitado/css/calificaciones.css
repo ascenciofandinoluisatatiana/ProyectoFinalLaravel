@@ -1,0 +1,591 @@
+/* =====================================================================
+   UMBRAL · invitado · CALIFICACIONES
+   Pestañas del detalle (Detalles / Comentarios y calificación), estrellas,
+   formulario para calificar al vendedor y lista de comentarios.
+   Se carga DESPUÉS de mejoras.css. Usa las variables de tema (claro / oscuro).
+   ===================================================================== */
+
+:root {
+  --star: #f5b301;
+}
+
+/* ---------- Pestañas ---------- */
+.dtabs {
+  display: flex;
+  gap: 4px;
+  padding: 10px 26px 0;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.dtabs::-webkit-scrollbar {
+  display: none;
+}
+
+.dtab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  margin-bottom: -1px;
+  border-radius: 12px 12px 0 0;
+  border-bottom: 3px solid transparent;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--muted);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color .2s, background .2s, border-color .2s;
+}
+
+.dtab:hover {
+  color: var(--text);
+  background: var(--soft);
+}
+
+.dtab:focus-visible {
+  outline: 2px solid var(--primary2);
+  outline-offset: -2px;
+}
+
+.dtab.on {
+  color: var(--primary);
+  border-bottom-color: var(--primary2);
+}
+
+.dtab.on i {
+  color: var(--primary2);
+}
+
+#tabRv.on i {
+  color: var(--star);
+}
+
+.dtab-n {
+  font-style: normal;
+  min-width: 22px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  text-align: center;
+  background: var(--soft);
+  color: var(--primary);
+}
+
+.dpanel[hidden] {
+  display: none !important;
+}
+
+/* ---------- Estrellas ---------- */
+.rv-stars {
+  display: inline-flex;
+  gap: 2px;
+  color: var(--star);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.rv-stars.sm {
+  font-size: 13px;
+}
+
+.rv-stars .fa-regular {
+  color: var(--muted);
+  opacity: .55;
+}
+
+/* Línea de calificación en la caja del vendedor */
+.rv-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 4px 10px 4px 8px;
+  border-radius: 999px;
+  background: var(--soft);
+  border: 1px solid var(--border);
+  font-size: 12.5px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color .2s, transform .2s;
+}
+
+.rv-line:hover {
+  border-color: var(--primary2);
+  transform: translateY(-1px);
+}
+
+.rv-line b {
+  color: var(--text);
+}
+
+.rv-line.none i {
+  color: var(--star);
+}
+
+/* Calificación junto al vendedor en la tarjeta */
+.rv-mini {
+  color: var(--text);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.rv-mini i {
+  color: var(--star);
+  font-size: 11px;
+}
+
+.rv-mini em {
+  font-style: normal;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+/* ---------- Panel de comentarios ---------- */
+.rv-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+  gap: 26px;
+  padding: 26px;
+  align-items: start;
+}
+
+.rv-side {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+
+.rv-h {
+  font-size: 13px;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rv-n {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--soft);
+  color: var(--primary);
+  font-size: 12px;
+  letter-spacing: 0;
+}
+
+/* Resumen */
+.rv-sum,
+.rv-form {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 18px;
+  background: var(--bg);
+}
+
+.rv-who {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  min-width: 0;
+}
+
+.rv-who small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.rv-who b {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rv-who>div:last-child {
+  min-width: 0;
+}
+
+.rv-score {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.rv-big {
+  font-size: 46px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--text);
+}
+
+.rv-score .rv-stars {
+  font-size: 19px;
+}
+
+.rv-score small {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.rv-bars {
+  display: grid;
+  gap: 7px;
+}
+
+.rv-bar {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 28px;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.rv-bar span i {
+  color: var(--star);
+  font-size: 10px;
+}
+
+.rv-bar em {
+  font-style: normal;
+  text-align: right;
+}
+
+.rv-track {
+  height: 8px;
+  border-radius: 99px;
+  background: var(--soft);
+  overflow: hidden;
+}
+
+.rv-track i {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #fcd34d, var(--star));
+  transition: width .5s ease;
+}
+
+.rv-empty-sum,
+.rv-empty {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  text-align: center;
+  padding: 18px 10px;
+  color: var(--muted);
+}
+
+.rv-empty-sum i,
+.rv-empty i {
+  font-size: 30px;
+  color: var(--star);
+}
+
+.rv-empty-sum b,
+.rv-empty b {
+  color: var(--text);
+}
+
+.rv-empty-sum small,
+.rv-empty small {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.rv-empty {
+  border: 1px dashed var(--border);
+  border-radius: 18px;
+  padding: 34px 16px;
+}
+
+/* Formulario */
+.rv-form {
+  display: grid;
+  gap: 14px;
+}
+
+.rv-form .rv-h {
+  margin-bottom: 0;
+}
+
+.rv-hint {
+  display: flex;
+  gap: 8px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--muted);
+  background: var(--soft);
+  padding: 9px 12px;
+  border-radius: 10px;
+}
+
+.rv-hint i {
+  color: var(--primary);
+  margin-top: 2px;
+}
+
+.rv-lbl {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.rv-pick {
+  display: flex;
+  gap: 4px;
+}
+
+.rv-star {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  color: var(--border);
+  cursor: pointer;
+  transition: color .15s, transform .15s, background .15s;
+}
+
+.rv-star:hover {
+  background: var(--soft);
+}
+
+.rv-star.on,
+.rv-star.hv {
+  color: var(--star);
+}
+
+.rv-star:active {
+  transform: scale(.88);
+}
+
+.rv-star:focus-visible {
+  outline: 2px solid var(--primary2);
+  outline-offset: 1px;
+}
+
+.rv-picklbl {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--muted);
+  min-height: 18px;
+}
+
+.rv-picklbl.set {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.rv-form textarea {
+  resize: vertical;
+  min-height: 84px;
+}
+
+.rv-count {
+  display: block;
+  text-align: right;
+  margin-top: 4px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.rv-err {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--red);
+  background: color-mix(in srgb, var(--red) 12%, transparent);
+  padding: 9px 12px;
+  border-radius: 10px;
+}
+
+.rv-err[hidden] {
+  display: none;
+}
+
+.rv-form .btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.rv-form .btn:disabled {
+  opacity: .65;
+  cursor: progress;
+}
+
+/* Lista de comentarios */
+.rv-list {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  align-content: start;
+}
+
+.rv-list .rv-h {
+  margin-bottom: 0;
+}
+
+.rv-item {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg);
+}
+
+.rv-item.mine {
+  border-color: var(--primary2);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary2) 16%, transparent);
+}
+
+.rv-av {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  flex: none;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary), var(--primary2));
+}
+
+.rv-body {
+  min-width: 0;
+  flex: 1;
+}
+
+.rv-body header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin-bottom: 4px;
+}
+
+.rv-body header b {
+  overflow-wrap: anywhere;
+}
+
+.rv-body time {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.rv-chip {
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--soft);
+}
+
+.rv-body p {
+  margin-top: 6px;
+  line-height: 1.55;
+  color: var(--text);
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.rv-body p.rv-notext {
+  color: var(--muted);
+  font-style: italic;
+  font-size: 13px;
+}
+
+/* Cargando / error */
+.rv-loading,
+.rv-fail {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+
+.rv-fail i {
+  color: var(--orange);
+  font-size: 20px;
+}
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 900px) {
+  .rv-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .dtabs {
+    padding: 8px 12px 0;
+    gap: 2px;
+  }
+
+  .dtab {
+    flex: 1;
+    justify-content: center;
+    text-align: center;
+    white-space: normal;
+    padding: 10px 8px;
+    font-size: 13px;
+    gap: 6px;
+    line-height: 1.2;
+  }
+
+  .rv-grid {
+    padding: 16px;
+  }
+
+  .rv-sum,
+  .rv-form {
+    padding: 14px;
+  }
+
+  .rv-big {
+    font-size: 40px;
+  }
+
+  .rv-star {
+    flex: 1;
+    height: 44px;
+  }
+
+  .rv-item {
+    padding: 12px;
+  }
+
+  .rv-body time {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .rv-track i,
+  .rv-star,
+  .rv-line {
+    transition: none;
+  }
+}

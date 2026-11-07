@@ -30,6 +30,8 @@ class PropiedadPublicaResource extends JsonResource
             'park'    => $this->parqueaderos,
             'area'    => $this->area,
             'estrato' => $this->estrato,
+            // Fecha de publicación: el portal marca como "Nuevo" lo publicado hace pocos días
+            'created' => $this->created_at?->toIso8601String(),
             'ver'     => (bool) $this->verificada,
             'prem'    => (bool) ($this->prem ?? false),
             'tier'    => [1 => 'bronce', 2 => 'plata', 3 => 'oro'][(int) ($this->nivel ?? 0)] ?? null,
@@ -58,6 +60,9 @@ class PropiedadPublicaResource extends JsonResource
                 'email' => $v->email,
                 'ini'   => $ini,
                 'ver'   => $v->estado === 'activo',
+                // Calificación promedio (0 si aún no tiene reseñas) y cuántas reseñas tiene
+                'rating'  => round((float) ($v->calificaciones_avg_estrellas ?? 0), 1),
+                'reviews' => (int) ($v->calificaciones_count ?? 0),
             ],
         ];
     }

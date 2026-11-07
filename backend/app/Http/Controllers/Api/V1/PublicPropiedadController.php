@@ -45,12 +45,20 @@ class PublicPropiedadController extends Controller
         return "{$nivel} AS nivel, ({$nivel}) > 0 AS prem, {$score} AS score";
     }
 
+    /** Vendedor con su promedio de estrellas y total de reseñas (una sola consulta para todas las propiedades). */
+    private static function vendedorConResenas(): \Closure
+    {
+        return fn ($q) => $q->select('id', 'name', 'email', 'telefono', 'role_id', 'estado')
+            ->withAvg('calificaciones', 'estrellas')
+            ->withCount('calificaciones');
+    }
+
     public function index(Request $r)
     {
         $q = Propiedad::query()
             ->select('propiedades.*')
             ->selectRaw(self::premiumSql())
-            ->with(['vendedor:id,name,email,telefono,role_id,estado', 'fotos'])
+            ->with(['vendedor' => self::vendedorConResenas(), 'fotos'])
             ->where('estado', 'publicada')
             ->when($r->operacion,  fn ($q, $v) => $q->where('operacion', $v))
             ->when($r->tipo,       fn ($q, $v) => $q->where('tipo', $v))
@@ -72,7 +80,7 @@ class PublicPropiedadController extends Controller
         $p = Propiedad::query()
             ->select('propiedades.*')
             ->selectRaw(self::premiumSql())
-            ->with(['vendedor:id,name,email,telefono,role_id,estado', 'fotos'])
+            ->with(['vendedor' => self::vendedorConResenas(), 'fotos'])
             ->where('estado', 'publicada')
             ->findOrFail($id);
 

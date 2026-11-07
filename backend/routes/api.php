@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\V1\Inmobiliaria\ResumenController as InmobiliariaRe
 use App\Http\Controllers\Api\V1\Inmobiliaria\VisitaController as InmobiliariaVisitaController;
 use App\Http\Controllers\Api\V1\Inmobiliaria\SesionController as InmobiliariaSesionController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\CalificacionVendedorController;
 use App\Http\Controllers\Api\V1\LeadController;
 use App\Http\Controllers\Api\V1\PublicPropiedadController;
 use App\Http\Controllers\Api\V1\UbicacionController;
@@ -118,6 +119,12 @@ Route::prefix('v1/public')->group(function () {
     Route::get('geocodificar', GeocodificarController::class)->middleware('throttle:30,1');
     Route::get('propiedades/{id}', [PublicPropiedadController::class, 'show']);
     Route::post('leads', [LeadController::class, 'store'])->middleware('throttle:10,1');
+
+    // Calificaciones y comentarios al vendedor / inmobiliaria (los ve y los deja cualquier visitante)
+    Route::get('vendedores/{vendedor}/calificaciones', [CalificacionVendedorController::class, 'index'])
+        ->whereNumber('vendedor')->middleware('throttle:60,1');
+    Route::post('vendedores/{vendedor}/calificaciones', [CalificacionVendedorController::class, 'store'])
+        ->whereNumber('vendedor')->middleware('throttle:8,1');
 
     // Pagos con Wompi (compra o arriendo desde el portal y resultado del pago)
     Route::post('pagos/propiedad', [PagoController::class, 'propiedad'])->middleware('throttle:5,1');

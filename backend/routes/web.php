@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SeoController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,3 +29,7 @@ Route::get('storage/{ruta}', function (string $ruta) {
 
     return \Illuminate\Support\Facades\Storage::disk('public')->response($ruta);
 })->where('ruta', '(propiedades|avatars)/[A-Za-z0-9_\-]+\.(jpg|jpeg|png|webp)');
+
+// Para Google: mapa del sitio con cada inmueble publicado y robots.txt (nginx los manda aquí)
+Route::get('sitemap.xml', [SeoController::class, 'sitemap']);
+Route::get('robots.txt', [SeoController::class, 'robots']);

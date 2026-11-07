@@ -403,7 +403,9 @@
 .rest-grid,
 .prem-wrap .prem-track {
   display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  /* las columnas se calculan según el ancho disponible: con el menú lateral oculto
+     el contenido se ensancha y caben más tarjetas por fila (y todas las premium se ven) */
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 235px), 1fr));
   gap: 18px;
   width: 100%;
   overflow: visible;
@@ -598,21 +600,11 @@
   min-width: 0;
 }
 
-/* Tablet */
-@media (max-width: 1050px) {
-  .cards,
-  .rest-grid,
-  .prem-wrap .prem-track {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-/* Tabletas pequeñas */
+/* Tabletas pequeñas (las columnas ya se ajustan solas al ancho disponible) */
 @media (max-width: 760px) {
   .cards,
   .rest-grid,
   .prem-wrap .prem-track {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
   }
 

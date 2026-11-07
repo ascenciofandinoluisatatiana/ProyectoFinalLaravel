@@ -34,7 +34,15 @@
         $('#q').value = ''; $('#fMax').value = ''; $$('.op').forEach(b => b.classList.toggle('active', b.dataset.op === 'all')); buildFilters(); render(); return
       }
       if (g('#goExplore')) { $('#filters').scrollIntoView({ behavior: 'smooth' }); return }
-      if (g('#menuBtn')) { $('#sidebar').classList.toggle('open'); $('#shade').classList.toggle('open'); return }
+      if (g('#menuBtn')) {
+        if (window.matchMedia('(min-width:961px)').matches) { // escritorio: ocultar / mostrar el menú y ampliar el contenido
+          const hidden = document.documentElement.classList.toggle('sb-hidden');
+          try { localStorage.setItem('umbral_sidebar', hidden ? 'hidden' : 'shown') } catch (_) { }
+          $('#menuBtn').setAttribute('aria-expanded', String(!hidden));
+          setTimeout(() => { if (map) map.invalidateSize(); premNavUpdate() }, 340); // al terminar la animación
+        } else { $('#sidebar').classList.toggle('open'); $('#shade').classList.toggle('open') } // móvil: panel deslizable
+        return
+      }
       if (g('#shade')) { $('#sidebar').classList.remove('open'); $('#shade').classList.remove('open') }
     });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModals() });
@@ -57,6 +65,7 @@
     }
     $('#themeBtn').onclick = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
     setTheme(localStorage.getItem('umbral_theme') || 'dark');
+    $('#menuBtn').setAttribute('aria-expanded', String(!document.documentElement.classList.contains('sb-hidden')));
 
     applyI18n();
     loadData().then(applyI18n).catch(() => toast('No se pudo conectar con el servidor; se muestran datos de ejemplo')).finally(() => { window.__loadDone = true; window.__loading = false; LOADING = false; applyI18n() });

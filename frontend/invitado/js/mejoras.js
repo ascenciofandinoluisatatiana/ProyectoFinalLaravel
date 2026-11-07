@@ -14,15 +14,22 @@
     cp: ['Copiar enlace', 'Copy link', 'Copiar link', 'Copier le lien'],
     copied: ['Enlace copiado', 'Link copied', 'Link copiado', 'Lien copié'],
     favAdd: ['Guardar en favoritos', 'Save to favorites', 'Salvar nos favoritos', 'Ajouter aux favoris'],
-    favDel: ['Quitar de favoritos', 'Remove from favorites', 'Remover dos favoritos', 'Retirer des favoris']
+    favDel: ['Quitar de favoritos', 'Remove from favorites', 'Remover dos favoritos', 'Retirer des favoris'],
+    nuevo: ['Nuevo', 'New', 'Novo', 'Nouveau']
   };
   function L(k) {
     var i = Math.max(0, LANGS.indexOf(lang));
     return (TXT[k] || [k])[i] || TXT[k][0];
   }
 
+  /* "Nuevo": publicado hace 14 días o menos (la API manda la fecha en p.created) */
+  function esNuevo(p) {
+    var f = p && p.created ? Date.parse(p.created) : NaN;
+    return !isNaN(f) && Date.now() - f < 14 * 864e5 && Date.now() >= f - 864e5;
+  }
+
   function urlDe(p) {
-    return location.origin + location.pathname + '?propiedad=' + p.id;
+    return location.origin + RT.pathOf(p); // /inmuebles/venta/nombre-del-inmueble-12 (rutas.js)
   }
 
   /* ---------- tarjeta horizontal ---------- */
@@ -36,11 +43,13 @@
     return '<article class="pcard' + (p.prem ? ' is-prem' : '') + (rank ? ' has-rank' : '') + '" style="--i:' + (i || 0) + '">' +
       '<div class="pimg" style="' + imgStyle(p) + '" data-open="' + p.id + '">' + icon(p) +
       '<div class="badges"><span class="b ' + (rent ? 'b-rent' : 'b-sale') + '">' + t(rent ? 'rental' : 'sale') + '</span>' +
-      (p.ver ? '<span class="b b-ver"><i class="fa-solid fa-circle-check"></i>' + t('verified') + '</span>' : '') +
+      (esNuevo(p) ? '<span class="b b-new"><i class="fa-solid fa-bolt"></i>' + L('nuevo') + '</span>' : '') +
       (p.prem ? '<span class="b b-prem"><i class="fa-solid fa-star"></i>' + t('premium') + '</span>' : '') + '</div>' +
+      (p.ver ? '<span class="ver-pill"><i class="fa-solid fa-circle-check"></i>' + t('verified') + '</span>' : '') +
       (rank ? '<span class="rank ' + tierCls(p) + '">#' + rank + '</span><span class="tier-chip ' + tierCls(p) + '">' + t('tier_' + (p.tier || 'bronce')) + '</span>' : '') +
       '<button type="button" class="fav ' + (fav ? 'on' : '') + '" data-fav="' + p.id + '" aria-pressed="' + fav + '" aria-label="' + L(fav ? 'favDel' : 'favAdd') + '">' +
       '<i class="' + (fav ? 'fa-solid' : 'fa-regular') + ' fa-heart"></i></button>' +
+      '<button type="button" class="cmp" data-cmp="' + p.id + '" aria-pressed="false" aria-label="Comparar" title="Comparar"><i class="fa-solid fa-code-compare"></i></button>' +
       '</div>' +
       '<div class="pbody">' +
       '<div class="price">' + cop(p.price) + (rent ? '<small> ' + t('per_month') + '</small>' : '') + '</div>' +
@@ -53,13 +62,15 @@
       '<span><i class="fa-solid fa-ruler-combined"></i>' + p.area.toLocaleString('es-CO') + ' ' + t('m2') + '</span>' +
       '</div>' +
       '<div class="pfoot">' +
-      '<div class="mini-seller"><div class="avatar">' + s.ini + '</div><div><b>' + s.name + '</b><small>' + t(s.kind === 'agency' ? 'agency' : 'person') + '</small></div></div>' +
-      '<div class="pshare" role="group" aria-label="' + L('share') + '"><span class="lbl"><i class="fa-solid fa-share-nodes"></i>' + L('share') + '</span>' +
+      '<div class="mini-seller"><div class="avatar">' + s.ini + '</div><div><b>' + s.name + '</b><small>' + t(s.kind === 'agency' ? 'agency' : 'person') + RV.mini(s) + '</small></div></div>' +
+      '<div class="pshare" role="group" aria-label="' + L('share') + '">' +
+      '<button type="button" class="sh-toggle" data-shtoggle aria-haspopup="true" aria-expanded="false" aria-label="' + L('share') + '" title="' + L('share') + '"><i class="fa-solid fa-share-nodes"></i></button>' +
+      '<div class="sh-menu">' +
       share('wa', 'fa-brands fa-whatsapp', 'sh-wa') +
       share('fb', 'fa-brands fa-facebook-f', 'sh-fb') +
       share('x', 'fa-brands fa-x-twitter', 'sh-x') +
       share('cp', 'fa-solid fa-link', 'sh-cp') +
-      '</div></div>' +
+      '</div></div></div>' +
       '<div class="pactions">' +
       '<button class="btn btn-ghost btn-sm" data-open="' + p.id + '"><i class="fa-solid fa-eye"></i>' + t('details') + '</button>' +
       '<button class="btn ' + (rent ? 'btn-orange' : 'btn-green') + ' btn-sm" data-pay="' + p.id + '"><i class="fa-solid ' + (rent ? 'fa-key' : 'fa-cart-shopping') + '"></i>' + t(rent ? 'rent' : 'buy') + '</button>' +
@@ -150,18 +161,7 @@
     }
   });
 
-  /* ---------- enlace compartido: abre el detalle de la propiedad ---------- */
-  var compartida = new URLSearchParams(location.search).get('propiedad');
-  if (compartida) {
-    var intentos = 0;
-    var iv = setInterval(function () {
-      intentos++;
-      if (window.__loadDone && typeof openDetail === 'function') {
-        clearInterval(iv);
-        try { openDetail(+compartida); } catch (_) { }
-      } else if (intentos > 40) { clearInterval(iv); }
-    }, 300);
-  }
+  /* El enlace compartido (/inmuebles/venta/...-12 o el viejo ?propiedad=12) lo abre rutas.js */
 
   try { render(); } catch (_) { }
 })();

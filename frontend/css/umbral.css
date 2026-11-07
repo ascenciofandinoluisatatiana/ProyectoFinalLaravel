@@ -2477,3 +2477,750 @@ form .btn-principal > span[aria-hidden="true"] {
     .app-pantalla { padding: 18px 12px; border-radius: 21px; }
     .app-mini i { height: 54px; }
 }
+
+/* =========================================================
+   PASO 1 (v2) — Espaciado y tarjetas con ícono a la izquierda
+   ========================================================= */
+
+/* ---------- Espaciado entre secciones ---------- */
+main .seccion { padding-block: clamp(32px, 4.5vw, 56px); }
+main .seccion-app { padding-block: clamp(28px, 4vw, 44px); }
+
+/* ---------- Encabezados: más aire entre etiqueta, título, subtítulo y contenido ---------- */
+main .seccion-cabecera { margin-bottom: clamp(28px, 3.5vw, 44px); }
+main .seccion-cabecera h2 { margin: 14px 0; }
+main .seccion-cabecera p { line-height: 1.6; }
+
+.hero-inicio { padding-block: clamp(28px, 4vw, 56px); }
+.hero-contenido { gap: 24px; }
+.hero-mensaje h1 { margin: 10px 0; }
+.hero-botones { margin-top: 18px; }
+
+.estadisticas {
+    margin-top: clamp(20px, 3vw, 32px);
+    padding: clamp(16px, 2.5vw, 24px);
+}
+
+/* ---------- Sobre nosotros: texto arriba y las dos tarjetas abajo ---------- */
+.nosotros-columnas {
+    grid-template-columns: 1fr;
+    gap: clamp(24px, 3vw, 36px);
+}
+.nosotros-texto h2 { margin: 14px 0 16px; }
+.nosotros-texto p { margin-bottom: 12px; line-height: 1.65; }
+#nosotros .nosotros-tarjetas { max-width: 620px; gap: 16px; }
+
+/* ---------- Rejilla: 2 columnas, y 4 solo en pantalla grande ---------- */
+main .rejilla-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    max-width: 1180px;
+}
+
+/* ---------- Tarjetas: ícono a la izquierda, título y texto a la derecha ---------- */
+.tarjeta-servicio,
+.tarjeta-mision {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 16px;
+    align-items: start;
+    padding: 22px 20px;
+    text-align: start !important;
+}
+.tarjeta-servicio .servicio-icono,
+.tarjeta-mision .servicio-icono {
+    grid-row: 1 / span 2;
+    width: 46px;
+    height: 46px;
+    margin: 0 !important;
+}
+.tarjeta-servicio h3,
+.tarjeta-mision h3 {
+    grid-column: 2;
+    margin: 2px 0 8px;
+    font-size: 1.1rem;
+}
+.tarjeta-servicio p,
+.tarjeta-mision p {
+    grid-column: 2;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Computador grande: 4 tarjetas angostas, casi cuadradas */
+@media (min-width: 1280px) {
+    main .rejilla-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .tarjeta-servicio { min-height: 176px; }
+}
+
+/* Celular: una sola columna */
+@media (max-width: 560px) {
+    main .rejilla-4 { grid-template-columns: 1fr; }
+}
+
+/* =========================================================
+   PASO 1 (v3) — Sobre nosotros: texto y tarjetas del mismo ancho
+   ========================================================= */
+#nosotros .nosotros-columnas {
+    max-width: 920px;
+    width: 100%;
+    margin-inline: auto;
+}
+#nosotros .nosotros-texto { max-width: none; }
+#nosotros .nosotros-texto p {
+    max-width: none;
+    font-size: 1.05rem;
+}
+#nosotros .nosotros-tarjetas {
+    max-width: none;
+    width: 100%;
+    gap: 18px;
+}
+
+/* =========================================================
+   PASO 1 (v4) — Sobre nosotros, hover en todas las tarjetas y animaciones
+   ========================================================= */
+
+/* ---------- Sobre nosotros: texto ancho arriba, tarjetas más cuadradas abajo ---------- */
+#nosotros .nosotros-columnas { max-width: 1000px; width: 100%; margin-inline: auto; }
+#nosotros .nosotros-texto { max-width: none; }
+#nosotros .nosotros-texto p { max-width: none; font-size: 1.05rem; }
+#nosotros .nosotros-tarjetas { max-width: 780px; width: 100%; margin-inline: auto; gap: 20px; }
+#nosotros .tarjeta-mision { padding: 26px 24px; min-height: 170px; }
+#nosotros .tarjeta-mision p { font-size: 1rem; }
+
+/* ---------- Mismo hover en todas las tarjetas ---------- */
+.tarjeta-mision {
+    transition: transform .3s cubic-bezier(.2,.8,.3,1), box-shadow .3s ease, border-color .3s ease;
+}
+.tarjeta-mision::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(160deg, var(--acento) 0%, transparent 35%, transparent 65%, var(--acento-2) 100%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    opacity: 0;
+    transition: opacity .25s ease;
+    pointer-events: none;
+}
+.tarjeta-servicio:hover,
+.tarjeta-servicio.resaltada,
+.tarjeta-mision:hover,
+.tarjeta-mision.resaltada {
+    transform: translateY(-6px);
+    box-shadow: 0 24px 60px rgba(107, 60, 160, 0.25);
+}
+.tarjeta-servicio.resaltada::before,
+.tarjeta-mision:hover::before,
+.tarjeta-mision.resaltada::before { opacity: 1; }
+
+.servicio-icono { transition: transform .3s ease, border-color .3s ease; }
+.tarjeta-servicio:hover .servicio-icono,
+.tarjeta-servicio.resaltada .servicio-icono,
+.tarjeta-mision:hover .servicio-icono,
+.tarjeta-mision.resaltada .servicio-icono {
+    transform: translateY(-2px) scale(1.08);
+    border-color: var(--acento);
+}
+
+.estadistica {
+    padding: 6px;
+    border-radius: 14px;
+    transition: transform .3s cubic-bezier(.2,.8,.3,1);
+}
+.estadistica:hover { transform: translateY(-5px); }
+
+/* =========================================================
+   PASO 1 (v5) — Animaciones variadas + barra de scroll estable
+   ========================================================= */
+
+/* ---------- Barra de scroll: el espacio queda reservado y nada salta ---------- */
+html { scrollbar-gutter: stable; }
+main, .pie { overflow-x: clip; }              /* las entradas laterales no crean barra horizontal */
+
+:root { --dist: 70px; }
+@media (max-width: 700px) { :root { --dist: 32px; } }
+
+/* ---------- Al hacer scroll: cada elemento entra desde su lado ---------- */
+.js-anim [data-anim] {
+    opacity: 0;
+    transition:
+        opacity .8s ease var(--rev-delay, 0ms),
+        translate .8s cubic-bezier(.2,.8,.3,1) var(--rev-delay, 0ms),
+        scale .8s cubic-bezier(.2,.8,.3,1) var(--rev-delay, 0ms),
+        rotate .9s cubic-bezier(.2,.8,.3,1) var(--rev-delay, 0ms),
+        filter .8s ease var(--rev-delay, 0ms),
+        transform .3s cubic-bezier(.2,.8,.3,1),
+        box-shadow .3s ease,
+        border-color .3s ease;
+}
+.js-anim [data-anim="izq"]  { translate: calc(var(--dist) * -1) 0; }
+.js-anim [data-anim="der"]  { translate: var(--dist) 0; }
+.js-anim [data-anim="arr"]  { translate: 0 calc(var(--dist) * -.6); }
+.js-anim [data-anim="abj"]  { translate: 0 calc(var(--dist) * .6); }
+.js-anim [data-anim="zoom"] { scale: .84; }
+.js-anim [data-anim="blur"] { translate: 0 28px; filter: blur(10px); }
+.js-anim .app-visual[data-anim="der"] { rotate: 6deg; }
+
+.js-anim [data-anim].visible {
+    opacity: 1;
+    translate: none;
+    scale: none;
+    rotate: none;
+    filter: none;
+}
+
+/* La línea de la etiqueta se dibuja al aparecer */
+.js-anim .pais[data-anim]::before,
+.js-anim .pais[data-anim]::after {
+    transform: scaleX(0);
+    transition: transform .9s cubic-bezier(.2,.8,.3,1) calc(var(--rev-delay, 0ms) + .25s);
+}
+.js-anim .pais[data-anim]::before { transform-origin: right center; }
+.js-anim .pais[data-anim]::after  { transform-origin: left center; }
+.js-anim .pais[data-anim].visible::before,
+.js-anim .pais[data-anim].visible::after { transform: scaleX(1); }
+
+/* ---------- Portada: la foto se mueve más lento y el texto se desvanece al salir ---------- */
+.hero-inicio::before { translate: 0 var(--hero-par, 0px); }
+.hero-contenido {
+    opacity: var(--hero-op, 1);
+    translate: 0 var(--hero-ty, 0px);
+}
+
+/* ---------- Animación de entrada cada vez que carga la página ---------- */
+@keyframes umbBaja { from { opacity: 0; transform: translateY(-100%); } to { opacity: 1; transform: none; } }
+@keyframes umbIzq  { from { opacity: 0; translate: calc(var(--dist) * -1) 0; filter: blur(6px); } to { opacity: 1; translate: none; filter: none; } }
+@keyframes umbDer  { from { opacity: 0; translate: var(--dist) 0; } to { opacity: 1; translate: none; } }
+@keyframes umbAbj  { from { opacity: 0; translate: 0 calc(var(--dist) * .6); } to { opacity: 1; translate: none; } }
+@keyframes umbLinea { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes umbZoomFoto { from { scale: 1.14; } to { scale: 1; } }
+@keyframes umbFlota { 0%, 100% { translate: 0 0; } 50% { translate: 0 -10px; } }
+
+@media (prefers-reduced-motion: no-preference) {
+    .navbar { animation: umbBaja .7s cubic-bezier(.2,.8,.3,1) both; }
+    .hero-inicio::before { animation: umbZoomFoto 2.4s ease-out both; }
+
+    .hero-contenido .insignia-grupo { animation: umbIzq .9s cubic-bezier(.2,.8,.3,1) .15s both; }
+    .hero-mensaje .pais { animation: umbIzq .9s cubic-bezier(.2,.8,.3,1) .35s both; }
+    .hero-mensaje .pais::before { transform-origin: left center; animation: umbLinea .8s ease .6s both; }
+    .hero-mensaje h1 { animation: umbIzq 1s cubic-bezier(.2,.8,.3,1) .5s both; }
+    .hero-mensaje > p { animation: umbAbj .9s cubic-bezier(.2,.8,.3,1) .75s both; }
+    .hero-botones { animation: umbDer .9s cubic-bezier(.34,1.56,.64,1) .95s both; }
+
+    .app-telefono { animation: umbFlota 5s ease-in-out infinite; }
+}
+
+/* =========================================================
+   PASO 1 (v6) — Barra de scroll delgadita y dorada + espacio del texto "¿Ya tienes cuenta?"
+   ========================================================= */
+
+/* La barra mide 12px de ancho fijo (para que nada se mueva), pero la parte dorada
+   se ve de 6px. Al pasar el mouse encima, se ensancha a 10px y se aclara. */
+html::-webkit-scrollbar,
+.modal-caja::-webkit-scrollbar { width: 12px; height: 12px; }
+
+html::-webkit-scrollbar-track,
+.modal-caja::-webkit-scrollbar-track { background: transparent; }
+
+html::-webkit-scrollbar-thumb,
+.modal-caja::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #e9d79b, #d4af61);
+    background-clip: padding-box;
+    border: 3px solid transparent;
+    border-radius: 99px;
+    transition: border-width .2s ease;
+}
+
+html::-webkit-scrollbar-thumb:hover,
+.modal-caja::-webkit-scrollbar-thumb:hover,
+html::-webkit-scrollbar-thumb:active,
+.modal-caja::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(180deg, #f6ecc4, #e3c373);
+    background-clip: padding-box;
+    border-width: 1px;
+}
+
+/* Firefox no permite ensancharla al pasar el mouse: queda delgada y dorada */
+@supports not selector(::-webkit-scrollbar) {
+    html, .modal-caja { scrollbar-width: thin; scrollbar-color: #d4af61 transparent; }
+}
+
+/* ---------- Texto debajo del botón: "¿Ya tienes una cuenta? Iniciar sesión" ---------- */
+.modal-caja .crear-cuenta { margin-top: 26px; }
+
+/* =========================================================
+   PASO 1 (v7) — Modal: borde fijo + scroll interno sin barras
+   ========================================================= */
+.modal-caja {
+    overflow: visible;        /* la caja ya no hace scroll: su borde brillante no se recorta */
+    max-height: none;
+    padding: 0;
+}
+
+.modal-scroll {
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    overflow-x: hidden;       /* sin barra horizontal */
+    padding: clamp(24px, 4vw, 36px);
+    border-radius: inherit;
+    overscroll-behavior: contain;
+    scrollbar-width: none;    /* sin barra vertical: se baja con rueda o dedo */
+    -ms-overflow-style: none;
+}
+.modal-scroll::-webkit-scrollbar { display: none; width: 0; height: 0; }
+
+@media (max-width: 560px) {
+    .modal-scroll { max-height: calc(100vh - 24px); }
+}
+
+/* =========================================================
+   PASO 2 (v2) — Propiedades destacadas: Oro / Plata / Bronce
+   Una sola pantalla · marco de carrusel · tarjetas como el panel de invitado
+   ========================================================= */
+:root { --nav-alto: 74px; }
+
+/* ---------- Colores de cada nivel ---------- */
+.dest[data-nivel="oro"],    .dest-pagina.n-oro    { --t1: #fde68a; --t2: #f59e0b; --tt: #3b2400; --tb: #b8892b; --tglow: 245, 196, 81; }
+.dest[data-nivel="plata"],  .dest-pagina.n-plata  { --t1: #f8fafc; --t2: #94a3b8; --tt: #1e293b; --tb: #b4b4c0; --tglow: 180, 184, 200; }
+.dest[data-nivel="bronce"], .dest-pagina.n-bronce { --t1: #fdba74; --t2: #b45309; --tt: #ffffff; --tb: #9a6a2e; --tglow: 205, 127, 50; }
+
+/* ---------- Marco del carrusel ---------- */
+.dest {
+    --img-h: clamp(80px, 12vh, 150px);
+    --dc-bg: #121016; --dc-text: #ffffff; --dc-muted: #a1a1aa; --dc-border: #2a2433; --dc-ico: #c084fc;
+    position: relative;
+    isolation: isolate;
+    width: min(1380px, 100%);
+    margin: 0 auto;
+    padding: clamp(10px, 1.8vh, 18px) clamp(12px, 1.6vw, 22px) clamp(10px, 1.6vh, 16px);
+    border-radius: 26px;
+    overflow: hidden;
+    color: #fff;
+    background: linear-gradient(135deg, #0f0c14 0%, #15101c 100%);
+    border: 1px solid rgba(var(--tglow), .5);
+    box-shadow: 0 22px 56px rgba(0, 0, 0, .55);
+    transition: opacity .8s ease, translate .8s cubic-bezier(.2,.8,.3,1), scale .8s cubic-bezier(.2,.8,.3,1), border-color .6s ease;
+    animation: destGlow 5s ease-in-out infinite;
+}
+[data-theme="light"] .dest {
+    --dc-bg: #ffffff; --dc-text: #1a1026; --dc-muted: #6b6280; --dc-border: #e9ddf7; --dc-ico: #7e22ce;
+    background: linear-gradient(135deg, #2e1065 0%, #4c1d95 50%, #7e22ce 100%);
+}
+.dest > * { position: relative; z-index: 1; }
+
+/* Orbes de luz que se mueven despacio */
+.dest::before, .dest::after { content: ""; position: absolute; z-index: 0; border-radius: 50%; filter: blur(70px); pointer-events: none; }
+.dest::before { width: 300px; height: 300px; top: -150px; right: -80px; background: rgb(var(--tglow)); opacity: .2; animation: destOrbe 12s ease-in-out infinite alternate; }
+.dest::after  { width: 320px; height: 320px; bottom: -170px; left: -90px; background: #7e22ce; opacity: .3; animation: destOrbe 16s ease-in-out -4s infinite alternate; }
+
+/* Entrada del marco al llegar a la sección */
+.js-anim .dest:not(.dest-in) { opacity: 0; translate: 0 46px; scale: .97; }
+
+/* ---------- Encabezado del marco ---------- */
+.dest-cab { display: flex; align-items: center; gap: 14px; margin-bottom: clamp(8px, 1.5vh, 14px); }
+.dest-medalla {
+    flex: none;
+    width: clamp(38px, 5.2vh, 50px);
+    height: clamp(38px, 5.2vh, 50px);
+    display: grid;
+    place-items: center;
+    border-radius: 15px;
+    color: var(--tt);
+    background: linear-gradient(135deg, var(--t1), var(--t2));
+    box-shadow: 0 8px 22px rgba(var(--tglow), .45);
+}
+.dest svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.dest-medalla svg { width: 55%; height: 55%; }
+.dest-textos { min-width: 0; }
+.dest-titulo {
+    margin: 0;
+    font-size: clamp(1.15rem, 3vh, 1.6rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -.01em;
+    background: linear-gradient(90deg, #fff, var(--t1));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.dest-sub { margin: 3px 0 0; font-size: .8rem; color: rgba(255, 255, 255, .72); }
+.dest-derecha { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.dest-conteo {
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: .78rem;
+    font-weight: 800;
+    white-space: nowrap;
+    color: var(--tt);
+    background: linear-gradient(135deg, var(--t1), var(--t2));
+}
+.dest-flecha {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border-radius: 50%;
+    font: inherit;
+    font-size: 1rem;
+    color: var(--t1);
+    background: rgba(255, 255, 255, .08);
+    border: 1px solid rgba(var(--tglow), .5);
+    cursor: pointer;
+    transition: transform .25s ease, background .25s ease, color .25s ease;
+}
+.dest-flecha:hover { transform: scale(1.1); background: var(--t1); color: var(--tt); }
+
+/* ---------- Los 3 niveles ocupan el mismo lugar ---------- */
+.dest-vista { display: grid; }
+.dest-pagina {
+    grid-area: 1 / 1;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-auto-rows: 1fr;
+    gap: clamp(8px, 1.5vh, 14px);
+    align-content: start;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity .4s ease, visibility 0s .4s;
+}
+.dest-pagina.activa {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity .4s ease .05s, visibility 0s;
+}
+
+/* ---------- Tarjeta ---------- */
+.dest-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    border-radius: 16px;
+    color: var(--dc-text);
+    background: var(--dc-bg);
+    border: 1.5px solid var(--tb);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, .35);
+    transition: transform .3s cubic-bezier(.2,.8,.3,1), box-shadow .3s ease;
+}
+.dest-card:hover { transform: translateY(-6px); box-shadow: 0 0 0 1px var(--tb), 0 20px 40px rgba(var(--tglow), .28); }
+.dest-card::after { /* destello que cruza la tarjeta */
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+    background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, .16) 50%, transparent 65%);
+    translate: -120% 0;
+    transition: translate .8s ease;
+}
+.dest-card:hover::after { translate: 120% 0; }
+
+.dest-img { position: relative; flex: none; height: var(--img-h); }
+.dest-foto { position: absolute; inset: 0; overflow: hidden; background: linear-gradient(135deg, #1c142b, #3a2557); }
+[data-theme="light"] .dest-foto { background: linear-gradient(135deg, #a855f7, #6b21a8); }
+.dest-foto::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.3), transparent 40%, transparent 60%, rgba(0,0,0,.35)); pointer-events: none; }
+.dest-foto img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .7s cubic-bezier(.2,.75,.25,1); }
+.dest-card:hover .dest-foto img { transform: scale(1.08); }
+.dest-sin-img { height: 100%; display: grid; place-items: center; color: rgba(255, 255, 255, .55); letter-spacing: .3em; font-size: .7rem; }
+
+.dest-badges { position: absolute; top: 8px; left: 8px; z-index: 3; display: flex; gap: 5px; }
+.dest-b { padding: 3px 9px; border-radius: 999px; font-size: .62rem; font-weight: 700; color: #fff; }
+.dest-b-venta { background: #0b0810; border: 1px solid #7e22ce; }
+.dest-b-arriendo { background: #c084fc; color: #1a0b2e; }
+[data-theme="light"] .dest-b-venta { background: #7e22ce; border-color: transparent; }
+[data-theme="light"] .dest-b-arriendo { background: #e9d5ff; color: #581c87; }
+
+.dest-verificada {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px 3px 6px;
+    border-radius: 999px;
+    font-size: .6rem;
+    font-weight: 800;
+    line-height: 1;
+    color: #047857;
+    background: rgba(255, 255, 255, .95);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .3);
+}
+.dest-verificada svg { width: 11px; height: 11px; color: #10b981; }
+
+/* medalla de posición y chip del nivel, como en el panel de invitado */
+.dest-rank {
+    position: absolute;
+    left: 10px;
+    bottom: -15px;
+    z-index: 4;
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-size: .72rem;
+    font-weight: 800;
+    color: var(--tt);
+    background: linear-gradient(135deg, var(--t1), var(--t2));
+    border: 2.5px solid var(--dc-bg);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, .35);
+}
+.dest-nivel {
+    position: absolute;
+    left: 46px;
+    bottom: -9px;
+    z-index: 4;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: .58rem;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--tt);
+    background: linear-gradient(110deg, var(--t2), var(--t1), var(--t2));
+    background-size: 220% 100%;
+    border: 2px solid var(--dc-bg);
+    animation: destChip 3.5s linear infinite;
+}
+
+.dest-cuerpo { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; padding: 20px 11px 11px; }
+.dest-cuerpo h3 { margin: 0; font-size: .86rem; line-height: 1.25; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dest-lugar { display: flex; align-items: center; gap: 5px; margin: 0; font-size: .72rem; color: var(--dc-muted); min-width: 0; }
+.dest-lugar svg { flex: none; width: 12px; height: 12px; color: var(--dc-ico); }
+.dest-lugar span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dest-datos { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 4px; padding: 6px 0; border-top: 1px dashed var(--dc-border); font-size: .7rem; color: var(--dc-muted); }
+.dest-dato { display: inline-flex; align-items: center; gap: 4px; }
+.dest-dato svg { width: 12px; height: 12px; color: var(--dc-ico); }
+
+.dest-pie { margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 8px; }
+.dest-precio { display: flex; flex-direction: column; min-width: 0; font-size: clamp(.88rem, 1.9vh, 1.02rem); font-weight: 800; line-height: 1.1; }
+.dest-precio small { font-size: .62rem; font-weight: 600; color: var(--dc-muted); }
+.dest-ver {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 10px;
+    border-radius: 10px;
+    font-size: .7rem;
+    font-weight: 800;
+    text-decoration: none;
+    color: var(--tt);
+    background: linear-gradient(135deg, var(--t1), var(--t2));
+    box-shadow: 0 5px 14px rgba(var(--tglow), .35);
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+.dest-ver svg { width: 12px; height: 12px; transition: transform .25s ease; }
+.dest-ver:hover { transform: translateY(-2px); box-shadow: 0 9px 20px rgba(var(--tglow), .5); }
+.dest-ver:hover svg { transform: translate(2px, -2px); }
+
+/* ---------- Línea de progreso hacia el siguiente nivel ---------- */
+.dest-barra { height: 3px; margin-top: clamp(8px, 1.4vh, 12px); border-radius: 3px; background: rgba(255, 255, 255, .12); overflow: hidden; }
+.dest-barra i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--t1), var(--t2)); }
+.dest-barra i.corre { animation: destBarra var(--seg, 7s) linear forwards; }
+.dest.pausa .dest-barra i { animation-play-state: paused; }
+
+.dest-aviso { grid-area: 1 / 1; padding: 28px; text-align: center; color: rgba(255, 255, 255, .75); border: 1px dashed rgba(255, 255, 255, .25); border-radius: 18px; }
+
+/* ---------- Animaciones ---------- */
+@keyframes destGlow {
+    0%, 100% { box-shadow: 0 22px 56px rgba(0, 0, 0, .55), 0 0 0 0 rgba(var(--tglow), 0); }
+    50%      { box-shadow: 0 22px 56px rgba(0, 0, 0, .55), 0 0 34px 2px rgba(var(--tglow), .22); }
+}
+@keyframes destOrbe  { to { translate: 40px 30px; } }
+@keyframes destChip  { to { background-position: -220% 0; } }
+@keyframes destBarra { from { width: 0; } to { width: 100%; } }
+@keyframes destIzq   { from { opacity: 0; translate: -46px 0; scale: .96; } to { opacity: 1; translate: 0 0; scale: 1; } }
+@keyframes destDer   { from { opacity: 0; translate: 46px 0; scale: .96; } to { opacity: 1; translate: 0 0; scale: 1; } }
+@keyframes destAbj   { from { opacity: 0; translate: 0 38px; } to { opacity: 1; translate: 0 0; } }
+@keyframes destArr   { from { opacity: 0; translate: 0 -30px; } to { opacity: 1; translate: 0 0; } }
+@keyframes destZoom  { from { opacity: 0; scale: .8; } to { opacity: 1; scale: 1; } }
+@keyframes destPop   { from { scale: .5; rotate: -20deg; opacity: 0; } to { scale: 1; rotate: 0deg; opacity: 1; } }
+@keyframes destTexto { from { opacity: 0; translate: 0 10px; } to { opacity: 1; translate: 0 0; } }
+
+/* Cada tarjeta entra desde un lado distinto, una tras otra */
+.dest.dest-in .dest-pagina.activa .dest-card {
+    animation: destZoom .6s cubic-bezier(.2,.8,.3,1) both;
+    animation-delay: calc(var(--i, 0) * 60ms + 120ms);
+}
+.dest.dest-in .dest-pagina.activa .dest-card:nth-child(5n+1) { animation-name: destIzq; }
+.dest.dest-in .dest-pagina.activa .dest-card:nth-child(5n+2) { animation-name: destAbj; }
+.dest.dest-in .dest-pagina.activa .dest-card:nth-child(5n+3) { animation-name: destArr; }
+.dest.dest-in .dest-pagina.activa .dest-card:nth-child(5n+4) { animation-name: destDer; }
+
+/* Al cambiar de nivel, la medalla y el título se renuevan */
+.dest-cab.flash .dest-medalla { animation: destPop .6s cubic-bezier(.3,1.5,.5,1) both; }
+.dest-cab.flash .dest-textos  { animation: destTexto .5s ease both; }
+
+/* ---------- Pantallas más pequeñas ---------- */
+@media (max-height: 800px) and (min-width: 1001px) {
+    .dest-sub { display: none; }
+    .dest-dato-estrato { display: none; }
+    .dest-cuerpo h3 { font-size: .8rem; }
+}
+@media (max-width: 1000px) {
+    .dest-pagina { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 700px) {
+    .dest { --img-h: clamp(96px, 16vh, 130px); border-radius: 20px; }
+    .dest-pagina { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .dest-sub { display: none; }
+}
+@media (max-width: 520px) {
+    .dest-conteo { display: none; }
+}
+
+/* ---------- Sin movimiento (la línea de progreso sigue, porque es el temporizador) ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .dest, .dest::before, .dest::after, .dest-nivel, .dest-cab.flash .dest-medalla, .dest-cab.flash .dest-textos,
+    .dest.dest-in .dest-pagina.activa .dest-card { animation: none !important; }
+    .dest, .dest-card, .dest-card::after, .dest-foto img, .dest-ver, .dest-flecha { transition: none; }
+}
+
+/* =========================================================
+   PASO 2 (v3) — Precio y lupa en una línea · íconos más grandes
+   ========================================================= */
+.dest { --img-h: clamp(70px, 9.5vh, 115px); }
+.dest-card { container-type: inline-size; }   /* el precio se ajusta al ancho de su tarjeta */
+
+.dest-cuerpo { padding-top: 19px; gap: 3px; }
+.dest-cuerpo h3 { font-size: .9rem; }
+.dest-lugar { font-size: .75rem; }
+.dest-lugar svg { width: 15px; height: 15px; }
+
+.dest-datos { gap: 5px 9px; padding: 6px 0; font-size: .76rem; font-weight: 600; }
+.dest-dato { gap: 4px; }
+.dest-dato svg { width: 17px; height: 17px; }
+
+/* precio y lupa: siempre en una sola línea */
+.dest-pie { flex-wrap: nowrap; justify-content: space-between; gap: 8px; padding-top: 2px; }
+.dest-precio {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 4px;
+    min-width: 0;
+    white-space: nowrap;
+    font-size: clamp(.74rem, 6.4cqw, 1rem);
+}
+.dest-precio small { font-size: .62em; }
+
+.dest-ver { width: 34px; height: 34px; padding: 0; justify-content: center; gap: 0; border-radius: 10px; }
+.dest-ver svg { width: 16px; height: 16px; }
+.dest-ver:hover svg { transform: scale(1.15); }
+
+@media (max-height: 800px) and (min-width: 1001px) {
+    .dest-cuerpo h3 { font-size: .84rem; }
+}
+
+/* PASO 2 (v4) — Tarjetas y marco bien responsivos */
+.dest-verificada { top: 8px; right: 8px; bottom: auto; }
+.dest-b, .dest-verificada { white-space: nowrap; }
+.dest-textos { flex: 1 1 auto; }
+.dest-titulo { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+@container (max-width: 200px) {
+    .dest-b { font-size: .58rem; padding: 3px 7px; }
+    .dest-rank { width: 26px; height: 26px; font-size: .66rem; left: 8px; bottom: -13px; }
+    .dest-nivel { left: 40px; bottom: -8px; padding: 2px 7px; font-size: .54rem; letter-spacing: .07em; }
+    .dest-cuerpo { padding: 18px 9px 9px; }
+    .dest-cuerpo h3 { font-size: .82rem; }
+    .dest-lugar { font-size: .7rem; }
+    .dest-datos { gap: 4px 7px; font-size: .7rem; }
+    .dest-dato svg { width: 15px; height: 15px; }
+    .dest-dato-estrato { display: none; }
+}
+@container (max-width: 190px) {
+    .dest-verificada { width: 22px; height: 22px; padding: 0; justify-content: center; }
+    .dest-verificada span { display: none; }
+    .dest-verificada svg { width: 14px; height: 14px; }
+}
+@container (max-width: 170px) {
+    .dest-precio { font-size: .68rem; }
+    .dest-precio small { display: none; }
+    .dest-ver { width: 30px; height: 30px; }
+}
+@container (max-width: 145px) {
+    .dest-pie { flex-wrap: wrap; }
+}
+
+@media (max-width: 520px) {
+    .dest { padding: 12px 10px 12px; }
+    .dest-cab { gap: 10px; }
+    .dest-titulo { font-size: 1.05rem; }
+    .dest-flecha { width: 34px; height: 34px; }
+}
+@media (max-width: 380px) {
+    .dest-medalla { display: none; }
+    .dest-derecha { gap: 6px; }
+}
+@media (max-width: 360px) {
+    .dest-pagina { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* =========================================================
+   PASO 2 (v5) — Foto más cuadrada y carrusel de fotos en cada tarjeta
+   ========================================================= */
+.dest-img { height: auto; aspect-ratio: 3 / 2; max-height: 18vh; min-height: 88px; }
+@media (max-width: 700px) { .dest-img { max-height: none; } }
+
+/* las fotos van en una pista que se desliza */
+.dest-pista { display: flex; height: 100%; transition: transform .65s cubic-bezier(.2,.8,.3,1); }
+.dest-pista img { flex: 0 0 100%; width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* flechas: aparecen al pasar el mouse (en celular siempre se ven) */
+.dest-fl {
+    position: absolute;
+    top: 50%;
+    translate: 0 -50%;
+    z-index: 4;
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    color: #333;
+    background: rgba(255, 255, 255, .9);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .3);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity .25s ease, scale .2s ease;
+}
+.dest-fl svg { width: 15px; height: 15px; }
+.dest-fl-ant { left: 6px; }
+.dest-fl-sig { right: 6px; }
+.dest-card:hover .dest-fl, .dest-fl:focus-visible { opacity: 1; }
+.dest-fl:hover { scale: 1.1; }
+@media (hover: none) { .dest-fl { opacity: 1; } }
+
+/* puntitos: indican en cuál foto va */
+.dest-puntos { position: absolute; right: 8px; bottom: 8px; z-index: 3; display: flex; gap: 4px; }
+.dest-puntos i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255, 255, 255, .55); transition: width .25s ease, background .25s ease; }
+.dest-puntos i.on { width: 16px; border-radius: 4px; background: #fff; }
+
+/* en tarjetas angostas */
+@container (max-width: 200px) {
+    .dest-fl { width: 24px; height: 24px; }
+    .dest-fl svg { width: 13px; height: 13px; }
+    .dest-puntos i { width: 5px; height: 5px; }
+    .dest-puntos i.on { width: 13px; }
+}
+@container (max-width: 150px) {
+    .dest-puntos { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dest-pista, .dest-fl, .dest-puntos i { transition: none; }
+}

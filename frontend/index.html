@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="css/componentes.css">
 
     <!-- Estilos propios de la página (landing y modal) -->
-    <link rel="stylesheet" href="css/umbral.css?v=20261104">
+    <link rel="stylesheet" href="css/umbral.css?v=20261107l">
 
     <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
     <script>
@@ -33,8 +33,8 @@
 <body data-pagina="home">
 
     <!-- =========================================================
-         BARRA DE NAVEGACIÓN
-         ========================================================= -->
+        BARRA DE NAVEGACIÓN
+        ========================================================= -->
     <nav class="navbar" id="navbar">
         <a class="marca" href="#inicio">
             <img src="img/icono.png" alt="Umbral">
@@ -211,15 +211,25 @@
                 <p data-i18n="prop.sub">Una curaduría de los inmuebles más ambiciosos del país.</p>
             </header>
 
-            <div class="destacadas-marco">
-                <div class="destacadas-carrusel" id="propiedades-destacadas" aria-live="polite">
-                    <div class="destacadas-cargando" role="status">Cargando propiedades Oro…</div>
+            <div class="dest" id="destacadas" data-nivel="oro">
+                <div class="dest-cab" id="dest-cab">
+                    <span class="dest-medalla" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5L3 8Z"/></svg>
+                    </span>
+                    <div class="dest-textos">
+                        <h3 class="dest-titulo" id="dest-titulo">Propiedades Oro</h3>
+                        <p class="dest-sub" id="dest-sub">Máxima visibilidad en Umbral</p>
+                    </div>
+                    <div class="dest-derecha">
+                        <span class="dest-conteo" id="destacadas-indicador">Propiedades</span>
+                        <button type="button" class="dest-flecha" id="destacadas-anterior" aria-label="Nivel anterior">&#8592;</button>
+                        <button type="button" class="dest-flecha" id="destacadas-siguiente" aria-label="Nivel siguiente">&#8594;</button>
+                    </div>
                 </div>
-                <div class="destacadas-controles" aria-label="Controles de propiedades destacadas">
-                    <button type="button" class="destacadas-flecha" id="destacadas-anterior" aria-label="Propiedades anteriores">&#8592;</button>
-                    <span class="destacadas-indicador" id="destacadas-indicador">Propiedades Oro</span>
-                    <button type="button" class="destacadas-flecha" id="destacadas-siguiente" aria-label="Propiedades siguientes">&#8594;</button>
+                <div class="dest-vista" id="propiedades-destacadas" aria-live="polite">
+                    <div class="dest-aviso" role="status">Cargando propiedades…</div>
                 </div>
+                <div class="dest-barra" aria-hidden="true"><i id="dest-barra"></i></div>
             </div>
         </section>
 
@@ -377,6 +387,8 @@
             <button type="button" class="modal-cerrar" data-cerrar-modal aria-label="Cerrar" data-i18n-aria="modal.cerrar">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
             </button>
+
+            <div class="modal-scroll">
 
             <div class="tarjeta-marca">
                 <img src="img/icono.png" alt="Umbral">
@@ -546,6 +558,7 @@
                     <p class="crear-cuenta"><span data-i18n="reg.tengo_cuenta">¿Ya tienes una cuenta?</span> <a href="#" class="enlace" data-cambia-pestanas="login"><span data-i18n="login.pestana">Iniciar sesión</span></a></p>
                 </form>
             </section>
+            </div><!-- /modal-scroll -->
         </div>
     </div>
 
@@ -554,7 +567,8 @@
     <script src="js/i18n.js"></script>
     <script src="js/login.js"></script>
     <script src="js/inicio.js"></script>
-    <script src="js/propiedades-destacadas.js"></script>
+    <script src="js/propiedades-destacadas.js?v=6"></script>
+    <script src="js/animaciones.js"></script>
 <script src="js/auth-param.js"></script>
 </body>
 </html>

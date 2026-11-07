@@ -3224,3 +3224,111 @@ html::-webkit-scrollbar-thumb:active,
 @media (prefers-reduced-motion: reduce) {
     .dest-pista, .dest-fl, .dest-puntos i { transition: none; }
 }
+
+/* =========================================================
+   PASO 3 — Descargar app: celular con la pantalla de inicio de la app
+   ========================================================= */
+.app-visual { align-items: center; }
+
+.app-telefono {
+    position: relative;
+    width: clamp(180px, 16vw, 214px);
+    height: auto;
+    aspect-ratio: 9 / 19.2;
+    padding: 8px;
+    border-radius: 34px;
+    background: linear-gradient(145deg, #2b2438, #0d0914);
+    border: 1.5px solid rgba(255, 255, 255, .28);
+    box-shadow: 0 28px 60px rgba(0, 0, 0, .5), 0 0 60px rgba(227, 201, 133, .16), inset 0 0 0 2px rgba(0, 0, 0, .6);
+    transform: rotate(6deg);
+}
+
+/* botones laterales del celular */
+.app-boton { position: absolute; width: 3px; border-radius: 3px; background: rgba(255, 255, 255, .28); }
+.app-boton-1 { left: -3.5px; top: 16%; height: 7%; }
+.app-boton-2 { left: -3.5px; top: 26%; height: 11%; }
+.app-boton-3 { right: -3.5px; top: 22%; height: 14%; }
+
+.app-pantalla {
+    position: relative;
+    display: block;
+    height: 100%;
+    padding: 0;
+    overflow: hidden;
+    border-radius: 27px;
+    background: #0b0810;
+}
+
+/* la imagen cambia según el tema: noche en oscuro, día en claro */
+.app-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: 50% 0;
+    transition: opacity .7s ease;
+}
+.app-img-noche { opacity: 1; }
+.app-img-dia   { opacity: 0; }
+[data-theme="light"] .app-img-noche { opacity: 0; }
+[data-theme="light"] .app-img-dia   { opacity: 1; }
+
+/* cámara frontal y brillo de la pantalla */
+.app-camara {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    translate: -50% 0;
+    z-index: 3;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #05030a;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, .08);
+}
+.app-brillo {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, .14) 48%, transparent 62%);
+    background-size: 260% 100%;
+    animation: appBrillo 6s ease-in-out infinite;
+}
+@keyframes appBrillo {
+    0%        { background-position: 130% 0; }
+    55%, 100% { background-position: -40% 0; }
+}
+
+/* ---------- Tablet y celular: todo centrado y en columna ---------- */
+@media (max-width: 900px) {
+    .app-caja { gap: 28px; text-align: center; }
+    .app-texto { align-items: center; }
+    .app-texto p { margin-inline: auto; }
+    .app-visual { order: 2; }
+    .app-telefono { width: clamp(170px, 42vw, 210px); transform: rotate(4deg); }
+}
+@media (max-width: 560px) {
+    .app-telefono { width: clamp(160px, 52vw, 200px); padding: 7px; border-radius: 30px; }
+    .app-pantalla { padding: 0; border-radius: 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .app-brillo { animation: none; }
+    .app-img { transition: none; }
+}
+
+/* =========================================================
+   PASO 3 (v2) — Descargar app: el texto centrado en su mitad
+   ========================================================= */
+.app-caja { align-items: center; }             /* centrado en vertical respecto al celular */
+.app-texto {
+    align-items: center;                       /* centrado en horizontal */
+    justify-self: center;
+    width: 100%;
+    max-width: 540px;
+    text-align: center;
+}
+.app-texto p { margin-inline: auto; }

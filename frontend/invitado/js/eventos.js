@@ -25,7 +25,7 @@
         if (n === 'calc') { openModal('#mCalc'); calc(); return }
         if (n === 'sellers') { $('#sellersAnchor').scrollIntoView({ behavior: 'smooth' }); return }
         S.favOnly = n === 'favs'; S.seller = null;
-        if (n === 'map') { setView('map'); $('#filters').scrollIntoView({ behavior: 'smooth' }); return }
+        if (n === 'map') { setView('map'); return }  // el mapa se abre en una ventana emergente (experiencia.js)
         if (n === 'venta' || n === 'arriendo' || n === 'all') { S.op = n; $$('.op').forEach(b => b.classList.toggle('active', b.dataset.op === n)) }
         setView('cards'); return
       }

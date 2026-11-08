@@ -55,8 +55,46 @@
         .vacio-mov { padding:48px 20px; text-align:center; }
         .vacio-mov .icono { margin:0 auto 14px; display:grid; place-items:center; width:48px; height:48px; border-radius:14px; background:var(--ad-soft); color:var(--ad-primary); }
 
+        /* La tabla de Movimientos nunca fuerza un ancho mínimo (en celular cada registro es una tarjetita) */
+        html .overflow-x-auto > table.tabla-mov { min-width: 0 !important; }
+        /* Celular: las pestañas bajan de renglón en vez de deslizarse, así no se corta ninguna letra */
+        @media (max-width: 640px) {
+            .mov-pestanas { flex-wrap: wrap; overflow-x: visible; white-space: normal; }
+            .mov-pestana { flex: 1 1 auto; justify-content: center; text-align: center; white-space: normal; line-height: 1.2; padding: .6rem .6rem; }
+            #pestanas .mov-pestana { flex-basis: 45%; font-size: .78rem; padding: .6rem .35rem; gap: .35rem; }
+            #pestanas .mov-pestana > i { display: none; }
+            .mov-sub { padding: 0; }
+        }
+
+
+        /* Invitados: números dentro de la tarjetita y ventana "Ver" */
+        .tabla-mov td.c-ver { text-align:right; }
+        .btn-ver { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:10px; border:1px solid var(--ad-borde2); background:transparent; color:var(--ad-primary); font-size:12px; font-weight:700; cursor:pointer; white-space:nowrap; transition:all .15s ease; }
+        .btn-ver:hover { background:var(--ad-soft); }
+        .tabla-mov td .nota { display:block; font-size:12px; color:var(--ad-muted); }
+        .modal-inv { position:fixed; inset:0; z-index:70; display:flex; align-items:center; justify-content:center; padding:14px; background:rgba(0,0,0,.6); backdrop-filter:blur(3px); }
+        .modal-inv[hidden] { display:none; }
+        .modal-inv-caja { width:100%; max-width:640px; max-height:calc(100vh - 28px); overflow-y:auto; border-radius:18px; border:1px solid var(--ad-borde); background:var(--ad-card); box-shadow:0 25px 60px rgba(0,0,0,.45); }
+        .modal-inv-cab { position:sticky; top:0; display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:16px 18px; border-bottom:1px solid var(--ad-borde); background:var(--ad-card); }
+        .modal-inv-cuerpo { padding:16px 18px 20px; display:grid; gap:16px; }
+        .modal-inv h3 { font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--ad-primary); margin-bottom:8px; }
+        .dato-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+        .dato-grid > div { padding:10px 12px; border-radius:12px; background:var(--ad-soft); min-width:0; }
+        .dato-grid small { display:block; font-size:11px; color:var(--ad-muted); }
+        .dato-grid b { display:block; font-size:14px; overflow-wrap:anywhere; }
+        .lista-inv { display:grid; gap:6px; }
+        .lista-inv > div { display:flex; justify-content:space-between; gap:10px; padding:8px 12px; border-radius:10px; border:1px solid var(--ad-borde); font-size:13px; }
+        .lista-inv > div > span:first-child { min-width:0; overflow-wrap:anywhere; }
+        .lista-inv > div > span:last-child { flex:none; color:var(--ad-muted); font-size:12px; text-align:right; }
+        .btn-cerrar { flex:none; width:34px; height:34px; border-radius:10px; border:1px solid var(--ad-borde); background:transparent; color:var(--ad-muted); cursor:pointer; }
+        .btn-cerrar:hover { color:var(--ad-text); background:var(--ad-soft); }
+
         /* Celular: cada registro es una tarjetita sin desbordes (nada se corta ni se desliza) */
         @media (max-width: 900px) {
+            .tabla-mov td.c-stat   { order:2; font-size:12px; }
+            .tabla-mov td.c-stat::before { content:attr(data-et) ": "; color:var(--ad-muted); }
+            .tabla-mov td.c-fecha  { order:5; font-size:12px; }
+            .tabla-mov td.c-ver    { order:7; margin-left:auto; }
             .tabla-mov { min-width:0 !important; display:block; font-size:13px; }
             .tabla-mov thead { display:none; }
             .tabla-mov tbody { display:block; }
@@ -98,7 +136,7 @@
                             </p>
                             <h1 class="titulo-grad mt-1 text-2xl font-extrabold sm:text-3xl">Movimientos</h1>
                             <p class="mt-1.5 max-w-xl text-sm text-slate-400">
-                                Qué pasó en el portal: seguridad de las cuentas, inicios de sesión y lo que hacen inmobiliarias, agentes y vendedores.
+                                Qué pasó en el portal: seguridad de las cuentas, inicios de sesión, lo que hacen inmobiliarias, agentes y vendedores, y los visitantes sin cuenta.
                             </p>
                         </div>
                     </div>
@@ -106,9 +144,11 @@
                     <!-- Pestañas principales -->
                     <div id="pestanas" class="mov-pestanas" role="tablist">
                         <button type="button" role="tab" data-tab="seguridad"    class="mov-pestana"><i class="fa-solid fa-shield-halved"></i>Seguridad<span class="cuenta" data-cuenta="seguridad">–</span></button>
+                        <button type="button" role="tab" data-tab="administrador" class="mov-pestana"><i class="fa-solid fa-user-shield"></i>Administradores<span class="cuenta" data-cuenta="administrador">–</span></button>
                         <button type="button" role="tab" data-tab="inmobiliaria" class="mov-pestana"><i class="fa-solid fa-building"></i>Inmobiliarias<span class="cuenta" data-cuenta="inmobiliaria">–</span></button>
                         <button type="button" role="tab" data-tab="agente"       class="mov-pestana"><i class="fa-solid fa-user-tie"></i>Agentes<span class="cuenta" data-cuenta="agente">–</span></button>
                         <button type="button" role="tab" data-tab="vendedor"     class="mov-pestana"><i class="fa-solid fa-store"></i>Vendedores<span class="cuenta" data-cuenta="vendedor">–</span></button>
+                        <button type="button" role="tab" data-tab="invitado"     class="mov-pestana"><i class="fa-solid fa-user-group"></i>Invitados<span class="cuenta" data-cuenta="invitado">–</span></button>
                     </div>
 
                     <!-- Tarjeta con el submenú y la tabla de la pestaña elegida -->
@@ -131,6 +171,17 @@
 
     <!-- Fondo oscurecido detrás del menú móvil -->
     <div id="fondo-menu" class="fixed inset-0 z-30 hidden bg-black/60 backdrop-blur-sm lg:hidden transition-opacity duration-300"></div>
+
+    <!-- Ventana "Ver" de un visitante -->
+    <div id="modal-inv" class="modal-inv" hidden role="dialog" aria-modal="true" aria-labelledby="modal-inv-titulo">
+        <div class="modal-inv-caja">
+            <div class="modal-inv-cab">
+                <div class="min-w-0"><p class="text-xs font-semibold uppercase tracking-wider text-violet-400">Visitante</p><h2 id="modal-inv-titulo" class="text-lg font-extrabold" style="overflow-wrap:anywhere"></h2></div>
+                <button type="button" class="btn-cerrar" id="modal-inv-cerrar" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="modal-inv-cuerpo" class="modal-inv-cuerpo"></div>
+        </div>
+    </div>
 
     <script src="js/panel-admin.js"></script>
     <script src="js/movimientos.js"></script>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Movimiento;
 use App\Models\Role;
 use App\Models\User;
 use App\Http\Controllers\Api\V1\RecuperarClaveController;
@@ -83,6 +84,8 @@ class UserController extends Controller
 
         $usuario = User::create($datos); // la contraseña se cifra con el cast del modelo
 
+        Movimiento::registrar(auth()->user(), 'cuenta_creada', $this->describir($usuario));
+
         return response()->json([
             'mensaje' => 'Usuario creado correctamente.',
             'usuario' => $this->serializar($usuario->fresh('role')),
@@ -117,7 +120,19 @@ class UserController extends Controller
             $usuario->password = $datos['password'];
         }
 
+        // Qué campos cambiaron (sin guardar nunca la contraseña en el historial)
+        $nombresCampo = ['name' => 'nombre', 'email' => 'correo', 'role_id' => 'rol', 'estado' => 'estado', 'password' => 'contraseña'];
+        $cambios = collect(array_keys($usuario->getDirty()))
+            ->map(fn ($campo) => $nombresCampo[$campo] ?? null)
+            ->filter()->values()->all();
+
         $usuario->save();
+
+        Movimiento::registrar(
+            auth()->user(),
+            'cuenta_editada',
+            $this->describir($usuario->fresh('role')) . ($cambios ? ' · Cambió: ' . implode(', ', $cambios) : '')
+        );
 
         return response()->json([
             'mensaje' => 'Usuario actualizado correctamente.',
@@ -147,6 +162,8 @@ class UserController extends Controller
             ], 500);
         }
 
+        Movimiento::registrar(auth()->user(), 'enlace_clave_enviado', $this->describir($usuario));
+
         return response()->json([
             'mensaje' => 'Enviamos el enlace a ' . $usuario->email . '. Vence en 60 minutos.',
         ]);
@@ -171,6 +188,8 @@ class UserController extends Controller
                 'mensaje' => 'No puedes eliminar a la única administradora del portal.',
             ], 422);
         }
+
+        $descripcion = $this->describir($usuario);   // se guarda antes de borrar la cuenta
 
         $archivosImagen = [];
 
@@ -293,6 +312,8 @@ class UserController extends Controller
                 }
             }
 
+            Movimiento::registrar(auth()->user(), 'cuenta_eliminada', $descripcion);
+
             return response()->json([
                 'mensaje' => 'Usuario, publicaciones y datos asociados eliminados correctamente.',
             ]);
@@ -320,5 +341,13 @@ class UserController extends Controller
             'avatar' => $usuario->avatar,
             'creado' => optional($usuario->created_at)->format('d M Y'),
         ];
+    }
+
+    /** "Nombre (correo) · Rol" para el historial de movimientos. */
+    private function describir(User $usuario): string
+    {
+        $usuario->loadMissing('role');
+
+        return $usuario->name . ' (' . $usuario->email . ')' . ($usuario->role?->nombre ? ' · ' . ucfirst($usuario->role->nombre) : '');
     }
 }

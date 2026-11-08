@@ -24,6 +24,48 @@
     <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
     <link rel="stylesheet" href="/assets/admin/fontawesome/css/regular.min.css">
     <link rel="stylesheet" href="/assets/admin/tema.css">
+
+    <style>
+        /* Ajustes: resumen, historial de accesos y cambio de contraseña */
+        .aj-resumen { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+        @media (max-width: 900px) { .aj-resumen { grid-template-columns: 1fr; } }
+        html .kpi.kpi-compacta > p.aj-texto { font-size: 1.05rem; white-space: normal; overflow-wrap: anywhere; line-height: 1.2; }
+
+        .aj-pestanas { display: flex; gap: .25rem; padding: 0 .75rem; border-bottom: 1px solid var(--ad-borde); overflow-x: auto; white-space: nowrap; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        .aj-pestanas::-webkit-scrollbar { display: none; }
+        .aj-pestana { display: inline-flex; align-items: center; gap: .5rem; padding: .75rem 1rem; margin-bottom: -1px; font-size: .875rem; font-weight: 600; color: var(--ad-muted); background: transparent; border: 0; border-bottom: 2px solid transparent; cursor: pointer; transition: all .15s ease; flex: 0 0 auto; }
+        .aj-pestana:hover { color: var(--ad-text); }
+        .aj-pestana.activa { color: var(--ad-primary); border-bottom-color: var(--ad-primary2); }
+        @media (max-width: 560px) {
+            .aj-pestanas { padding: 0; overflow-x: visible; white-space: normal; }
+            .aj-pestana { flex: 1 1 0; min-width: 0; justify-content: center; text-align: center; white-space: normal; line-height: 1.2; padding: .65rem .4rem; font-size: .8rem; gap: .4rem; }
+        }
+        .aj-clave-fondo { padding: 28px 16px; }
+        .aj-tarjeta-clave { max-width: 30rem; margin: 0 auto; padding: 26px 24px; border: 1px solid var(--ad-borde); border-radius: 20px; background: var(--ad-bg); box-shadow: var(--ad-sombra); }
+        .aj-clave-cab { text-align: center; padding-bottom: 6px; }
+        .aj-clave-cab .icono { display: grid; place-items: center; width: 52px; height: 52px; margin: 0 auto 12px; border-radius: 16px; background: var(--ad-soft); color: var(--ad-primary); font-size: 1.2rem; }
+        .aj-clave-cab h3 { font-size: 1.05rem; font-weight: 800; color: var(--ad-text); }
+        .aj-clave-cab p { margin-top: 4px; font-size: .8rem; color: var(--ad-muted); }
+        @media (max-width: 640px) { .aj-clave-fondo { padding: 16px 10px; } .aj-tarjeta-clave { padding: 20px 16px; } }
+        .aj-cab { padding: 12px 20px; }
+        .aj-cab h2 { display: flex; align-items: center; gap: 10px; font-size: .95rem; font-weight: 700; color: var(--ad-text); }
+        .aj-cab h2 i { color: var(--ad-primary); }
+        .aj-cab p { margin-top: 2px; font-size: .78rem; color: var(--ad-muted); }
+
+        .aj-tabla td { padding: 12px 20px; color: var(--ad-muted); vertical-align: middle; }
+        .aj-tabla td.c-fecha { color: var(--ad-text); font-weight: 600; white-space: nowrap; }
+        .aj-tabla td.c-ip { white-space: nowrap; }
+        .aj-vacio { padding: 48px 20px; text-align: center; }
+        .aj-vacio .icono { display: grid; place-items: center; width: 48px; height: 48px; margin: 0 auto 14px; border-radius: 14px; background: var(--ad-soft); color: var(--ad-primary); font-size: 1.1rem; }
+
+        @media (max-width: 640px) {
+            html .aj-tabla { min-width: 0 !important; font-size: 13px; }
+            .aj-tabla thead { display: none; }
+            .aj-tabla tbody tr { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; padding: 12px 16px; }
+            html .aj-tabla td { padding: 0 !important; }
+            .aj-tabla td.c-disp { flex-basis: 100%; }
+        }
+    </style>
 </head>
 <body class="bg-slate-950 text-slate-200 font-sans antialiased" data-pagina="ajustes" data-titulo="Ajustes de cuenta">
 
@@ -34,7 +76,7 @@
             <div id="zona-barra"></div>
 
             <main class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
-                <div class="mx-auto max-w-2xl space-y-5">
+                <div class="mx-auto max-w-7xl space-y-5">
 
                     <div class="hero-admin relative overflow-hidden rounded-2xl border border-slate-800 p-6 sm:p-8">
                         <span class="hero-blob hero-blob-1"></span>
@@ -48,47 +90,107 @@
                                 Ajustes de cuenta
                             </h1>
                             <p class="mt-1.5 max-w-xl text-sm text-slate-400">
-                                Actualiza la contraseña con la que entras al panel.
+                                Mira cuándo entraste a tu cuenta y actualiza la contraseña con la que entras al panel.
                             </p>
                         </div>
                     </div>
 
                     <div id="aviso" class="hidden"></div>
 
-                    <form id="form-clave" class="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-6 shadow-xl shadow-black/20">
-                        <div>
-                            <label for="clave_actual" class="mb-1.5 block text-sm font-medium text-slate-300">Contraseña actual</label>
-                            <input id="clave_actual" type="password" required autocomplete="current-password"
-                                   class="w-full rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
-                            <p id="error-clave_actual" class="mt-1.5 text-xs text-red-400"></p>
+                    <!-- Resumen de accesos -->
+                    <div class="aj-resumen">
+                        <div class="kpi kpi-violeta kpi-compacta kpi-fecha rounded-2xl border border-slate-800 bg-slate-900/60 p-5" style="--i:0">
+                            <div class="grid h-11 w-11 place-items-center rounded-xl bg-violet-500/10 text-violet-400 ring-1 ring-violet-500/20"><i class="fa-solid fa-right-to-bracket"></i></div>
+                            <p id="res-ultimo" class="aj-texto text-white">–</p>
+                            <p id="res-ultimo-ip" class="text-slate-500">Último acceso</p>
+                        </div>
+                        <div class="kpi kpi-verde kpi-compacta rounded-2xl border border-slate-800 bg-slate-900/60 p-5" style="--i:1">
+                            <div class="grid h-11 w-11 place-items-center rounded-xl bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20"><i class="fa-solid fa-calendar-check"></i></div>
+                            <p id="res-accesos" class="text-white">–</p>
+                            <p class="text-slate-500">Accesos en los últimos 30 días</p>
+                        </div>
+                        <div class="kpi kpi-ambar kpi-compacta rounded-2xl border border-slate-800 bg-slate-900/60 p-5" style="--i:2">
+                            <div class="grid h-11 w-11 place-items-center rounded-xl bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/20"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            <p id="res-fallidos" class="text-white">–</p>
+                            <p class="text-slate-500">Intentos fallidos a tu cuenta (30 días)</p>
+                        </div>
+                    </div>
+
+                    <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 shadow-xl shadow-black/20">
+                        <!-- Submenú: Historial de mis accesos | Cambiar contraseña -->
+                        <div class="aj-pestanas" role="tablist">
+                            <button type="button" role="tab" data-pestana="accesos" class="aj-pestana activa"><i class="fa-solid fa-clock-rotate-left"></i>Historial de mis accesos</button>
+                            <button type="button" role="tab" data-pestana="clave" class="aj-pestana"><i class="fa-solid fa-key"></i>Cambiar contraseña</button>
                         </div>
 
-                        <div class="grid gap-4 sm:grid-cols-2">
-                            <div>
-                                <label for="password" class="mb-1.5 block text-sm font-medium text-slate-300">Contraseña nueva</label>
-                                <input id="password" type="password" required autocomplete="new-password" placeholder="Mínimo 8 caracteres"
-                                       class="w-full rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
-                                <p id="error-password" class="mt-1.5 text-xs text-red-400"></p>
+                        <!-- Historial de mis accesos -->
+                        <section id="panel-accesos" class="aj-historial">
+                            <div class="aj-cab border-b border-slate-800">
+                                <p>Cada vez que entraste al panel de administración con esta cuenta.</p>
                             </div>
-                            <div>
-                                <label for="password_confirmation" class="mb-1.5 block text-sm font-medium text-slate-300">Confirmar contraseña nueva</label>
-                                <input id="password_confirmation" type="password" required autocomplete="new-password" placeholder="Repite la contraseña"
-                                       class="w-full rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
+
+                            <div class="overflow-x-auto">
+                                <table class="aj-tabla w-full text-left text-sm">
+                                    <thead class="border-b border-slate-800 text-[11px] uppercase tracking-wider text-slate-500">
+                                        <tr>
+                                            <th class="px-5 py-3 font-semibold">Fecha</th>
+                                            <th class="px-5 py-3 font-semibold">Hora</th>
+                                            <th class="px-5 py-3 font-semibold">IP</th>
+                                            <th class="px-5 py-3 font-semibold">Dispositivo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabla-accesos" class="divide-y divide-slate-800/70 transition-opacity"></tbody>
+                                </table>
                             </div>
-                        </div>
 
-                        <div class="flex justify-end pt-2">
-                            <button id="boton-guardar" type="submit"
-                                    class="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-600/25 transition-all hover:from-violet-500 hover:to-indigo-500 active:scale-[0.98]">
-                                <i class="fa-solid fa-floppy-disk mr-1.5"></i>Guardar cambios
-                            </button>
-                        </div>
-                    </form>
+                            <div id="accesos-vacio" class="aj-vacio hidden">
+                                <div class="icono"><i class="fa-solid fa-inbox"></i></div>
+                                <p class="text-sm font-medium text-slate-400">Todavía no hay accesos guardados</p>
+                                <p class="mx-auto mt-0.5 max-w-md text-xs text-slate-600">Tus próximos inicios de sesión aparecerán aquí.</p>
+                            </div>
 
-                    <p class="rounded-xl border border-slate-800 bg-slate-900/40 px-4 py-3 text-xs leading-relaxed text-slate-500">
-                        <i class="fa-solid fa-shield-halved mr-1 text-slate-400"></i>
-                        Usa una contraseña única de al menos 8 caracteres y no la compartas con nadie del equipo.
-                    </p>
+                            <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 px-5 py-3">
+                                <p id="accesos-info" class="text-xs text-slate-500"></p>
+                                <div id="accesos-pag" class="flex items-center gap-1"></div>
+                            </div>
+                        </section>
+
+                        <!-- Cambiar contraseña -->
+                        <section id="panel-clave" class="aj-clave hidden">
+                            <div class="aj-clave-fondo">
+                                <form id="form-clave" class="aj-tarjeta-clave space-y-4">
+                                    <div class="aj-clave-cab">
+                                        <span class="icono"><i class="fa-solid fa-key"></i></span>
+                                        <h3>Cambiar contraseña</h3>
+                                        <p>Usa una de al menos 8 caracteres y no la compartas con nadie del equipo.</p>
+                                    </div>
+                                    <div>
+                                    <label for="clave_actual" class="mb-1.5 block text-sm font-medium text-slate-300">Contraseña actual</label>
+                                    <input id="clave_actual" type="password" required autocomplete="current-password"
+                                           class="w-full rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
+                                    <p id="error-clave_actual" class="mt-1.5 text-xs text-red-400"></p>
+                                </div>
+                                <div>
+                                    <label for="password" class="mb-1.5 block text-sm font-medium text-slate-300">Contraseña nueva</label>
+                                    <input id="password" type="password" required autocomplete="new-password" placeholder="Mínimo 8 caracteres"
+                                           class="w-full rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
+                                    <p id="error-password" class="mt-1.5 text-xs text-red-400"></p>
+                                </div>
+                                <div>
+                                    <label for="password_confirmation" class="mb-1.5 block text-sm font-medium text-slate-300">Confirmar contraseña nueva</label>
+                                    <input id="password_confirmation" type="password" required autocomplete="new-password" placeholder="Repite la contraseña"
+                                           class="w-full rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
+                                </div>
+                                <div class="pt-1">
+                                        <button id="boton-guardar" type="submit"
+                                                class="w-full rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-600/25 transition-all hover:from-violet-500 hover:to-indigo-500 active:scale-[0.98]">
+                                            <i class="fa-solid fa-floppy-disk mr-1.5"></i>Guardar cambios
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </section>
+                    </div>
                 </div>
             </main>
 

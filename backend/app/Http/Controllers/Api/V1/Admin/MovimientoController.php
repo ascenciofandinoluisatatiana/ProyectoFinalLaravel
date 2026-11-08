@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\DB;
 class MovimientoController extends Controller
 {
     private const POR_PAGINA = 10;
-    private const PESTANAS = ['seguridad', 'inmobiliaria', 'agente', 'vendedor'];
+    private const PESTANAS = ['seguridad', 'administrador', 'inmobiliaria', 'agente', 'vendedor'];
     private const SECCIONES = ['seguridad', 'accesos', 'acciones'];
     private const TIPO_ACCESO = 'inicio_sesion';
 
@@ -210,7 +210,7 @@ class MovimientoController extends Controller
             'accesos'   => (int) $eventos->where('acceso', 1)->sum('total'),
         ]];
         // Pestañas de rol: sus tres submenús
-        foreach (['inmobiliaria', 'agente', 'vendedor'] as $rol) {
+        foreach (['administrador', 'inmobiliaria', 'agente', 'vendedor'] as $rol) {
             $subs[$rol] = [
                 'seguridad' => (int) $eventos->where('rol', $rol)->where('acceso', 0)->sum('total'),
                 'accesos'   => (int) $eventos->where('rol', $rol)->where('acceso', 1)->sum('total'),
@@ -223,6 +223,13 @@ class MovimientoController extends Controller
         foreach ($subs as $tab => $partes) {
             $conteos[$tab] = array_sum($partes);
         }
+
+        // Invitados (visitantes sin cuenta): el número de la pestaña son las personas que han entrado
+        $subs['invitado'] = [
+            'visitantes' => DB::table('invitados')->count(),
+            'contactos'  => DB::table('invitado_eventos')->where('tipo', 'contacto')->count(),
+        ];
+        $conteos['invitado'] = $subs['invitado']['visitantes'];
         $conteos['subs'] = $subs;
 
         return $conteos;

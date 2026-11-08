@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Movimiento;
 use App\Models\User;
 use App\Models\Verificacion;
 use Illuminate\Http\JsonResponse;
@@ -173,6 +174,12 @@ class VerificacionController extends Controller
         if (! $registro) {
             return response()->json(['mensaje' => 'Esta cuenta ya no está pendiente de verificación.'], 409);
         }
+
+        Movimiento::registrar(
+            auth()->user(),
+            $esRechazo ? 'verificacion_rechazada' : 'verificacion_aprobada',
+            $usuario->name . ' (' . $usuario->email . ')' . (! empty($datos['motivo']) ? ' · Motivo: ' . $datos['motivo'] : '')
+        );
 
         return response()->json([
             'mensaje' => $esRechazo

@@ -95,6 +95,7 @@ Route::prefix('v1/admin')->middleware(['web', 'admin.api'])->group(function () {
     Route::get('menu', [CuentaController::class, 'menu']);
     Route::get('catalogos', [CuentaController::class, 'catalogos']);
     Route::post('clave', [CuentaController::class, 'cambiarClave']);
+    Route::get('mis-accesos', [\App\Http\Controllers\Api\V1\Admin\MisAccesosController::class, 'index']);
     Route::get('perfil', [CuentaController::class, 'perfil']);
     Route::post('perfil/avatar', [CuentaController::class, 'actualizarAvatar']);
     Route::post('logout', [CuentaController::class, 'salir']);
@@ -116,6 +117,9 @@ Route::prefix('v1/admin')->middleware(['web', 'admin.api'])->group(function () {
 
     // Movimientos: seguridad (eventos_seguridad) y acciones de inmobiliarias, agentes y vendedores
     Route::get('movimientos', [AdminMovimientoController::class, 'index']);
+    Route::get('invitados', [\App\Http\Controllers\Api\V1\Admin\InvitadoController::class, 'index']);
+    Route::get('invitados/contactos', [\App\Http\Controllers\Api\V1\Admin\InvitadoController::class, 'contactos']);
+    Route::get('invitados/{id}', [\App\Http\Controllers\Api\V1\Admin\InvitadoController::class, 'show'])->whereNumber('id');
 
     // Verificación de cuentas pendientes
     Route::get('verificaciones', [AdminVerificacionController::class, 'index']);
@@ -130,6 +134,7 @@ Route::prefix('v1/public')->group(function () {
     Route::get('geocodificar', GeocodificarController::class)->middleware('throttle:30,1');
     Route::get('propiedades/{id}', [PublicPropiedadController::class, 'show']);
     Route::post('leads', [LeadController::class, 'store'])->middleware('throttle:10,1');
+    Route::post('actividad', [\App\Http\Controllers\Api\V1\ActividadInvitadoController::class, 'store'])->middleware('throttle:120,1');
 
     // Calificaciones y comentarios al vendedor / inmobiliaria (los ve y los deja cualquier visitante)
     Route::get('vendedores/{vendedor}/calificaciones', [CalificacionVendedorController::class, 'index'])

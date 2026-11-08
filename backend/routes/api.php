@@ -63,6 +63,7 @@ Route::prefix('v1')->group(function () {
     Route::post('/recuperar-clave', [RecuperarClaveController::class, 'solicitar'])->middleware('throttle:5,1');
     Route::get('/restablecer-clave/verificar', [RecuperarClaveController::class, 'verificar'])->middleware('throttle:30,1');
     Route::post('/restablecer-clave', [RecuperarClaveController::class, 'restablecer'])->middleware('throttle:10,1');
+    Route::get('/recuperar-clave/estado', [RecuperarClaveController::class, 'estado'])->middleware('throttle:30,1');
 });
 
 /*

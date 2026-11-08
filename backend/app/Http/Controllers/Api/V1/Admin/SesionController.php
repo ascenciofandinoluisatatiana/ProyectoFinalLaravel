@@ -20,13 +20,16 @@ use Illuminate\Support\Str;
  * Paso 2: POST /sesion/codigo   → valida el código y recién entonces abre la sesión.
  *         POST /sesion/codigo/reenviar → manda un código nuevo.
  *
- * El código se guarda cifrado (hash) en la sesión, vence a los 5 minutos y
- * se anula después de 5 intentos fallidos.
+ * El código se guarda cifrado (hash) en la sesión y vence a los 5 minutos.
+ * Con 5 códigos equivocados la cuenta se bloquea 15 minutos.
+ * El código nuevo solo se puede pedir una vez por minuto.
  */
 class SesionController extends Controller
 {
     private const VIGENCIA_CODIGO_MINUTOS = 5;
-    private const MAX_INTENTOS = 5;
+    private const MAX_INTENTOS = 5;            // códigos o contraseñas equivocadas antes de bloquear
+    private const MINUTOS_BLOQUEO = 15;        // lo que dura el bloqueo de la cuenta
+    private const ESPERA_REENVIO_SEGUNDOS = 60; // mínimo entre un envío del código y el siguiente
 
     /**
      * GET /api/v1/admin/csrf
@@ -53,16 +56,55 @@ class SesionController extends Controller
         $credenciales = ['email' => $datos['email'], 'password' => $datos['password']];
         $usuario = $proveedor->retrieveByCredentials($credenciales);
 
+        // Cuenta bloqueada: ni con la contraseña correcta se puede entrar hasta que pase el tiempo
+        if ($usuario && $this->estaBloqueada($usuario)) {
+            return $this->respuestaBloqueada($usuario);
+        }
+
         if (! $usuario || ! $proveedor->validateCredentials($usuario, $credenciales)) {
+            if (! $usuario) {
+                $this->registrarEvento(
+                    $request,
+                    null,
+                    'login_fallido',
+                    'Correo no registrado: ' . mb_substr($datos['email'], 0, 120)
+                );
+
+                return response()->json(['message' => 'Correo o contraseña incorrectos.'], 401);
+            }
+
+            // Contraseña mal: se cuenta el intento y al quinto se bloquea la cuenta
+            $intentos = (int) $usuario->intentos_fallidos + 1;
+            $bloquear = $intentos >= self::MAX_INTENTOS;
+
+            DB::table('users')->where('id', $usuario->id)->update([
+                'intentos_fallidos' => $bloquear ? 0 : $intentos,
+                'bloqueado_hasta'   => $bloquear ? now()->addMinutes(self::MINUTOS_BLOQUEO) : null,
+            ]);
+
             $this->registrarEvento(
                 $request,
-                $usuario?->id,
-                'login_fallido',
-                $usuario ? 'Contraseña incorrecta en el panel de administración'
-                         : 'Correo no registrado: ' . mb_substr($datos['email'], 0, 120)
+                $usuario->id,
+                $bloquear ? 'cuenta_bloqueada' : 'login_fallido',
+                $bloquear
+                    ? 'Bloqueada ' . self::MINUTOS_BLOQUEO . ' minutos tras ' . self::MAX_INTENTOS . ' contraseñas incorrectas en el panel de administración'
+                    : "Contraseña incorrecta en el panel de administración (intento {$intentos} de " . self::MAX_INTENTOS . ')'
             );
 
-            return response()->json(['message' => 'Correo o contraseña incorrectos.'], 401);
+            if ($bloquear) {
+                return $this->respuestaBloqueada($usuario->fresh());
+            }
+
+            return response()->json([
+                'message' => 'Correo o contraseña incorrectos.',
+                'intento' => $intentos,
+                'max_intentos' => self::MAX_INTENTOS,
+            ], 401);
+        }
+
+        // Contraseña correcta: se borra la cuenta de intentos fallidos
+        if ($usuario->intentos_fallidos > 0) {
+            DB::table('users')->where('id', $usuario->id)->update(['intentos_fallidos' => 0]);
         }
 
         // Solo administradores pueden entrar al panel
@@ -75,10 +117,13 @@ class SesionController extends Controller
             return response()->json(['message' => 'Tu cuenta está inactiva o pendiente de verificación.'], 403);
         }
 
-        $this->emitirCodigo($request, $usuario);
+        if (! $this->emitirCodigo($request, $usuario)) {
+            return $this->respuestaCorreoFallido();
+        }
 
         return response()->json([
             'requiere_codigo' => true,
+            'espera_reenvio'  => self::ESPERA_REENVIO_SEGUNDOS,
             'message' => 'Te enviamos un código de 6 dígitos a ' . $this->ocultarCorreo($usuario->email)
                 . '. Vence en ' . self::VIGENCIA_CODIGO_MINUTOS . ' minutos.',
         ]);
@@ -112,14 +157,29 @@ class SesionController extends Controller
 
             if ($pendiente['intentos'] >= self::MAX_INTENTOS) {
                 $request->session()->forget('admin_2fa');
-                Log::warning('2FA admin: código anulado por demasiados intentos', [
+
+                // 5 códigos equivocados: la cuenta queda bloqueada y el contador empieza de cero al desbloquearse
+                DB::table('users')->where('id', $pendiente['user_id'])->update([
+                    'intentos_fallidos' => 0,
+                    'bloqueado_hasta'   => now()->addMinutes(self::MINUTOS_BLOQUEO),
+                ]);
+                $this->registrarEvento(
+                    $request,
+                    $pendiente['user_id'],
+                    'cuenta_bloqueada',
+                    'Bloqueada ' . self::MINUTOS_BLOQUEO . ' minutos tras ' . self::MAX_INTENTOS . ' códigos de verificación incorrectos'
+                );
+                Log::warning('2FA admin: cuenta bloqueada por códigos incorrectos', [
                     'admin_id' => $pendiente['user_id'],
                     'ip' => $request->ip(),
                 ]);
+
                 return response()->json([
-                    'message' => 'Demasiados intentos fallidos. Inicia sesión de nuevo.',
-                    'codigo'  => 'codigo_expirado',
-                ], 422);
+                    'message' => 'Demasiados códigos incorrectos. Tu cuenta quedó bloqueada durante '
+                        . self::MINUTOS_BLOQUEO . ' minutos.',
+                    'codigo'  => 'cuenta_bloqueada',
+                    'bloqueado_minutos' => self::MINUTOS_BLOQUEO,
+                ], 423);
             }
 
             $request->session()->put('admin_2fa', $pendiente);
@@ -174,15 +234,29 @@ class SesionController extends Controller
             ], 422);
         }
 
-        $this->emitirCodigo($request, $usuario, (int) $pendiente['intentos']);
+        // Un código nuevo solo cada 60 segundos
+        $faltan = (int) ($pendiente['reenvio_desde'] ?? 0) - time();
+        if ($faltan > 0) {
+            return response()->json([
+                'message'  => 'Espera ' . $faltan . ' segundo' . ($faltan === 1 ? '' : 's') . ' para pedir otro código.',
+                'segundos' => $faltan,
+            ], 429);
+        }
 
-        return response()->json(['message' => 'Te enviamos un código nuevo.']);
+        if (! $this->emitirCodigo($request, $usuario, (int) $pendiente['intentos'])) {
+            return $this->respuestaCorreoFallido();
+        }
+
+        return response()->json([
+            'message' => 'Te enviamos un código nuevo.',
+            'espera_reenvio' => self::ESPERA_REENVIO_SEGUNDOS,
+        ]);
     }
 
     /* ---------------------------------------------------------- */
 
-    /** Genera el código, lo guarda cifrado en la sesión y lo envía por correo. */
-    private function emitirCodigo(Request $request, User $usuario, int $intentos = 0): void
+    /** Genera el código, lo guarda cifrado en la sesión y lo envía por correo. Devuelve false si el correo no salió. */
+    private function emitirCodigo(Request $request, User $usuario, int $intentos = 0): bool
     {
         $codigo = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
@@ -191,6 +265,7 @@ class SesionController extends Controller
             'hash'     => Hash::make($codigo),
             'expira'   => time() + self::VIGENCIA_CODIGO_MINUTOS * 60,
             'intentos' => $intentos,
+            'reenvio_desde' => time() + self::ESPERA_REENVIO_SEGUNDOS,
         ]);
 
         $texto = "Hola {$usuario->name},\n\n"
@@ -199,11 +274,48 @@ class SesionController extends Controller
             . 'Vence en ' . self::VIGENCIA_CODIGO_MINUTOS . " minutos.\n"
             . "Si no fuiste tú, ignora este mensaje y cambia tu contraseña.\n";
 
-        Mail::raw($texto, function ($mensaje) use ($usuario) {
-            $mensaje->to($usuario->email)->subject('Tu código de acceso a UMBRAL');
-        });
+        try {
+            Mail::raw($texto, function ($mensaje) use ($usuario) {
+                $mensaje->to($usuario->email)->subject('Tu código de acceso a UMBRAL');
+            });
+        } catch (\Throwable $e) {
+            // El detalle técnico se queda en el registro del servidor; el usuario no lo ve
+            $request->session()->forget('admin_2fa');
+            Log::error('2FA admin: no se pudo enviar el correo', ['admin_id' => $usuario->id, 'error' => $e->getMessage()]);
+
+            return false;
+        }
 
         Log::info('2FA admin: código enviado', ['admin_id' => $usuario->id, 'ip' => $request->ip()]);
+
+        return true;
+    }
+
+    /** ¿La cuenta sigue bloqueada por intentos fallidos? */
+    private function estaBloqueada(User $usuario): bool
+    {
+        return $usuario->bloqueado_hasta && now()->lt($usuario->bloqueado_hasta);
+    }
+
+    /** 423 con los minutos que faltan para que se desbloquee. */
+    private function respuestaBloqueada(User $usuario): JsonResponse
+    {
+        $minutos = max(1, (int) ceil(now()->diffInSeconds($usuario->bloqueado_hasta, true) / 60));
+
+        return response()->json([
+            'message' => "Tu cuenta está bloqueada temporalmente por varios intentos fallidos. Intenta de nuevo en {$minutos} minuto(s).",
+            'codigo'  => 'cuenta_bloqueada',
+            'bloqueado_minutos' => $minutos,
+        ], 423);
+    }
+
+    /** Mensaje limpio cuando Gmail (u otro servidor de correo) no deja enviar. */
+    private function respuestaCorreoFallido(): JsonResponse
+    {
+        return response()->json([
+            'message' => 'No pudimos enviar el correo con el código. Inténtalo de nuevo en un momento.',
+            'codigo'  => 'correo_fallido',
+        ], 503);
     }
 
     /** Anota un evento de seguridad. Nunca debe romper el inicio de sesión. */

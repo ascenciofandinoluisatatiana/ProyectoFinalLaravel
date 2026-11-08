@@ -82,6 +82,12 @@
             if (r.ok) {
                 form.hidden = true;
                 listo.hidden = false;
+                // Avisa a las otras pestañas de este navegador (la de "Recupera tu contraseña" se cierra sola)
+                try {
+                    var canal = new BroadcastChannel('umbral-clave');
+                    canal.postMessage({ tipo: 'clave_cambiada', email: email });
+                    canal.close();
+                } catch (err) { /* navegador sin BroadcastChannel */ }
                 return;
             }
             if (d.codigo === 'enlace_invalido') { mostrarInvalido(); return; }

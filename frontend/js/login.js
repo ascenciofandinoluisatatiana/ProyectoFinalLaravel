@@ -172,6 +172,40 @@
         temporizadorCodigo = setInterval(pintar, 1000);
     }
 
+    // "Reenviar código": se apaga 60 segundos después de cada envío y muestra cuánto falta
+    var temporizadorReenvio = null;
+
+    function iniciarEsperaReenvio(segundos) {
+        var enlace = document.getElementById('reenviar-codigo');
+        clearInterval(temporizadorReenvio);
+        var fin = Date.now() + segundos * 1000;
+        if (!enlace.getAttribute('data-texto')) enlace.setAttribute('data-texto', enlace.textContent);
+
+        function pintar() {
+            var resto = Math.max(0, Math.ceil((fin - Date.now()) / 1000));
+            if (resto > 0) {
+                enlace.textContent = enlace.getAttribute('data-texto') + ' (' + resto + ' s)';
+                enlace.style.pointerEvents = 'none';
+                enlace.style.opacity = '.55';
+                enlace.setAttribute('aria-disabled', 'true');
+            } else {
+                clearInterval(temporizadorReenvio);
+                restaurarReenvio();
+            }
+        }
+        pintar();
+        temporizadorReenvio = setInterval(pintar, 1000);
+    }
+
+    function restaurarReenvio() {
+        var enlace = document.getElementById('reenviar-codigo');
+        clearInterval(temporizadorReenvio);
+        if (enlace.getAttribute('data-texto')) enlace.textContent = enlace.getAttribute('data-texto');
+        enlace.style.pointerEvents = '';
+        enlace.style.opacity = '';
+        enlace.removeAttribute('aria-disabled');
+    }
+
     // Elementos del paso 1 (correo, clave, pestañas...) que se esconden mientras se pide el código
     function elementosDelPaso1() {
         var lista = Array.prototype.slice.call(
@@ -193,12 +227,14 @@
         mensaje.hidden = true;
         esperandoCodigo = true;
         iniciarCuentaRegresiva(300);
+        iniciarEsperaReenvio(60);
         document.getElementById('codigo').focus();
     }
 
     // Vuelve al paso de correo y contraseña
     function volverAlPaso1() {
         clearInterval(temporizadorCodigo);
+        restaurarReenvio();
         elementosDelPaso1().forEach(function (el) { el.style.display = ''; });
         document.getElementById('bloque-codigo').style.display = 'none';
         boton.querySelector('span').textContent = 'INICIAR SESIÓN';
@@ -221,7 +257,7 @@
 
             if (!r.ok) {
                 mostrar(d.message || 'No se pudo verificar el código.', 'error');
-                if (d.codigo === 'codigo_expirado') volverAlPaso1();
+                if (d.codigo === 'codigo_expirado' || d.codigo === 'cuenta_bloqueada') volverAlPaso1();
                 return;
             }
 
@@ -242,14 +278,19 @@
 
     document.getElementById('reenviar-codigo').addEventListener('click', async function (e) {
         e.preventDefault();
+        if (this.getAttribute('aria-disabled') === 'true') return;   // todavía falta para poder reenviar
         try {
             var r = await fetch('/api/v1/admin/sesion/codigo/reenviar', {
                 method: 'POST', credentials: 'same-origin', headers: cabecerasAdmin()
             });
             var d = await r.json().catch(function () { return {}; });
             mostrar(d.message || 'No se pudo reenviar el código.', r.ok ? 'ok' : 'error');
-            if (r.ok) iniciarCuentaRegresiva(300);
-            if (d.codigo === 'codigo_expirado') volverAlPaso1();
+            if (r.ok) {
+                iniciarCuentaRegresiva(300);
+                iniciarEsperaReenvio(d.espera_reenvio || 60);
+            }
+            if (r.status === 429) iniciarEsperaReenvio(d.segundos || 60);   // aún no pasa el minuto
+            if (d.codigo === 'codigo_expirado' || d.codigo === 'correo_fallido') volverAlPaso1();
         } catch (err) {
             mostrar(window.t('msg.conexion'), 'error');
         }
@@ -263,6 +304,8 @@
 
     // ---------- Recuperar contraseña por correo ----------
     var modoOlvido = false;   // true cuando se muestra "Recupera tu contraseña"
+    var solicitudRecuperar = null;   // número de la última solicitud de enlace (para saber si ya se cambió la clave)
+    var correoSolicitado = '';
 
     function crearBloqueOlvido() {
         var bloque = document.getElementById('bloque-olvido');
@@ -328,6 +371,9 @@
             });
             if (r.status === 422) { mostrar(window.t('msg.correo'), 'error'); return; }
             if (!r.ok) { mostrar(window.t('msg.generico'), 'error'); return; }
+            var d = await r.json().catch(function () { return {}; });
+            solicitudRecuperar = d.solicitud || null;
+            correoSolicitado = email.toLowerCase();
             mostrar(window.t('olvido.enviado'), 'ok');
         } catch (err) {
             mostrar(window.t('msg.conexion'), 'error');
@@ -335,6 +381,41 @@
             boton.disabled = false;
         }
     }
+
+    // Cuando la clave ya se cambió (en otra pestaña o en otro aparato), este modal se cierra solo
+    function claveYaCambiada() {
+        if (!modoOlvido) return;
+        solicitudRecuperar = null;
+        volverDeOlvido();
+        mostrar(window.t('restablecer.ok'), 'ok');
+    }
+
+    // Caso 1: la otra pestaña es de este mismo navegador → avisa al instante
+    try {
+        var canalClave = new BroadcastChannel('umbral-clave');
+        canalClave.onmessage = function (ev) {
+            var d = ev.data || {};
+            if (d.tipo !== 'clave_cambiada') return;
+            if (d.email && correoSolicitado && String(d.email).toLowerCase() !== correoSolicitado) return;
+            claveYaCambiada();
+        };
+    } catch (err) { /* navegador sin BroadcastChannel: queda la comprobación de abajo */ }
+
+    // Caso 2: la clave se cambió en otro aparato → se le pregunta al servidor al volver a esta pestaña
+    var revisandoSolicitud = false;
+    async function revisarSolicitud() {
+        if (!modoOlvido || !solicitudRecuperar || revisandoSolicitud || document.hidden) return;
+        revisandoSolicitud = true;
+        try {
+            var r = await fetch(API + '/recuperar-clave/estado?solicitud=' + encodeURIComponent(solicitudRecuperar),
+                { headers: { 'Accept': 'application/json' } });
+            var d = await r.json().catch(function () { return {}; });
+            if (r.ok && d.cambiada) claveYaCambiada();
+        } catch (err) { /* sin conexión: se vuelve a intentar la próxima vez */ }
+        revisandoSolicitud = false;
+    }
+    document.addEventListener('visibilitychange', revisarSolicitud);
+    window.addEventListener('focus', revisarSolicitud);
 
     var enlaceOlvido = form.querySelector('.fila-opciones .enlace');
     if (enlaceOlvido) {

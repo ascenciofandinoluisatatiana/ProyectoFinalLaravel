@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -18,12 +19,17 @@ use Illuminate\Support\Str;
  * POST /api/v1/recuperar-clave    { email }                                   → envía el enlace
  * GET  /api/v1/restablecer-clave/verificar?email=&token=                    → ¿el enlace sigue sirviendo?
  * POST /api/v1/restablecer-clave  { email, token, password, password_confirmation } → guarda la clave nueva
+ * GET  /api/v1/recuperar-clave/estado?solicitud=                            → ¿esa solicitud ya cambió la clave?
+ *   (la pestaña que pidió el enlace lo consulta al volver a verla, para cerrar su ventana sola)
  *
  * El enlace vence a los 60 minutos (config/auth.php) y solo sirve una vez.
  * Cada solicitud y cada cambio queda en eventos_seguridad; cada correo, en registro_correo.
  */
 class RecuperarClaveController extends Controller
 {
+    /** Cuánto se recuerda una solicitud: lo mismo que dura el enlace del correo. */
+    private const MINUTOS_SOLICITUD = 60;
+
     /** Pide el enlace. La respuesta es siempre la misma, exista o no el correo. */
     public function solicitar(Request $request): JsonResponse
     {
@@ -33,13 +39,28 @@ class RecuperarClaveController extends Controller
 
         $usuario = User::with('role')->where('email', $datos['email'])->first();
 
+        // Número al azar de esta solicitud: se devuelve siempre (exista o no el correo)
+        // para que la respuesta no delate qué correos están registrados.
+        $solicitud = Str::random(40);
+
         if ($usuario && self::puedeRecuperar($usuario)) {
             self::enviarEnlace($usuario, $request, 'recuperacion_solicitada');
+            self::guardarSolicitud($usuario->id, $solicitud);
         }
 
         return response()->json([
-            'message' => 'Si el correo está registrado, te enviamos un enlace para elegir una contraseña nueva.',
+            'message'   => 'Si el correo está registrado, te enviamos un enlace para elegir una contraseña nueva.',
+            'solicitud' => $solicitud,
         ]);
+    }
+
+    /** Dice si la clave de esa solicitud ya se cambió. Solo responde sí o no. */
+    public function estado(Request $request): JsonResponse
+    {
+        $solicitud = (string) $request->query('solicitud', '');
+        $cambiada = strlen($solicitud) === 40 && Cache::get('recuperar:sol:' . $solicitud) === 'cambiada';
+
+        return response()->json(['cambiada' => $cambiada]);
     }
 
     /** Dice si el enlace del correo todavía sirve (no usado y no vencido). */
@@ -82,6 +103,7 @@ class RecuperarClaveController extends Controller
                 ])->save();
 
                 self::registrarEvento($usuario->id, 'clave_restablecida', $request);
+                self::marcarSolicitudesCambiadas($usuario->id);
             }
         );
 
@@ -102,7 +124,8 @@ class RecuperarClaveController extends Controller
     public static function enviarEnlace(User $usuario, Request $request, string $tipoEvento, ?string $detalle = null): bool
     {
         $token = Password::createToken($usuario);
-        $url = rtrim(config('app.url'), '/')
+        // Dirección de la página (FRONTEND_URL): en cada PC es su puerto y en el servidor es el dominio
+        $url = rtrim(config('portal.frontend_url'), '/')
             . '/restablecer.html?token=' . urlencode($token)
             . '&email=' . urlencode($usuario->email);
 
@@ -142,6 +165,27 @@ class RecuperarClaveController extends Controller
         self::registrarEvento($usuario->id, $tipoEvento, $request, $detalle);
 
         return $estado === 'enviado';
+    }
+
+    /** Guarda la solicitud (en la caché del servidor, 60 min) como "pendiente" y la liga a la cuenta. */
+    private static function guardarSolicitud(int $userId, string $solicitud): void
+    {
+        $vence = now()->addMinutes(self::MINUTOS_SOLICITUD);
+        $lista = Cache::get('recuperar:lista:' . $userId, []);
+        $lista[] = $solicitud;
+
+        Cache::put('recuperar:sol:' . $solicitud, 'pendiente', $vence);
+        Cache::put('recuperar:lista:' . $userId, array_slice($lista, -10), $vence);
+    }
+
+    /** Al cambiar la clave, todas las solicitudes abiertas de esa cuenta pasan a "cambiada". */
+    private static function marcarSolicitudesCambiadas(int $userId): void
+    {
+        $vence = now()->addMinutes(self::MINUTOS_SOLICITUD);
+
+        foreach (Cache::pull('recuperar:lista:' . $userId, []) as $solicitud) {
+            Cache::put('recuperar:sol:' . $solicitud, 'cambiada', $vence);
+        }
     }
 
     /** Solo cuentas que pueden iniciar sesión en el portal y que no están desactivadas. */

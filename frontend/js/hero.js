@@ -99,9 +99,9 @@
   if (clr) clr.addEventListener('click', function () { setTimeout(actualizarInsignia, 60); });
   actualizarConteo(); actualizarInsignia();
 
-  /* Ver propiedades, Mapa y Vendedores llevan a los resultados (los filtros ya no están en la página) */
+  /* Ver propiedades y Vendedores llevan a los resultados (los filtros ya no están en la página) */
   document.addEventListener('click', function (e) {
-    if (e.target.closest('#goExplore, [data-nav="map"], [data-seller]')) setTimeout(irAResultados, 60);
+    if (e.target.closest('#goExplore, [data-seller]')) setTimeout(irAResultados, 60); // el mapa se abre en ventana emergente: no se baja a los resultados
   });
 
   /* ---------- buscador del hero <-> buscador de la barra ---------- */

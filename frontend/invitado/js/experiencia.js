@@ -92,6 +92,8 @@
     wl3s: ['Llama al vendedor o déjale tu mensaje.', 'Call the seller or leave a message.', 'Ligue ao vendedor ou deixe uma mensagem.', 'Appelez le vendeur ou laissez un message.'],
     wl_go: ['Empezar a explorar', 'Start exploring', 'Começar a explorar', 'Commencer'],
     close: ['Cerrar', 'Close', 'Fechar', 'Fermer'],
+    map_title: ['Mapa de propiedades', 'Property map', 'Mapa de imóveis', 'Carte des biens'],
+    map_hint: ['Toca un marcador para ver el inmueble', 'Tap a marker to see the property', 'Toque num marcador para ver o imóvel', 'Touchez un repère pour voir le bien'],
     share_n: ['Compartir', 'Share', 'Compartilhar', 'Partager']
   };
   function X(k, v) {
@@ -433,6 +435,38 @@
     var b = w.querySelector('.btn'); if (b) b.focus();
   }
 
+  /* ---------- 7) mapa en ventana emergente (como la calculadora) ---------- */
+  var mapModal = H('<div class="mbg" id="mMap"><div class="modal map-modal" role="dialog" aria-modal="true" aria-labelledby="mapT">' +
+    '<button class="mclose" data-close data-xt="close"><i class="fa-solid fa-xmark"></i></button>' +
+    '<div class="map-head"><h3 id="mapT"><i class="fa-solid fa-map-location-dot"></i><span data-xk="map_title"></span></h3>' +
+    '<p><b id="mapN"></b> · <span data-xk="map_hint"></span></p></div><div class="map-body" id="mapBody"></div></div></div>');
+  document.body.appendChild(mapModal);
+  document.querySelector('#mapBody').appendChild(mapView); // el mismo #mapView de siempre, ahora dentro de la ventana
+  function mapaAbierto() { return mapModal.classList.contains('open'); }
+  function pintarMapa() {
+    var r = window.filtered();
+    document.querySelector('#mapN').textContent = r.length + ' ' + t('n_found');
+    if (typeof L !== 'undefined') renderMap(r);
+  }
+  function abrirMapa() {
+    openModal('#mMap'); pintarMapa();
+    setTimeout(function () { if (map) map.invalidateSize(); }, 150);
+  }
+  var setView0 = window.setView;
+  window.setView = function (v) {
+    if (v === 'map') { abrirMapa(); return; }
+    if (mapaAbierto()) window.closeModals();
+    setView0.apply(this, arguments);
+  };
+  var closeModals1 = window.closeModals;
+  window.closeModals = function () {
+    var estaba = mapaAbierto();
+    closeModals1.apply(this, arguments);
+    if (estaba) { // al cerrar el mapa, el menú vuelve a marcar Explorar (o Favoritos)
+      document.querySelectorAll('[data-nav]').forEach(function (a) { a.classList.toggle('active', a.dataset.nav === (S.favOnly ? 'favs' : 'all')); });
+    }
+  };
+
   /* ---------- eventos ---------- */
   function cerrarMenusCompartir(salvo) {
     document.querySelectorAll('.pshare.open').forEach(function (n) {
@@ -495,6 +529,7 @@
     try {
       refrescarChips(); pintarRecientes(); pintarVacio(); pintarConfianza(); pintarDestacados();
       marcarCmp(); marcarBnav(); precargar();
+      if (mapaAbierto()) pintarMapa();
       if (!panel.hidden) pintarPanel(); else { var n = guardadas().length, e = document.querySelector('#qsN'); e.textContent = n; e.hidden = !n; }
     } catch (err) { if (window.console) console.error('experiencia.js', err); }
   }

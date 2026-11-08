@@ -381,4 +381,9 @@
     });
 
     window.PanelAdmin = { api: api, listo: listo, esc: esc, url: url };
+
+    // Animaciones y transiciones de todas las páginas del panel (archivo aparte: js/animaciones.js)
+    var animaciones = document.createElement('script');
+    animaciones.src = 'js/animaciones.js';
+    document.head.appendChild(animaciones);
 })();

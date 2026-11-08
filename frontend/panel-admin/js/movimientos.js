@@ -397,43 +397,125 @@
     /* ---- Ventana "Ver": qué ha hecho este visitante ---- */
     var modal = document.getElementById('modal-inv');
     var modalPedido = 0;
+    var ICONOS_PUB = { casa: 'fa-house', apartamento: 'fa-building', finca: 'fa-tree', local: 'fa-store', lote: 'fa-map' };
+    var POR_PAG_MODAL = 8;
+    var ficha = null;          // datos del visitante abierto
+    var fTab = 'favoritos';
+    var fPag = 1;
+    var fBusca = '';
 
-    function bloque(titulo, filas, vacio) {
-        return '<section><h3>' + P.esc(titulo) + '</h3>' +
-            (filas.length ? '<div class="lista-inv">' + filas.join('') + '</div>' : '<p class="text-xs text-slate-500">' + P.esc(vacio) + '</p>') + '</section>';
+    function iconoPub(tipo) { return ICONOS_PUB[String(tipo || '').toLowerCase()] || 'fa-circle-question'; }
+    function norm(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+
+    // Cada pestaña sabe sacar sus datos y dibujar cada tarjetita
+    var TABS_INV = {
+        favoritos:     { texto: 'Favoritos',     icono: 'fa-heart',            buscable: true,  vacio: 'No tiene publicaciones en favoritos.',
+                         lista: function () { return ficha.favoritos; },
+                         item: function (x) { return tarjetaPub(x, P.esc(fechaCorta(x.fecha))); } },
+        publicaciones: { texto: 'Publicaciones', icono: 'fa-eye',              buscable: true,  vacio: 'Todavía no abrió ninguna publicación.',
+                         lista: function () { return ficha.publicaciones; },
+                         item: function (x) { return tarjetaPub(x, x.veces + (x.veces === 1 ? ' vez' : ' veces') + '<br>' + P.esc(fechaCorta(x.ultima))); } },
+        contactos:     { texto: 'Contactos',     icono: 'fa-address-book',     buscable: true,  vacio: 'No ha dejado sus datos.',
+                         lista: function () { return ficha.contactos; },
+                         item: function (x) {
+                             return '<div class="inv-item"><span class="ico"><i class="fa-solid ' + tipoContacto(x.contacto) + '"></i></span>' +
+                                 '<div class="cuerpo"><b>' + P.esc(x.nombre) + ' · ' + P.esc(x.contacto) + '</b><small>' + P.esc(x.titulo) + (x.ubicacion ? ' · ' + P.esc(x.ubicacion) : '') + '</small></div>' +
+                                 '<span class="der">' + P.esc(fechaCorta(x.fecha)) + '</span></div>';
+                         } },
+        entradas:      { texto: 'Entradas',      icono: 'fa-right-to-bracket', buscable: false, vacio: 'Sin entradas registradas.',
+                         lista: function () { return ficha.entradas; },
+                         item: function (f) { return '<div class="inv-item"><span class="ico"><i class="fa-solid fa-right-to-bracket"></i></span><div class="cuerpo"><b>' + P.esc(fechaCorta(f)) + '</b></div></div>'; } }
+    };
+    function tarjetaPub(x, der) {
+        return '<div class="inv-item"><span class="ico"><i class="fa-solid ' + iconoPub(x.tipo) + '"></i></span>' +
+            '<div class="cuerpo"><b>' + P.esc(x.titulo) + '</b><small>' + P.esc(x.ubicacion || '') + '</small></div>' +
+            '<span class="der">' + der + '</span></div>';
     }
-    function fila2(izq, der) { return '<div><span>' + izq + '</span><span>' + der + '</span></div>'; }
+    function textoBuscable(x) {
+        return typeof x === 'string' ? x : [x.titulo, x.ubicacion, x.nombre, x.contacto].join(' ');
+    }
+
+    function pintarPanel() {
+        var def = TABS_INV[fTab];
+        var q = norm(fBusca);
+        var todas = def.lista().filter(function (x) { return !q || norm(textoBuscable(x)).indexOf(q) >= 0; });
+        var ultima = Math.max(1, Math.ceil(todas.length / POR_PAG_MODAL));
+        fPag = Math.min(Math.max(1, fPag), ultima);
+        var trozo = todas.slice((fPag - 1) * POR_PAG_MODAL, fPag * POR_PAG_MODAL);
+
+        document.getElementById('inv-lista').innerHTML = trozo.length
+            ? trozo.map(def.item).join('')
+            : '<div class="inv-vacio">' + P.esc(q ? 'Nada coincide con la búsqueda.' : def.vacio) + '</div>';
+
+        var pag = document.getElementById('inv-pag');
+        if (todas.length <= POR_PAG_MODAL) {
+            pag.innerHTML = todas.length ? '<span>' + todas.length + (todas.length === 1 ? ' registro' : ' registros') + '</span>' : '';
+            return;
+        }
+        var ini = Math.max(1, fPag - 1), fin = Math.min(ultima, ini + 2);
+        var b = '<button type="button" data-ir="' + (fPag - 1) + '"' + (fPag <= 1 ? ' disabled' : '') + ' aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>';
+        for (var n = ini; n <= fin; n++) b += '<button type="button" data-ir="' + n + '"' + (n === fPag ? ' class="activa"' : '') + '>' + n + '</button>';
+        b += '<button type="button" data-ir="' + (fPag + 1) + '"' + (fPag >= ultima ? ' disabled' : '') + ' aria-label="Siguiente"><i class="fa-solid fa-chevron-right"></i></button>';
+        pag.innerHTML = '<span>Mostrando ' + ((fPag - 1) * POR_PAG_MODAL + 1) + '–' + Math.min(fPag * POR_PAG_MODAL, todas.length) + ' de ' + todas.length + '</span><div class="botones">' + b + '</div>';
+    }
+
+    function elegirTabInv(tab) {
+        fTab = tab; fPag = 1; fBusca = '';
+        document.querySelectorAll('#modal-inv-cuerpo [data-itab]').forEach(function (b) {
+            b.classList.toggle('activa', b.getAttribute('data-itab') === tab);
+        });
+        var buscador = document.getElementById('inv-buscar');
+        buscador.value = '';
+        buscador.hidden = !TABS_INV[tab].buscable;
+        pintarPanel();
+    }
 
     async function abrirVisitante(id) {
         var mi = ++modalPedido;
         document.getElementById('modal-inv-titulo').textContent = 'Cargando…';
+        document.getElementById('modal-inv-sub').textContent = '';
         document.getElementById('modal-inv-cuerpo').innerHTML = '';
         modal.hidden = false;
         try {
             var r = await P.api('/invitados/' + encodeURIComponent(id));
             if (mi !== modalPedido) return;
+            ficha = r;
             var v = r.visitante;
             document.getElementById('modal-inv-titulo').textContent = nombreVisitante(v);
-            var datos = [
-                ['Entradas', v.visitas], ['Primera visita', fechaCorta(v.primera_visita)], ['Última visita', fechaCorta(v.ultima_visita)],
-                ['Contacto', v.contacto || 'No dejó datos'], ['IP (parcial)', v.ip || '—'], ['Idioma', v.idioma || '—'], ['Zona horaria', v.zona_horaria || '—']
-            ].map(function (x) { return '<div><small>' + P.esc(x[0]) + '</small><b>' + P.esc(x[1]) + '</b></div>'; }).join('');
+            document.getElementById('modal-inv-sub').textContent = v.contacto ? v.contacto : 'No dejó datos de contacto';
+            document.getElementById('modal-inv-avatar').innerHTML = v.nombre ? P.esc(iniciales(v.nombre)) : '<i class="fa-solid fa-user"></i>';
+
+            var tiles = [['Entradas', v.visitas], ['Publicaciones', r.publicaciones.length], ['Favoritos', r.favoritos.length], ['Contactos', r.contactos.length]]
+                .map(function (x) { return '<div class="inv-tile"><b>' + x[1] + '</b><small>' + x[0] + '</small></div>'; }).join('');
+            var chips = [['fa-calendar-plus', 'Primera visita', fechaCorta(v.primera_visita)], ['fa-clock', 'Última visita', fechaCorta(v.ultima_visita)],
+                         ['fa-location-dot', 'IP', v.ip || '—'], ['fa-language', 'Idioma', v.idioma || '—'], ['fa-earth-americas', 'Zona', v.zona_horaria || '—']]
+                .map(function (x) { return '<span class="inv-chip"><i class="fa-solid ' + x[0] + '"></i>' + x[1] + ': <b>' + P.esc(x[2]) + '</b></span>'; }).join('');
+            var tabs = Object.keys(TABS_INV).map(function (k) {
+                var n = TABS_INV[k].lista().length;
+                return '<button type="button" class="inv-tab" data-itab="' + k + '"><i class="fa-solid ' + TABS_INV[k].icono + '"></i>' + TABS_INV[k].texto + '<span class="cuenta">' + n + '</span></button>';
+            }).join('');
+
             document.getElementById('modal-inv-cuerpo').innerHTML =
-                '<section><h3>Resumen</h3><div class="dato-grid">' + datos + '</div></section>' +
-                bloque('Favoritos (' + r.favoritos.length + ')', r.favoritos.map(function (f) { return fila2(P.esc(f.publicacion), P.esc(fechaCorta(f.fecha))); }), 'No tiene publicaciones en favoritos.') +
-                bloque('Publicaciones que abrió (' + r.publicaciones.length + ')', r.publicaciones.map(function (p) {
-                    return fila2(P.esc(p.publicacion), p.veces + (p.veces === 1 ? ' vez' : ' veces'));
-                }), 'Todavía no abrió ninguna publicación.') +
-                bloque('Contactos que dejó (' + r.contactos.length + ')', r.contactos.map(function (c) {
-                    return fila2(P.esc(c.nombre) + ' · ' + P.esc(c.contacto) + '<span class="nota">' + P.esc(c.publicacion) + '</span>', P.esc(fechaCorta(c.fecha)));
-                }), 'No ha dejado sus datos.') +
-                bloque('Últimas entradas', r.entradas.map(function (f) { return fila2(P.esc(fechaCorta(f)), ''); }), 'Sin entradas registradas.');
+                '<div class="inv-tiles">' + tiles + '</div><div class="inv-chips">' + chips + '</div>' +
+                '<div class="inv-tabs" role="tablist">' + tabs + '</div>' +
+                '<input type="search" id="inv-buscar" class="inv-buscar" placeholder="Buscar…" autocomplete="off">' +
+                '<div id="inv-lista" class="inv-lista"></div><div id="inv-pag" class="inv-pag"></div>';
+            elegirTabInv('favoritos');
         } catch (e) {
             if (mi !== modalPedido) return;
             modal.hidden = true;
             if (e.estado !== 401) toast('No se pudo cargar el visitante', e.estado ? (e.message || 'Intenta de nuevo.') : 'No se pudo contactar al servidor.');
         }
     }
+    document.getElementById('modal-inv-cuerpo').addEventListener('click', function (e) {
+        var t = e.target.closest('[data-itab]');
+        if (t) return elegirTabInv(t.getAttribute('data-itab'));
+        var ir = e.target.closest('[data-ir]');
+        if (ir && !ir.disabled) { fPag = +ir.getAttribute('data-ir'); pintarPanel(); }
+    });
+    document.getElementById('modal-inv-cuerpo').addEventListener('input', function (e) {
+        if (e.target.id === 'inv-buscar') { fBusca = e.target.value; fPag = 1; pintarPanel(); }
+    });
     function cerrarVisitante() { modalPedido++; modal.hidden = true; }
     document.getElementById('modal-inv-cerrar').addEventListener('click', cerrarVisitante);
     modal.addEventListener('click', function (e) { if (e.target === modal) cerrarVisitante(); });

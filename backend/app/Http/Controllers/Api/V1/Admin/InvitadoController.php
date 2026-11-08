@@ -141,25 +141,22 @@ class InvitadoController extends Controller
         }
 
         $eventos = DB::table('invitado_eventos')->where('invitado_id', $id)->orderBy('fecha')->orderBy('id')->get();
-        $etiquetas = $this->etiquetas($eventos->pluck('propiedad_id')->filter()->unique()->all());
-        $nombrePub = fn ($pid) => $etiquetas[$pid] ?? 'Publicación eliminada';
+        $fichas = $this->fichas($eventos->pluck('propiedad_id')->filter()->unique()->all());
+        $ficha = fn ($pid) => $fichas[$pid] ?? ['titulo' => 'Publicación eliminada', 'ubicacion' => '', 'tipo' => null];
 
-        $favoritos = collect($this->favoritosActuales($eventos))->map(fn ($e) => [
-            'propiedad_id' => $e->propiedad_id, 'publicacion' => $nombrePub($e->propiedad_id), 'fecha' => $this->fecha($e->fecha),
-        ])->values();
-
-        $publicaciones = $eventos->where('tipo', 'ver_publicacion')->groupBy('propiedad_id')->map(function ($g, $pid) use ($nombrePub) {
-            return [
-                'propiedad_id' => (int) $pid, 'publicacion' => $nombrePub($pid),
-                'veces' => $g->count(), 'ultima' => $this->fecha($g->last()->fecha),
-            ];
-        })->sortByDesc('veces')->values();
-
-        $contactos = $eventos->where('tipo', 'contacto')->map(fn ($e) => [
-            'nombre' => $e->nombre, 'contacto' => $e->contacto, 'publicacion' => $nombrePub($e->propiedad_id), 'fecha' => $this->fecha($e->fecha),
+        $favoritos = collect($this->favoritosActuales($eventos))->map(fn ($e) => $ficha($e->propiedad_id) + [
+            'propiedad_id' => $e->propiedad_id, 'fecha' => $this->fecha($e->fecha),
         ])->reverse()->values();
 
-        $entradas = $eventos->where('tipo', 'visita')->map(fn ($e) => $this->fecha($e->fecha))->reverse()->take(10)->values();
+        $publicaciones = $eventos->where('tipo', 'ver_publicacion')->groupBy('propiedad_id')->map(function ($g, $pid) use ($ficha) {
+            return $ficha($pid) + ['propiedad_id' => (int) $pid, 'veces' => $g->count(), 'ultima' => $this->fecha($g->last()->fecha)];
+        })->sortByDesc('ultima')->values();
+
+        $contactos = $eventos->where('tipo', 'contacto')->map(fn ($e) => $ficha($e->propiedad_id) + [
+            'nombre' => $e->nombre, 'contacto' => $e->contacto, 'fecha' => $this->fecha($e->fecha),
+        ])->reverse()->values();
+
+        $entradas = $eventos->where('tipo', 'visita')->map(fn ($e) => $this->fecha($e->fecha))->reverse()->take(100)->values();
 
         return response()->json([
             'visitante' => [
@@ -200,6 +197,19 @@ class InvitadoController extends Controller
         $mapa = [];
         foreach (DB::table('propiedades')->whereIn('id', $ids)->get(['id', 'tipo', 'operacion', 'barrio', 'ciudad']) as $p) {
             $mapa[$p->id] = ucfirst($p->tipo) . ' en ' . $p->operacion . ' · ' . $p->barrio . ', ' . $p->ciudad;
+        }
+        return $mapa;
+    }
+
+    /** id de propiedad → ['titulo' => 'Casa en venta', 'ubicacion' => 'Belén, Ibagué', 'tipo' => 'casa'] */
+    private function fichas(array $ids): array
+    {
+        if (! $ids) {
+            return [];
+        }
+        $mapa = [];
+        foreach (DB::table('propiedades')->whereIn('id', $ids)->get(['id', 'tipo', 'operacion', 'barrio', 'ciudad']) as $p) {
+            $mapa[$p->id] = ['titulo' => ucfirst($p->tipo) . ' en ' . $p->operacion, 'ubicacion' => $p->barrio . ', ' . $p->ciudad, 'tipo' => $p->tipo];
         }
         return $mapa;
     }

@@ -68,6 +68,7 @@
       contact_form: ['Contactar al vendedor', 'Contact the seller', 'Contatar o vendedor', 'Contacter le vendeur'],
       name: ['Nombre', 'Name', 'Nome', 'Nom'], phone_mail: ['Teléfono o correo', 'Phone or email', 'Telefone ou e-mail', 'Téléphone ou e-mail'], message: ['Mensaje', 'Message', 'Mensagem', 'Message'],
       send: ['Enviar mensaje', 'Send message', 'Enviar mensagem', 'Envoyer'],
+      lead_aviso: ['Al enviar aceptas que compartamos tus datos con el vendedor y te enviemos información.', 'By sending, you agree that we share your details with the seller and send you information.', 'Ao enviar, você aceita que compartilhemos seus dados com o vendedor e lhe enviemos informações.', 'En envoyant, vous acceptez que nous partagions vos données avec le vendeur et que nous vous envoyions des informations.'],
       sent_ok: ['¡Mensaje enviado! El vendedor te contactará pronto.', 'Message sent! The seller will contact you soon.', 'Mensagem enviada! O vendedor entrará em contato.', 'Message envoyé ! Le vendeur vous contactera bientôt.'],
       req: ['Completa los campos obligatorios.', 'Please fill in the required fields.', 'Preencha os campos obrigatórios.', 'Veuillez remplir les champs obligatoires.'],
       sellers_title: ['Vendedores e inmobiliarias', 'Sellers & agencies', 'Vendedores e imobiliárias', 'Vendeurs et agences'],

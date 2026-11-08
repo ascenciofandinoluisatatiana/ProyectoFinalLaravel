@@ -2,6 +2,7 @@
     function openDetail(id) {
       const p = P.find(x => x.id === id), s = SELLERS[p.seller], rent = p.op === 'arriendo', fav = favs.includes(p.id);
       RV.beforeRender(id);
+      if (window.UmbralActividad) UmbralActividad.verPublicacion(id);
       const d = (p.desc || '').trim(), fotos = p.fotos || []; $('#detailBody').innerHTML = `
   <div class="mhero" style="${fotos.length ? '' : imgStyle(p)}">${fotos.length ? carouselHTML(fotos) : icon(p)}    <div class="badges"><span class="b ${rent ? 'b-rent' : 'b-sale'}">${t(rent ? 'rental' : 'sale')}</span>
     ${p.ver ? `<span class="b b-ver"><i class="fa-solid fa-circle-check"></i>${t('verified')}</span>` : ''}
@@ -29,7 +30,8 @@
         <div class="field"><label>${t('name')} *</label><input name="n"></div>
         <div class="field"><label>${t('phone_mail')} *</label><input name="c"></div>
         <div class="field"><label>${t('message')}</label><textarea name="m" rows="2"></textarea></div>
-        <button class="btn btn-primary btn-sm" type="submit"><i class="fa-solid fa-paper-plane"></i>${t('send')}</button></form></div>
+        <button class="btn btn-primary btn-sm" type="submit"><i class="fa-solid fa-paper-plane"></i>${t('send')}</button>
+        <small style="font-size:11px;line-height:1.4;color:var(--muted)">${t('lead_aviso')}</small></form></div>
     <button class="btn ${rent ? 'btn-orange' : 'btn-green'}" data-pay="${p.id}"><i class="fa-solid ${rent ? 'fa-key' : 'fa-cart-shopping'}"></i>${t(rent ? 'rent' : 'buy')} · PSE</button>
     <button class="btn btn-ghost" data-fav="${p.id}"><i class="${fav ? 'fa-solid' : 'fa-regular'} fa-heart" style="color:var(--red)"></i>${t('nav_favs')}</button>
   </div></div></div>
@@ -50,7 +52,7 @@
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
             body: JSON.stringify({ propiedad_id: p.id, nombre: f.n.value, contacto: f.c.value, mensaje: f.m.value })
           });
-          if (r.ok) { toast(t('sent_ok')); f.reset(); } else { toast(t('req')); }
+          if (r.ok) { if (window.UmbralActividad) UmbralActividad.contacto(p.id, f.n.value, f.c.value); toast(t('sent_ok')); f.reset(); } else { toast(t('req')); }
         } catch (_) { toast(t('req')); }
       };
     }

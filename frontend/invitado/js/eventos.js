@@ -6,6 +6,7 @@
         e.stopPropagation(); const id = +g('[data-fav]').dataset.fav;
         favs = favs.includes(id) ? favs.filter(x => x !== id) : [...favs, id];
         toast(t(favs.includes(id) ? 'fav_add' : 'fav_del'));
+        if (window.UmbralActividad) UmbralActividad.favorito(id, favs.includes(id));
         try { localStorage.setItem('umbral_favs', JSON.stringify(favs)) } catch (_) { }
         render(); if ($('#mDetail').classList.contains('open')) openDetail(id); return
       }

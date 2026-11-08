@@ -24,6 +24,74 @@
     <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
     <link rel="stylesheet" href="/assets/admin/fontawesome/css/regular.min.css">
     <link rel="stylesheet" href="/assets/admin/tema.css">
+    <style>
+        .pf-btn-chico { padding: 7px 12px; font-size: .8rem; flex-shrink: 0; }
+        .pf-card-cab { padding: 14px 18px; }
+
+        /* Mi cuenta: tarjetitas compactas en rejilla */
+        .pf-datos { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; padding: 14px 18px 18px; }
+        .pf-dato { display: flex; align-items: center; gap: 12px; padding: 10px 12px; min-width: 0; border: 1px solid var(--ad-borde); border-radius: 14px; background: var(--ad-bg); }
+        .pf-dato > div { min-width: 0; flex: 1; }
+        .pf-dato dt { font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ad-muted); }
+        .pf-dato dd { font-size: .9rem; font-weight: 600; color: var(--ad-text); overflow-wrap: anywhere; }
+        .pf-dato .pf-icono { width: 34px; height: 34px; border-radius: 10px; font-size: .8rem; }
+        .pf-fijo { background: transparent; border-style: dashed; }
+        .pf-candado { flex-shrink: 0; font-size: .7rem; color: var(--ad-muted); opacity: .7; }
+
+        /* Resumen de verificaciones: icono a la izquierda, número y texto al lado (como las demás tarjetas del panel) */
+        .pf-res { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; padding: 14px 18px 18px; }
+        .pf-cifra { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 12px; align-items: center; min-width: 0; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--ad-borde); background: var(--ad-bg); }
+        .pf-cifra-ico { grid-column: 1; grid-row: 1 / span 2; display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; font-size: .95rem; color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); }
+        .pf-cifra b { grid-column: 2; grid-row: 1; align-self: end; font-size: 1.4rem; line-height: 1.1; font-weight: 800; letter-spacing: -.02em; color: var(--ad-text); white-space: nowrap; }
+        .pf-cifra small { grid-column: 2; grid-row: 2; align-self: start; margin-top: 2px; font-size: .74rem; line-height: 1.25; color: var(--ad-muted); }
+        .pf-cifra .pf-barra { grid-column: 1 / -1; grid-row: 3; margin-top: 10px; height: 8px; }
+        @media (max-width: 900px) { .pf-res { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 420px) { .pf-res { grid-template-columns: 1fr; } }
+
+        /* Solo paleta UMBRAL: morado, dorado, blanco y negro (sin verde/rojo/azul en las tarjetas) */
+        html { --pf-oro: #d4af37; }
+        html[data-theme="light"] { --pf-oro: #9a7b1a; }
+        .pf-barra .ok { background: linear-gradient(90deg, var(--ad-primary2), var(--ad-primary)); }
+        .pf-barra .no { background: var(--pf-oro); }
+        .pf-ok { background: color-mix(in srgb, var(--ad-primary) 16%, transparent); color: var(--ad-primary); }
+        .pf-no { background: color-mix(in srgb, var(--pf-oro) 16%, transparent); color: var(--pf-oro); }
+        html[data-theme="light"] .pf-ok { color: var(--ad-primary); }
+        html[data-theme="light"] .pf-no { color: var(--pf-oro); }
+
+        /* Decisiones y acciones: lado a lado, mismo tamaño, cada una con su color */
+        .pf-dos { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: stretch; }
+        .pf-dos.una { grid-template-columns: 1fr; }
+        @media (max-width: 900px) { .pf-dos { grid-template-columns: 1fr; } }
+        .pf-lista-card { display: flex; flex-direction: column; border-top: 3px solid var(--acc); min-width: 0; }
+        .pf-lista-card > div:last-child { flex: 1; }
+        .pf-lista-card .pf-card-cab h2 { color: var(--acc); }
+        .pf-lista-card .pf-card-cab .pf-icono { background: color-mix(in srgb, var(--acc) 14%, transparent); color: var(--acc); }
+        .pf-accion-icono { display: grid; place-items: center; flex-shrink: 0; width: 38px; height: 38px; border-radius: 12px; background: color-mix(in srgb, var(--pf-oro) 16%, transparent); color: var(--pf-oro); }
+
+        /* Ventana de edición */
+        .pf-modal-caja { width: 100%; max-width: 460px; max-height: calc(100vh - 32px); overflow-y: auto; border-radius: 20px; border: 1px solid var(--ad-borde); background: var(--ad-card); box-shadow: 0 25px 60px rgba(0, 0, 0, .45); }
+        .pf-modal-cab { position: sticky; top: 0; z-index: 1; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--ad-borde); background: var(--ad-card); }
+        .pf-modal-cab h3 { font-size: 1.05rem; font-weight: 800; color: var(--ad-text); }
+        .pf-modal-cab p { font-size: .78rem; color: var(--ad-muted); margin-top: 2px; }
+        .pf-modal-x { flex: none; width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--ad-borde); background: transparent; color: var(--ad-muted); cursor: pointer; }
+        .pf-modal-x:hover { color: var(--ad-text); background: var(--ad-soft); }
+        .pf-modal-cuerpo { display: grid; gap: 14px; padding: 16px 20px 20px; }
+        .pf-campo { display: grid; gap: 5px; min-width: 0; }
+        .pf-campo[hidden] { display: none; }
+        .pf-campo label { font-size: .8rem; font-weight: 700; color: var(--ad-text2); }
+        .pf-opcional { font-weight: 500; color: var(--ad-muted); }
+        .pf-campo input { width: 100%; min-width: 0; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--ad-borde2); background: var(--ad-bg); color: var(--ad-text); font-size: .9rem; outline: none; transition: border-color .2s, box-shadow .2s; }
+        .pf-campo input:focus { border-color: var(--ad-primary2); box-shadow: 0 0 0 3px rgba(139, 92, 246, .18); }
+        .pf-campo input.pf-malo, .pf-doc.pf-malo { border-color: #ef4444; }
+        .pf-doc { display: flex; align-items: stretch; border-radius: 12px; border: 1px solid var(--ad-borde2); background: var(--ad-bg); overflow: hidden; }
+        .pf-doc span { display: grid; place-items: center; padding: 0 12px; font-size: .8rem; font-weight: 800; color: var(--ad-primary); background: var(--ad-soft); }
+        .pf-doc input { border: 0; border-radius: 0; box-shadow: none !important; }
+        .pf-ayuda { font-size: .75rem; color: var(--ad-muted); }
+        .pf-error-campo { font-size: .78rem; font-weight: 600; color: #ef4444; }
+        .pf-error-campo:empty { display: none; }
+        .pf-form-botones { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+        @media (max-width: 480px) { .pf-form-botones .pf-btn { flex: 1 1 100%; } .pf-card-cab { flex-wrap: wrap; } }
+    </style>
 </head>
 <body class="bg-slate-950 text-slate-200 font-sans antialiased" data-pagina="perfil" data-titulo="Mi perfil">
 
@@ -92,123 +160,92 @@
                         <input id="archivo-avatar" type="file" accept="image/jpeg,image/png,image/webp" hidden>
                     </section>
 
-                    <!-- Datos de la cuenta -->
-                    <div class="pf-rejilla dos">
-                        <section class="pf-card" style="--i:0">
-                            <div class="pf-card-cab">
-                                <span class="pf-icono"><i class="fa-solid fa-address-card"></i></span>
-                                <div>
-                                    <h2>Datos de contacto</h2>
-                                    <p>Cómo te encuentran en el portal</p>
+                    <!-- 1. Mi cuenta: datos y acceso, en una sola tarjeta ancha -->
+                    <section class="pf-card" style="--i:0">
+                        <div class="pf-card-cab">
+                            <span class="pf-icono"><i class="fa-solid fa-address-card"></i></span>
+                            <div style="min-width:0;flex:1 1 150px">
+                                <h2>Mi cuenta</h2>
+                                <p>Tus datos y tu acceso al panel</p>
+                            </div>
+                            <button type="button" id="boton-editar" class="pf-btn pf-btn-chico"><i class="fa-solid fa-pen"></i>Editar</button>
+                        </div>
+                        <dl class="pf-datos">
+                            <div class="pf-dato"><span class="pf-icono"><i class="fa-solid fa-user"></i></span><div><dt>Nombre</dt><dd id="dato-nombre"></dd></div></div>
+                            <div class="pf-dato"><span class="pf-icono"><i class="fa-solid fa-envelope"></i></span><div><dt>Correo</dt><dd id="dato-correo"></dd></div></div>
+                            <div class="pf-dato"><span class="pf-icono"><i class="fa-solid fa-phone"></i></span><div><dt>Teléfono</dt><dd id="dato-telefono"></dd></div></div>
+                            <div class="pf-dato"><span class="pf-icono"><i class="fa-solid fa-id-card"></i></span><div><dt>Documento</dt><dd id="dato-documento"></dd></div></div>
+                            <div class="pf-dato pf-fijo"><span class="pf-icono"><i class="fa-solid fa-shield-halved"></i></span><div><dt>Rol en el panel</dt><dd id="dato-rol"></dd></div><i class="fa-solid fa-lock pf-candado" title="Solo se cambia desde Gestión de usuarios"></i></div>
+                            <div class="pf-dato pf-fijo"><span class="pf-icono"><i class="fa-solid fa-circle-check"></i></span><div><dt>Estado</dt><dd id="dato-estado"></dd></div><i class="fa-solid fa-lock pf-candado" title="Solo se cambia desde Gestión de usuarios"></i></div>
+                            <div class="pf-dato pf-fijo"><span class="pf-icono"><i class="fa-solid fa-calendar-days"></i></span><div><dt>Miembro desde</dt><dd id="dato-desde"></dd></div><i class="fa-solid fa-lock pf-candado" title="Dato fijo"></i></div>
+                        </dl>
+                    </section>
+
+                    <!-- 2. Resumen de verificaciones: cifras y tasa en una sola sección -->
+                    <section class="pf-card" style="--i:1">
+                        <div class="pf-card-cab">
+                            <span class="pf-icono"><i class="fa-solid fa-chart-pie"></i></span>
+                            <div>
+                                <h2>Resumen de verificaciones</h2>
+                                <p>Decisiones tomadas por ti en el proceso de verificación.</p>
+                            </div>
+                        </div>
+                        <div class="pf-res">
+                            <div class="pf-cifra" style="--c:var(--ad-primary)">
+                                <span class="pf-cifra-ico"><i class="fa-solid fa-list-check"></i></span>
+                                <b id="total-decisiones">0</b>
+                                <small>Decisiones registradas</small>
+                            </div>
+                            <div class="pf-cifra" style="--c:var(--ad-primary)">
+                                <span class="pf-cifra-ico"><i class="fa-solid fa-check"></i></span>
+                                <b id="total-aprobadas">0</b>
+                                <small>Verificaciones aprobadas</small>
+                            </div>
+                            <div class="pf-cifra" style="--c:var(--pf-oro)">
+                                <span class="pf-cifra-ico"><i class="fa-solid fa-xmark"></i></span>
+                                <b id="total-rechazadas">0</b>
+                                <small>Verificaciones rechazadas</small>
+                            </div>
+                            <div class="pf-cifra" style="--c:var(--ad-primary)">
+                                <span class="pf-cifra-ico"><i class="fa-solid fa-chart-pie"></i></span>
+                                <b id="tasa-texto">—</b>
+                                <small>Tasa de aprobación</small>
+                                <div class="pf-barra" role="img" id="tasa-barra" aria-label="Sin decisiones todavía">
+                                    <i class="ok" id="barra-ok"></i><i class="no" id="barra-no"></i>
                                 </div>
                             </div>
-                            <dl class="pf-lista">
-                                <div class="pf-fila">
-                                    <span class="pf-icono"><i class="fa-solid fa-envelope"></i></span>
-                                    <div><dt>Correo</dt><dd id="dato-correo"></dd></div>
+                        </div>
+                    </section>
+
+                    <!-- 3. Dos bloques distintos, del mismo tamaño: decisiones y acciones -->
+                    <div id="fila-listas" class="pf-dos una">
+                        <section class="pf-card pf-lista-card" id="tarjeta-decisiones" style="--i:2;--acc:var(--ad-primary)">
+                            <div class="pf-card-cab">
+                                <span class="pf-icono"><i class="fa-solid fa-clipboard-check"></i></span>
+                                <div>
+                                    <h2>Últimas decisiones</h2>
+                                    <p>Verificaciones que aprobaste o rechazaste.</p>
                                 </div>
-                                <div class="pf-fila">
-                                    <span class="pf-icono"><i class="fa-solid fa-phone"></i></span>
-                                    <div><dt>Teléfono</dt><dd id="dato-telefono"></dd></div>
-                                </div>
-                                <div class="pf-fila">
-                                    <span class="pf-icono"><i class="fa-solid fa-id-card"></i></span>
-                                    <div><dt>Documento</dt><dd id="dato-documento"></dd></div>
-                                </div>
-                            </dl>
+                            </div>
+                            <div id="lista-decisiones"></div>
                         </section>
 
-                        <section class="pf-card" style="--i:1">
+                        <!-- Se muestra solo cuando hay alguna acción -->
+                        <section id="tarjeta-acciones" class="pf-card pf-lista-card" style="--i:3;--acc:var(--pf-oro);display:none">
                             <div class="pf-card-cab">
-                                <span class="pf-icono"><i class="fa-solid fa-user-gear"></i></span>
+                                <span class="pf-icono"><i class="fa-solid fa-bolt"></i></span>
                                 <div>
-                                    <h2>Cuenta</h2>
-                                    <p>Tu acceso al panel</p>
+                                    <h2>Mis acciones recientes</h2>
+                                    <p>Lo último que hiciste en el panel.</p>
                                 </div>
                             </div>
-                            <dl class="pf-lista">
-                                <div class="pf-fila">
-                                    <span class="pf-icono"><i class="fa-solid fa-shield-halved"></i></span>
-                                    <div><dt>Rol en el panel</dt><dd id="dato-rol"></dd></div>
-                                </div>
-                                <div class="pf-fila">
-                                    <span class="pf-icono"><i class="fa-solid fa-circle-check"></i></span>
-                                    <div><dt>Estado</dt><dd id="dato-estado"></dd></div>
-                                </div>
-                                <div class="pf-fila">
-                                    <span class="pf-icono"><i class="fa-solid fa-calendar-days"></i></span>
-                                    <div><dt>Miembro desde</dt><dd id="dato-desde"></dd></div>
-                                </div>
-                            </dl>
+                            <div id="lista-acciones"></div>
                         </section>
                     </div>
 
-                    <!-- Resumen de decisiones -->
-                    <section>
-                        <div class="pf-seccion-cab">
-                            <h2>Resumen de verificaciones</h2>
-                            <p>Decisiones tomadas por ti en el proceso de verificación.</p>
-                        </div>
-
-                        <div class="pf-rejilla tres">
-                            <div class="kpi kpi-violeta rounded-2xl border border-slate-800 bg-slate-900/60 p-5" style="--i:0">
-                                <div class="pf-kpi-cab">
-                                    <span>Total de decisiones</span>
-                                    <span class="pf-kpi-icono"><i class="fa-solid fa-list-check"></i></span>
-                                </div>
-                                <p id="total-decisiones" class="pf-kpi-num">0</p>
-                                <p class="pf-kpi-pie">Decisiones registradas</p>
-                            </div>
-
-                            <div class="kpi kpi-verde rounded-2xl border border-slate-800 bg-slate-900/60 p-5" style="--i:1">
-                                <div class="pf-kpi-cab">
-                                    <span>Aprobadas</span>
-                                    <span class="pf-kpi-icono"><i class="fa-solid fa-check"></i></span>
-                                </div>
-                                <p id="total-aprobadas" class="pf-kpi-num">0</p>
-                                <p class="pf-kpi-pie">Verificaciones aprobadas</p>
-                            </div>
-
-                            <div class="kpi kpi-rojo rounded-2xl border border-slate-800 bg-slate-900/60 p-5" style="--i:2">
-                                <div class="pf-kpi-cab">
-                                    <span>Rechazadas</span>
-                                    <span class="pf-kpi-icono"><i class="fa-solid fa-xmark"></i></span>
-                                </div>
-                                <p id="total-rechazadas" class="pf-kpi-num">0</p>
-                                <p class="pf-kpi-pie">Verificaciones rechazadas</p>
-                            </div>
-                        </div>
-
-                        <div class="pf-card pf-tasa mt-5" style="--i:3; margin-top:20px">
-                            <div class="pf-tasa-cab">
-                                <b><i class="fa-solid fa-chart-pie" style="margin-right:8px;color:var(--ad-primary)"></i>Tasa de aprobación</b>
-                                <span id="tasa-texto">—</span>
-                            </div>
-                            <div class="pf-barra" role="img" id="tasa-barra" aria-label="Sin decisiones todavía">
-                                <i class="ok" id="barra-ok"></i><i class="no" id="barra-no"></i>
-                            </div>
-                            <div class="pf-tasa-leyenda">
-                                <span style="--c:#10b981">Aprobadas</span>
-                                <span style="--c:#ef4444">Rechazadas</span>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- Últimas decisiones -->
-                    <section class="pf-card" style="--i:4">
-                        <div class="pf-card-cab">
-                            <span class="pf-icono"><i class="fa-solid fa-clock-rotate-left"></i></span>
-                            <div>
-                                <h2>Últimas decisiones</h2>
-                                <p>Las más recientes tomadas por este administrador.</p>
-                            </div>
-                        </div>
-                        <div id="lista-decisiones"></div>
-                    </section>
-
                     <p class="pf-nota">
                         <i class="fa-solid fa-circle-info" style="margin-top:3px"></i>
-                        <span>Si necesitas corregir el nombre o el correo de esta cuenta, hazlo desde
+                        <span>El rol y el estado de esta cuenta solo se cambian desde
                         <a href="#" data-ir="usuarios">Gestión de usuarios</a>.</span>
                     </p>
                 </div>
@@ -218,6 +255,54 @@
                 <span>UMBRAL · El paso hacia un nuevo hogar</span>
                 <span>Panel de administración · Colombia</span>
             </footer>
+        </div>
+    </div>
+
+    <!-- Ventana para editar mis datos -->
+    <div id="modal-perfil" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+        <div class="pf-modal-caja" role="dialog" aria-modal="true" aria-labelledby="modal-perfil-titulo">
+            <div class="pf-modal-cab">
+                <div style="min-width:0">
+                    <h3 id="modal-perfil-titulo">Editar mis datos</h3>
+                    <p>El rol y el estado no se cambian aquí.</p>
+                </div>
+                <button type="button" id="cerrar-modal" class="pf-modal-x" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-datos" class="pf-modal-cuerpo" novalidate>
+                <div class="pf-campo">
+                    <label for="campo-nombre">Nombre</label>
+                    <input id="campo-nombre" type="text" maxlength="100" autocomplete="name">
+                    <small class="pf-error-campo" id="error-nombre" role="alert"></small>
+                </div>
+                <div class="pf-campo">
+                    <label for="campo-correo">Correo</label>
+                    <input id="campo-correo" type="email" maxlength="150" autocomplete="email">
+                    <small class="pf-error-campo" id="error-correo" role="alert"></small>
+                </div>
+                <div class="pf-campo">
+                    <label for="campo-telefono">Teléfono <span class="pf-opcional">(opcional)</span></label>
+                    <input id="campo-telefono" type="tel" inputmode="numeric" placeholder="3001234567" autocomplete="tel-national">
+                    <small class="pf-ayuda">10 dígitos, empieza por 3.</small>
+                    <small class="pf-error-campo" id="error-telefono" role="alert"></small>
+                </div>
+                <div class="pf-campo">
+                    <label for="campo-documento">Cédula de ciudadanía <span class="pf-opcional">(opcional)</span></label>
+                    <div class="pf-doc"><span>CC</span><input id="campo-documento" type="text" inputmode="numeric" placeholder="1234567890" autocomplete="off"></div>
+                    <small class="pf-ayuda">Solo números, entre 6 y 10 dígitos.</small>
+                    <small class="pf-error-campo" id="error-documento" role="alert"></small>
+                </div>
+                <div class="pf-campo pf-clave" id="caja-clave" hidden>
+                    <label for="campo-clave">Contraseña actual</label>
+                    <input id="campo-clave" type="password" autocomplete="current-password">
+                    <small class="pf-ayuda">Te la pedimos porque cambiaste el correo con el que inicias sesión.</small>
+                    <small class="pf-error-campo" id="error-clave" role="alert"></small>
+                </div>
+                <p class="pf-error" id="error-datos" role="alert"></p>
+                <div class="pf-form-botones">
+                    <button type="button" id="cancelar-datos" class="pf-btn">Cancelar</button>
+                    <button type="submit" id="guardar-datos" class="pf-btn pf-btn-primario"><i class="fa-solid fa-check"></i><span>Guardar</span></button>
+                </div>
+            </form>
         </div>
     </div>
 

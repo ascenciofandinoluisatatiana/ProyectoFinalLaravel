@@ -97,6 +97,7 @@ Route::prefix('v1/admin')->middleware(['web', 'admin.api'])->group(function () {
     Route::post('clave', [CuentaController::class, 'cambiarClave']);
     Route::get('mis-accesos', [\App\Http\Controllers\Api\V1\Admin\MisAccesosController::class, 'index']);
     Route::get('perfil', [CuentaController::class, 'perfil']);
+    Route::put('perfil', [CuentaController::class, 'actualizarPerfil']);
     Route::post('perfil/avatar', [CuentaController::class, 'actualizarAvatar']);
     Route::post('logout', [CuentaController::class, 'salir']);
 

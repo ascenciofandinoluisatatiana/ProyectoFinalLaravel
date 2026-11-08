@@ -27,7 +27,8 @@
         cuenta_eliminada:        { texto: 'Eliminó una cuenta',               color: 'red' },
         verificacion_aprobada:   { texto: 'Aprobó una verificación',          color: 'emerald' },
         verificacion_rechazada:  { texto: 'Rechazó una verificación',         color: 'red' },
-        enlace_clave_enviado:    { texto: 'Envió enlace de contraseña',       color: 'violet' }
+        enlace_clave_enviado:    { texto: 'Envió enlace de contraseña',       color: 'violet' },
+        perfil_editado:          { texto: 'Editó su perfil',                  color: 'amber' }
     };
     var COLORES = {
         red:     'bg-red-500/10 text-red-300 ring-red-500/30',

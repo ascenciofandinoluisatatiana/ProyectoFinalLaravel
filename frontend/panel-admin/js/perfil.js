@@ -170,6 +170,41 @@
         });
     }
 
+    /* ---------- mis acciones recientes (la tarjeta se esconde si no hay ninguna) ---------- */
+    var ACCIONES = {
+        cuenta_creada:          { texto: 'Creó una cuenta',            icono: 'fa-user-plus' },
+        cuenta_editada:         { texto: 'Editó una cuenta',           icono: 'fa-user-pen' },
+        cuenta_eliminada:       { texto: 'Eliminó una cuenta',         icono: 'fa-user-minus' },
+        verificacion_aprobada:  { texto: 'Aprobó una verificación',    icono: 'fa-circle-check' },
+        verificacion_rechazada: { texto: 'Rechazó una verificación',   icono: 'fa-circle-xmark' },
+        enlace_clave_enviado:   { texto: 'Envió enlace de contraseña', icono: 'fa-envelope' },
+        perfil_editado:         { texto: 'Editó su perfil',            icono: 'fa-pen' }
+    };
+
+    function pintarAcciones(lista) {
+        var tarjeta = el('tarjeta-acciones');
+        tarjeta.style.display = lista.length ? '' : 'none';
+        // sin acciones: "Últimas decisiones" ocupa todo el ancho; con acciones: dos bloques lado a lado
+        el('fila-listas').classList.toggle('una', !lista.length);
+        if (!lista.length) return;
+
+        el('lista-acciones').innerHTML = lista.map(function (a) {
+            var info = ACCIONES[a.accion] || { texto: mayuscula(String(a.accion || '').replace(/_/g, ' ')), icono: 'fa-bolt' };
+            var fecha = a.fecha ? new Date(a.fecha) : null;
+            return '<div class="pf-decision">' +
+                '<span class="pf-accion-icono"><i class="fa-solid ' + info.icono + '"></i></span>' +
+                '<div class="pf-decision-cuerpo">' +
+                    '<div class="pf-decision-nombre"><span>' + esc(info.texto) + '</span></div>' +
+                    (a.detalle ? '<p class="pf-decision-sub">' + esc(a.detalle) + '</p>' : '') +
+                '</div>' +
+                '<div class="pf-decision-fecha">' +
+                    (fecha ? fecha.toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' }) : '') +
+                    '<small>' + (fecha ? fecha.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: false }) : '') + '</small>' +
+                '</div>' +
+            '</div>';
+        }).join('');
+    }
+
     /* ---------- pintar toda la pantalla ---------- */
     function pintar(datos) {
         var u = datos.usuario;
@@ -183,6 +218,7 @@
         poner('perfil-estado', mayuscula(u.estado));
         el('chip-estado').className = 'chip ' + claseEstado(u.estado);
 
+        poner('dato-nombre', u.name);
         poner('dato-correo', u.email);
         poner('dato-telefono', u.telefono, 'No registrado');
         poner('dato-documento', documento, 'No registrado');
@@ -197,6 +233,7 @@
         poner('total-rechazadas', datos.rechazadas);
         pintarTasa(Number(datos.aprobadas) || 0, Number(datos.rechazadas) || 0);
         pintarDecisiones(datos.ultimas || []);
+        pintarAcciones(datos.acciones || []);
     }
 
     async function cargar() {
@@ -264,7 +301,106 @@
         }
     }
 
+    /* ---------- editar mis datos (ventana) ---------- */
+    var modal = el('modal-perfil');
+    var CAMPOS = ['nombre', 'correo', 'telefono', 'documento', 'clave'];
+
+    function limpiarErroresDatos() {
+        CAMPOS.forEach(function (c) { el('error-' + c).textContent = ''; });
+        el('error-datos').textContent = '';
+        ['campo-nombre', 'campo-correo', 'campo-telefono', 'campo-clave'].forEach(function (id) { el(id).classList.remove('pf-malo'); });
+        el('campo-documento').parentNode.classList.remove('pf-malo');
+    }
+    function marcarError(campo, texto) {
+        el('error-' + campo).textContent = texto;
+        var caja = el(campo === 'documento' ? 'campo-documento' : 'campo-' + campo);
+        (campo === 'documento' ? caja.parentNode : caja).classList.add('pf-malo');
+    }
+    function correoCambio() {
+        return !!usuarioActual && el('campo-correo').value.trim().toLowerCase() !== String(usuarioActual.email || '').toLowerCase();
+    }
+    function actualizarCajaClave() {
+        var pide = correoCambio();
+        el('caja-clave').hidden = !pide;
+        if (!pide) el('campo-clave').value = '';
+    }
+
+    function abrirModal() {
+        if (!usuarioActual) return;
+        el('campo-nombre').value = usuarioActual.name || '';
+        el('campo-correo').value = usuarioActual.email || '';
+        el('campo-telefono').value = usuarioActual.telefono || '';
+        el('campo-documento').value = usuarioActual.numero_documento || '';
+        el('campo-clave').value = '';
+        limpiarErroresDatos();
+        actualizarCajaClave();
+        modal.classList.remove('hidden'); modal.classList.add('flex');
+        setTimeout(function () { el('campo-nombre').focus(); }, 60);
+    }
+    function cerrarModal() {
+        modal.classList.add('hidden'); modal.classList.remove('flex');
+    }
+
+    async function guardarDatos(evento) {
+        evento.preventDefault();
+        limpiarErroresDatos();
+
+        var nombre = el('campo-nombre').value.trim();
+        var correo = el('campo-correo').value.trim().toLowerCase();
+        var telefono = el('campo-telefono').value.replace(/\D+/g, '');
+        var documento = el('campo-documento').value.replace(/\D+/g, '');
+        var clave = el('campo-clave').value;
+        var malo = false;
+
+        if (nombre.length < 3) { marcarError('nombre', 'El nombre debe tener al menos 3 letras.'); malo = true; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) { marcarError('correo', 'Escribe un correo válido (ejemplo: nombre@correo.com).'); malo = true; }
+        if (telefono !== '' && !/^3\d{9}$/.test(telefono)) { marcarError('telefono', 'Debe tener 10 dígitos y empezar por 3 (ejemplo: 3001234567).'); malo = true; }
+        if (documento !== '' && !/^\d{6,10}$/.test(documento)) { marcarError('documento', 'La cédula debe tener entre 6 y 10 dígitos.'); malo = true; }
+        if (correoCambio() && clave === '') { marcarError('clave', 'Escribe tu contraseña actual para cambiar el correo.'); malo = true; }
+        if (malo) return;
+
+        var boton = el('guardar-datos');
+        boton.disabled = true; el('cancelar-datos').disabled = true;
+        boton.querySelector('span').textContent = 'Guardando…';
+        try {
+            var cuerpo = { name: nombre, email: correo, telefono: telefono, numero_documento: documento };
+            if (correoCambio()) cuerpo.clave_actual = clave;
+            var r = await P.api('/perfil', { metodo: 'PUT', cuerpo: cuerpo });
+            cerrarModal();
+            mostrarAviso('ok', r.mensaje || 'Tus datos se guardaron correctamente.');
+            // el menú y la barra de arriba también muestran el nombre: se recarga la página para actualizarlos
+            setTimeout(function () { window.location.reload(); }, 1300);
+        } catch (e) {
+            if (e.estado === 401) return;
+            var er = (e.datos && e.datos.errors) || {};
+            var hubo = false;
+            [['name', 'nombre'], ['email', 'correo'], ['telefono', 'telefono'], ['numero_documento', 'documento'], ['clave_actual', 'clave']].forEach(function (par) {
+                if (er[par[0]]) { marcarError(par[1], er[par[0]][0]); hubo = true; }
+            });
+            if (!hubo) el('error-datos').textContent = e.estado ? (e.message || 'No se pudieron guardar los datos.') : 'No se pudo contactar al servidor. Revisa tu conexión.';
+        } finally {
+            boton.disabled = false; el('cancelar-datos').disabled = false;
+            boton.querySelector('span').textContent = 'Guardar';
+        }
+    }
+
     /* ---------- eventos ---------- */
+    el('boton-editar').addEventListener('click', abrirModal);
+    el('cancelar-datos').addEventListener('click', cerrarModal);
+    el('cerrar-modal').addEventListener('click', cerrarModal);
+    modal.addEventListener('click', function (e) { if (e.target === modal) cerrarModal(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !modal.classList.contains('hidden')) cerrarModal(); });
+    el('form-datos').addEventListener('submit', guardarDatos);
+    el('campo-correo').addEventListener('input', actualizarCajaClave);
+    ['nombre', 'correo', 'telefono', 'documento', 'clave'].forEach(function (c) {
+        el(c === 'documento' ? 'campo-documento' : 'campo-' + c).addEventListener('input', function () {
+            el('error-' + c).textContent = '';
+            (c === 'documento' ? this.parentNode : this).classList.remove('pf-malo');
+        });
+    });
+    el('campo-telefono').addEventListener('input', function () { this.value = this.value.replace(/\D+/g, '').slice(0, 10); });
+    el('campo-documento').addEventListener('input', function () { this.value = this.value.replace(/\D+/g, '').slice(0, 10); });
+
     function abrirSelector() { el('archivo-avatar').click(); }
 
     el('boton-elegir').addEventListener('click', abrirSelector);

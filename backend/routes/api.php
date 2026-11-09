@@ -117,6 +117,7 @@ Route::prefix('v1/admin')->middleware(['web', 'admin.api'])->group(function () {
     Route::post('membresias/vendedor', [AdminMembresiaController::class, 'crearVendedor']);
     Route::put('membresias/vendedor/{id}', [AdminMembresiaController::class, 'actualizarVendedor'])->whereNumber('id');
     Route::delete('membresias/vendedor/{id}', [AdminMembresiaController::class, 'eliminarVendedor'])->whereNumber('id');
+    Route::get('membresias/compras-paquetes', [AdminMembresiaController::class, 'comprasPaquetes']);
 
     // Gestión de usuarios
     Route::get('usuarios', [AdminUserController::class, 'index']);

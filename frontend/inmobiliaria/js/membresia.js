@@ -21,66 +21,81 @@
 
     var ESTADOS_PAGO = { aprobado: ['Aprobado', 'activo'], pendiente: ['Pendiente', 'pendiente'], rechazado: ['Rechazado', 'inactivo'], anulado: ['Anulado', 'inactivo'], error: ['Error', 'inactivo'] };
 
-    /* ---------- Paquete de 10 publicaciones ---------- */
-    function pintarPaquete() {
-        var of = datos.paquete_oferta, pq = datos.paquete;
-        if (!pq) {
-            $('d-paquete').innerHTML =
-                '<div class="i-paquete-oferta">' +
-                    '<div><p class="v-etiqueta"><i class="fa-solid fa-layer-group"></i> Paquete mensual</p>' +
-                    '<h2>' + of.publicaciones + ' publicaciones destacadas por ' + of.dias + ' días</h2>' +
-                    '<p class="v-nota">Eliges libremente cuáles destacar y puedes cambiarlas mientras el paquete esté vigente. ' +
-                    'Cada una sale en el portal como plan mensual.</p></div>' +
-                    '<div class="i-paquete-precio"><s>' + I.cop(of.precio_normal) + '</s><b>' + I.cop(of.precio) + '</b>' +
-                    '<span class="v-insignia activo">' + of.descuento + ' % de descuento</span>' +
-                    '<button type="button" class="v-btn v-btn-principal" id="d-paquete-comprar"><i class="fa-solid fa-cart-shopping"></i> Comprar paquete</button></div>' +
-                '</div>';
-            return;
-        }
-
-        var elegidas = pq.publicaciones.map(function (x) { return x.id; });
-        var libres = datos.mis_publicaciones.filter(function (x) { return elegidas.indexOf(x.id) === -1; });
-        var lleno = pq.usados >= pq.cupos;
-        $('d-paquete').innerHTML =
-            '<div class="v-tarjeta-cabeza" style="padding:0"><h2><i class="fa-solid fa-layer-group"></i> Tu paquete mensual</h2>' +
-                '<small>Vence el ' + I.esc(I.fechaLarga(pq.fecha_fin)) + ' · ' + Number(pq.dias_restantes) + ' días</small></div>' +
-            '<div class="i-paquete-barra" role="progressbar" aria-valuemin="0" aria-valuemax="' + pq.cupos + '" aria-valuenow="' + pq.usados + '">' +
-                '<span style="width:' + Math.round(pq.usados / pq.cupos * 100) + '%"></span></div>' +
-            '<p class="v-nota"><b>' + pq.usados + ' de ' + pq.cupos + '</b> cupos usados. Quita una publicación para liberar su cupo.</p>' +
-            '<div class="i-paquete-lista">' + (pq.publicaciones.length
-                ? pq.publicaciones.map(function (x) {
-                    return '<span class="i-paquete-item"><i class="fa-solid fa-star"></i>' + I.esc(x.titulo) +
-                        '<button type="button" data-quitar="' + x.id + '" aria-label="Quitar del paquete"><i class="fa-solid fa-xmark"></i></button></span>';
-                }).join('')
-                : '<span class="v-nota">Todavía no has elegido publicaciones.</span>') + '</div>' +
-            (lleno ? '' :
-                '<div class="i-paquete-agregar"><select id="d-paquete-elegir" aria-label="Publicación para agregar">' +
-                    (libres.length
-                        ? '<option value="">Elige una publicación…</option>' + libres.map(function (x) {
-                            return '<option value="' + x.id + '">' + I.esc(x.titulo) + (x.estado !== 'publicada' ? ' (' + I.esc(I.ESTADOS_PROPIEDAD[x.estado] || x.estado) + ')' : '') + '</option>';
-                        }).join('')
-                        : '<option value="">No hay más publicaciones disponibles</option>') +
-                '</select><button type="button" class="v-btn v-btn-principal v-btn-mini" id="d-paquete-agregar"' + (libres.length ? '' : ' disabled') + '>' +
-                '<i class="fa-solid fa-plus"></i>Agregar al paquete</button></div>');
+    /* ---------- Paquetes de publicaciones ---------- */
+    // Publicaciones que ya están en algún paquete vigente (una publicación va en un solo paquete)
+    function enPaquetes() {
+        var ids = [];
+        (datos.paquetes || []).forEach(function (pq) { pq.publicaciones.forEach(function (x) { ids.push(x.id); }); });
+        return ids;
     }
 
-    $('d-paquete').addEventListener('click', async function (e) {
+    function pintarPaquetes() {
+        var lista = datos.paquetes || [];
+        var ocupadas = enPaquetes();
+        var libres = datos.mis_publicaciones.filter(function (x) { return ocupadas.indexOf(x.id) === -1; });
+
+        $('d-paquetes').innerHTML = lista.map(function (pq) {
+            var lleno = pq.usados >= pq.cupos;
+            return '<section class="v-tarjeta i-paquete" style="margin-bottom:16px">' +
+                '<div class="v-tarjeta-cabeza" style="padding:0"><h2><i class="fa-solid fa-layer-group"></i> Tu paquete ' + I.esc(pq.nombre) + '</h2>' +
+                    '<small>Plan ' + I.esc(pq.nombre_plan.toLowerCase()) + ' · vence el ' + I.esc(I.fechaLarga(pq.fecha_fin)) + ' · ' + Number(pq.dias_restantes) + ' días</small></div>' +
+                '<div class="i-paquete-barra" role="progressbar" aria-valuemin="0" aria-valuemax="' + pq.cupos + '" aria-valuenow="' + pq.usados + '">' +
+                    '<span style="width:' + Math.round(pq.usados / pq.cupos * 100) + '%"></span></div>' +
+                '<p class="v-nota"><b>' + pq.usados + ' de ' + pq.cupos + '</b> cupos usados. Quita una publicación para liberar su cupo.</p>' +
+                '<div class="i-paquete-lista">' + (pq.publicaciones.length
+                    ? pq.publicaciones.map(function (x) {
+                        return '<span class="i-paquete-item"><i class="fa-solid fa-star"></i>' + I.esc(x.titulo) +
+                            '<button type="button" data-quitar="' + x.id + '" aria-label="Quitar del paquete"><i class="fa-solid fa-xmark"></i></button></span>';
+                    }).join('')
+                    : '<span class="v-nota">Todavía no has elegido publicaciones.</span>') + '</div>' +
+                (lleno ? '' :
+                    '<div class="i-paquete-agregar"><select data-elegir="' + pq.id + '" aria-label="Publicación para agregar">' +
+                        (libres.length
+                            ? '<option value="">Elige una publicación…</option>' + libres.map(function (x) {
+                                return '<option value="' + x.id + '">' + I.esc(x.titulo) + (x.estado !== 'publicada' ? ' (' + I.esc(I.ESTADOS_PROPIEDAD[x.estado] || x.estado) + ')' : '') + '</option>';
+                            }).join('')
+                            : '<option value="">No hay más publicaciones disponibles</option>') +
+                    '</select><button type="button" class="v-btn v-btn-principal v-btn-mini" data-agregar="' + pq.id + '"' + (libres.length ? '' : ' disabled') + '>' +
+                    '<i class="fa-solid fa-plus"></i>Agregar al paquete</button></div>') +
+            '</section>';
+        }).join('');
+    }
+
+    function pintarOfertas() {
+        var ofertas = datos.ofertas || [];
+        $('d-ofertas').innerHTML = ofertas.length
+            ? ofertas.map(function (o) {
+                return '<article class="v-tarjeta i-plan">' +
+                    '<p class="v-etiqueta">' + I.esc(o.nombre) + ' · plan ' + I.esc(o.nombre_plan.toLowerCase()) + '</p>' +
+                    '<b class="i-precio">' + I.cop(o.precio) + '</b>' +
+                    (o.descuento > 0 ? '<p class="v-nota"><s>' + I.cop(o.precio_normal) + '</s> <span class="v-insignia activo">' + Number(o.descuento) + ' % de descuento</span></p>' : '') +
+                    '<ul><li>' + Number(o.publicaciones) + (o.publicaciones === 1 ? ' publicación destacada' : ' publicaciones destacadas') + '</li>' +
+                        '<li>' + Number(o.dias) + ' días de vigencia</li></ul>' +
+                    '<button type="button" class="v-btn v-btn-principal" data-comprar="' + o.id + '"><i class="fa-solid fa-cart-shopping"></i> Comprar paquete</button>' +
+                '</article>';
+            }).join('')
+            : '<div class="v-vacio"><i class="fa-solid fa-layer-group"></i>Por ahora no hay paquetes disponibles.</div>';
+    }
+
+    document.querySelector('.v-contenido').addEventListener('click', async function (e) {
         var b = e.target.closest('button');
         if (!b) return;
         try {
-            if (b.id === 'd-paquete-comprar') {
-                var of = datos.paquete_oferta;
-                if (!window.confirm('¿Comprar el paquete de ' + of.publicaciones + ' publicaciones por ' + I.cop(of.precio) + '?' +
+            if (b.hasAttribute('data-comprar')) {
+                var of = (datos.ofertas || []).filter(function (x) { return String(x.id) === b.getAttribute('data-comprar'); })[0];
+                if (!of) return;
+                if (!window.confirm('¿Comprar el paquete ' + of.nombre + ' (' + of.publicaciones + ' publicaciones, ' + of.dias + ' días) por ' + I.cop(of.precio) + '?' +
                     (datos.simulado ? '\n(Pago simulado: el servidor no tiene llaves de Wompi)' : '\nTe llevaremos a Wompi para pagar.'))) return;
                 b.disabled = true;
-                var r = await I.api('/membresia/paquete', { metodo: 'POST' });
+                var r = await I.api('/membresia/paquete', { metodo: 'POST', datos: { oferta_id: of.id } });
                 if (r.checkout_url) { I.toast(r.message); window.location.href = r.checkout_url; return; }
                 I.toast(r.message);
-            } else if (b.id === 'd-paquete-agregar') {
-                var id = $('d-paquete-elegir').value;
-                if (!id) { I.toast('Elige una publicación.'); return; }
+            } else if (b.hasAttribute('data-agregar')) {
+                var paqueteId = b.getAttribute('data-agregar');
+                var sel = document.querySelector('select[data-elegir="' + paqueteId + '"]');
+                if (!sel || !sel.value) { I.toast('Elige una publicación.'); return; }
                 b.disabled = true;
-                I.toast((await I.api('/membresia/paquete/publicaciones', { metodo: 'POST', datos: { propiedad_id: Number(id) } })).message);
+                I.toast((await I.api('/membresia/paquete/publicaciones', { metodo: 'POST', datos: { paquete_id: Number(paqueteId), propiedad_id: Number(sel.value) } })).message);
             } else if (b.hasAttribute('data-quitar')) {
                 b.disabled = true;
                 I.toast((await I.api('/membresia/paquete/publicaciones/' + b.getAttribute('data-quitar'), { metodo: 'DELETE' })).message);
@@ -92,7 +107,8 @@
     });
 
     function pintar() {
-        pintarPaquete();
+        pintarPaquetes();
+        pintarOfertas();
         // Resumen: publicaciones destacadas (y la membresía de cuenta, si quedó una de antes)
         var lista = datos.destacadas || [];
         var m = datos.vigente;

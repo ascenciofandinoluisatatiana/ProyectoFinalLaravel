@@ -144,6 +144,36 @@
                         </div>
                         <div id="paquetes" class="pq-lista"></div>
                     </div>
+                    
+                    <!-- Compras de paquetes de inmobiliaria -->
+                    <div class="mt-6 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 shadow-xl shadow-black/20">
+                        <div class="border-b border-slate-800 p-4">
+                            <h3 class="font-bold text-white">Compras de paquetes de inmobiliaria</h3>
+                            <p class="text-xs text-slate-500">Paquetes que han comprado las inmobiliarias: quién, cuándo, hasta cuándo y su estado.</p>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full min-w-[48rem] text-left text-sm">
+                                <thead class="border-b border-slate-800 text-[11px] uppercase tracking-wider text-slate-500">
+                                    <tr>
+                                        <th class="px-5 py-3.5 font-semibold">Inmobiliaria</th>
+                                        <th class="px-5 py-3.5 font-semibold">Paquete</th>
+                                        <th class="px-5 py-3.5 font-semibold">Pago</th>
+                                        <th class="px-5 py-3.5 font-semibold">Vigencia</th>
+                                        <th class="px-5 py-3.5 font-semibold">Cupos</th>
+                                        <th class="px-5 py-3.5 font-semibold">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-compras-inmo" class="divide-y divide-slate-800/70"></tbody>
+                            </table>
+                        </div>
+                        <div id="compras-vacia-inmo" class="hidden px-5 py-10 text-center">
+                            <p class="text-sm font-medium text-slate-400">Todavía no hay compras de paquetes</p>
+                        </div>
+                        <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 px-5 py-3.5">
+                            <p id="compras-info-inmo" class="text-xs text-slate-500"></p>
+                            <div id="compras-botones-inmo" class="flex items-center gap-1"></div>
+                        </div>
+                    </div>
                     </div>
 
                     <div id="tab-vend" class="tb-panel">
@@ -159,6 +189,35 @@
                             </button>
                         </div>
                         <div id="paquetes-vendedor" class="pq-lista"></div>
+                    </div>
+                    
+                    <!-- Compras de vendedores -->
+                    <div class="mt-6 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 shadow-xl shadow-black/20">
+                        <div class="border-b border-slate-800 p-4">
+                            <h3 class="font-bold text-white">Compras de vendedores</h3>
+                            <p class="text-xs text-slate-500">Planes que han comprado los vendedores: quién, cuándo, hasta cuándo y su estado.</p>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full min-w-[48rem] text-left text-sm">
+                                <thead class="border-b border-slate-800 text-[11px] uppercase tracking-wider text-slate-500">
+                                    <tr>
+                                        <th class="px-5 py-3.5 font-semibold">Vendedor</th>
+                                        <th class="px-5 py-3.5 font-semibold">Plan</th>
+                                        <th class="px-5 py-3.5 font-semibold">Pago</th>
+                                        <th class="px-5 py-3.5 font-semibold">Vigencia</th>
+                                        <th class="px-5 py-3.5 font-semibold">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-mov-vend" class="divide-y divide-slate-800/70"></tbody>
+                            </table>
+                        </div>
+                        <div id="mov-vend-vacia" class="hidden px-5 py-10 text-center">
+                            <p class="text-sm font-medium text-slate-400">Todavía no hay compras de vendedores</p>
+                        </div>
+                        <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 px-5 py-3.5">
+                            <p id="mov-vend-info" class="text-xs text-slate-500"></p>
+                            <div id="mov-vend-botones" class="flex items-center gap-1"></div>
+                        </div>
                     </div>
                     </div>
 
@@ -233,6 +292,36 @@
                         <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 px-5 py-3.5">
                             <p id="paginacion-info" class="text-xs text-slate-500"></p>
                             <div id="paginacion-botones" class="flex items-center gap-1"></div>
+                        </div>
+                    </div>
+
+                    <!-- Compras de paquetes de inmobiliaria -->
+                    <div class="mt-6 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 shadow-xl shadow-black/20">
+                        <div class="border-b border-slate-800 p-4">
+                            <h3 class="font-bold text-white">Compras de paquetes</h3>
+                            <p class="text-xs text-slate-500">Paquetes que han comprado las inmobiliarias: quién, cuándo, hasta cuándo y su estado.</p>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full min-w-[48rem] text-left text-sm">
+                                <thead class="border-b border-slate-800 text-[11px] uppercase tracking-wider text-slate-500">
+                                    <tr>
+                                        <th class="px-5 py-3.5 font-semibold">Inmobiliaria</th>
+                                        <th class="px-5 py-3.5 font-semibold">Paquete</th>
+                                        <th class="px-5 py-3.5 font-semibold">Pago</th>
+                                        <th class="px-5 py-3.5 font-semibold">Vigencia</th>
+                                        <th class="px-5 py-3.5 font-semibold">Cupos</th>
+                                        <th class="px-5 py-3.5 font-semibold">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-compras" class="divide-y divide-slate-800/70"></tbody>
+                            </table>
+                        </div>
+                        <div id="compras-vacia" class="hidden px-5 py-10 text-center">
+                            <p class="text-sm font-medium text-slate-400">Todavía no hay compras de paquetes</p>
+                        </div>
+                        <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 px-5 py-3.5">
+                            <p id="compras-info" class="text-xs text-slate-500"></p>
+                            <div id="compras-botones" class="flex items-center gap-1"></div>
                         </div>
                     </div>
                     </div>

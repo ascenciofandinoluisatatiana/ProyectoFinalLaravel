@@ -104,7 +104,10 @@ class PagoController extends Controller
     {
         $p = $pago->propiedad;
         if ($pago->plan === \App\Models\PaqueteMembresia::PLAN) {
-            return 'Paquete mensual de ' . \App\Models\PaqueteMembresia::PUBLICACIONES . ' publicaciones destacadas';
+            $copia = $pago->oferta_datos ? (json_decode($pago->oferta_datos, true) ?: []) : [];
+
+            return 'Paquete ' . ($copia['nombre'] ?? 'mensual') . ' de '
+                . ($copia['publicaciones'] ?? \App\Models\PaqueteMembresia::PUBLICACIONES) . ' publicaciones destacadas';
         }
         if ($pago->concepto === 'membresia') {
             return 'Membresía ' . mb_strtolower(Membresia::NOMBRES_PLAN[$pago->plan] ?? $pago->plan)

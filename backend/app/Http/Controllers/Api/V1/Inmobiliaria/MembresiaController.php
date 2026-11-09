@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Inmobiliaria;
 
 use App\Models\Membresia;
+use App\Models\OfertaPaquete;
 use App\Models\Pago;
 use App\Models\PaqueteMembresia;
 use App\Models\PlanMembresia;
@@ -73,14 +74,10 @@ class MembresiaController extends BaseInmobiliariaController
             ] : null,
             'historial' => $historial->all(),
             'destacadas' => $destacadas->all(),
-            'paquete' => $this->datosPaquete(PaqueteMembresia::vigenteDe($usuario->id), $titulos),
-            'paquete_oferta' => [
-                'publicaciones' => PaqueteMembresia::PUBLICACIONES,
-                'dias' => PaqueteMembresia::DIAS,
-                'descuento' => PaqueteMembresia::DESCUENTO,
-                'precio' => PaqueteMembresia::precio(),
-                'precio_normal' => (int) round((float) (PlanMembresia::precios()['mensual'] ?? 0) * PaqueteMembresia::PUBLICACIONES),
-            ],
+            // Paquetes comprados y vigentes (puede haber varios a la vez) y los que se pueden comprar
+            'paquetes' => PaqueteMembresia::vigentesDe($usuario->id)
+                ->map(fn (PaqueteMembresia $p) => $this->datosPaquete($p, $titulos))->values()->all(),
+            'ofertas' => $this->ofertas(),
             'publicaciones' => $propias->count(),
             // Para elegir qué publicaciones van en el paquete (las cerradas no se pueden destacar)
             'mis_publicaciones' => $propias->reject(fn ($p) => in_array($p->estado, ['vendida', 'arrendada'], true))
@@ -93,7 +90,7 @@ class MembresiaController extends BaseInmobiliariaController
                     'referencia' => $p->referencia,
                     'propiedad_id' => $p->propiedad_id,
                     'plan' => $p->plan === PaqueteMembresia::PLAN
-                        ? 'Paquete ' . PaqueteMembresia::PUBLICACIONES . ' publicaciones'
+                        ? 'Paquete ' . (json_decode((string) $p->oferta_datos, true)['nombre'] ?? PaqueteMembresia::PUBLICACIONES . ' publicaciones')
                         : (Membresia::NOMBRES_PLAN[$p->plan] ?? $p->plan),
                     'monto' => $p->monto,
                     'estado' => $p->estado,
@@ -175,20 +172,23 @@ class MembresiaController extends BaseInmobiliariaController
         ], 201);
     }
 
-    /* =================== Paquete de 10 publicaciones =================== */
+    /* =================== Paquetes de publicaciones =================== */
 
-    /** POST /membresia/paquete — compra el paquete mensual (uno vigente a la vez). */
+    /** POST /membresia/paquete  { oferta_id } — compra el paquete que el administrador ofrece. */
     public function comprarPaquete(Request $request, PagoService $pagos): JsonResponse
     {
+        $datos = $request->validate(['oferta_id' => ['required', 'integer']], [
+            'oferta_id.required' => 'Elige un paquete.',
+        ]);
         $usuario = $this->inmobiliaria($request);
-        $vigente = PaqueteMembresia::vigenteDe($usuario->id);
-        if ($vigente) {
-            throw ValidationException::withMessages([
-                'paquete' => 'Ya tienes un paquete activo hasta el ' . $vigente->fecha_fin->format('d/m/Y') . '. Podrás comprar otro cuando termine.',
-            ]);
+
+        $oferta = OfertaPaquete::where('id', $datos['oferta_id'])
+            ->where('dirigido_a', 'inmobiliaria')->where('activa', true)->first();
+        if (! $oferta) {
+            throw ValidationException::withMessages(['oferta_id' => 'Ese paquete ya no está disponible.']);
         }
 
-        $resultado = $pagos->iniciarMembresia($usuario, PaqueteMembresia::PLAN);
+        $resultado = $pagos->iniciarPaquete($usuario, $oferta);
         if (! $pagos->simulado()) {
             return response()->json([
                 'message' => 'Te llevamos a Wompi para hacer el pago.',
@@ -197,30 +197,42 @@ class MembresiaController extends BaseInmobiliariaController
             ]);
         }
 
-        $paquete = PaqueteMembresia::vigenteDe($usuario->id);
+        $paquete = PaqueteMembresia::where('pago_id', $resultado['pago']->id)->first();
 
         return response()->json([
-            'message' => 'Paquete activo hasta el ' . $paquete->fecha_fin->format('d/m/Y') . ' (pago simulado). Ya puedes elegir tus ' . $paquete->cupos . ' publicaciones.',
+            'message' => 'Paquete ' . $oferta->nombre . ' activo hasta el ' . $paquete->fecha_fin->format('d/m/Y')
+                . ' (pago simulado). Ya puedes elegir tus ' . $paquete->cupos . ' publicaciones.',
             'checkout_url' => null,
         ], 201);
     }
 
-    /** POST /membresia/paquete/publicaciones  { propiedad_id } — usa un cupo del paquete. */
+    /** POST /membresia/paquete/publicaciones  { paquete_id, propiedad_id } — usa un cupo de ese paquete. */
     public function agregarAlPaquete(Request $request): JsonResponse
     {
-        $datos = $request->validate(['propiedad_id' => ['required', 'integer']]);
+        $datos = $request->validate([
+            'paquete_id' => ['required', 'integer'],
+            'propiedad_id' => ['required', 'integer'],
+        ], [
+            'paquete_id.required' => 'Elige el paquete.',
+            'propiedad_id.required' => 'Elige una publicación.',
+        ]);
         $usuario = $this->inmobiliaria($request);
-        $paquete = $this->paqueteVigente($usuario->id);
+        $paquete = $this->paqueteVigente($usuario->id, (int) $datos['paquete_id']);
         $propiedad = $this->propiedadPropia($request, $datos['propiedad_id']);
+        $hoy = Carbon::now(self::ZONA)->toDateString();
 
         if (in_array($propiedad->estado, ['vendida', 'arrendada'], true)) {
             throw ValidationException::withMessages(['propiedad_id' => 'Esta propiedad ya está cerrada; no se puede destacar.']);
         }
-        if ($paquete->membresiasActivas()->where('propiedad_id', $propiedad->id)->exists()) {
-            throw ValidationException::withMessages(['propiedad_id' => 'Esta publicación ya está en tu paquete.']);
+        // Una publicación va en un solo paquete a la vez
+        $yaEnPaquete = Membresia::where('propiedad_id', $propiedad->id)
+            ->whereNotNull('paquete_id')->where('estado', 'activa')
+            ->whereDate('fecha_fin', '>=', $hoy)->exists();
+        if ($yaEnPaquete) {
+            throw ValidationException::withMessages(['propiedad_id' => 'Esta publicación ya está en un paquete vigente.']);
         }
         if ($paquete->membresiasActivas()->count() >= $paquete->cupos) {
-            throw ValidationException::withMessages(['propiedad_id' => 'Ya usaste los ' . $paquete->cupos . ' cupos. Quita una publicación para poner otra.']);
+            throw ValidationException::withMessages(['propiedad_id' => 'Ya usaste los ' . $paquete->cupos . ' cupos de este paquete. Quita una publicación para poner otra.']);
         }
 
         // forceCreate: propiedad_id y paquete_id no están en el $fillable del modelo (que es de otro módulo)
@@ -228,10 +240,10 @@ class MembresiaController extends BaseInmobiliariaController
             'user_id' => $usuario->id,
             'propiedad_id' => $propiedad->id,
             'paquete_id' => $paquete->id,
-            'plan' => 'mensual',                       // las del paquete cuentan como plan mensual en el portal
+            'plan' => $paquete->planPortal(),          // se posiciona según el plan del paquete
             'precio' => 0,                             // lo pagado está en el paquete
             'estado' => 'activa',
-            'fecha_inicio' => Carbon::now(self::ZONA)->toDateString(),
+            'fecha_inicio' => $hoy,
             'fecha_fin' => $paquete->fecha_fin->toDateString(),
             'referencia_pago' => $paquete->referencia_pago,
         ]);
@@ -239,7 +251,7 @@ class MembresiaController extends BaseInmobiliariaController
         $usados = $paquete->membresiasActivas()->count();
 
         return response()->json([
-            'message' => $this->tituloPropiedad($propiedad) . ' agregada al paquete (' . $usados . ' de ' . $paquete->cupos . ').',
+            'message' => $this->tituloPropiedad($propiedad) . ' agregada al paquete ' . $paquete->nombreVisible() . ' (' . $usados . ' de ' . $paquete->cupos . ').',
         ], 201);
     }
 
@@ -247,35 +259,59 @@ class MembresiaController extends BaseInmobiliariaController
     public function quitarDelPaquete(Request $request, $propiedadId): JsonResponse
     {
         $usuario = $this->inmobiliaria($request);
-        $paquete = $this->paqueteVigente($usuario->id);
         $propiedad = $this->propiedadPropia($request, $propiedadId);
+        $hoy = Carbon::now(self::ZONA)->toDateString();
 
-        $quitadas = $paquete->membresiasActivas()->where('propiedad_id', $propiedad->id)->update(['estado' => 'cancelada']);
-        abort_if($quitadas === 0, 404, 'Esa publicación no está en tu paquete.');
+        $quitadas = Membresia::where('user_id', $usuario->id)
+            ->where('propiedad_id', $propiedad->id)
+            ->whereNotNull('paquete_id')->where('estado', 'activa')
+            ->whereDate('fecha_fin', '>=', $hoy)
+            ->update(['estado' => 'cancelada']);
+        abort_if($quitadas === 0, 404, 'Esa publicación no está en ningún paquete.');
 
         return response()->json(['message' => $this->tituloPropiedad($propiedad) . ' salió del paquete. Tienes un cupo libre.']);
     }
 
-    private function paqueteVigente(int $userId): PaqueteMembresia
+    private function paqueteVigente(int $userId, int $paqueteId): PaqueteMembresia
     {
-        $paquete = PaqueteMembresia::vigenteDe($userId);
+        $paquete = PaqueteMembresia::vigentesDe($userId)->firstWhere('id', $paqueteId);
         if (! $paquete) {
-            throw ValidationException::withMessages(['paquete' => 'No tienes un paquete activo.']);
+            throw ValidationException::withMessages(['paquete_id' => 'Ese paquete no está vigente.']);
         }
 
         return $paquete;
     }
 
-    private function datosPaquete(?PaqueteMembresia $paquete, array $titulos): ?array
+    /** Paquetes que el administrador ofrece hoy a las inmobiliarias. */
+    private function ofertas(): array
     {
-        if (! $paquete) {
-            return null;
-        }
+        $precios = PlanMembresia::precios();
+
+        return OfertaPaquete::where('dirigido_a', 'inmobiliaria')->where('activa', true)
+            ->orderBy('id')->get()
+            ->map(fn (OfertaPaquete $o) => [
+                'id' => $o->id,
+                'nombre' => $o->nombre,
+                'plan' => $o->plan,
+                'nombre_plan' => Membresia::NOMBRES_PLAN[$o->plan] ?? $o->plan,
+                'publicaciones' => $o->publicaciones,
+                'dias' => $o->dias(),
+                'descuento' => $o->descuento,
+                'precio' => $o->precio(),
+                'precio_normal' => (int) round((float) ($precios[$o->plan] ?? 0) * $o->publicaciones),
+            ])->all();
+    }
+
+    private function datosPaquete(PaqueteMembresia $paquete, array $titulos): array
+    {
         $hoy = Carbon::now(self::ZONA)->startOfDay();
         $elegidas = $paquete->membresiasActivas()->pluck('propiedad_id')->all();
 
         return [
             'id' => $paquete->id,
+            'nombre' => $paquete->nombreVisible(),
+            'plan' => $paquete->planPortal(),
+            'nombre_plan' => Membresia::NOMBRES_PLAN[$paquete->planPortal()] ?? $paquete->planPortal(),
             'cupos' => $paquete->cupos,
             'usados' => count($elegidas),
             'precio' => (float) $paquete->precio,

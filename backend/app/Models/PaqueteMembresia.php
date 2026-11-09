@@ -3,11 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 /**
- * Paquete mensual de la inmobiliaria: destaca hasta 10 publicaciones con descuento.
- * Las publicaciones elegidas son filas de membresias con paquete_id = este paquete.
+ * Paquete comprado por una inmobiliaria: N publicaciones destacadas durante unos días.
+ * Sale de una oferta del administrador (ofertas_paquete), pero guarda una copia de lo
+ * comprado (nombre, plan, días, descuento) para que el historial no cambie.
+ * Las publicaciones elegidas son filas de membresias con paquete_id = este paquete, y se
+ * posicionan en el portal según el plan del paquete (semanal, quincenal o mensual).
  */
 class PaqueteMembresia extends Model
 {
@@ -16,11 +21,11 @@ class PaqueteMembresia extends Model
     /** Clave del plan en la tabla pagos. */
     public const PLAN = 'paquete10';
 
+    /* Valores de los paquetes comprados antes de que el administrador creara ofertas */
     public const PUBLICACIONES = 10;
 
     public const DIAS = 30;
 
-    /** Descuento frente a pagar 10 planes mensuales sueltos. */
     public const DESCUENTO = 25;
 
     protected $guarded = [];
@@ -32,27 +37,38 @@ class PaqueteMembresia extends Model
             'fecha_inicio' => 'date',
             'fecha_fin' => 'date',
             'cupos' => 'integer',
+            'dias' => 'integer',
+            'descuento' => 'integer',
         ];
     }
 
-    /** Precio del paquete: 10 planes mensuales al precio vigente, menos el descuento. */
-    public static function precio(): int
+    public function usuario(): BelongsTo
     {
-        $mensual = (float) (PlanMembresia::precios()['mensual'] ?? Membresia::PRECIOS_PLAN['mensual']);
-
-        return (int) round($mensual * self::PUBLICACIONES * (100 - self::DESCUENTO) / 100);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    /** Paquete vigente hoy de una inmobiliaria, o null. */
-    public static function vigenteDe(int $userId): ?self
+    /** Plan con el que se posicionan sus publicaciones (los paquetes viejos eran mensuales). */
+    public function planPortal(): string
+    {
+        return $this->plan ?: 'mensual';
+    }
+
+    public function nombreVisible(): string
+    {
+        return $this->nombre ?: 'Paquete mensual';
+    }
+
+    /** Paquetes vigentes hoy de una inmobiliaria (puede tener varios a la vez). */
+    public static function vigentesDe(int $userId): Collection
     {
         $hoy = Carbon::now('America/Bogota')->toDateString();
 
         return static::where('user_id', $userId)
             ->whereDate('fecha_inicio', '<=', $hoy)
             ->whereDate('fecha_fin', '>=', $hoy)
-            ->orderByDesc('fecha_fin')
-            ->first();
+            ->orderBy('fecha_fin')
+            ->orderBy('id')
+            ->get();
     }
 
     /** Membresías activas (publicaciones elegidas) de este paquete. */

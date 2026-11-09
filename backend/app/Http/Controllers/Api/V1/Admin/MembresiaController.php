@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Membresia;
 use App\Models\OfertaPaquete;
 use App\Models\OfertaVendedor;
+use App\Models\PaqueteMembresia;
 use App\Models\PlanMembresia;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -26,6 +27,7 @@ use Illuminate\Validation\Rule;
  *   POST   /membresias/vendedor      → crear un paquete de vendedor
  *   PUT    /membresias/vendedor/{id} → editar o activar/desactivar
  *   DELETE /membresias/vendedor/{id} → borrar
+ *   GET    /membresias/compras-paquetes → compras de paquetes de las inmobiliarias (historial)
  */
 class MembresiaController extends Controller
 {
@@ -39,6 +41,7 @@ class MembresiaController extends Controller
             'q' => ['nullable', 'string', 'max:100'],
             'estado' => ['nullable', 'in:vigente,por_vencer,vencida,cancelada'],
             'plan' => ['nullable', 'in:semanal,quincenal,mensual'],
+            'rol' => ['nullable', 'in:vendedor,inmobiliaria'],
             'desde' => ['nullable', 'date_format:Y-m-d'],
             'hasta' => ['nullable', 'date_format:Y-m-d'],
             'monto_min' => ['nullable', 'numeric', 'min:0'],
@@ -52,6 +55,11 @@ class MembresiaController extends Controller
 
         if (! empty($filtros['plan'])) {
             $consulta->where('plan', $filtros['plan']);
+        }
+
+        // Solo las cuentas de un rol (pestaña "Paquetes de vendedor" del panel)
+        if (! empty($filtros['rol'])) {
+            $consulta->whereHas('usuario.role', fn ($r) => $r->where('nombre', $filtros['rol']));
         }
 
         // Si las fechas vienen al revés, se invierten
@@ -395,6 +403,50 @@ class MembresiaController extends Controller
         ])->all();
     }
 
+    /** GET /membresias/compras-paquetes?page= — historial de paquetes comprados por las inmobiliarias. */
+    public function comprasPaquetes(): JsonResponse
+    {
+        $hoy = Carbon::now(self::ZONA)->startOfDay();
+
+        $pagina = PaqueteMembresia::with('usuario')->orderByDesc('created_at')->orderByDesc('id')
+            ->paginate(self::POR_PAGINA)
+            ->through(function (PaqueteMembresia $p) use ($hoy) {
+                $fin = Carbon::parse($p->fecha_fin->toDateString(), self::ZONA)->startOfDay();
+                $dias = (int) $hoy->diffInDays($fin, false);
+                $estado = match (true) {
+                    $dias < 0 => 'vencido',
+                    $dias <= self::DIAS_POR_VENCER => 'por_vencer',
+                    default => 'vigente',
+                };
+
+                return [
+                    'id' => $p->id,
+                    'usuario' => $p->usuario?->name ?? 'Usuario eliminado',
+                    'correo' => $p->usuario?->email,
+                    'paquete' => $p->nombreVisible(),
+                    'plan' => Membresia::NOMBRES_PLAN[$p->planPortal()] ?? $p->planPortal(),
+                    'cupos' => $p->cupos,
+                    'usados' => $p->membresiasActivas()->count(),
+                    'precio' => (float) $p->precio,
+                    'referencia' => $p->referencia_pago,
+                    'estado' => $estado,
+                    'dias_restantes' => $dias,
+                    'fecha_inicio' => $p->fecha_inicio->toDateString(),
+                    'fecha_fin' => $p->fecha_fin->toDateString(),
+                    'creada' => optional($p->created_at)->toIso8601String(),
+                ];
+            });
+
+        return response()->json([
+            'datos' => $pagina->items(),
+            'total' => $pagina->total(),
+            'desde' => $pagina->firstItem() ?? 0,
+            'hasta' => $pagina->lastItem() ?? 0,
+            'pagina_actual' => $pagina->currentPage(),
+            'ultima_pagina' => $pagina->lastPage(),
+        ]);
+    }
+
     /* ---------------------------------------------------------- */
 
     private function planes(): array
@@ -436,9 +488,12 @@ class MembresiaController extends Controller
             'vigentes' => $vigentes,
             'por_vencer' => $porVencer,
             'vencidas' => $vencidas,
+            // Lo que pagan por los paquetes se cuenta aquí (las publicaciones de un paquete tienen precio 0)
             'ingresos_mes' => (float) Membresia::where('estado', '!=', 'cancelada')
-                ->where('created_at', '>=', $inicioMes)->sum('precio'),
-            'ingresos_total' => (float) Membresia::where('estado', '!=', 'cancelada')->sum('precio'),
+                ->where('created_at', '>=', $inicioMes)->sum('precio')
+                + (float) PaqueteMembresia::where('created_at', '>=', $inicioMes)->sum('precio'),
+            'ingresos_total' => (float) Membresia::where('estado', '!=', 'cancelada')->sum('precio')
+                + (float) PaqueteMembresia::sum('precio'),
         ];
     }
 

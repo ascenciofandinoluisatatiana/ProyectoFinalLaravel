@@ -5,6 +5,7 @@ namespace App\Services\Pagos;
 use App\Models\Lead;
 use App\Models\Membresia;
 use App\Models\Pago;
+use App\Models\OfertaPaquete;
 use App\Models\PaqueteMembresia;
 use App\Models\PlanMembresia;
 use App\Models\Propiedad;
@@ -64,7 +65,7 @@ class PagoService
     public function iniciarMembresia(User $usuario, string $plan, ?Propiedad $propiedad = null): array
     {
         $pago = Pago::create([
-            'referencia' => $this->nuevaReferencia($plan === PaqueteMembresia::PLAN ? 'PAQ' : ($propiedad ? 'DES' : 'MEM')),
+            'referencia' => $this->nuevaReferencia($propiedad ? 'DES' : 'MEM'),
             'concepto' => 'membresia',
             'user_id' => $usuario->id,
             'propiedad_id' => $propiedad?->id,
@@ -79,10 +80,39 @@ class PagoService
         return $this->siguientePaso($pago);
     }
 
-    /** Precio vigente: los planes los define el administrador; el paquete sale del plan mensual con descuento. */
+    /**
+     * Paquete de publicaciones de inmobiliaria: se paga el precio vigente de la oferta del
+     * administrador y se guarda una copia de lo cotizado, para activar exactamente eso.
+     */
+    public function iniciarPaquete(User $usuario, OfertaPaquete $oferta): array
+    {
+        $pago = Pago::create([
+            'referencia' => $this->nuevaReferencia('PAQ'),
+            'concepto' => 'membresia',
+            'user_id' => $usuario->id,
+            'plan' => PaqueteMembresia::PLAN,
+            'oferta_id' => $oferta->id,
+            'oferta_datos' => json_encode([
+                'nombre' => $oferta->nombre,
+                'plan' => $oferta->plan,
+                'publicaciones' => $oferta->publicaciones,
+                'dias' => $oferta->dias(),
+                'descuento' => $oferta->descuento,
+            ], JSON_UNESCAPED_UNICODE),
+            'monto_centavos' => $oferta->precio() * 100,
+            'moneda' => 'COP',
+            'proveedor' => $this->modo(),
+            'pagador_nombre' => $usuario->name,
+            'pagador_correo' => $usuario->email,
+        ]);
+
+        return $this->siguientePaso($pago);
+    }
+
+    /** Precio vigente: los planes los define el administrador (planes_membresia). */
     public function precioPlan(string $plan): float
     {
-        return $plan === PaqueteMembresia::PLAN ? PaqueteMembresia::precio() : (float) PlanMembresia::precios()[$plan];
+        return (float) PlanMembresia::precios()[$plan];
     }
 
     /** Compra o arriendo de un inmueble publicado (pagador sin cuenta). */
@@ -314,18 +344,25 @@ class PagoService
         ]);
     }
 
-    /** Paquete de 10 publicaciones por 30 días; las publicaciones se eligen después en el panel. */
+    /** Paquete comprado: usa la copia guardada al iniciar el pago; las publicaciones se eligen después en el panel. */
     private function activarPaquete(Pago $pago): PaqueteMembresia
     {
         $hoy = Carbon::now(self::ZONA)->startOfDay();
+        $copia = $pago->oferta_datos ? (json_decode($pago->oferta_datos, true) ?: []) : [];
+        $dias = (int) ($copia['dias'] ?? PaqueteMembresia::DIAS);
 
         return PaqueteMembresia::create([
             'user_id' => $pago->user_id,
             'pago_id' => $pago->id,
-            'cupos' => PaqueteMembresia::PUBLICACIONES,
+            'oferta_id' => $pago->oferta_id,
+            'nombre' => $copia['nombre'] ?? null,
+            'plan' => $copia['plan'] ?? null,
+            'dias' => $dias,
+            'descuento' => $copia['descuento'] ?? null,
+            'cupos' => (int) ($copia['publicaciones'] ?? PaqueteMembresia::PUBLICACIONES),
             'precio' => $pago->monto,
             'fecha_inicio' => $hoy->toDateString(),
-            'fecha_fin' => $hoy->copy()->addDays(PaqueteMembresia::DIAS)->toDateString(),
+            'fecha_fin' => $hoy->copy()->addDays($dias)->toDateString(),
             'referencia_pago' => $pago->referencia,
         ]);
     }

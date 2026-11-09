@@ -24,6 +24,50 @@
     <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
     <link rel="stylesheet" href="/assets/admin/fontawesome/css/regular.min.css">
     <link rel="stylesheet" href="/assets/admin/tema.css">
+    <style>
+        /* Paquetes de inmobiliaria: solo paleta UMBRAL (morado, dorado, blanco y negro) */
+        html { --pq-oro: #d4af37; }
+        html[data-theme="light"] { --pq-oro: #9a7b1a; }
+        .pq-lista { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(270px, 100%), 1fr)); gap: 12px; }
+        .pq-card { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; min-width: 0; padding: 12px 14px; border: 1px solid var(--ad-borde); border-radius: 14px; background: var(--ad-bg); }
+        .pq-card.pq-off { opacity: .6; border-style: dashed; }
+        .pq-ico { display: grid; place-items: center; flex-shrink: 0; width: 42px; height: 42px; border-radius: 12px; color: var(--pq-oro); background: color-mix(in srgb, var(--pq-oro) 16%, transparent); }
+        .pq-cuerpo { flex: 1 1 120px; min-width: 0; }
+        .pq-nombre { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-weight: 800; color: var(--ad-text); }
+        .pq-meta { margin-top: 2px; font-size: .74rem; line-height: 1.3; color: var(--ad-muted); }
+        .pq-precio { font-size: 1.05rem; font-weight: 800; letter-spacing: -.01em; color: var(--pq-oro); white-space: nowrap; }
+        .pq-pie { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex: 1 1 100%; padding-top: 8px; border-top: 1px solid var(--ad-borde); }
+        .pq-acc { display: flex; gap: 6px; }
+        .pq-btn { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--ad-borde); background: transparent; color: var(--ad-muted); font-size: .78rem; transition: all .15s; }
+        .pq-btn:hover { color: var(--ad-primary); border-color: var(--ad-primary); background: var(--ad-soft); }
+        .pq-chip { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: .66rem; font-weight: 700; letter-spacing: .03em; color: var(--ad-primary); background: var(--ad-soft); }
+        .pq-chip.off { color: var(--ad-muted); background: transparent; border: 1px solid var(--ad-borde); }
+        .pq-vacio { padding: 18px; text-align: center; font-size: .85rem; color: var(--ad-muted); }
+
+        /* Pestañas de Membresías */
+        .tb-barra { display: flex; flex-wrap: wrap; gap: 6px; padding: 5px; border: 1px solid var(--ad-borde); border-radius: 14px; background: var(--ad-card); }
+        .tb-tab { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; gap: 8px; min-width: 0; padding: 9px 14px; border: 0; border-radius: 10px; background: transparent; color: var(--ad-muted); font-size: .85rem; font-weight: 700; transition: all .15s; }
+        .tb-tab:hover { color: var(--ad-primary); background: var(--ad-soft); }
+        .tb-tab.activo { color: #fff; background: linear-gradient(135deg, var(--ad-g1), var(--ad-g2)); }
+        .tb-panel { display: none; }
+        .tb-panel.activo { display: block; }
+        @media (max-width: 520px) { .tb-tab { flex: 1 1 100%; justify-content: flex-start; } }
+
+        /* Ventana crear / editar */
+        .pq-fondo { position: fixed; inset: 0; z-index: 60; display: none; align-items: center; justify-content: center; padding: 16px; background: rgba(0, 0, 0, .6); backdrop-filter: blur(4px); }
+        .pq-fondo.abierto { display: flex; }
+        .pq-modal { width: 100%; max-width: 26rem; max-height: calc(100vh - 32px); overflow-y: auto; padding: 20px; border: 1px solid var(--ad-borde); border-radius: 18px; background: var(--ad-card); box-shadow: var(--ad-sombra); }
+        .pq-modal h3 { font-weight: 800; color: var(--ad-text); }
+        .pq-campo { margin-top: 12px; }
+        .pq-campo label { display: block; margin-bottom: 5px; font-size: .75rem; font-weight: 600; color: var(--ad-muted); }
+        .pq-campo input, .pq-campo select { width: 100%; padding: 9px 12px; border: 1px solid var(--ad-borde); border-radius: 12px; background: var(--ad-bg); color: var(--ad-text); font-size: .88rem; outline: none; }
+        .pq-campo input:focus, .pq-campo select:focus { border-color: var(--ad-primary); }
+        .pq-err { min-height: 1em; margin-top: 4px; font-size: .74rem; color: var(--pq-oro); }
+        .pq-previa { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; padding: 10px 12px; border-radius: 12px; background: var(--ad-soft); font-size: .8rem; color: var(--ad-text2); }
+        .pq-previa b { font-size: 1.1rem; color: var(--pq-oro); white-space: nowrap; }
+        .pq-nota { margin-top: 10px; font-size: .74rem; line-height: 1.35; color: var(--ad-muted); }
+        .pq-botones { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+    </style>
 </head>
 <body class="bg-slate-950 text-slate-200 font-sans antialiased" data-pagina="membresias" data-titulo="Membresías">
 
@@ -48,7 +92,7 @@
                                 Membresías
                             </h1>
                             <p class="mt-1.5 max-w-xl text-sm text-slate-400">
-                                Planes y precios, pagos de vendedores e inmobiliarias y estado de cada membresía.
+                                Paquetes de inmobiliaria y de vendedor, pagos y estado de cada membresía.
                             </p>
                         </div>
                     </div>
@@ -79,15 +123,46 @@
                         </div>
                     </div>
 
-                    <!-- Planes y precios -->
-                    <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 shadow-xl shadow-black/20">
-                        <div class="mb-4">
-                            <h3 class="font-bold text-white">Planes y precios</h3>
-                            <p class="text-xs text-slate-500">El nuevo precio se aplica a los pagos futuros. Los pagos ya hechos conservan el precio que pagaron.</p>
-                        </div>
-                        <div id="planes" class="grid grid-cols-1 gap-4 md:grid-cols-3"></div>
+                    <!-- Pestañas -->
+                    <div class="tb-barra" role="tablist">
+                        <button type="button" class="tb-tab activo" role="tab" data-tab="inmo"><i class="fa-solid fa-building"></i><span>Paquetes de inmobiliaria</span></button>
+                        <button type="button" class="tb-tab" role="tab" data-tab="vend"><i class="fa-solid fa-user-tag"></i><span>Paquetes de vendedor</span></button>
+                        <button type="button" class="tb-tab" role="tab" data-tab="pagos"><i class="fa-solid fa-credit-card"></i><span>Pagos y filtros</span></button>
                     </div>
 
+                    <div id="tab-inmo" class="tb-panel activo">
+                    <!-- Paquetes de publicaciones para inmobiliarias -->
+                    <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 shadow-xl shadow-black/20">
+                        <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                                <h3 class="font-bold text-white">Paquetes de inmobiliaria</h3>
+                                <p class="text-xs text-slate-500">Publicaciones con descuento. El precio se calcula con el precio del plan: publicaciones × plan × (1 − descuento).</p>
+                            </div>
+                            <button type="button" id="pq-nuevo" class="shrink-0 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-violet-600/25 transition-all hover:from-violet-500 hover:to-indigo-500 active:scale-[0.98]">
+                                <i class="fa-solid fa-plus mr-1"></i>Nuevo paquete
+                            </button>
+                        </div>
+                        <div id="paquetes" class="pq-lista"></div>
+                    </div>
+                    </div>
+
+                    <div id="tab-vend" class="tb-panel">
+                    <!-- Paquetes (planes) para vendedores -->
+                    <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 shadow-xl shadow-black/20">
+                        <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                                <h3 class="font-bold text-white">Paquetes de vendedor</h3>
+                                <p class="text-xs text-slate-500">Propiedades destacadas durante unos días por un precio fijo. Semanal, Quincenal y Mensual son los planes base: conservan sus días y propiedades.</p>
+                            </div>
+                            <button type="button" id="vd-nuevo" class="shrink-0 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-violet-600/25 transition-all hover:from-violet-500 hover:to-indigo-500 active:scale-[0.98]">
+                                <i class="fa-solid fa-plus mr-1"></i>Nuevo paquete
+                            </button>
+                        </div>
+                        <div id="paquetes-vendedor" class="pq-lista"></div>
+                    </div>
+                    </div>
+
+                    <div id="tab-pagos" class="tb-panel">
                     <!-- Lista de membresías -->
                     <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 shadow-xl shadow-black/20">
                         <div class="flex flex-col gap-3 border-b border-slate-800 p-4 sm:flex-row sm:items-center">
@@ -160,6 +235,7 @@
                             <div id="paginacion-botones" class="flex items-center gap-1"></div>
                         </div>
                     </div>
+                    </div>
                 </div>
             </main>
 
@@ -171,6 +247,75 @@
     </div>
 
     <div id="fondo-menu" class="fixed inset-0 z-30 hidden bg-black/60 backdrop-blur-sm lg:hidden transition-opacity duration-300"></div>
+
+    <!-- Ventana: crear / editar paquete -->
+    <div id="pq-fondo" class="pq-fondo" role="dialog" aria-modal="true" aria-labelledby="pq-titulo">
+        <form id="pq-form" class="pq-modal" novalidate>
+            <h3 id="pq-titulo">Nuevo paquete</h3>
+            <div class="pq-campo">
+                <label for="pq-nombre">Nombre</label>
+                <input id="pq-nombre" type="text" maxlength="60" autocomplete="off" placeholder="Ej.: Bronce">
+                <p class="pq-err" id="pq-err-nombre"></p>
+            </div>
+            <div class="pq-campo">
+                <label for="pq-plan">Plan</label>
+                <select id="pq-plan">
+                    <option value="semanal">Semanal (7 días)</option>
+                    <option value="quincenal">Quincenal (15 días)</option>
+                    <option value="mensual">Mensual (30 días)</option>
+                </select>
+                <p class="pq-err" id="pq-err-plan"></p>
+            </div>
+            <div class="pq-campo">
+                <label for="pq-publicaciones">Publicaciones incluidas</label>
+                <input id="pq-publicaciones" type="number" min="1" max="100" step="1" inputmode="numeric">
+                <p class="pq-err" id="pq-err-publicaciones"></p>
+            </div>
+            <div class="pq-campo">
+                <label for="pq-descuento">Descuento (%)</label>
+                <input id="pq-descuento" type="number" min="0" max="90" step="1" inputmode="numeric">
+                <p class="pq-err" id="pq-err-descuento"></p>
+            </div>
+            <div class="pq-previa"><span>Precio del paquete</span><b id="pq-precio">$0</b></div>
+            <div class="pq-botones">
+                <button type="button" id="pq-cancelar" class="rounded-xl border border-slate-800 px-4 py-2 text-sm font-medium text-slate-400 transition-all hover:bg-slate-800 hover:text-slate-200">Cancelar</button>
+                <button type="submit" id="pq-guardar" class="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-violet-600/25 transition-all hover:from-violet-500 hover:to-indigo-500 active:scale-[0.98]">Guardar</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Ventana: crear / editar paquete de vendedor -->
+    <div id="vd-fondo" class="pq-fondo" role="dialog" aria-modal="true" aria-labelledby="vd-titulo">
+        <form id="vd-form" class="pq-modal" novalidate>
+            <h3 id="vd-titulo">Nuevo paquete de vendedor</h3>
+            <div class="pq-campo">
+                <label for="vd-nombre">Nombre</label>
+                <input id="vd-nombre" type="text" maxlength="60" autocomplete="off" placeholder="Ej.: Express">
+                <p class="pq-err" id="vd-err-nombre"></p>
+            </div>
+            <div class="pq-campo">
+                <label for="vd-dias">Días de duración</label>
+                <input id="vd-dias" type="number" min="1" max="365" step="1" inputmode="numeric">
+                <p class="pq-err" id="vd-err-dias"></p>
+            </div>
+            <div class="pq-campo">
+                <label for="vd-propiedades">Propiedades incluidas</label>
+                <input id="vd-propiedades" type="number" min="1" max="100" step="1" inputmode="numeric">
+                <p class="pq-err" id="vd-err-propiedades"></p>
+            </div>
+            <div class="pq-campo">
+                <label for="vd-precio">Precio (COP)</label>
+                <input id="vd-precio" type="number" min="1000" step="100" inputmode="numeric">
+                <p class="pq-nota" style="margin-top:6px">Se calcula con los planes base según los días y las propiedades. Puedes cambiarlo. <button type="button" id="vd-recalcular" style="padding:0;border:0;background:none;color:var(--ad-primary);font-weight:700;cursor:pointer">Recalcular</button></p>
+                <p class="pq-err" id="vd-err-precio"></p>
+            </div>
+            <p class="pq-nota" id="vd-nota" style="display:none">Este es un plan base: sus días y propiedades no se pueden cambiar. Sí puedes cambiar el nombre y el precio.</p>
+            <div class="pq-botones">
+                <button type="button" id="vd-cancelar" class="rounded-xl border border-slate-800 px-4 py-2 text-sm font-medium text-slate-400 transition-all hover:bg-slate-800 hover:text-slate-200">Cancelar</button>
+                <button type="submit" id="vd-guardar" class="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-violet-600/25 transition-all hover:from-violet-500 hover:to-indigo-500 active:scale-[0.98]">Guardar</button>
+            </div>
+        </form>
+    </div>
 
     <script src="/panel-admin/js/panel-admin.js"></script>
     <script src="/panel-admin/js/membresias.js"></script>

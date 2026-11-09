@@ -109,6 +109,14 @@ Route::prefix('v1/admin')->middleware(['web', 'admin.api'])->group(function () {
     Route::get('membresias', [AdminMembresiaController::class, 'index']);
     Route::put('membresias/planes/{plan}', [AdminMembresiaController::class, 'actualizarPlan']);
     Route::post('membresias/{membresia}/cancelar', [AdminMembresiaController::class, 'cancelar'])->whereNumber('membresia');
+    Route::get('membresias/paquetes', [AdminMembresiaController::class, 'paquetes']);
+    Route::post('membresias/paquetes', [AdminMembresiaController::class, 'crearPaquete']);
+    Route::put('membresias/paquetes/{id}', [AdminMembresiaController::class, 'actualizarPaquete'])->whereNumber('id');
+    Route::delete('membresias/paquetes/{id}', [AdminMembresiaController::class, 'eliminarPaquete'])->whereNumber('id');
+    Route::get('membresias/vendedor', [AdminMembresiaController::class, 'vendedores']);
+    Route::post('membresias/vendedor', [AdminMembresiaController::class, 'crearVendedor']);
+    Route::put('membresias/vendedor/{id}', [AdminMembresiaController::class, 'actualizarVendedor'])->whereNumber('id');
+    Route::delete('membresias/vendedor/{id}', [AdminMembresiaController::class, 'eliminarVendedor'])->whereNumber('id');
 
     // Gestión de usuarios
     Route::get('usuarios', [AdminUserController::class, 'index']);

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" dir="ltr" data-theme="light">
+<html lang="es" dir="ltr" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,264 +7,193 @@
     <link rel="icon" type="image/png" href="img/icono.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/componentes.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
 
+    <!-- Mismo tema (día / noche) que eligió la persona en el inicio -->
     <script>
         try {
             var tema = localStorage.getItem('umbral-tema');
             if (tema === 'dark' || tema === 'light') document.documentElement.setAttribute('data-theme', tema);
-        } catch(e) {}
+        } catch (e) {}
     </script>
 
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        *, *::before, *::after { box-sizing: border-box; }
+
+        /* Dorado de la paleta: en noche es el acento; en día se usa un dorado más profundo para que se lea */
+        :root, [data-theme="light"] { --oro: #9a7b1a; --sobre-boton: #ffffff; --halo: rgba(129, 37, 235, .18); --halo-2: rgba(212, 176, 98, .20); }
+        [data-theme="dark"] { --oro: #e3c985; --sobre-boton: #14110a; --halo: rgba(124, 58, 237, .30); --halo-2: rgba(227, 201, 133, .10); }
 
         body {
+            margin: 0;
             min-height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: var(--color-fondo, #f5f5f7);
-            font-family: 'Manrope', sans-serif;
-            padding: 2rem 1rem;
+            display: grid;
+            place-items: center;
+            padding: 28px 16px;
+            font-family: var(--fuente-sans);
+            color: var(--texto);
+            background: var(--fondo-degradado);
+            background-attachment: fixed;
+            position: relative;
+            overflow-x: hidden;
         }
+        /* Luces suaves de fondo (morado y dorado) */
+        body::before, body::after {
+            content: ""; position: fixed; z-index: 0; border-radius: 50%; filter: blur(70px); pointer-events: none;
+        }
+        body::before { width: 420px; height: 420px; top: -120px; left: -120px; background: var(--halo); }
+        body::after  { width: 380px; height: 380px; bottom: -120px; right: -100px; background: var(--halo-2); }
 
         .tarjeta {
-            background: var(--color-superficie, #ffffff);
-            border-radius: 1.5rem;
-            box-shadow: 0 8px 32px rgba(0,0,0,.10);
-            padding: 3rem 2.5rem;
-            max-width: 480px;
-            width: 100%;
+            position: relative; z-index: 1;
+            width: 100%; max-width: 520px;
+            padding: 36px 32px 30px;
             text-align: center;
-            transition: all .4s ease;
+            background: var(--tarjeta);
+            border: 1px solid var(--tarjeta-borde);
+            border-radius: var(--radio-tarjeta);
+            box-shadow: var(--sombra);
+            -webkit-backdrop-filter: blur(14px);
+            backdrop-filter: blur(14px);
+            animation: entrada .5s ease both;
+        }
+        /* Filete dorado muy fino arriba */
+        .tarjeta::before {
+            content: ""; position: absolute; top: 0; left: 18%; right: 18%; height: 2px; border-radius: 2px;
+            background: linear-gradient(90deg, transparent, var(--oro), transparent); opacity: .85;
         }
 
-        .marca {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: .6rem;
-            margin-bottom: 2.5rem;
-            text-decoration: none;
-        }
-        .marca img { width: 36px; height: 36px; }
-        .marca strong {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: var(--color-primario, #6c3fc5);
-            letter-spacing: .08em;
-        }
+        .marca { display: inline-flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 26px; text-decoration: none; color: var(--texto); }
+        .marca img { height: 40px; filter: var(--filtro-logo); }
+        .marca strong { font-weight: 700; font-size: 1.05rem; letter-spacing: .38em; }
 
-        /* ── Icono central ── */
+        /* ── Icono de estado ── */
         .icono-central {
-            width: 88px; height: 88px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.75rem;
-            font-size: 2.6rem;
-            transition: background .5s, transform .4s;
+            position: relative; width: 92px; height: 92px; margin: 0 auto 22px;
+            display: grid; place-items: center; border-radius: 50%;
+            font-size: 2rem; color: var(--oro);
+            background: radial-gradient(circle at 30% 25%, var(--campo), transparent 70%), var(--campo);
+            border: 1.5px solid var(--tarjeta-borde);
         }
-        .icono-central.espera {
-            background: linear-gradient(135deg, #f0e9ff, #e0d0ff);
-            animation: pulsar 2s ease-in-out infinite;
+        .icono-central::before {
+            content: ""; position: absolute; inset: -9px; border-radius: 50%;
+            border: 1.5px solid var(--oro); opacity: .35;
         }
-        .icono-central.aprobado {
-            background: linear-gradient(135deg, #d4f5e9, #a8edcf);
-            animation: entrada .5s ease;
-        }
-        .icono-central.rechazado {
-            background: linear-gradient(135deg, #ffe4e4, #ffc5c5);
-        }
-        @keyframes pulsar {
-            0%, 100% { transform: scale(1);    opacity: 1; }
-            50%       { transform: scale(1.08); opacity: .85; }
-        }
-        @keyframes entrada {
-            from { transform: scale(.5); opacity: 0; }
-            to   { transform: scale(1);  opacity: 1; }
-        }
+        .icono-central.espera::before { animation: onda 2.2s ease-out infinite; }
+        .icono-central.aprobado { color: var(--sobre-boton); background: var(--boton-gradiente); border-color: transparent; animation: entrada .5s ease both; }
+        .icono-central.aprobado::before { opacity: .55; }
+        .icono-central.rechazado { color: var(--texto-suave); }
+        .icono-central.rechazado::before { border-style: dashed; opacity: .4; }
+        @keyframes onda { 0% { transform: scale(.92); opacity: .6; } 100% { transform: scale(1.25); opacity: 0; } }
+        @keyframes entrada { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
 
         h1 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.75rem;
-            font-weight: 600;
-            color: var(--color-texto, #1a1a2e);
-            margin-bottom: .6rem;
-            transition: color .3s;
+            margin: 0 0 10px;
+            font-family: var(--fuente-serif); font-weight: 600;
+            font-size: clamp(1.7rem, 5vw, 2.15rem); line-height: 1.12;
+            color: var(--texto);
         }
-        h1.aprobado { color: #0a7c4b; }
-        h1.rechazado { color: #b91c1c; }
-
-        .subtitulo {
-            font-size: .95rem;
-            color: var(--color-texto-suave, #666);
-            line-height: 1.6;
-            margin-bottom: 1.75rem;
-        }
+        .subtitulo { margin: 0 0 20px; font-size: .95rem; line-height: 1.65; color: var(--texto-suave); }
 
         .email-cuenta {
-            background: var(--color-fondo, #f5f5f7);
-            border: 1.5px solid var(--color-borde, #e0e0e0);
-            border-radius: .75rem;
-            padding: .75rem 1.25rem;
-            font-size: .9rem;
-            color: var(--color-primario, #6c3fc5);
-            font-weight: 600;
-            margin-bottom: 1.75rem;
-            word-break: break-all;
+            display: inline-flex; align-items: center; gap: 9px; max-width: 100%;
+            margin-bottom: 26px; padding: 10px 18px;
+            border-radius: 999px; border: 1px solid var(--campo-borde); background: var(--campo);
+            font-size: .88rem; font-weight: 700; color: var(--oro); word-break: break-all;
         }
+        .email-cuenta i { font-size: .85rem; }
 
-        /* ── Pasos (solo en modo espera) ── */
-        .pasos {
-            list-style: none;
-            text-align: left;
-            margin-bottom: 1.75rem;
+        /* ── Pasos como línea de tiempo ── */
+        .pasos { list-style: none; margin: 0 0 22px; padding: 0; text-align: left; }
+        .pasos li { position: relative; display: flex; gap: 14px; padding-bottom: 18px; font-size: .88rem; line-height: 1.5; color: var(--texto-suave); }
+        .pasos li:last-child { padding-bottom: 0; }
+        .pasos li::before {            /* línea que une los pasos */
+            content: ""; position: absolute; left: 14px; top: 30px; bottom: 2px; width: 2px;
+            background: var(--campo-borde); border-radius: 2px;
         }
-        .pasos li {
-            display: flex;
-            align-items: flex-start;
-            gap: .85rem;
-            padding: .65rem 0;
-            border-bottom: 1px solid var(--color-borde, #f0f0f0);
-            font-size: .87rem;
-            color: var(--color-texto-suave, #555);
-            line-height: 1.5;
-        }
-        .pasos li:last-child { border-bottom: none; }
+        .pasos li:last-child::before { display: none; }
+        .pasos li.hecho::before { background: var(--oro); opacity: .7; }
+        .pasos strong { display: block; color: var(--texto); font-size: .92rem; margin-bottom: 1px; }
         .paso-num {
-            flex-shrink: 0;
-            width: 26px; height: 26px;
-            border-radius: 50%;
-            background: var(--color-primario, #6c3fc5);
-            color: #fff;
-            font-size: .78rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: .1rem;
+            flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%;
+            display: grid; place-items: center; font-size: .78rem; font-weight: 800;
+            border: 1.5px solid var(--campo-borde); background: var(--campo); color: var(--texto-suave);
         }
-        /* Paso 2 se resalta mientras se espera */
-        .paso-activo .paso-num {
-            background: #f59e0b;
-            animation: pulsar 1.5s ease-in-out infinite;
-        }
+        .pasos li.hecho .paso-num { background: var(--boton-gradiente); color: var(--sobre-boton); border-color: transparent; }
+        .pasos li.paso-activo .paso-num { border-color: var(--oro); color: var(--oro); animation: latido 1.6s ease-in-out infinite; }
+        .pasos li.paso-activo strong { color: var(--oro); }
+        @keyframes latido { 0%, 100% { box-shadow: 0 0 0 0 var(--halo-2); } 50% { box-shadow: 0 0 0 7px transparent; } }
 
         .aviso-tiempo {
-            background: #fff8e1;
-            border: 1px solid #ffe082;
-            border-radius: .75rem;
-            padding: .85rem 1rem;
-            font-size: .85rem;
-            color: #7a5b00;
-            margin-bottom: 1.75rem;
-            line-height: 1.5;
+            display: flex; gap: 12px; align-items: flex-start; text-align: left;
+            margin-bottom: 20px; padding: 14px 16px;
+            border-radius: 16px; border: 1px solid var(--campo-borde); background: var(--campo);
+            font-size: .85rem; line-height: 1.55; color: var(--texto-suave);
         }
+        .aviso-tiempo i { margin-top: 3px; color: var(--oro); }
+        .aviso-tiempo strong { color: var(--texto); }
 
-        /* ── Indicador de verificación en curso ── */
-        .verificando {
-            font-size: .8rem;
-            color: var(--color-texto-suave, #999);
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: .4rem;
-        }
-        .punto {
-            width: 7px; height: 7px;
-            border-radius: 50%;
-            background: var(--color-primario, #6c3fc5);
-            animation: parpadeo 1.4s ease-in-out infinite;
-        }
+        .verificando { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 22px; font-size: .8rem; color: var(--texto-suave); }
+        .punto { width: 7px; height: 7px; border-radius: 50%; background: var(--oro); animation: parpadeo 1.4s ease-in-out infinite; }
         .punto:nth-child(2) { animation-delay: .2s; }
         .punto:nth-child(3) { animation-delay: .4s; }
-        @keyframes parpadeo {
-            0%, 80%, 100% { opacity: .2; transform: scale(.8); }
-            40%            { opacity: 1;  transform: scale(1); }
-        }
+        .verificando span:last-child { margin-left: 4px; }
+        @keyframes parpadeo { 0%, 80%, 100% { opacity: .2; transform: scale(.8); } 40% { opacity: 1; transform: scale(1); } }
 
-        /* ── Panel aprobado (oculto inicialmente) ── */
-        .panel-aprobado {
-            display: none;
-            animation: entrada .5s ease;
+        /* ── Paneles de resultado ── */
+        .panel-aprobado, .panel-rechazado { display: none; animation: entrada .5s ease both; }
+        .banner {
+            display: flex; gap: 14px; align-items: flex-start; text-align: left;
+            margin-bottom: 22px; padding: 18px 18px;
+            border-radius: 18px; border: 1px solid var(--tarjeta-borde); background: var(--campo);
         }
-        .banner-aprobado {
-            background: linear-gradient(135deg, #d4f5e9, #a8edcf);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            margin-bottom: 1.75rem;
-        }
-        .banner-aprobado p {
-            font-size: .95rem;
-            color: #0a5c38;
-            line-height: 1.6;
-        }
-        .banner-aprobado strong { display: block; font-size: 1.05rem; margin-bottom: .4rem; }
+        .banner > i { margin-top: 3px; font-size: 1.15rem; color: var(--oro); }
+        .banner p { margin: 0; font-size: .92rem; line-height: 1.6; color: var(--texto-suave); }
+        .banner strong { display: block; margin-bottom: 4px; font-size: 1.02rem; color: var(--texto); }
+        .banner.ok { border-color: var(--oro); }
 
-        /* ── Panel rechazado (oculto inicialmente) ── */
-        .panel-rechazado {
-            display: none;
-            animation: entrada .5s ease;
-        }
-        .banner-rechazado {
-            background: #ffe4e4;
-            border-radius: 1rem;
-            padding: 1.5rem;
-            margin-bottom: 1.75rem;
-        }
-        .banner-rechazado p { font-size: .95rem; color: #7f1d1d; line-height: 1.6; }
-        .banner-rechazado strong { display: block; font-size: 1.05rem; margin-bottom: .4rem; }
+        .motivo { margin-bottom: 22px; padding: 16px 18px; text-align: left; border-radius: 18px; border: 1px dashed var(--oro); background: var(--campo); }
+        .motivo[hidden] { display: none; }
+        .motivo-titulo { display: flex; align-items: center; gap: 9px; margin-bottom: 6px; font-size: .78rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--oro); }
+        .motivo p { margin: 0; font-size: .93rem; line-height: 1.6; color: var(--texto); overflow-wrap: anywhere; white-space: pre-line; }
 
         /* ── Botones ── */
-        .acciones { display: flex; flex-direction: column; gap: .75rem; }
-
+        .acciones { display: flex; flex-direction: column; gap: 12px; }
         .btn {
-            display: block;
-            padding: .9rem 1.5rem;
-            border-radius: .85rem;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            text-decoration: none;
-            text-align: center;
-            transition: opacity .2s, transform .15s;
-            border: none;
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            padding: 14px 22px; border-radius: 14px; border: 1.5px solid transparent;
+            font: 700 .98rem var(--fuente-sans); text-decoration: none; cursor: pointer;
+            transition: transform .15s, box-shadow .2s, background .2s;
         }
-        .btn:hover { opacity: .88; transform: translateY(-1px); }
-
-        .btn-primario   { background: var(--color-primario, #6c3fc5); color: #fff; }
-        .btn-verde      { background: #059669; color: #fff; font-size: 1.05rem; letter-spacing: .02em; }
-        .btn-secundario {
-            background: transparent;
-            color: var(--color-primario, #6c3fc5);
-            border: 1.5px solid var(--color-primario, #6c3fc5);
-        }
+        .btn:hover { transform: translateY(-1px); }
+        .btn:focus-visible { outline: 2px solid var(--oro); outline-offset: 3px; }
+        .btn-primario, .btn-verde { background: var(--boton-gradiente); color: var(--sobre-boton); box-shadow: 0 10px 26px var(--halo); }
+        .btn-primario:hover, .btn-verde:hover { box-shadow: 0 14px 32px var(--halo); }
+        .btn-secundario { background: transparent; color: var(--texto); border-color: var(--campo-borde); }
+        .btn-secundario:hover { border-color: var(--oro); color: var(--oro); }
 
         @media (max-width: 480px) {
-            .tarjeta { padding: 2rem 1.25rem; border-radius: 1rem; }
-            h1 { font-size: 1.5rem; }
+            body { padding: 16px 12px; }
+            .tarjeta { padding: 28px 20px 24px; }
+            .marca { margin-bottom: 20px; }
         }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
     </style>
 </head>
 <body>
 <div class="tarjeta" id="tarjeta">
 
     <!-- Logo -->
-    <a href="/" class="marca">
+    <a href="index.html" class="marca">
         <img src="img/icono.png" alt="Umbral">
         <strong>UMBRAL</strong>
     </a>
 
     <!-- Icono central (cambia según el estado) -->
-    <div class="icono-central espera" id="icono" role="img" aria-label="Estado de la cuenta">⏳</div>
+    <div class="icono-central espera" id="icono" role="img" aria-label="Estado de la cuenta"><i class="fa-solid fa-hourglass-half"></i></div>
 
     <!-- Título (cambia según el estado) -->
     <h1 id="titulo">Tu cuenta está en revisión</h1>
@@ -276,13 +205,13 @@
     </p>
 
     <!-- Email de la cuenta -->
-    <div class="email-cuenta" id="email-cuenta">—</div>
+    <div class="email-cuenta"><i class="fa-solid fa-envelope"></i><span id="email-cuenta">—</span></div>
 
     <!-- ══ PANEL DE ESPERA ══ -->
     <div id="panel-espera">
         <ol class="pasos" aria-label="Pasos del proceso">
-            <li>
-                <span class="paso-num">✓</span>
+            <li class="hecho">
+                <span class="paso-num"><i class="fa-solid fa-check"></i></span>
                 <span><strong>Solicitud recibida.</strong> Tu información fue guardada correctamente.</span>
             </li>
             <li class="paso-activo">
@@ -300,8 +229,9 @@
         </ol>
 
         <div class="aviso-tiempo">
-            ⏱️ <strong>Tiempo estimado:</strong> entre 24 y 48 horas hábiles.
-            Esta pantalla se actualiza sola — no necesitas recargarla.
+            <i class="fa-solid fa-clock"></i>
+            <span><strong>Tiempo estimado:</strong> entre 24 y 48 horas hábiles.
+            Esta pantalla se actualiza sola, no necesitas recargarla.</span>
         </div>
 
         <!-- Puntos animados que indican que se está verificando -->
@@ -309,42 +239,48 @@
             <span class="punto"></span>
             <span class="punto"></span>
             <span class="punto"></span>
-            <span style="font-size:.8rem">Verificando estado…</span>
+            <span>Verificando estado…</span>
         </div>
 
         <div class="acciones">
-            <a href="/" class="btn btn-secundario">Volver al inicio</a>
+            <a href="index.html" class="btn btn-secundario"><i class="fa-solid fa-arrow-left"></i> Volver al inicio</a>
         </div>
     </div>
 
     <!-- ══ PANEL APROBADO (oculto hasta que el admin apruebe) ══ -->
     <div id="panel-aprobado" class="panel-aprobado">
-        <div class="banner-aprobado">
+        <div class="banner ok">
+            <i class="fa-solid fa-circle-check"></i>
             <p>
-                <strong>🎉 ¡Tu cuenta fue aprobada!</strong>
+                <strong>¡Tu cuenta fue aprobada!</strong>
                 Ya puedes iniciar sesión en UMBRAL y comenzar a publicar
                 tus propiedades. Bienvenido al portal.
             </p>
         </div>
         <div class="acciones">
-            <a href="/" class="btn btn-verde" id="btn-iniciar-sesion">
-                Iniciar sesión →
+            <a href="index.html" class="btn btn-verde" id="btn-iniciar-sesion">
+                Iniciar sesión <i class="fa-solid fa-arrow-right"></i>
             </a>
         </div>
     </div>
 
     <!-- ══ PANEL RECHAZADO (oculto hasta que el admin rechace) ══ -->
     <div id="panel-rechazado" class="panel-rechazado">
-        <div class="banner-rechazado">
+        <div class="banner">
+            <i class="fa-solid fa-circle-xmark"></i>
             <p>
-                <strong>❌ Tu cuenta fue rechazada</strong>
+                <strong>Tu cuenta fue rechazada</strong>
                 El administrador revisó tu información y no pudo aprobar
-                el registro. Si crees que es un error, contacta al equipo de UMBRAL.
+                el registro.
             </p>
         </div>
+        <!-- Motivo escrito por el administrador (solo aparece si lo hay) -->
+        <div class="motivo" id="motivo" hidden>
+            <span class="motivo-titulo"><i class="fa-solid fa-comment-dots"></i> Motivo del rechazo</span>
+            <p id="motivo-texto"></p>
+        </div>
         <div class="acciones">
-            <a href="/#contacto" class="btn btn-primario">Contactar al administrador</a>
-            <a href="/" class="btn btn-secundario">Volver al inicio</a>
+            <a href="index.html" class="btn btn-secundario"><i class="fa-solid fa-arrow-left"></i> Volver al inicio</a>
         </div>
     </div>
 
@@ -352,6 +288,13 @@
 
 <script>
 (function () {
+    // Si cambia el tema en otra pestaña, esta pantalla lo sigue
+    window.addEventListener('storage', function (e) {
+        if (e.key === 'umbral-tema' && (e.newValue === 'dark' || e.newValue === 'light')) {
+            document.documentElement.setAttribute('data-theme', e.newValue);
+        }
+    });
+
     // ── Leer datos de la cuenta guardados al registrarse o al intentar login ──
     var datos = {};
     try { datos = JSON.parse(sessionStorage.getItem('umbral-pendiente') || '{}'); } catch(e) {}
@@ -360,8 +303,7 @@
     var nombre = datos.nombre || '';
 
     // Mostrar email y personalizar título
-    var elEmail = document.getElementById('email-cuenta');
-    elEmail.textContent = email || 'Cuenta registrada';
+    document.getElementById('email-cuenta').textContent = email || 'Cuenta registrada';
 
     if (nombre) {
         document.getElementById('titulo').textContent = 'Hola, ' + nombre + ' — tu cuenta está en revisión';
@@ -371,41 +313,38 @@
     // (index.html abre el modal automáticamente si viene con ?login=1)
     document.getElementById('btn-iniciar-sesion').href = '/?login=1';
 
+    function ponerIcono(clase, icono) {
+        var el = document.getElementById('icono');
+        el.className = 'icono-central ' + clase;
+        el.innerHTML = '<i class="fa-solid ' + icono + '"></i>';
+    }
+
     // ── Función que cambia la pantalla al estado aprobado ──
     function mostrarAprobado() {
-        var icono   = document.getElementById('icono');
         var titulo  = document.getElementById('titulo');
-        var subtitulo = document.getElementById('subtitulo');
-
-        icono.textContent = '✅';
-        icono.className   = 'icono-central aprobado';
+        ponerIcono('aprobado', 'fa-check');
         titulo.textContent = nombre ? ('¡' + nombre + ', tu cuenta fue aprobada!') : '¡Tu cuenta fue aprobada!';
-        titulo.className   = 'aprobado';
-        subtitulo.textContent = 'El administrador revisó tu información y todo está en orden.';
+        document.getElementById('subtitulo').textContent = 'El administrador revisó tu información y todo está en orden.';
 
         document.getElementById('panel-espera').style.display    = 'none';
         document.getElementById('panel-aprobado').style.display  = 'block';
-        document.getElementById('verificando').style.display     = 'none';
 
         // Limpiar el sessionStorage porque ya no es pendiente
         try { sessionStorage.removeItem('umbral-pendiente'); } catch(e) {}
     }
 
     // ── Función que cambia la pantalla al estado rechazado ──
-    function mostrarRechazado() {
-        var icono   = document.getElementById('icono');
-        var titulo  = document.getElementById('titulo');
-        var subtitulo = document.getElementById('subtitulo');
-
-        icono.textContent = '❌';
-        icono.className   = 'icono-central rechazado';
-        titulo.textContent = 'Tu cuenta fue rechazada';
-        titulo.className   = 'rechazado';
-        subtitulo.textContent = 'El administrador revisó tu información y no pudo aprobar el registro.';
+    function mostrarRechazado(motivo) {
+        ponerIcono('rechazado', 'fa-xmark');
+        if (motivo) {
+            document.getElementById('motivo-texto').textContent = motivo;   // textContent: nunca se interpreta como HTML
+            document.getElementById('motivo').hidden = false;
+        }
+        document.getElementById('titulo').textContent = 'Tu cuenta fue rechazada';
+        document.getElementById('subtitulo').textContent = 'El administrador revisó tu información y no pudo aprobar el registro.';
 
         document.getElementById('panel-espera').style.display    = 'none';
         document.getElementById('panel-rechazado').style.display = 'block';
-        document.getElementById('verificando').style.display     = 'none';
 
         try { sessionStorage.removeItem('umbral-pendiente'); } catch(e) {}
     }
@@ -428,7 +367,7 @@
                 mostrarAprobado();
             } else if (datos.estado === 'inactivo') {
                 clearInterval(intervalo);
-                mostrarRechazado();
+                mostrarRechazado(datos.motivo);
             }
             // Si sigue 'pendiente' o 'desconocido', no hacemos nada: seguimos esperando
         })

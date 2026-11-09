@@ -158,33 +158,162 @@
 
     function soloDigitos(texto) { return texto.replace(/\D/g, ''); }
 
-    // Validación de formato (la validación real está en el servidor).
-    // Devuelve la CLAVE del mensaje de error, o null si todo está bien.
-    function validar(c, confirmaColombia) {
-        var comunes = c.email && c.telefono && c.password && c.password_confirmation;
-        var propios = c.name && c.numero_documento &&
-            (tipoCuenta === 'persona' || c.representante_legal);
-
-        if (!comunes || !propios) return 'msg.registro.vacio';
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email)) return 'msg.correo';
-
-        var tel = soloDigitos(c.telefono);
-        if (tel.length < 7 || tel.length > 12) return 'msg.registro.telefono';
-
-        // Cédula: 5 a 12 dígitos. NIT: 9 o 10 dígitos, con dígito de verificación opcional (900123456-7)
-        var docValido = tipoCuenta === 'persona'
-            ? /^\d{5,12}$/.test(c.numero_documento)
-            : /^\d{9,10}(-\d)?$/.test(c.numero_documento);
-        if (!docValido) return 'msg.registro.documento';
-
-        if (c.password.length < 8) return 'msg.clave_corta';
-        if (c.password !== c.password_confirmation) return 'msg.clave2';
-        if (!confirmaColombia) return 'msg.registro.colombia';
-        return null;
+    // Texto traducido si existe; si no, el respaldo en español
+    function tx(clave, respaldo) {
+        var t = window.t(clave);
+        return t === clave ? respaldo : t;
     }
+
+    /* ---------- Reglas de cada campo (la validación real también está en el servidor) ----------
+       Cada regla recibe el texto del campo y devuelve el mensaje de error, o '' si está bien. */
+    var LETRAS_NOMBRE = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+(?:[ '’\-][A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)+$/;
+
+    function reglaNombre(v) {
+        v = v.trim().replace(/\s+/g, ' ');
+        if (!v) return tx('val.nombre_vacio', 'Escribe tu nombre completo.');
+        if (v.length < 3 || v.length > 80 || !LETRAS_NOMBRE.test(v)) {
+            return tx('val.nombre', 'Escribe nombre y apellido, solo con letras (de 3 a 80 caracteres).');
+        }
+        return '';
+    }
+
+    function reglaRepresentante(v) {
+        v = v.trim().replace(/\s+/g, ' ');
+        if (!v) return tx('val.representante_vacio', 'Escribe el nombre del representante legal.');
+        if (v.length < 3 || v.length > 80 || !LETRAS_NOMBRE.test(v)) {
+            return tx('val.representante', 'Escribe nombre y apellido del representante, solo con letras (de 3 a 80 caracteres).');
+        }
+        return '';
+    }
+
+    function reglaRazon(v) {
+        v = v.trim().replace(/\s+/g, ' ');
+        if (!v) return tx('val.razon_vacia', 'Escribe la razón social de tu inmobiliaria.');
+        if (v.length < 3 || v.length > 80 || !/^[\p{L}\p{N} .,&'’\-\/]+$/u.test(v)) {
+            return tx('val.razon', 'La razón social debe tener de 3 a 80 caracteres (letras, números y . , & - /).');
+        }
+        return '';
+    }
+
+    function reglaCedula(v) {
+        v = v.trim();
+        if (!v) return tx('val.cedula_vacia', 'Escribe tu número de cédula.');
+        if (!/^\d{5,12}$/.test(v)) return tx('val.cedula', 'La cédula debe tener solo números, entre 5 y 12 dígitos.');
+        return '';
+    }
+
+    // NIT: 9 o 10 dígitos, con dígito de verificación opcional (900123456-7)
+    function reglaNit(v) {
+        v = v.trim();
+        if (!v) return tx('val.nit_vacio', 'Escribe el NIT de la inmobiliaria.');
+        if (!/^\d{9,10}(-\d)?$/.test(v)) return tx('val.nit', 'El NIT debe tener 9 o 10 números, con o sin dígito de verificación (900123456-7).');
+        return '';
+    }
+
+    function reglaCorreo(v) {
+        v = v.trim();
+        if (!v) return tx('val.correo_vacio', 'Escribe tu correo electrónico.');
+        if (v.length > 255 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) return window.t('msg.correo');
+        return '';
+    }
+
+    // Celular colombiano: 10 dígitos que empiezan por 3 (acepta +57 y espacios)
+    function reglaTelefono(v) {
+        var d = soloDigitos(v);
+        if (!d) return tx('val.telefono_vacio', 'Escribe tu número de teléfono.');
+        if (d.length === 12 && d.indexOf('57') === 0) d = d.slice(2);
+        if (!/^3\d{9}$/.test(d)) return tx('val.telefono', 'Escribe un celular colombiano de 10 dígitos que empiece por 3 (ej. 300 000 0000).');
+        return '';
+    }
+
+    function reglaClave(v) {
+        if (!v) return tx('val.clave_vacia', 'Escribe una contraseña.');
+        if (v.length < 8) return window.t('msg.clave_corta');
+        return '';
+    }
+
+    function reglaClave2(v) {
+        if (!v) return tx('val.clave2_vacia', 'Repite la contraseña.');
+        if (v !== document.getElementById('reg-clave').value) return window.t('msg.clave2');
+        return '';
+    }
+
+    // Campo del formulario → su regla y el tipo de cuenta donde se usa (null = ambos)
+    var CAMPOS = [
+        { id: 'reg-nombre',        regla: reglaNombre,        solo: 'persona' },
+        { id: 'reg-numero-doc',    regla: reglaCedula,        solo: 'persona' },
+        { id: 'reg-razon',         regla: reglaRazon,         solo: 'inmobiliaria' },
+        { id: 'reg-nit',           regla: reglaNit,           solo: 'inmobiliaria' },
+        { id: 'reg-representante', regla: reglaRepresentante, solo: 'inmobiliaria' },
+        { id: 'reg-correo',        regla: reglaCorreo,        solo: null },
+        { id: 'reg-telefono',      regla: reglaTelefono,      solo: null },
+        { id: 'reg-clave',         regla: reglaClave,         solo: null },
+        { id: 'reg-clave2',        regla: reglaClave2,        solo: null }
+    ];
+
+    function ponerError(id, texto) {
+        var entrada = document.getElementById(id);
+        var aviso = document.getElementById('err-' + id);
+        var caja = entrada.closest('.campo');
+        if (caja) caja.classList.toggle('invalido', !!texto);
+        entrada.setAttribute('aria-invalid', texto ? 'true' : 'false');
+        if (aviso) { aviso.textContent = texto || ''; aviso.hidden = !texto; }
+    }
+
+    function validarCampo(c) {
+        var texto = c.regla(document.getElementById(c.id).value);
+        ponerError(c.id, texto);
+        return texto;
+    }
+
+    function camposActivos() {
+        return CAMPOS.filter(function (c) { return c.solo === null || c.solo === tipoCuenta; });
+    }
+
+    // Cada campo avisa al salir de él y se corrige solo mientras se escribe
+    CAMPOS.forEach(function (c) {
+        var entrada = document.getElementById(c.id);
+        var tocado = false;
+        entrada.addEventListener('blur', function () {
+            if (!entrada.offsetParent) return;   // el campo se ocultó (cambio persona/inmobiliaria): no se revisa
+            tocado = true; validarCampo(c);
+        });
+        entrada.addEventListener('input', function () {
+            if (tocado || entrada.getAttribute('aria-invalid') === 'true') validarCampo(c);
+            // Si cambia la contraseña, la confirmación se vuelve a revisar
+            if (c.id === 'reg-clave' && document.getElementById('reg-clave2').value) validarCampo(CAMPOS[8]);
+        });
+    });
+
+    var cajaColombia = document.getElementById('reg-colombia');
+    function validarColombia() {
+        var texto = cajaColombia.checked ? '' : window.t('msg.registro.colombia');
+        var aviso = document.getElementById('err-reg-colombia');
+        aviso.textContent = texto; aviso.hidden = !texto;
+        return texto;
+    }
+    cajaColombia.addEventListener('change', validarColombia);
+
+    // Al cambiar entre persona e inmobiliaria se limpian las alertas
+    opcionesCuenta.forEach(function (op) {
+        op.addEventListener('click', function () {
+            CAMPOS.forEach(function (c) { ponerError(c.id, ''); });
+            document.getElementById('err-reg-colombia').hidden = true;
+        });
+    });
 
     form.addEventListener('submit', async function (e) {
         e.preventDefault();
+        mensaje.hidden = true;
+
+        // Revisa TODOS los campos y lleva el cursor al primero que falle
+        var primero = null;
+        camposActivos().forEach(function (c) {
+            if (validarCampo(c) && !primero) primero = c.id;
+        });
+        var errorColombia = validarColombia();
+        if (primero) { document.getElementById(primero).focus(); return; }
+        if (errorColombia) { cajaColombia.focus(); return; }
 
         var campos = {
             tipo_cuenta: tipoCuenta,
@@ -196,20 +325,15 @@
         };
 
         if (tipoCuenta === 'persona') {
-            campos.name = document.getElementById('reg-nombre').value.trim();
-            campos.tipo_documento = document.getElementById('reg-tipo-doc').value;
+            campos.name = document.getElementById('reg-nombre').value.trim().replace(/\s+/g, ' ');
+            campos.tipo_documento = 'CC';   // solo cédula de ciudadanía colombiana
             campos.numero_documento = document.getElementById('reg-numero-doc').value.trim();
         } else {
-            campos.name = document.getElementById('reg-razon').value.trim();
+            campos.name = document.getElementById('reg-razon').value.trim().replace(/\s+/g, ' ');
             campos.tipo_documento = 'NIT';
             campos.numero_documento = document.getElementById('reg-nit').value.trim();
-            campos.representante_legal = document.getElementById('reg-representante').value.trim();
+            campos.representante_legal = document.getElementById('reg-representante').value.trim().replace(/\s+/g, ' ');
         }
-
-        var confirmaColombia = document.getElementById('reg-colombia').checked;
-
-        var claveError = validar(campos, confirmaColombia);
-        if (claveError) { mostrar(window.t(claveError), 'error'); return; }
 
         boton.disabled = true;
         mensaje.hidden = true;
@@ -226,11 +350,30 @@
                 if (respuesta.status === 403) {
                     // Solo Colombia puede registrarse para publicar
                     mostrar(window.t('msg.registro.solo_colombia'), 'error');
-                } else if (respuesta.status === 422 && datos.errors && datos.errors.email) {
-                    // El correo ya existe en el portal
-                    mostrar(window.t('msg.registro.duplicado'), 'error');
-                } else if (respuesta.status === 422) {
-                    mostrar(window.t('msg.registro.invalido'), 'error');
+                } else if (respuesta.status === 422 && datos.errors) {
+                    // El servidor dice qué campo falló: la alerta sale debajo de ese campo
+                    var algunoEnPantalla = false;
+                    var enPantalla = {
+                        email: 'reg-correo',
+                        telefono: 'reg-telefono',
+                        password: 'reg-clave',
+                        numero_documento: tipoCuenta === 'persona' ? 'reg-numero-doc' : 'reg-nit',
+                        name: tipoCuenta === 'persona' ? 'reg-nombre' : 'reg-razon',
+                        representante_legal: 'reg-representante'
+                    };
+                    Object.keys(datos.errors).forEach(function (clave) {
+                        var id = enPantalla[clave];
+                        if (!id) return;
+                        var texto = clave === 'email'
+                            ? window.t('msg.registro.duplicado')
+                            : (clave === 'numero_documento' ? datos.errors[clave][0] : window.t('msg.registro.invalido'));
+                        ponerError(id, texto);
+                        if (!algunoEnPantalla) document.getElementById(id).focus();
+                        algunoEnPantalla = true;
+                    });
+                    if (!algunoEnPantalla) mostrar(window.t('msg.registro.invalido'), 'error');
+                } else if (respuesta.status === 422 && datos.message) {
+                    mostrar(datos.message, 'error');
                 } else {
                     mostrar(window.t('msg.generico'), 'error');
                 }

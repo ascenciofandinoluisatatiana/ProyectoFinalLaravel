@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Verificacion;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -181,7 +183,17 @@ class AuthController extends Controller
             return response()->json(['estado' => 'desconocido']);
         }
 
-        return response()->json(['estado' => $usuario->estado]);
+        $respuesta = ['estado' => $usuario->estado];
+
+        // Cuenta rechazada: la pantalla de espera muestra el motivo que escribió el administrador
+        if ($usuario->estado === 'inactivo') {
+            $ultima = Verificacion::where('user_id', $usuario->id)->orderByDesc('id')->first();
+            if ($ultima && $ultima->decision === 'rechazada' && $ultima->motivo) {
+                $respuesta['motivo'] = $ultima->motivo;
+            }
+        }
+
+        return response()->json($respuesta);
     }
 
     /**
@@ -233,7 +245,8 @@ class AuthController extends Controller
             ->exists();
 
         if ($documentoOcupado) {
-            return response()->json(['message' => 'Este documento ya está registrado.'], 422);
+            // Error del campo: el formulario lo muestra debajo del número de documento
+            throw ValidationException::withMessages(['numero_documento' => 'Este documento ya está registrado.']);
         }
 
         $usuario = User::create([

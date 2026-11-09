@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ventas · Inmobiliaria · Umbral</title>
+    <link rel="icon" type="image/png" href="/img/icono.png">
+
+    <!-- Fuentes del diseño (las mismas del inicio y el login) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Mismo diseño del panel del vendedor + iconos (los entrega Laravel en /assets) -->
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
+    <link rel="stylesheet" href="/vendedor/css/vendedor.css">
+    <link rel="stylesheet" href="/inmobiliaria/css/inmobiliaria.css">
+
+    <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
+    <script>
+        try {
+            var tema = localStorage.getItem('umbral-tema');
+            if (tema === 'dark' || tema === 'light') document.documentElement.setAttribute('data-theme', tema);
+        } catch (e) {}
+    </script>
+</head>
+<body class="vendedor op-venta" data-pagina="inmobiliaria-ventas">
+    <div class="v-pagina">
+        <header class="v-topbar" id="v-topbar"></header>
+
+        <main class="v-contenido">
+            <div class="i-estado-carga" id="d-cargando"><i class="fa-solid fa-spinner fa-spin"></i>Cargando ventas…</div>
+
+            <div id="d-panel" class="i-panel" hidden>
+                <section class="v-tarjeta v-hero">
+                    <div>
+                        <p class="v-etiqueta"><i class="fa-solid fa-file-invoice-dollar"></i> Reporte</p>
+                        <h1 class="titulo-serif">Ventas y arriendos</h1>
+                        <p>Todos los cierres de tu inmobiliaria con su comisión. Filtra por fechas y descarga el reporte en PDF.</p>
+                    </div>
+                    <div class="v-chips" style="margin-top:0">
+                        <button type="button" class="v-btn v-btn-principal" id="d-pdf"><i class="fa-solid fa-file-pdf"></i> Exportar PDF</button>
+                    </div>
+                </section>
+
+                <section class="v-kpis i-kpis-dinero" id="d-kpis"></section>
+
+                <section class="v-tarjeta">
+                    <form class="i-filtros-cabeza" id="d-filtros" novalidate>
+                        <div class="v-campo"><label for="f-desde">Desde</label><input id="f-desde" name="desde" type="date"></div>
+                        <div class="v-campo"><label for="f-hasta">Hasta</label><input id="f-hasta" name="hasta" type="date"></div>
+                        <div class="v-campo"><label for="f-operacion">Operación</label>
+                            <select id="f-operacion" name="operacion"><option value="">Ventas y arriendos</option><option value="venta">Solo ventas</option><option value="arriendo">Solo arriendos</option></select></div>
+                        <div class="v-campo"><label for="f-agente">Agente</label>
+                            <select id="f-agente"><option value="">Todos</option><option value="sin">Sin agente</option></select></div>
+                        <div class="i-filtros-botones">
+                            <button type="button" class="v-btn v-btn-suave" id="d-limpiar"><i class="fa-solid fa-eraser"></i> Limpiar</button>
+                        </div>
+                    </form>
+                    <p class="v-nota i-error" id="d-error" hidden style="padding:0 22px"></p>
+                    <div class="i-tabla-caja" id="d-tabla"></div>
+                    <div class="i-paginador" id="d-paginador"></div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="/inmobiliaria/js/inmobiliaria.js"></script>
+    <script src="/inmobiliaria/js/ventas.js"></script>
+</body>
+</html>

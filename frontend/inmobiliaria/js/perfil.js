@@ -15,6 +15,30 @@
             : I.esc(I.iniciales(nombre));
     }
 
+    // Una tarjeta por dato: ícono, título y valor
+    function tarjeta(icono, titulo, valor) {
+        return '<article class="v-tarjeta i-dato"><i class="fa-solid ' + icono + '"></i><div><small>' + I.esc(titulo) + '</small>' +
+            (valor ? '<b>' + I.esc(valor) + '</b>' : '<b class="vacio">Sin registrar</b>') + '</div></article>';
+    }
+
+    function pintarTarjetas(p) {
+        $('d-logo-hero').innerHTML = p.logo
+            ? '<img class="i-logo" src="' + I.esc(p.logo) + '" alt="Logo de la empresa">'
+            : I.esc(I.iniciales(p.nombre));
+        var activa = p.estado === 'activo';
+        $('d-insignias').innerHTML =
+            '<span class="v-insignia ' + (activa ? 'activo' : 'pendiente') + '"><i class="fa-solid ' + (activa ? 'fa-circle-check' : 'fa-clock') + '"></i> ' +
+                (activa ? 'Cuenta verificada' : 'Cuenta ' + I.esc(p.estado || 'pendiente')) + '</span>' +
+            (p.nit ? '<span class="v-insignia">NIT ' + I.esc(p.nit) + '</span>' : '');
+        $('d-tarjetas').innerHTML =
+            tarjeta('fa-building', 'Razón social', p.nombre) +
+            tarjeta('fa-id-card', 'NIT', p.nit) +
+            tarjeta('fa-user-tie', 'Representante legal', p.representante_legal) +
+            tarjeta('fa-phone', 'Teléfono', p.telefono) +
+            tarjeta('fa-envelope', 'Correo de la cuenta', p.email) +
+            tarjeta('fa-calendar', 'En UMBRAL desde', p.desde ? I.fechaLarga(p.desde) : '');
+    }
+
     function pintar(p) {
         $('d-nombre').textContent = p.nombre;
         $('p-nombre').value = p.nombre || '';
@@ -23,6 +47,7 @@
         $('p-representante').value = p.representante_legal || '';
         $('p-telefono').value = p.telefono || '';
         pintarLogo(p.logo, p.nombre);
+        pintarTarjetas(p);
     }
 
     $('p-logo').addEventListener('change', function () {

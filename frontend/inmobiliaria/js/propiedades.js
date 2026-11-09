@@ -33,17 +33,28 @@
         if ($('filtro-estado').value) p.push('estado=' + encodeURIComponent($('filtro-estado').value));
         if ($('filtro-agente').value) p.push('agente_id=' + encodeURIComponent($('filtro-agente').value));
         if ($('filtro-texto').value.trim()) p.push('q=' + encodeURIComponent($('filtro-texto').value.trim()));
-        return p.length ? '?' + p.join('&') : '';
+        p.push('pagina=' + pagina, 'por_pagina=12');
+        return '?' + p.join('&');
     }
 
-    async function cargarPropiedades() {
+    var pagina = 1;
+    var totalPropiedades = 0;
+    // nueva: número de página (al cambiar un filtro se vuelve a la 1)
+    async function cargarPropiedades(nueva) {
+        if (nueva) pagina = nueva;
         var r = await I.api('/propiedades' + filtros());
+        if (!r.data.length && pagina > 1) return cargarPropiedades(pagina - 1);
         propiedades = r.data;
+        totalPropiedades = r.meta ? r.meta.total : r.data.length;
         if (r.caracteristicas) catalogo = r.caracteristicas;
         if (r.max_fotos) maxFotos = r.max_fotos;
         if (r.planes) planes = r.planes;
         captchaClave = r.captcha_site_key || null;
         pintar();
+        if (window.PanelExtra) window.PanelExtra.paginador($('d-paginador'), r.meta, function (n) {
+            cargarPropiedades(n).then(function () { $('d-propiedades').scrollIntoView({ behavior: 'smooth', block: 'start' }); })
+                .catch(function (err) { I.toast(err.message); });
+        });
     }
 
     /* ---------- Tarjetas ---------- */
@@ -118,7 +129,7 @@
     }
 
     function pintar() {
-        $('d-total').textContent = propiedades.length + (propiedades.length === 1 ? ' inmueble' : ' inmuebles');
+        $('d-total').textContent = totalPropiedades + (totalPropiedades === 1 ? ' inmueble' : ' inmuebles');
         $('d-propiedades').innerHTML = propiedades.length
             ? propiedades.map(tarjeta).join('')
             : '<div class="v-vacio v-vacio-grande"><i class="fa-solid fa-house-circle-exclamation"></i>No hay inmuebles con estos filtros.<br>Usa “Registrar inmueble” para empezar.</div>';
@@ -165,12 +176,12 @@
     });
 
     ['filtro-operacion', 'filtro-estado', 'filtro-agente'].forEach(function (id) {
-        $(id).addEventListener('change', function () { cargarPropiedades().catch(function (e) { I.toast(e.message); }); });
+        $(id).addEventListener('change', function () { cargarPropiedades(1).catch(function (e) { I.toast(e.message); }); });
     });
     var espera;
     $('filtro-texto').addEventListener('input', function () {
         clearTimeout(espera);
-        espera = setTimeout(function () { cargarPropiedades().catch(function (e) { I.toast(e.message); }); }, 350);
+        espera = setTimeout(function () { cargarPropiedades(1).catch(function (e) { I.toast(e.message); }); }, 350);
     });
 
     /* ---------- Formulario: listas ---------- */

@@ -35,6 +35,10 @@ use App\Http\Controllers\Api\V1\Vendedor\PerfilController as VendedorPerfilContr
 use App\Http\Controllers\Api\V1\PagoController;
 use App\Http\Controllers\Api\V1\Inmobiliaria\ComisionController as InmobiliariaComisionController;
 use App\Http\Controllers\Api\V1\Agente\ComisionController as AgenteComisionController;
+use App\Http\Controllers\Api\V1\Agente\NotificacionController as AgenteNotificacionController;
+use App\Http\Controllers\Api\V1\Agente\VentaController as AgenteVentaController;
+use App\Http\Controllers\Api\V1\Inmobiliaria\NotificacionController as InmobiliariaNotificacionController;
+use App\Http\Controllers\Api\V1\Inmobiliaria\VentaController as InmobiliariaVentaController;
 use App\Http\Controllers\Api\V1\Admin\ReporteController;
 use App\Http\Controllers\Api\V1\Vendedor\MembresiaController as VendedorMembresiaController;
 
@@ -219,6 +223,12 @@ Route::prefix('v1/inmobiliaria')->middleware('web')->group(function () {
 
         // Comisiones de los agentes (4 % al cerrar una venta o un arriendo)
         Route::get('comisiones', [InmobiliariaComisionController::class, 'index']);
+
+        // Reporte de ventas (tabla y PDF), historial de pagos con filtros y notificaciones
+        Route::get('ventas', [InmobiliariaVentaController::class, 'index']);
+        Route::get('membresia/pagos', [InmobiliariaMembresiaController::class, 'pagos']);
+        Route::get('notificaciones', [InmobiliariaNotificacionController::class, 'index']);
+        Route::post('notificaciones/leidas', [InmobiliariaNotificacionController::class, 'leidas']);
         Route::patch('comisiones/{id}', [InmobiliariaComisionController::class, 'update'])->whereNumber('id');
         Route::get('perfil', [InmobiliariaPerfilController::class, 'show']);
         Route::post('perfil', [InmobiliariaPerfilController::class, 'update']);
@@ -274,6 +284,9 @@ Route::prefix('v1/agente')->middleware('web')->group(function () {
         Route::get('resumen', [AgentePanelController::class, 'resumen']);
         Route::get('propiedades', [AgentePanelController::class, 'propiedades']);
         Route::get('comisiones', [AgenteComisionController::class, 'index']);
+        Route::get('ventas', [AgenteVentaController::class, 'index']);
+        Route::get('notificaciones', [AgenteNotificacionController::class, 'index']);
+        Route::post('notificaciones/leidas', [AgenteNotificacionController::class, 'leidas']);
 
         Route::get('contactos', [AgenteContactoController::class, 'index']);
         Route::patch('contactos/{id}', [AgenteContactoController::class, 'update'])->whereNumber('id');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Agente;
 
 use App\Http\Controllers\Api\V1\Concerns\ManejaVisitas;
+use App\Http\Controllers\Api\V1\Concerns\Paginacion;
 use App\Http\Controllers\Controller;
 use App\Models\Lead;
 use App\Models\Propiedad;
@@ -18,6 +19,7 @@ use Illuminate\Http\Request;
 class PanelController extends Controller
 {
     use ManejaVisitas;
+    use Paginacion;
 
     /** Propiedades asignadas al agente dentro de SU inmobiliaria. */
     private function misPropiedades(Request $request)
@@ -65,8 +67,7 @@ class PanelController extends Controller
     /** GET /api/v1/agente/propiedades — solo lectura */
     public function propiedades(Request $request): JsonResponse
     {
-        $lista = $this->misPropiedades($request)->withCount(['leads', 'visitas'])->latest()->get()
-            ->map(fn (Propiedad $p) => [
+        $formato = fn (Propiedad $p) => [
                 'id' => $p->id,
                 'tipo' => $p->tipo,
                 'operacion' => $p->operacion,
@@ -86,8 +87,9 @@ class PanelController extends Controller
                 'imagen' => $p->imagen ? (str_starts_with($p->imagen, '/') || str_starts_with($p->imagen, 'http') ? $p->imagen : '/storage/' . $p->imagen) : null,
                 'contactos' => (int) $p->leads_count,
                 'visitas' => (int) $p->visitas_count,
-            ]);
+            ];
 
-        return response()->json(['data' => $lista->all()]);
+        return response()->json($this->listado(
+            $this->misPropiedades($request)->withCount(['leads', 'visitas'])->latest()->latest('id'), $request, $formato));
     }
 }

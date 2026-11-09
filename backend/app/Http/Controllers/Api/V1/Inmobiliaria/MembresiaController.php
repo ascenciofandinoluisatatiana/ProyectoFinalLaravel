@@ -86,19 +86,69 @@ class MembresiaController extends BaseInmobiliariaController
             // Últimos intentos de pago, con su resultado (RF-051)
             'pagos' => Pago::where('user_id', $usuario->id)->where('concepto', 'membresia')
                 ->latest('id')->take(10)->get()
-                ->map(fn (Pago $p) => [
-                    'referencia' => $p->referencia,
-                    'propiedad_id' => $p->propiedad_id,
-                    'plan' => $p->plan === PaqueteMembresia::PLAN
-                        ? 'Paquete ' . (json_decode((string) $p->oferta_datos, true)['nombre'] ?? PaqueteMembresia::PUBLICACIONES . ' publicaciones')
-                        : (Membresia::NOMBRES_PLAN[$p->plan] ?? $p->plan),
-                    'monto' => $p->monto,
-                    'estado' => $p->estado,
-                    'metodo' => $p->metodo,
-                    'fecha' => $p->created_at?->toIso8601String(),
-                ])->all(),
+                ->map(fn (Pago $p) => $this->formatoPago($p))->all(),
             'simulado' => app(PagoService::class)->simulado(),
         ]);
+    }
+
+    /**
+     * GET /membresia/pagos?estado=&desde=&hasta=&propiedad_id=&pagina=
+     * Historial de pagos de membresías con filtros y paginación (RF-051, RF-056).
+     */
+    public function pagos(Request $request): JsonResponse
+    {
+        $datos = $request->validate([
+            'estado' => ['nullable', Rule::in(Pago::ESTADOS)],
+            'desde' => ['nullable', 'date_format:Y-m-d'],
+            'hasta' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:desde'],
+            'propiedad_id' => ['nullable'],
+        ], [
+            'hasta.after_or_equal' => 'La fecha final debe ser igual o posterior a la inicial.',
+        ]);
+        $usuario = $this->inmobiliaria($request);
+
+        $consulta = Pago::where('user_id', $usuario->id)->where('concepto', 'membresia');
+        if (! empty($datos['estado'])) {
+            $consulta->where('estado', $datos['estado']);
+        }
+        if (! empty($datos['desde'])) {
+            $consulta->where('created_at', '>=', Carbon::parse($datos['desde'], self::ZONA)->startOfDay()->utc());
+        }
+        if (! empty($datos['hasta'])) {
+            $consulta->where('created_at', '<=', Carbon::parse($datos['hasta'], self::ZONA)->endOfDay()->utc());
+        }
+        if (($datos['propiedad_id'] ?? null) === 'paquetes') {
+            $consulta->where('plan', PaqueteMembresia::PLAN);
+        } elseif (! empty($datos['propiedad_id'])) {
+            $consulta->where('propiedad_id', (int) $datos['propiedad_id']);
+        }
+
+        $totalAprobado = (clone $consulta)->where('estado', 'aprobado')->sum('monto_centavos');
+        $titulos = Propiedad::where('user_id', $usuario->id)->get(['id', 'tipo', 'barrio', 'ciudad'])
+            ->mapWithKeys(fn ($p) => [$p->id => $this->tituloPropiedad($p)])->all();
+
+        return response()->json($this->listado(
+            $consulta->latest('id'), $request,
+            fn (Pago $p) => $this->formatoPago($p) + ['publicacion' => $p->propiedad_id ? ($titulos[$p->propiedad_id] ?? 'Publicación') : null]
+        ) + [
+            'total_aprobado' => intdiv((int) $totalAprobado, 100),
+            'publicaciones' => collect($titulos)->map(fn ($t, $id) => ['id' => $id, 'titulo' => $t])->values()->all(),
+        ]);
+    }
+
+    private function formatoPago(Pago $p): array
+    {
+        return [
+            'referencia' => $p->referencia,
+            'propiedad_id' => $p->propiedad_id,
+            'plan' => $p->plan === PaqueteMembresia::PLAN
+                ? 'Paquete ' . (json_decode((string) $p->oferta_datos, true)['nombre'] ?? PaqueteMembresia::PUBLICACIONES . ' publicaciones')
+                : (Membresia::NOMBRES_PLAN[$p->plan] ?? $p->plan),
+            'monto' => $p->monto,
+            'estado' => $p->estado,
+            'metodo' => $p->metodo,
+            'fecha' => $p->created_at?->toIso8601String(),
+        ];
     }
 
     /**

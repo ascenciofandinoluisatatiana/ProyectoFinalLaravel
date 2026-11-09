@@ -30,8 +30,7 @@ class ComisionController extends BaseInmobiliariaController
 
         $todas = Comision::where('inmobiliaria_id', $inmobiliaria->id)->where('estado', '!=', 'anulada');
 
-        return response()->json([
-            'data' => $consulta->latest('cerrada_en')->latest('id')->get()->map(fn (Comision $c) => self::formato($c))->all(),
+        return response()->json($this->listado($consulta->latest('cerrada_en')->latest('id'), $request, fn (Comision $c) => self::formato($c)) + [
             'porcentaje' => Comision::PORCENTAJE,
             'totales' => [
                 'pendiente' => (int) (clone $todas)->where('estado', 'pendiente')->sum('valor'),

@@ -20,12 +20,21 @@
     }
 
     /* ---------- Comisiones ---------- */
-    async function cargarComisiones() {
-        var q = [];
+    var paginaComision = 1;
+    // nueva: número de página (al cambiar un filtro se vuelve a la 1)
+    async function cargarComisiones(nueva) {
+        if (nueva) paginaComision = nueva;
+        var q = ['pagina=' + paginaComision, 'por_pagina=12'];
         if (filtroComision.estado) q.push('estado=' + filtroComision.estado);
         if (filtroComision.agente) q.push('agente_id=' + encodeURIComponent(filtroComision.agente));
-        comisiones = await I.api('/comisiones' + (q.length ? '?' + q.join('&') : ''));
+        var r = await I.api('/comisiones?' + q.join('&'));
+        if (!r.data.length && paginaComision > 1) return cargarComisiones(paginaComision - 1);
+        comisiones = r;
         pintarComisiones();
+        if (window.PanelExtra) window.PanelExtra.paginador($('d-comisiones-paginador'), r.meta, function (n) {
+            cargarComisiones(n).then(function () { $('d-comisiones').scrollIntoView({ behavior: 'smooth', block: 'start' }); })
+                .catch(function (err) { I.toast(err.message); });
+        });
     }
 
     function pintarComisiones() {
@@ -64,11 +73,11 @@
         if (!b) return;
         filtroComision.estado = b.getAttribute('data-estado');
         this.querySelectorAll('[data-estado]').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
-        cargarComisiones().catch(function (err) { I.toast(err.message); });
+        cargarComisiones(1).catch(function (err) { I.toast(err.message); });
     });
     $('d-comisiones-agente').addEventListener('change', function () {
         filtroComision.agente = this.value;
-        cargarComisiones().catch(function (err) { I.toast(err.message); });
+        cargarComisiones(1).catch(function (err) { I.toast(err.message); });
     });
     $('d-comisiones').addEventListener('click', async function (e) {
         var b = e.target.closest('[data-comision]');

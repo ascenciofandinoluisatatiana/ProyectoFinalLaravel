@@ -31,14 +31,25 @@
         '</article>';
     }
 
+    // Lista paginada (12 por página)
+    async function cargar(pagina) {
+        var r = await A.api('/propiedades?pagina=' + pagina + '&por_pagina=12');
+        var lista = r.data;
+        var total = r.meta ? r.meta.total : lista.length;
+        $('d-total').textContent = total + (total === 1 ? ' inmueble' : ' inmuebles');
+        $('d-propiedades').innerHTML = lista.length
+            ? lista.map(tarjeta).join('')
+            : '<div class="v-vacio v-vacio-grande"><i class="fa-solid fa-house-circle-exclamation"></i>Tu inmobiliaria aún no te ha asignado propiedades.</div>';
+        if (window.PanelExtra) window.PanelExtra.paginador($('d-paginador'), r.meta, function (n) {
+            cargar(n).then(function () { $('d-propiedades').scrollIntoView({ behavior: 'smooth', block: 'start' }); })
+                .catch(function (err) { A.toast(err.message); });
+        });
+    }
+
     (async function () {
         if (!await A.iniciar('propiedades')) return;
         try {
-            var lista = (await A.api('/propiedades')).data;
-            $('d-total').textContent = lista.length + (lista.length === 1 ? ' inmueble' : ' inmuebles');
-            $('d-propiedades').innerHTML = lista.length
-                ? lista.map(tarjeta).join('')
-                : '<div class="v-vacio v-vacio-grande"><i class="fa-solid fa-house-circle-exclamation"></i>Tu inmobiliaria aún no te ha asignado propiedades.</div>';
+            await cargar(1);
             $('d-cargando').hidden = true;
             $('d-panel').hidden = false;
         } catch (err) {

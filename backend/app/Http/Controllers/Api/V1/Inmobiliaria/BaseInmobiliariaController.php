@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Inmobiliaria;
 
+use App\Http\Controllers\Api\V1\Concerns\Paginacion;
 use App\Http\Controllers\Controller;
 use App\Models\Lead;
 use App\Models\Membresia;
@@ -18,6 +19,8 @@ use Illuminate\Support\Carbon;
  */
 abstract class BaseInmobiliariaController extends Controller
 {
+    use Paginacion;
+
     protected function inmobiliaria(Request $request): User
     {
         return $request->user();

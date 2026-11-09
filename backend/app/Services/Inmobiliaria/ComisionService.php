@@ -13,10 +13,17 @@ use App\Models\User;
  */
 class ComisionService
 {
-    /** El inmueble se cerró: se crea la comisión del agente (una sola por cierre). */
+    /** El inmueble se cerró: se guarda la fecha del cierre y se crea la comisión del agente (una sola por cierre). */
     public function registrarCierre(Propiedad $propiedad, string $origen = 'panel'): ?Comision
     {
-        if (! in_array($propiedad->estado, ['vendida', 'arrendada'], true) || ! $propiedad->agente_id) {
+        if (! in_array($propiedad->estado, ['vendida', 'arrendada'], true)) {
+            return null;
+        }
+        // Fecha del cierre para el reporte de ventas (aunque no tenga agente)
+        if (! $propiedad->cerrada_en) {
+            $propiedad->forceFill(['cerrada_en' => now()])->save();
+        }
+        if (! $propiedad->agente_id) {
             return null;
         }
 
@@ -49,9 +56,11 @@ class ComisionService
         ]);
     }
 
-    /** El inmueble se volvió a publicar: la comisión que no se ha pagado se anula. */
+    /** El inmueble se volvió a publicar: deja de contar como venta y la comisión sin pagar se anula. */
     public function anularCierre(Propiedad $propiedad): void
     {
+        $propiedad->forceFill(['cerrada_en' => null])->save();
+
         Comision::where('propiedad_id', $propiedad->id)->where('estado', 'pendiente')->update(['estado' => 'anulada']);
     }
 }

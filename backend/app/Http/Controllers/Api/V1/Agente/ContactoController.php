@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Agente;
 
 use App\Http\Controllers\Api\V1\Concerns\ManejaVisitas;
+use App\Http\Controllers\Api\V1\Concerns\Paginacion;
 use App\Http\Controllers\Controller;
 use App\Models\Lead;
 use Illuminate\Http\JsonResponse;
@@ -13,6 +14,7 @@ use Illuminate\Validation\Rule;
 class ContactoController extends Controller
 {
     use ManejaVisitas;
+    use Paginacion;
 
     private function mios(Request $request)
     {
@@ -33,9 +35,8 @@ class ContactoController extends Controller
         $totales = $this->mios($request)->selectRaw('estado, COUNT(*) as total')->groupBy('estado')->pluck('total', 'estado');
 
         return response()->json([
-            'data' => $consulta->latest()->get()->map(fn (Lead $l) => $this->formato($l))->all(),
             'totales' => $totales,
-        ]);
+        ] + $this->listado($consulta->latest()->latest('id'), $request, fn (Lead $l) => $this->formato($l)));
     }
 
     /** PATCH /api/v1/agente/contactos/{id}  { estado } */

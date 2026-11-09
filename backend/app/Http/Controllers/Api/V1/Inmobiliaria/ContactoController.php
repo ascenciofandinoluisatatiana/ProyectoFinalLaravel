@@ -29,13 +29,13 @@ class ContactoController extends BaseInmobiliariaController
             $consulta->where('agente_id', (int) $request->query('agente_id'));
         }
 
-        $lista = $consulta->latest()->get()->map(fn (Lead $l) => $this->formato($l));
+        $listado = $this->listado($consulta->latest()->latest('id'), $request, fn (Lead $l) => $this->formato($l));
 
         // Totales por estado para las pestañas del filtro
         $totales = Lead::whereIn('propiedad_id', $this->idsPropiedades($request))
             ->selectRaw('estado, COUNT(*) as total')->groupBy('estado')->pluck('total', 'estado');
 
-        return response()->json(['data' => $lista->all(), 'totales' => $totales]);
+        return response()->json($listado + ['totales' => $totales]);
     }
 
     /** PATCH /contactos/{id}  { estado?, agente_id? } */

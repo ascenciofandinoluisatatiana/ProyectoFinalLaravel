@@ -20,6 +20,7 @@
         { id: 'agentes', grupo: 'g_principal', href: '/inmobiliaria/agentes.html', icono: 'fa-user-tie' },
         { id: 'contactos', grupo: 'g_gestion', href: '/inmobiliaria/contactos.html', icono: 'fa-comments' },
         { id: 'visitas', grupo: 'g_gestion', href: '/inmobiliaria/visitas.html', icono: 'fa-calendar-check' },
+        { id: 'ventas', grupo: 'g_gestion', href: '/inmobiliaria/ventas.html', icono: 'fa-file-invoice-dollar' },
         { id: 'membresia', grupo: 'g_cuenta', href: '/inmobiliaria/membresia.html', icono: 'fa-credit-card' },
         { id: 'perfil', grupo: 'g_cuenta', href: '/inmobiliaria/perfil.html', icono: 'fa-building' }
     ];
@@ -246,6 +247,12 @@
                     "pt": "Visitas",
                     "fr": "Visites"
             },
+            "ventas": {
+                    "es": "Ventas",
+                    "en": "Sales",
+                    "pt": "Vendas",
+                    "fr": "Ventes"
+            },
             "membresia": {
                     "es": "Membresía",
                     "en": "Membership",
@@ -327,6 +334,7 @@
             '<select class="i-idioma" id="i-idioma" aria-label="' + esc(tx('idioma')) + '">' +
                 Object.keys(IDIOMAS).map(function (k) { return '<option value="' + k + '"' + (k === idioma ? ' selected' : '') + '>' + IDIOMAS[k] + '</option>'; }).join('') +
             '</select>' +
+            '<div class="i-campana" id="i-campana"></div>' +
             '<button type="button" class="i-icono" id="i-tema" aria-label="' + esc(tx('tema')) + '" title="' + esc(tx('tema')) + '">' +
                 '<i class="fa-solid ' + (tema === 'dark' ? 'fa-sun' : 'fa-moon') + '"></i></button>' +
             '<div class="i-usuario"><span class="v-avatar">' + esc(iniciales(usuario.nombre)) + '</span>' +
@@ -347,6 +355,7 @@
             document.getElementById('i-velo').classList.toggle('abierto');
         });
         document.getElementById('v-salir').addEventListener('click', cerrarSesion);
+        if (window.PanelExtra) window.PanelExtra.montarCampana(document.getElementById('i-campana'), api);
     }
 
     /* ---------- Aviso emergente ---------- */
@@ -383,9 +392,26 @@
     /* ---------- Arranque de cada pantalla ----------
        Revisa la sesión con el servidor y dibuja la barra.
        Devuelve los datos de la inmobiliaria o null (si no hay sesión ya redirigió). */
+    /* ---------- Piezas extra (campana, paginador, PDF) ----------
+       Se cargan una sola vez desde /inmobiliaria/js/panel-extra.js antes de dibujar la pantalla. */
+    var extra = null;
+    function cargarExtra() {
+        if (window.PanelExtra) return Promise.resolve();
+        if (!extra) {
+            extra = new Promise(function (ok) {
+                var s = document.createElement('script');
+                s.src = '/inmobiliaria/js/panel-extra.js';
+                s.onload = s.onerror = function () { ok(); };
+                document.head.appendChild(s);
+            });
+        }
+        return extra;
+    }
+
     async function iniciar(seccion) {
         try {
             var r = await api('/yo');
+            await cargarExtra();
             barra(r.usuario, seccion);
             return r.usuario;
         } catch (e) {

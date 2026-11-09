@@ -147,17 +147,6 @@
             ? 'El servidor no tiene llaves de Wompi: el pago es simulado y la publicación se destaca al instante.'
             : 'El pago se hace en Wompi con PSE, tarjeta o Nequi. La publicación se destaca cuando el pago queda aprobado.';
 
-        var pagos = datos.pagos || [];
-        $('d-pagos').innerHTML = pagos.length
-            ? '<table class="i-tabla"><thead><tr><th>Fecha</th><th>Publicación</th><th>Plan</th><th>Valor</th><th>Medio</th><th>Referencia</th><th>Estado</th></tr></thead><tbody>' +
-              pagos.map(function (x) {
-                  var e = ESTADOS_PAGO[x.estado] || [x.estado, 'pendiente'];
-                  return '<tr><td>' + I.esc(I.fecha(x.fecha)) + '</td><td>' + I.esc(x.plan.indexOf('Paquete') === 0 ? 'Las que elijas' : titulo(x.propiedad_id)) + '</td><td>' + I.esc(x.plan) + '</td>' +
-                      '<td>' + I.cop(x.monto) + '</td><td>' + I.esc(x.metodo || '—') + '</td><td>' + I.esc(x.referencia) + '</td>' +
-                      '<td><span class="v-insignia ' + e[1] + '">' + e[0] + '</span></td></tr>';
-              }).join('') + '</tbody></table>'
-            : '<div class="v-vacio"><i class="fa-solid fa-receipt"></i>Todavía no hay intentos de pago.</div>';
-
         var h = datos.historial;
         $('d-historial-total').textContent = h.length + (h.length === 1 ? ' membresía' : ' membresías');
         $('d-historial').innerHTML = h.length
@@ -171,18 +160,66 @@
             : '<div class="v-vacio"><i class="fa-solid fa-receipt"></i>Todavía no has contratado membresías.</div>';
     }
 
-    // Nombre de la publicación de un pago (sale del historial de membresías)
-    function titulo(idPropiedad) {
-        if (!idPropiedad) return 'Toda la cuenta';
-        var m = datos.historial.filter(function (x) { return x.propiedad && x.propiedad.id === idPropiedad; })[0];
-        var d = (datos.destacadas || []).filter(function (x) { return x.id === idPropiedad; })[0];
-        return m ? m.propiedad.titulo : (d ? d.titulo : 'Publicación #' + idPropiedad);
-    }
-
     async function cargar() {
         datos = await I.api('/membresia');
         pintar();
+        await cargarPagos();
     }
+
+    /* ---------- Historial de pagos: filtros + paginación (GET /membresia/pagos) ---------- */
+    var paginaPagos = 1;
+
+    // nueva: número de página (al cambiar un filtro se vuelve a la 1)
+    async function cargarPagos(nueva) {
+        if (nueva) paginaPagos = nueva;
+        var f = $('d-pagos-filtros');
+        var err = $('d-pagos-error');
+        err.hidden = true;
+        if (f.desde.value && f.hasta.value && f.hasta.value < f.desde.value) {
+            err.textContent = 'La fecha final debe ser igual o posterior a la inicial.';
+            err.hidden = false;
+            return;
+        }
+        var q = ['pagina=' + paginaPagos, 'por_pagina=10'];
+        ['estado', 'propiedad_id', 'desde', 'hasta'].forEach(function (k) {
+            if (f[k].value) q.push(k + '=' + encodeURIComponent(f[k].value));
+        });
+        var r = await I.api('/membresia/pagos?' + q.join('&'));
+        if (!r.data.length && paginaPagos > 1) return cargarPagos(paginaPagos - 1);
+
+        // Publicaciones del filtro (se llena una vez)
+        var sel = f.propiedad_id;
+        if (sel.options.length <= 2 && r.publicaciones.length) {
+            sel.insertAdjacentHTML('beforeend', r.publicaciones.map(function (p) {
+                return '<option value="' + p.id + '">' + I.esc(p.titulo) + '</option>';
+            }).join(''));
+        }
+
+        $('d-pagos-total').textContent = r.meta.total + (r.meta.total === 1 ? ' pago' : ' pagos') +
+            ' · Aprobado: ' + I.cop(r.total_aprobado);
+        $('d-pagos').innerHTML = r.data.length
+            ? '<table class="i-tabla"><thead><tr><th>Fecha</th><th>Publicación</th><th>Plan</th><th class="der">Valor</th><th>Medio</th><th>Referencia</th><th>Estado</th></tr></thead><tbody>' +
+              r.data.map(function (x) {
+                  var e = ESTADOS_PAGO[x.estado] || [x.estado, 'pendiente'];
+                  return '<tr><td>' + I.esc(I.fecha(x.fecha)) + '</td>' +
+                      '<td>' + I.esc(x.plan.indexOf('Paquete') === 0 ? 'Las que elijas' : (x.publicacion || 'Toda la cuenta')) + '</td><td>' + I.esc(x.plan) + '</td>' +
+                      '<td class="der">' + I.cop(x.monto) + '</td><td>' + I.esc(x.metodo || '—') + '</td><td>' + I.esc(x.referencia) + '</td>' +
+                      '<td><span class="v-insignia ' + e[1] + '">' + e[0] + '</span></td></tr>';
+              }).join('') + '</tbody></table>'
+            : '<div class="v-vacio"><i class="fa-solid fa-receipt"></i>No hay pagos con estos filtros.</div>';
+
+        if (window.PanelExtra) window.PanelExtra.paginador($('d-pagos-paginador'), r.meta, function (n) {
+            cargarPagos(n).then(function () { $('d-pagos').scrollIntoView({ behavior: 'smooth', block: 'start' }); })
+                .catch(function (e) { I.toast(e.message); });
+        });
+    }
+
+    $('d-pagos-filtros').addEventListener('change', function () { cargarPagos(1).catch(function (e) { I.toast(e.message); }); });
+    $('d-pagos-filtros').addEventListener('submit', function (e) { e.preventDefault(); });
+    $('d-pagos-limpiar').addEventListener('click', function () {
+        $('d-pagos-filtros').reset();
+        cargarPagos(1).catch(function (e) { I.toast(e.message); });
+    });
 
     (async function () {
         if (!await I.iniciar('membresia')) return;

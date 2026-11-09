@@ -13,14 +13,23 @@
 
     function $(id) { return document.getElementById(id); }
 
-    async function cargar() {
-        var q = [];
+    var pagina = 1;
+
+    // nueva: número de página (al cambiar de pestaña se vuelve a la 1)
+    async function cargar(nueva) {
+        if (nueva) pagina = nueva;
+        var q = ['pagina=' + pagina, 'por_pagina=12'];
         if (estadoFiltro) q.push('estado=' + estadoFiltro);
-        var r = await I.api('/contactos' + (q.length ? '?' + q.join('&') : ''));
+        var r = await I.api('/contactos?' + q.join('&'));
+        if (!r.data.length && pagina > 1) return cargar(pagina - 1);
         contactos = r.data;
         totales = r.totales || {};
         pintarPestanas();
         pintar();
+        if (window.PanelExtra) window.PanelExtra.paginador($('d-paginador'), r.meta, function (n) {
+            cargar(n).then(function () { $('d-contactos').scrollIntoView({ behavior: 'smooth', block: 'start' }); })
+                .catch(function (err) { I.toast(err.message); });
+        });
     }
 
     function pintarPestanas() {
@@ -69,7 +78,7 @@
         var b = e.target.closest('[data-estado]');
         if (!b) return;
         estadoFiltro = b.getAttribute('data-estado');
-        cargar().catch(function (err) { I.toast(err.message); });
+        cargar(1).catch(function (err) { I.toast(err.message); });
     });
 
     $('d-contactos').addEventListener('change', async function (e) {

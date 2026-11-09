@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Agente;
 
 use App\Http\Controllers\Api\V1\Concerns\ManejaVisitas;
+use App\Http\Controllers\Api\V1\Concerns\Paginacion;
 use App\Http\Controllers\Controller;
 use App\Models\Lead;
 use App\Models\Propiedad;
@@ -15,6 +16,7 @@ use Illuminate\Validation\Rule;
 class VisitaController extends Controller
 {
     use ManejaVisitas;
+    use Paginacion;
 
     private function mias(Request $request)
     {
@@ -34,7 +36,7 @@ class VisitaController extends Controller
             $consulta->orderByDesc('fecha');
         }
 
-        return response()->json(['data' => $consulta->get()->map(fn (Visita $v) => $this->formatoVisita($v))->all()]);
+        return response()->json($this->listado($consulta->orderBy('id'), $request, fn (Visita $v) => $this->formatoVisita($v)));
     }
 
     /** POST /api/v1/agente/visitas  { lead_id } o { propiedad_id, nombre, contacto } + fecha, nota */

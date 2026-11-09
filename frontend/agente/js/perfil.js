@@ -16,6 +16,19 @@
         $('p-documento').value = u.documento || '';
         $('p-inmobiliaria').value = u.inmobiliaria ? u.inmobiliaria.nombre : '';
         $('p-telefono').value = u.telefono || '';
+        $('d-tarjetas').innerHTML =
+            tarjeta('fa-user', 'Nombre', u.nombre) +
+            tarjeta('fa-envelope', 'Correo', u.email) +
+            tarjeta('fa-id-card', 'Documento', u.documento) +
+            tarjeta('fa-building', 'Inmobiliaria', u.inmobiliaria ? u.inmobiliaria.nombre : '') +
+            tarjeta('fa-phone', 'Teléfono', u.telefono) +
+            tarjeta('fa-user-tie', 'Rol', 'Agente inmobiliario');
+    }
+
+    // Una tarjeta por dato: ícono, título y valor
+    function tarjeta(icono, titulo, valor) {
+        return '<article class="v-tarjeta i-dato"><i class="fa-solid ' + icono + '"></i><div><small>' + A.esc(titulo) + '</small>' +
+            (valor ? '<b>' + A.esc(valor) + '</b>' : '<b class="vacio">Sin registrar</b>') + '</div></article>';
     }
 
     $('d-datos').addEventListener('submit', async function (e) {

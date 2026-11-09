@@ -10,13 +10,22 @@
     var agentes = [];
     var propiedades = [];
     var periodo = 'proximas';
+    var pagina = 1;
     var reprogramando = null;
 
     function $(id) { return document.getElementById(id); }
 
-    async function cargar() {
-        visitas = (await I.api('/visitas?periodo=' + periodo)).data;
+    // nueva: número de página (al cambiar de periodo se vuelve a la 1)
+    async function cargar(nueva) {
+        if (nueva) pagina = nueva;
+        var r = await I.api('/visitas?periodo=' + periodo + '&pagina=' + pagina + '&por_pagina=12');
+        if (!r.data.length && pagina > 1) return cargar(pagina - 1);
+        visitas = r.data;
         pintar();
+        if (window.PanelExtra) window.PanelExtra.paginador($('d-paginador'), r.meta, function (n) {
+            cargar(n).then(function () { $('d-visitas').scrollIntoView({ behavior: 'smooth', block: 'start' }); })
+                .catch(function (err) { I.toast(err.message); });
+        });
     }
 
     function pintar() {
@@ -56,7 +65,7 @@
         if (!b) return;
         periodo = b.getAttribute('data-periodo');
         this.querySelectorAll('[data-periodo]').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
-        cargar().catch(function (err) { I.toast(err.message); });
+        cargar(1).catch(function (err) { I.toast(err.message); });
     });
 
     $('d-visitas').addEventListener('click', async function (e) {

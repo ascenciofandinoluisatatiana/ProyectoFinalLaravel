@@ -35,7 +35,7 @@ class VisitaController extends BaseInmobiliariaController
             $consulta->where('estado', $request->query('estado'));
         }
 
-        return response()->json(['data' => $consulta->get()->map(fn (Visita $v) => $this->formatoVisita($v))->all()]);
+        return response()->json($this->listado($consulta->orderBy('id'), $request, fn (Visita $v) => $this->formatoVisita($v)));
     }
 
     /** POST /visitas */

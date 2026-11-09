@@ -75,8 +75,28 @@
                 </section>
 
                 <section class="v-tarjeta">
-                    <div class="v-tarjeta-cabeza"><h2>Intentos de pago</h2><small>Últimos 10, con su resultado</small></div>
+                    <div class="v-tarjeta-cabeza"><h2>Historial de pagos</h2><small id="d-pagos-total"></small></div>
+                    <form class="i-filtros-cabeza" id="d-pagos-filtros" novalidate>
+                        <div class="v-campo"><label for="p-estado">Estado</label>
+                            <select id="p-estado" name="estado">
+                                <option value="">Todos</option>
+                                <option value="aprobado">Aprobado</option>
+                                <option value="pendiente">Pendiente</option>
+                                <option value="rechazado">Rechazado</option>
+                                <option value="anulado">Anulado</option>
+                                <option value="error">Error</option>
+                            </select></div>
+                        <div class="v-campo"><label for="p-publicacion">Publicación</label>
+                            <select id="p-publicacion" name="propiedad_id"><option value="">Todas</option><option value="paquetes">Paquetes</option></select></div>
+                        <div class="v-campo"><label for="p-desde">Desde</label><input id="p-desde" name="desde" type="date"></div>
+                        <div class="v-campo"><label for="p-hasta">Hasta</label><input id="p-hasta" name="hasta" type="date"></div>
+                        <div class="i-filtros-botones">
+                            <button type="button" class="v-btn v-btn-suave" id="d-pagos-limpiar"><i class="fa-solid fa-eraser"></i> Limpiar</button>
+                        </div>
+                    </form>
+                    <p class="v-nota i-error" id="d-pagos-error" hidden style="padding:0 22px"></p>
                     <div class="i-tabla-caja" id="d-pagos"></div>
+                    <div class="i-paginador" id="d-pagos-paginador"></div>
                 </section>
 
                 <section class="v-tarjeta">

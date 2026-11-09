@@ -53,8 +53,12 @@ class PropiedadController extends BaseInmobiliariaController
             });
         }
 
-        return response()->json([
-            'data' => $this->conDestacados($consulta->latest()->get())->map(fn (Propiedad $p) => $this->formato($p))->all(),
+        // ?pagina=N → paginado (12 por página); sin pagina → lista completa (la usa el vendedor)
+        $listado = $this->listado($consulta->latest()->latest('id'), $request,
+            fn (Propiedad $p) => $this->formato($p),
+            fn ($pagina) => $this->conDestacados($pagina));
+
+        return response()->json($listado + [
             // Captcha del formulario "Registrar inmueble" (null = desactivado)
             'captcha_site_key' => app(CaptchaService::class)->claveSitio(),
             // Planes para destacar una publicación (precio vigente del administrador)

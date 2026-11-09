@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Movimiento;
 use App\Models\User;
 use App\Models\Verificacion;
+use App\Services\CorreoCuentaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -180,6 +181,11 @@ class VerificacionController extends Controller
             $esRechazo ? 'verificacion_rechazada' : 'verificacion_aprobada',
             $usuario->name . ' (' . $usuario->email . ')' . (! empty($datos['motivo']) ? ' · Motivo: ' . $datos['motivo'] : '')
         );
+
+        // Aviso por correo a la persona (si no sale, la decisión ya quedó guardada)
+        $esRechazo
+            ? CorreoCuentaService::rechazada($usuario, $datos['motivo'] ?? null)
+            : CorreoCuentaService::aprobada($usuario);
 
         return response()->json([
             'mensaje' => $esRechazo

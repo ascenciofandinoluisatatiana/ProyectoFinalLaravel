@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Movimiento;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\CorreoCuentaService;
 use App\Http\Controllers\Api\V1\RecuperarClaveController;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -85,6 +86,11 @@ class UserController extends Controller
         $usuario = User::create($datos); // la contraseña se cifra con el cast del modelo
 
         Movimiento::registrar(auth()->user(), 'cuenta_creada', $this->describir($usuario));
+
+        // Aviso por correo solo si la cuenta ya puede entrar (activa); no lleva la contraseña
+        if ($usuario->estado === 'activo') {
+            CorreoCuentaService::creada($usuario);
+        }
 
         return response()->json([
             'mensaje' => 'Usuario creado correctamente.',

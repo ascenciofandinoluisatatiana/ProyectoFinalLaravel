@@ -405,10 +405,11 @@
         if (avisos.escuchas) return;
         avisos.escuchas = true;
         document.addEventListener('click', function (e) {
-            var caja = e.target.closest ? e.target.closest('.i-avisos-caja') : null;
-            if (!caja) abrirAvisos(false);
-        });
-        document.addEventListener('keydown', function (e) {
+            // composedPath() guarda el recorrido del clic aunque el botón ya se haya vuelto a dibujar
+            var ruta = e.composedPath ? e.composedPath() : [];
+            var dentro = ruta.some(function (n) { return n.classList && n.classList.contains('i-avisos-caja'); });
+            if (!dentro) abrirAvisos(false);
+        });        document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 var panel = porId('i-avisos');
                 if (panel && !panel.hidden) { abrirAvisos(false); porId('i-avisos-btn').focus(); }

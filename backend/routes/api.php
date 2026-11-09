@@ -211,8 +211,7 @@ Route::prefix('v1/inmobiliaria')->middleware('web')->group(function () {
         // Membresía (pago simulado hasta integrar PSE) y perfil de la empresa
         Route::get('membresia', [InmobiliariaMembresiaController::class, 'show']);
         Route::post('membresia', [InmobiliariaMembresiaController::class, 'contratar']);
-        Route::post('membresia/paquete/publicaciones', [VendedorMembresiaController::class, 'agregar']);
-    Route::delete('membresia/paquete/publicaciones/{propiedad}', [VendedorMembresiaController::class, 'quitar'])->whereNumber('propiedad');
+
         // Paquete mensual de 10 publicaciones destacadas (elegidas libremente)
         Route::post('membresia/paquete', [InmobiliariaMembresiaController::class, 'comprarPaquete']);
         Route::post('membresia/paquete/publicaciones', [InmobiliariaMembresiaController::class, 'agregarAlPaquete']);
@@ -254,6 +253,8 @@ Route::prefix('v1/vendedor')->middleware('web')->group(function () {
 
         Route::get('membresia', [VendedorMembresiaController::class, 'show']);
         Route::post('membresia', [VendedorMembresiaController::class, 'contratar']);
+        Route::post('membresia/paquete/publicaciones', [VendedorMembresiaController::class, 'agregar']);
+        Route::delete('membresia/paquete/publicaciones/{propiedad}', [VendedorMembresiaController::class, 'quitar'])->whereNumber('propiedad');
     });
 });
 /*

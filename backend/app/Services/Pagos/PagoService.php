@@ -6,6 +6,7 @@ use App\Models\Lead;
 use App\Models\Membresia;
 use App\Models\Pago;
 use App\Models\OfertaPaquete;
+use App\Models\OfertaVendedor;
 use App\Models\PaqueteMembresia;
 use App\Models\PlanMembresia;
 use App\Models\Propiedad;
@@ -100,6 +101,37 @@ class PagoService
                 'descuento' => $oferta->descuento,
             ], JSON_UNESCAPED_UNICODE),
             'monto_centavos' => $oferta->precio() * 100,
+            'moneda' => 'COP',
+            'proveedor' => $this->modo(),
+            'pagador_nombre' => $usuario->name,
+            'pagador_correo' => $usuario->email,
+        ]);
+
+        return $this->siguientePaso($pago);
+    }
+
+    /**
+     * Paquete de un vendedor: se paga el precio vigente de la oferta y se guarda una copia de lo
+     * cotizado. La propiedad elegida entra al paquete apenas el pago queda aprobado.
+     */
+    public function iniciarPaqueteVendedor(User $usuario, OfertaVendedor $oferta, Propiedad $propiedad): array
+    {
+        $pago = Pago::create([
+            'referencia' => $this->nuevaReferencia('PAV'),
+            'concepto' => 'membresia',
+            'user_id' => $usuario->id,
+            'propiedad_id' => $propiedad->id,
+            'plan' => PaqueteMembresia::PLAN,
+            'oferta_datos' => json_encode([
+                'rol' => 'vendedor',
+                'oferta_vendedor_id' => $oferta->id,
+                'nombre' => $oferta->nombre,
+                'plan' => $oferta->zona,
+                'publicaciones' => $oferta->propiedades,
+                'dias' => $oferta->dias,
+                'descuento' => null,
+            ], JSON_UNESCAPED_UNICODE),
+            'monto_centavos' => (int) $oferta->precio * 100,
             'moneda' => 'COP',
             'proveedor' => $this->modo(),
             'pagador_nombre' => $usuario->name,
@@ -351,10 +383,11 @@ class PagoService
         $copia = $pago->oferta_datos ? (json_decode($pago->oferta_datos, true) ?: []) : [];
         $dias = (int) ($copia['dias'] ?? PaqueteMembresia::DIAS);
 
-        return PaqueteMembresia::create([
+        $paquete = PaqueteMembresia::create([
             'user_id' => $pago->user_id,
             'pago_id' => $pago->id,
             'oferta_id' => $pago->oferta_id,
+            'oferta_vendedor_id' => $copia['oferta_vendedor_id'] ?? null,
             'nombre' => $copia['nombre'] ?? null,
             'plan' => $copia['plan'] ?? null,
             'dias' => $dias,
@@ -365,6 +398,16 @@ class PagoService
             'fecha_fin' => $hoy->copy()->addDays($dias)->toDateString(),
             'referencia_pago' => $pago->referencia,
         ]);
+
+        // Paquete de vendedor: la propiedad que eligió al pagar entra de una vez (si sigue disponible)
+        if (($copia['rol'] ?? null) === 'vendedor' && $pago->propiedad_id) {
+            $propiedad = Propiedad::where('user_id', $pago->user_id)->find($pago->propiedad_id);
+            if ($propiedad && ! in_array($propiedad->estado, ['vendida', 'arrendada'], true)) {
+                $paquete->asignarPropiedad($propiedad->id);
+            }
+        }
+
+        return $paquete;
     }
 
     /**

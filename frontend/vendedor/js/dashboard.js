@@ -14,7 +14,7 @@
 
     var clave = document.body.getAttribute('data-operacion');
     var OP = V.OPERACIONES[clave];
-    var datos = { propiedades: [], contactos: [], visitas: [], planes: [] };
+    var datos = { propiedades: [], contactos: [], visitas: [], planes: [], ofertas: [], paquetes: [] };
     var grafica = null;
 
     V.barra(usuario, clave);
@@ -34,6 +34,8 @@
             datos.contactos = r[1].data || [];
             datos.visitas = r[2].data || [];
             datos.planes = r[3].planes || [];
+            datos.ofertas = r[3].ofertas || [];
+            datos.paquetes = r[3].paquetes || [];
         } catch (e) {
             if (e.message !== 'Sin acceso') V.toast(e.message || 'No se pudieron cargar tus datos.');
         }
@@ -70,7 +72,33 @@
             '<small>' + (destacados
                 ? destacados + (destacados === 1 ? ' inmueble está posicionado' : ' inmuebles están posicionados') + ' en las zonas destacadas. Los demás aparecen en la zona normal.'
                 : 'Todos tus inmuebles publicados aparecen en la zona normal. Usa “Posicionar” en cada uno para subirlo a las zonas destacadas.') +
-            '</small></div></div>';
+            '</small></div></div>' + htmlPaquetes();
+    }
+
+    /* Paquetes comprados y vigentes: cuántos cupos quedan y qué inmuebles tienen */
+    function htmlPaquetes() {
+        if (!datos.paquetes.length) return '';
+        var libres = misInmuebles().filter(function (p) {
+            return !p.membresia && ['borrador', 'publicada', 'pausada'].indexOf(p.estado) !== -1;
+        });
+        return '<div class="v-paquetes" style="flex-basis:100%;display:grid;gap:12px;margin-top:6px">' + datos.paquetes.map(function (q) {
+            var quedan = q.cupos - q.usados;
+            return '<div style="border:1px solid var(--campo-borde);background:var(--campo);border-radius:16px;padding:14px 16px">' +
+                '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b>' + V.esc(q.nombre) +
+                (q.nombre_zona ? ' · zona ' + V.esc(q.nombre_zona) : '') + '</b>' +
+                '<small style="color:var(--texto-suave)">' + q.usados + ' de ' + q.cupos + (q.cupos === 1 ? ' cupo usado' : ' cupos usados') +
+                ' · vence el ' + V.esc(fechaLarga(q.fecha_fin)) + '</small></div>' +
+                (q.publicaciones.length ? '<ul style="list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px">' + q.publicaciones.map(function (x) {
+                    return '<li style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span>' + V.esc(x.titulo) + '</span>' +
+                        '<button type="button" class="v-btn v-btn-suave" data-quitar-pq="' + x.id + '">Quitar</button></li>';
+                }).join('') + '</ul>' : '') +
+                (quedan > 0 ? (libres.length
+                    ? '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><select data-sel-pq="' + q.id + '" style="flex:1;min-width:180px;padding:10px;border-radius:12px;border:1px solid var(--campo-borde);background:var(--campo);color:var(--texto)">' +
+                        libres.map(function (p) { return '<option value="' + p.id + '">' + V.esc(titulo(p)) + '</option>'; }).join('') + '</select>' +
+                        '<button type="button" class="v-btn v-btn-principal" data-agregar-pq="' + q.id + '">Usar un cupo (' + quedan + ' libre' + (quedan === 1 ? '' : 's') + ')</button></div>'
+                    : '<small style="display:block;margin-top:8px;color:var(--texto-suave)">Te quedan ' + quedan + (quedan === 1 ? ' cupo' : ' cupos') + '. Publica otro inmueble para usarlo.</small>') : '') +
+                '</div>';
+        }).join('') + '</div>';
     }
 
     /* ---------- Cifras ---------- */
@@ -642,36 +670,44 @@
 
     /* ---------- Ventana: planes de membresía ---------- */
     var ventanaPlanes = $('d-planes');
-    var planElegido = 'quincenal';
     var inmuebleAPosicionar = null;
     V.prepararVentana(ventanaPlanes);
 
-    function listaPlanes() {
-        if (datos.planes.length) return datos.planes;
-        return Object.keys(V.PLANES).map(function (k) { return { plan: k, nombre: V.PLANES[k].nombre, dias: V.PLANES[k].dias }; });
-    }
+    var ofertaElegida = null;
 
     function pintarPlanes() {
-        $('d-planes-lista').innerHTML = listaPlanes().map(function (pl) {
-            return '<button type="button" class="v-plan" data-plan="' + V.esc(pl.plan) + '" aria-pressed="' + (pl.plan === planElegido) + '">' +
-                V.esc(pl.nombre) + '<small>' + pl.dias + ' días' + (pl.precio ? ' · ' + V.cop(pl.precio) : '') + '</small></button>';
+        var lista = datos.ofertas;
+        var boton = $('d-planes-form').querySelector('[type="submit"]');
+        if (!lista.length) {
+            $('d-planes-lista').innerHTML = '<p class="v-nota" style="grid-column:1/-1">No hay paquetes disponibles por ahora. Vuelve a intentarlo más tarde.</p>';
+            if (boton) boton.disabled = true;
+            return;
+        }
+        if (boton) boton.disabled = false;
+        if (!lista.some(function (o) { return o.id === ofertaElegida; })) ofertaElegida = lista[0].id;
+        $('d-planes-lista').innerHTML = lista.map(function (o) {
+            return '<button type="button" class="v-plan" data-oferta="' + o.id + '" aria-pressed="' + (o.id === ofertaElegida) + '">' +
+                V.esc(o.nombre) + '<small>Zona ' + V.esc(o.nombre_zona) + ' · ' + o.dias + ' días</small>' +
+                '<small>' + o.propiedades + (o.propiedades === 1 ? ' propiedad' : ' propiedades') + '</small>' +
+                '<small style="color:var(--texto);font-weight:800">' + V.cop(o.precio) + '</small></button>';
         }).join('');
     }
 
     $('d-planes-lista').addEventListener('click', function (e) {
-        var b = e.target.closest('[data-plan]');
+        var b = e.target.closest('[data-oferta]');
         if (!b) return;
-        planElegido = b.getAttribute('data-plan');
+        ofertaElegida = Number(b.getAttribute('data-oferta'));
         pintarPlanes();
     });
 
     $('d-planes-form').addEventListener('submit', async function (e) {
         e.preventDefault();
-        if (!inmuebleAPosicionar) return;
+        if (!inmuebleAPosicionar || !ofertaElegida) return;
         var boton = this.querySelector('[type="submit"]');
         if (boton) boton.disabled = true;
         try {
-            var r = await V.api('/membresia', { metodo: 'POST', datos: { plan: planElegido, propiedad_id: inmuebleAPosicionar.id } });            // Con Wompi la API devuelve a dónde ir a pagar (la membresía se activa al aprobarse el pago)
+            var r = await V.api('/membresia', { metodo: 'POST', datos: { oferta_id: ofertaElegida, propiedad_id: inmuebleAPosicionar.id } });
+            // Con Wompi la API devuelve a dónde ir a pagar (el paquete se activa al aprobarse el pago)
             if (r.checkout_url) { V.toast(r.message); window.location.href = r.checkout_url; return; }
             ventanaPlanes.close();
             V.toast(r.message || 'Inmueble posicionado.');
@@ -679,7 +715,31 @@
         } catch (err) {
             if (err.message !== 'Sin acceso') V.toast(err.message);
         } finally {
-            if (boton) boton.disabled = false;
+            if (boton) boton.disabled = !datos.ofertas.length;
+        }
+    });
+
+    // Usar o liberar un cupo de un paquete ya comprado
+    $('d-membresia').addEventListener('click', async function (e) {
+        var agregar = e.target.closest('[data-agregar-pq]');
+        var quitar = e.target.closest('[data-quitar-pq]');
+        if (!agregar && !quitar) return;
+        var b = agregar || quitar;
+        b.disabled = true;
+        try {
+            var r;
+            if (agregar) {
+                var id = agregar.getAttribute('data-agregar-pq');
+                var sel = this.querySelector('[data-sel-pq="' + id + '"]');
+                r = await V.api('/membresia/paquete/publicaciones', { metodo: 'POST', datos: { paquete_id: Number(id), propiedad_id: Number(sel.value) } });
+            } else {
+                r = await V.api('/membresia/paquete/publicaciones/' + quitar.getAttribute('data-quitar-pq'), { metodo: 'DELETE' });
+            }
+            V.toast(r.message);
+            await cargar();
+        } catch (err) {
+            if (err.message !== 'Sin acceso') V.toast(err.message);
+            b.disabled = false;
         }
     });
 

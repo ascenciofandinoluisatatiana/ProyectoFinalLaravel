@@ -71,6 +71,25 @@ class PaqueteMembresia extends Model
             ->get();
     }
 
+    /** Pone una propiedad en este paquete (usa un cupo). Quien llama ya validó que hay cupo. */
+    public function asignarPropiedad(int $propiedadId): Membresia
+    {
+        $hoy = Carbon::now('America/Bogota')->toDateString();
+
+        // forceCreate: propiedad_id y paquete_id no están en el $fillable del modelo (que es de otro módulo)
+        return Membresia::forceCreate([
+            'user_id' => $this->user_id,
+            'propiedad_id' => $propiedadId,
+            'paquete_id' => $this->id,
+            'plan' => $this->planPortal(),          // se posiciona según el plan (zona) del paquete
+            'precio' => 0,                          // lo pagado está en el paquete
+            'estado' => 'activa',
+            'fecha_inicio' => $hoy,
+            'fecha_fin' => $this->fecha_fin->toDateString(),
+            'referencia_pago' => $this->referencia_pago,
+        ]);
+    }
+
     /** Membresías activas (publicaciones elegidas) de este paquete. */
     public function membresiasActivas()
     {

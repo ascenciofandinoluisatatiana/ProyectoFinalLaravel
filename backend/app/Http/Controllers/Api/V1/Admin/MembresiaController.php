@@ -324,7 +324,7 @@ class MembresiaController extends Controller
 
             // Los 3 planes de origen conservan sus días y propiedades
             if ($oferta->esBase()) {
-                unset($datos['dias'], $datos['propiedades']);
+                unset($datos['dias'], $datos['propiedades'], $datos['zona']);
             }
 
             $oferta->fill($datos)->save();
@@ -371,7 +371,10 @@ class MembresiaController extends Controller
             'dias' => ['required', 'integer', 'min:1', 'max:365'],
             'precio' => ['required', 'integer', 'min:1000', 'max:100000000'],
             'propiedades' => ['required', 'integer', 'min:1', 'max:100'],
+            'zona' => ['required', Rule::in(array_keys(OfertaVendedor::ZONAS))],
         ], [
+            'zona.required' => 'Elige la zona donde se posiciona.',
+            'zona.in' => 'Elige una zona válida (Bronce, Plata u Oro).',
             'nombre.required' => 'Escribe el nombre del paquete.',
             'nombre.max' => 'El nombre es muy largo (máximo 60 letras).',
             'nombre.unique' => 'Ya existe un paquete con ese nombre.',
@@ -398,17 +401,22 @@ class MembresiaController extends Controller
             'dias' => $o->dias,
             'precio' => $o->precio,
             'propiedades' => $o->propiedades,
+            'zona' => $o->zona,
+            'nombre_zona' => $o->nombreZona(),
             'base' => $o->esBase(),
             'activa' => $o->activa,
         ])->all();
     }
 
     /** GET /membresias/compras-paquetes?page= — historial de paquetes comprados por las inmobiliarias. */
-    public function comprasPaquetes(): JsonResponse
+    public function comprasPaquetes(Request $request): JsonResponse
     {
         $hoy = Carbon::now(self::ZONA)->startOfDay();
+        $rol = $request->query('rol');
 
         $pagina = PaqueteMembresia::with('usuario')->orderByDesc('created_at')->orderByDesc('id')
+            ->when(in_array($rol, ['vendedor', 'inmobiliaria'], true),
+                fn ($q) => $q->whereHas('usuario.role', fn ($r) => $r->where('nombre', $rol)))
             ->paginate(self::POR_PAGINA)
             ->through(function (PaqueteMembresia $p) use ($hoy) {
                 $fin = Carbon::parse($p->fecha_fin->toDateString(), self::ZONA)->startOfDay();
@@ -425,6 +433,7 @@ class MembresiaController extends Controller
                     'correo' => $p->usuario?->email,
                     'paquete' => $p->nombreVisible(),
                     'plan' => Membresia::NOMBRES_PLAN[$p->planPortal()] ?? $p->planPortal(),
+                    'zona' => OfertaVendedor::ZONAS[$p->planPortal()] ?? null,
                     'cupos' => $p->cupos,
                     'usados' => $p->membresiasActivas()->count(),
                     'precio' => (float) $p->precio,

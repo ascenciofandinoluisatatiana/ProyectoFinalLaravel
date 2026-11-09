@@ -202,21 +202,22 @@
                                 <thead class="border-b border-slate-800 text-[11px] uppercase tracking-wider text-slate-500">
                                     <tr>
                                         <th class="px-5 py-3.5 font-semibold">Vendedor</th>
-                                        <th class="px-5 py-3.5 font-semibold">Plan</th>
+                                        <th class="px-5 py-3.5 font-semibold">Paquete</th>
                                         <th class="px-5 py-3.5 font-semibold">Pago</th>
                                         <th class="px-5 py-3.5 font-semibold">Vigencia</th>
+                                        <th class="px-5 py-3.5 font-semibold">Cupos</th>
                                         <th class="px-5 py-3.5 font-semibold">Estado</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tabla-mov-vend" class="divide-y divide-slate-800/70"></tbody>
+                                <tbody id="tabla-compras-vend" class="divide-y divide-slate-800/70"></tbody>
                             </table>
                         </div>
-                        <div id="mov-vend-vacia" class="hidden px-5 py-10 text-center">
+                        <div id="compras-vacia-vend" class="hidden px-5 py-10 text-center">
                             <p class="text-sm font-medium text-slate-400">Todavía no hay compras de vendedores</p>
                         </div>
                         <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 px-5 py-3.5">
-                            <p id="mov-vend-info" class="text-xs text-slate-500"></p>
-                            <div id="mov-vend-botones" class="flex items-center gap-1"></div>
+                            <p id="compras-info-vend" class="text-xs text-slate-500"></p>
+                            <div id="compras-botones-vend" class="flex items-center gap-1"></div>
                         </div>
                     </div>
                     </div>
@@ -393,12 +394,22 @@
                 <p class="pq-err" id="vd-err-propiedades"></p>
             </div>
             <div class="pq-campo">
+                <label for="vd-zona">Zona del portal</label>
+                <select id="vd-zona">
+                    <option value="semanal">Bronce</option>
+                    <option value="quincenal">Plata</option>
+                    <option value="mensual">Oro</option>
+                </select>
+                <p class="pq-nota" style="margin-top:6px">Dónde aparecen las propiedades de este paquete en el portal: Oro arriba, luego Plata y Bronce.</p>
+                <p class="pq-err" id="vd-err-zona"></p>
+            </div>
+            <div class="pq-campo">
                 <label for="vd-precio">Precio (COP)</label>
                 <input id="vd-precio" type="number" min="1000" step="100" inputmode="numeric">
                 <p class="pq-nota" style="margin-top:6px">Se calcula con los planes base según los días y las propiedades. Puedes cambiarlo. <button type="button" id="vd-recalcular" style="padding:0;border:0;background:none;color:var(--ad-primary);font-weight:700;cursor:pointer">Recalcular</button></p>
                 <p class="pq-err" id="vd-err-precio"></p>
             </div>
-            <p class="pq-nota" id="vd-nota" style="display:none">Este es un plan base: sus días y propiedades no se pueden cambiar. Sí puedes cambiar el nombre y el precio.</p>
+            <p class="pq-nota" id="vd-nota" style="display:none">Este es un plan base: sus días, propiedades y zona no se pueden cambiar. Sí puedes cambiar el nombre y el precio.</p>
             <div class="pq-botones">
                 <button type="button" id="vd-cancelar" class="rounded-xl border border-slate-800 px-4 py-2 text-sm font-medium text-slate-400 transition-all hover:bg-slate-800 hover:text-slate-200">Cancelar</button>
                 <button type="submit" id="vd-guardar" class="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-violet-600/25 transition-all hover:from-violet-500 hover:to-indigo-500 active:scale-[0.98]">Guardar</button>

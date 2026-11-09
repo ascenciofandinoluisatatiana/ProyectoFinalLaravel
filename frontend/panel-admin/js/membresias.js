@@ -4,7 +4,7 @@
         GET/POST /api/v1/admin/membresias/paquetes        (paquetes de inmobiliaria)
         PUT/DELETE /api/v1/admin/membresias/paquetes/{id} (editar, activar/desactivar, borrar)
         GET /api/v1/admin/membresias/compras-paquetes?page=  (compras de paquetes de inmobiliaria)
-        GET /api/v1/admin/membresias?rol=vendedor&page=      (compras de vendedores)
+        GET /api/v1/admin/membresias/compras-paquetes?rol=vendedor&page=  (compras de vendedores)
         GET/POST /api/v1/admin/membresias/vendedor        (paquetes de vendedor)
         PUT/DELETE /api/v1/admin/membresias/vendedor/{id} */
 (function () {
@@ -357,13 +357,13 @@
 
     var vendedor = gestor({
         p: 'vd', ruta: '/membresias/vendedor', contenedor: 'paquetes-vendedor', nuevo: 'vd-nuevo', icono: 'fa-tag',
-        campos: ['nombre', 'dias', 'propiedades', 'precio'],
+        campos: ['nombre', 'dias', 'propiedades', 'zona', 'precio'],
         tituloNuevo: 'Nuevo paquete de vendedor',
         visible: 'Visible para vendedores', oculto: 'Oculto para vendedores',
         tarjeta: function (q) {
             return {
                 linea1: plural(q.propiedades, 'propiedad', 'propiedades') + ' · ' + q.dias + ' días',
-                linea2: q.base ? 'Plan base' : 'Creado por el administrador'
+                linea2: 'Zona ' + P.esc(q.nombre_zona || '') + (q.base ? ' · Plan base' : ' · Creado por el administrador')
             };
         },
         llenar: function (q) {
@@ -373,6 +373,8 @@
             $('vd-propiedades').value = q ? q.propiedades : 1;
             $('vd-dias').disabled = base;
             $('vd-propiedades').disabled = base;
+            $('vd-zona').value = q ? q.zona : 'mensual';
+            $('vd-zona').disabled = base;
             $('vd-nota').style.display = base ? 'block' : 'none';
             if (q) {
                 $('vd-precio').value = q.precio;   // al editar se respeta el precio guardado
@@ -384,7 +386,7 @@
         },
         cuerpo: function () {
             return { nombre: $('vd-nombre').value.trim(), dias: $('vd-dias').value,
-                     propiedades: $('vd-propiedades').value, precio: $('vd-precio').value };
+                     propiedades: $('vd-propiedades').value, zona: $('vd-zona').value, precio: $('vd-precio').value };
         },
         // El precio de los paquetes de inmobiliaria depende del precio de los planes base
         despues: function () { inmobiliaria.cargar(); cargar(paginaActual); }
@@ -407,7 +409,8 @@
         suf = suf || '';
         var cuerpo = document.getElementById('tabla-compras' + suf);
         try {
-            var d = await P.api('/membresias/compras-paquetes?page=' + (pagina || 1));
+            var rol = suf === '-vend' ? '&rol=vendedor' : (suf === '-inmo' ? '&rol=inmobiliaria' : '');
+            var d = await P.api('/membresias/compras-paquetes?page=' + (pagina || 1) + rol);
             cuerpo.innerHTML = d.datos.map(function (c) {
                 var e = ESTADOS_COMPRA[c.estado] || ESTADOS_COMPRA.vigente;
                 var extra = c.estado === 'vencido' ? '' : ' · faltan ' + c.dias_restantes + ' d';
@@ -415,7 +418,7 @@
                     '<td class="px-5 py-3.5"><p class="truncate font-semibold text-slate-200">' + P.esc(c.usuario) + '</p>' +
                         '<p class="truncate text-xs text-slate-500">' + P.esc(c.correo || '') + '</p></td>' +
                     '<td class="px-5 py-3.5"><p class="font-semibold text-slate-200">' + P.esc(c.paquete) + '</p>' +
-                        '<p class="text-xs text-slate-500">Plan ' + P.esc(c.plan.toLowerCase()) + '</p></td>' +
+                        '<p class="text-xs text-slate-500">' + (c.zona ? 'Zona ' + P.esc(c.zona) + ' · ' : '') + 'Plan ' + P.esc(c.plan.toLowerCase()) + '</p></td>' +
                     '<td class="px-5 py-3.5"><p class="font-semibold text-slate-200">' + pesos(c.precio) + '</p>' +
                         '<p class="text-xs text-slate-500">' + P.esc(c.referencia || 'Sin referencia') + '</p></td>' +
                     '<td class="px-5 py-3.5 text-xs text-slate-400">' + fecha(c.fecha_inicio) + ' → ' + fecha(c.fecha_fin) + '<span class="text-slate-600">' + extra + '</span></td>' +
@@ -442,45 +445,6 @@
             }
         } catch (e) {
             if (e.estado !== 401) mostrarAviso(e.message || 'No se pudieron cargar las compras de paquetes.', false);
-        }
-    }
-
-    /* ----- Compras de vendedores (pestaña "Paquetes de vendedor") ----- */
-    async function cargarMovVendedor(pagina) {
-        var cuerpo = document.getElementById('tabla-mov-vend');
-        try {
-            var d = await P.api('/membresias?rol=vendedor&page=' + (pagina || 1));
-            cuerpo.innerHTML = d.datos.map(function (m) {
-                var e = ESTADOS[m.estado] || ESTADOS.vigente;
-                return '<tr class="transition-colors hover:bg-slate-800/40">' +
-                    '<td class="px-5 py-3.5"><p class="truncate font-semibold text-slate-200">' + P.esc(m.usuario) + '</p>' +
-                        '<p class="truncate text-xs text-slate-500">' + P.esc(m.correo || '') + '</p></td>' +
-                    '<td class="px-5 py-3.5 text-slate-300">' + P.esc(m.nombre_plan) + '</td>' +
-                    '<td class="px-5 py-3.5"><p class="font-semibold text-slate-200">' + pesos(m.precio) + '</p>' +
-                        '<p class="text-xs text-slate-500">' + P.esc(m.referencia || 'Sin referencia') + '</p></td>' +
-                    '<td class="px-5 py-3.5 text-xs text-slate-400">' + vigencia(m) + '</td>' +
-                    '<td class="px-5 py-3.5"><span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ' + e.clase + '">' +
-                        '<span class="h-1.5 w-1.5 rounded-full ' + e.punto + '"></span>' + e.texto + '</span></td>' +
-                '</tr>';
-            }).join('');
-            document.getElementById('mov-vend-vacia').classList.toggle('hidden', d.datos.length > 0);
-            document.getElementById('mov-vend-info').textContent =
-                d.total === 0 ? 'Sin resultados' : 'Mostrando ' + d.desde + '–' + d.hasta + ' de ' + d.total + ' compras';
-
-            var cont = document.getElementById('mov-vend-botones');
-            cont.innerHTML = '';
-            if (d.ultima_pagina > 1) {
-                [['<i class="fa-solid fa-chevron-left"></i>', d.pagina_actual - 1, d.pagina_actual <= 1],
-                 ['<i class="fa-solid fa-chevron-right"></i>', d.pagina_actual + 1, d.pagina_actual >= d.ultima_pagina]].forEach(function (x) {
-                    var b = document.createElement('button');
-                    b.type = 'button'; b.innerHTML = x[0]; b.disabled = x[2];
-                    b.className = 'grid h-8 min-w-[2rem] place-items-center rounded-lg border border-slate-800 px-2 text-xs font-medium text-slate-400 transition-all hover:bg-slate-800 hover:text-slate-200' + (x[2] ? ' cursor-not-allowed opacity-40' : '');
-                    if (!x[2]) b.addEventListener('click', function () { cargarMovVendedor(x[1]); });
-                    cont.appendChild(b);
-                });
-            }
-        } catch (e) {
-            if (e.estado !== 401) mostrarAviso(e.message || 'No se pudieron cargar las compras de vendedores.', false);
         }
     }
 
@@ -529,5 +493,5 @@
     });
 
     // Cuando el panel confirma la sesión, pedimos los datos
-    P.listo.then(function () { cargar(1); inmobiliaria.cargar(); vendedor.cargar(); cargarCompras(1); cargarCompras(1, '-inmo'); cargarMovVendedor(1); }).catch(function () {});
+    P.listo.then(function () { cargar(1); inmobiliaria.cargar(); vendedor.cargar(); cargarCompras(1); cargarCompras(1, '-inmo'); cargarCompras(1, '-vend'); }).catch(function () {});
 })();

@@ -365,3 +365,211 @@ body.panel-violeta::after { display: none; }
 /* Opciones no disponibles: atenuadas pero legibles */
 .panel-violeta select option:disabled { color: #8a7a9e; }
 [data-theme="dark"] .panel-violeta select option:disabled { color: #8d84a0; }
+/* ---------- Campana de notificaciones y alertas (sin sombras ni brillos) ---------- */
+.panel-violeta .i-campana-num { background: var(--op-1); color: #fbf5ff; border-color: #ffffff; }
+[data-theme="dark"] .panel-violeta .i-campana-num { border-color: #0d0c13; }
+.panel-violeta .i-avisos { background: #ffffff; border-color: var(--tarjeta-borde); box-shadow: none; }
+[data-theme="dark"] .panel-violeta .i-avisos { background: #141119; }
+.panel-violeta .i-avisos-tabs button[aria-pressed="true"] { color: #fbf5ff; }
+[data-theme="dark"] .panel-violeta .i-avisos-tabs button[aria-pressed="true"] { color: #2a0845; background: #c997f6; }
+[data-theme="dark"] .panel-violeta .i-avisos-tabs button[aria-pressed="true"] b { color: #2a0845; background: rgba(42, 8, 69, 0.14); }
+.panel-violeta .i-aviso.sin-leer { background: rgba(116, 21, 173, 0.07); }
+.panel-violeta .i-aviso.sin-leer:hover { background: rgba(116, 21, 173, 0.13); }
+[data-theme="dark"] .panel-violeta .i-aviso.sin-leer { background: rgba(201, 151, 246, 0.08); }
+[data-theme="dark"] .panel-violeta .i-aviso.sin-leer:hover { background: rgba(201, 151, 246, 0.14); }
+.panel-violeta .i-aviso-punto { background: var(--op-1); }
+
+/* =========================================================
+   PALETA ALINEADA CON EL PANEL DE ADMINISTRACIÓN
+   Mismos colores que assets/admin/tema.css (--ad-*), en claro y
+   en oscuro. Va al final: pisa los valores anteriores.
+   ========================================================= */
+
+/* ---------- Variables: claro ---------- */
+body.panel-violeta {
+    --fondo: #faf7ff;
+    --fondo-degradado: #faf7ff;
+    --superficie: #ffffff;
+    --tarjeta: #ffffff;
+    --tarjeta-grad: linear-gradient(#ffffff, #ffffff);
+    --tarjeta-borde: #e9ddf7;
+    --campo: #faf7ff;
+    --campo-borde: #e9ddf7;
+    --texto: #1a1026;
+    --texto-suave: #6b6280;
+    --acento: #7e22ce;
+    --acento-2: #9333ea;
+    --neutro-fondo: #f3e8ff;
+    --btn-1: #7e22ce;
+    --btn-2: #9333ea;
+    --boton-gradiente: linear-gradient(135deg, #7e22ce, #9333ea);
+    --op-1: #7e22ce; --op-2: #9333ea; --op-texto: #7e22ce;
+}
+body.panel-violeta.op-arriendo,
+.panel-violeta .op-arriendo { --op-1: #9333ea; --op-2: #a855f7; --op-texto: #7e22ce; }
+.panel-violeta .op-venta { --op-1: #7e22ce; --op-2: #9333ea; --op-texto: #7e22ce; }
+
+/* ---------- Variables: oscuro ---------- */
+[data-theme="dark"] body.panel-violeta {
+    --fondo: #0b0810;
+    --fondo-degradado: #0b0810;
+    --superficie: #121016;
+    --tarjeta: #121016;
+    --tarjeta-grad: linear-gradient(#121016, #121016);
+    --tarjeta-borde: #2a2433;
+    --campo: #0b0810;
+    --campo-borde: #2a2433;
+    --texto: #ffffff;
+    --texto-suave: #a1a1aa;
+    --acento: #c084fc;
+    --acento-2: #9333ea;
+    --neutro-fondo: #1c142b;
+    --btn-1: #6b21a8;
+    --btn-2: #9333ea;
+    --boton-gradiente: linear-gradient(135deg, #6b21a8, #9333ea);
+    --op-1: #9333ea; --op-2: #a855f7; --op-texto: #c084fc;
+}
+[data-theme="dark"] body.panel-violeta.op-arriendo,
+[data-theme="dark"] .panel-violeta .op-arriendo { --op-1: #a855f7; --op-2: #c084fc; --op-texto: #d8b4fe; }
+[data-theme="dark"] .panel-violeta .op-venta { --op-1: #9333ea; --op-2: #a855f7; --op-texto: #c084fc; }
+
+/* ---------- Menú lateral: plano como el del admin (con la textura suave) ---------- */
+.panel-violeta .i-lateral {
+    color: var(--texto);
+    background:
+        radial-gradient(rgba(126, 34, 206, 0.09) 1px, transparent 1.5px) 0 0 / 20px 20px,
+        repeating-radial-gradient(circle at 0% 100%, transparent 0 30px, rgba(126, 34, 206, 0.055) 30px 31px),
+        var(--tarjeta);
+    border-right: 1px solid var(--campo-borde);
+}
+[data-theme="dark"] .panel-violeta .i-lateral {
+    background:
+        radial-gradient(rgba(201, 151, 246, 0.07) 1px, transparent 1.5px) 0 0 / 20px 20px,
+        repeating-radial-gradient(circle at 0% 100%, transparent 0 30px, rgba(201, 151, 246, 0.055) 30px 31px),
+        var(--tarjeta);
+    border-right: 1px solid var(--campo-borde);
+}
+.panel-violeta .i-marca,
+[data-theme="dark"] .panel-violeta .i-marca { color: var(--texto); border-bottom-color: var(--campo-borde); }
+.panel-violeta .i-marca small { color: #9333ea; }
+.panel-violeta .i-marca .i-logo-marca img { filter: none; }
+[data-theme="dark"] .panel-violeta .i-marca .i-logo-marca img { filter: brightness(1.9) saturate(1.1); }
+.panel-violeta .i-grupo { color: var(--texto-suave); }
+.panel-violeta .i-nav a { color: var(--texto-suave); }
+.panel-violeta .i-nav a:hover { background: var(--neutro-fondo); color: var(--texto); }
+.panel-violeta .i-nav a.activo,
+[data-theme="dark"] .panel-violeta .i-nav a.activo {
+    color: var(--op-texto); background: var(--neutro-fondo); border-color: var(--campo-borde); box-shadow: none;
+}
+.panel-violeta .i-nav a.activo i { color: inherit; }
+.panel-violeta .i-tarjeta-lateral,
+[data-theme="dark"] .panel-violeta .i-tarjeta-lateral { color: var(--texto); background: var(--neutro-fondo); border-color: var(--campo-borde); }
+.panel-violeta .i-tarjeta-lateral p { color: var(--texto-suave); }
+.panel-violeta .i-tarjeta-lateral .v-btn-principal { color: #fff; background: linear-gradient(135deg, var(--btn-1), var(--btn-2)); }
+
+/* ---------- Barra superior: tarjeta lisa, sin hilo de color ---------- */
+.panel-violeta .i-barra,
+[data-theme="dark"] .panel-violeta .i-barra { background: var(--tarjeta); border-bottom-color: var(--campo-borde); }
+.panel-violeta .i-barra::after,
+[data-theme="dark"] .panel-violeta .i-barra::after { display: none; }
+.panel-violeta .v-avatar,
+[data-theme="dark"] .panel-violeta .v-avatar { background: linear-gradient(135deg, #7e22ce, #9333ea); color: #fff; }
+.panel-violeta #i-tema { color: #7e22ce; }
+[data-theme="dark"] .panel-violeta #i-tema { color: #fbbf24; }
+
+/* ---------- Cabecera de cada pantalla: lila suave en claro, morado profundo en oscuro ---------- */
+[data-theme="light"] .panel-violeta .v-hero {
+    color: var(--texto); border-color: var(--campo-borde);
+    background: linear-gradient(120deg, #f3e8ff 0%, #e9d5ff 55%, #ddd6fe 100%);
+}
+[data-theme="light"] .panel-violeta .v-hero::before {
+    background:
+        repeating-radial-gradient(circle at 100% 0%, transparent 0 26px, rgba(126, 34, 206, 0.10) 26px 27px),
+        linear-gradient(rgba(126, 34, 206, 0.05) 1px, transparent 1px) 0 0 / 34px 34px,
+        linear-gradient(90deg, rgba(126, 34, 206, 0.05) 1px, transparent 1px) 0 0 / 34px 34px;
+}
+[data-theme="light"] .panel-violeta .v-hero h1 { color: #581c87; }
+[data-theme="light"] .panel-violeta .v-hero p { color: var(--texto-suave); }
+[data-theme="light"] .panel-violeta .v-hero .v-etiqueta { color: #7e22ce; }
+[data-theme="light"] .panel-violeta .v-hero .v-chip { color: #7e22ce; background: rgba(255, 255, 255, 0.65); border-color: var(--campo-borde); }
+[data-theme="light"] .panel-violeta .v-hero .v-btn-suave { color: var(--texto); background: #ffffff; border-color: var(--campo-borde); }
+[data-theme="light"] .panel-violeta .v-hero .v-btn-suave:hover { color: #7e22ce; border-color: #9333ea; background: #ffffff; }
+[data-theme="dark"] .panel-violeta .v-hero {
+    background: linear-gradient(120deg, #0d0a12 0%, #2a0a4a 55%, #4c0580 100%);
+    border-color: var(--campo-borde);
+}
+/* Sombra suave de la cabecera, como la del admin */
+[data-theme="light"] body.vendedor.panel-violeta .v-hero { box-shadow: 0 6px 24px rgba(126, 34, 206, 0.08); }
+[data-theme="dark"] body.vendedor.panel-violeta .v-hero { box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45); }
+
+/* ---------- Botones principales: morado del admin (igual en venta y arriendo) ---------- */
+.panel-violeta .v-btn-principal,
+[data-theme="dark"] .panel-violeta .v-btn-principal,
+[data-theme="dark"] .panel-violeta.op-arriendo .v-btn-principal,
+.panel-violeta .v-hero .v-btn-principal,
+[data-theme="dark"] .panel-violeta .v-hero .v-btn-principal,
+[data-theme="dark"] .panel-violeta.op-arriendo .v-hero .v-btn-principal {
+    color: #ffffff; background: linear-gradient(135deg, var(--btn-1), var(--btn-2)); box-shadow: none; filter: none;
+}
+.panel-violeta .v-btn-principal:hover,
+[data-theme="dark"] .panel-violeta .v-btn-principal:hover,
+[data-theme="dark"] .panel-violeta.op-arriendo .v-btn-principal:hover,
+.panel-violeta .v-hero .v-btn-principal:hover,
+[data-theme="dark"] .panel-violeta .v-hero .v-btn-principal:hover,
+[data-theme="dark"] .panel-violeta.op-arriendo .v-hero .v-btn-principal:hover {
+    color: #ffffff; background: linear-gradient(135deg, var(--btn-2), var(--btn-1)); filter: none;
+}
+
+/* ---------- Pestañas activas (contactos, visitas y campana) ---------- */
+.panel-violeta .i-pestana[aria-pressed="true"],
+[data-theme="dark"] .panel-violeta .i-pestana[aria-pressed="true"],
+.panel-violeta .i-avisos-tabs button[aria-pressed="true"],
+[data-theme="dark"] .panel-violeta .i-avisos-tabs button[aria-pressed="true"] {
+    color: #ffffff; border-color: transparent; background: linear-gradient(135deg, var(--btn-1), var(--btn-2));
+}
+[data-theme="dark"] .panel-violeta .i-pestana[aria-pressed="true"] b,
+[data-theme="dark"] .panel-violeta .i-avisos-tabs button[aria-pressed="true"] b { color: #ffffff; background: rgba(255, 255, 255, 0.2); }
+
+/* ---------- Cifras (KPI): barra morada arriba e icono tintado, como en el admin ---------- */
+.panel-violeta .k-1 { --k: #9333ea; }
+.panel-violeta .k-2 { --k: #7e22ce; }
+.panel-violeta .k-3 { --k: #a855f7; }
+.panel-violeta .k-4 { --k: #6b21a8; }
+[data-theme="dark"] .panel-violeta .k-1 { --k: #c084fc; }
+[data-theme="dark"] .panel-violeta .k-2 { --k: #a855f7; }
+[data-theme="dark"] .panel-violeta .k-3 { --k: #d8b4fe; }
+[data-theme="dark"] .panel-violeta .k-4 { --k: #9333ea; }
+.panel-violeta .v-kpi { border-top-color: #9333ea; }
+.panel-violeta .v-kpi-icono,
+[data-theme="dark"] .panel-violeta .v-kpi-icono {
+    color: var(--k); box-shadow: none;
+    background: color-mix(in srgb, var(--k) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--k) 28%, transparent);
+}
+
+/* ---------- Ventanas y campana: mismo fondo que las tarjetas ---------- */
+.panel-violeta dialog.v-ventana,
+[data-theme="dark"] .panel-violeta dialog.v-ventana,
+.panel-violeta .i-avisos,
+[data-theme="dark"] .panel-violeta .i-avisos { background: var(--tarjeta); }
+.panel-violeta .i-campana-num,
+[data-theme="dark"] .panel-violeta .i-campana-num { border-color: var(--tarjeta); }
+
+/* ---------- Avisos de la campana: tarjetas sólidas y bien separadas ---------- */
+.panel-violeta .i-avisos-lista { gap: 8px; padding: 10px; }
+.panel-violeta .i-aviso,
+[data-theme="dark"] .panel-violeta .i-aviso {
+    background: var(--tarjeta); border: 1px solid var(--campo-borde); border-radius: 14px; padding: 12px 14px;
+}
+.panel-violeta .i-aviso:hover,
+[data-theme="dark"] .panel-violeta .i-aviso:hover { background: var(--neutro-fondo); border-color: var(--op-1); }
+/* Sin leer: fondo sólido lila (no transparente) y barra de color a la izquierda */
+.panel-violeta .i-aviso.sin-leer,
+[data-theme="dark"] .panel-violeta .i-aviso.sin-leer {
+    background: var(--neutro-fondo); border-color: color-mix(in srgb, var(--op-1) 45%, var(--campo-borde));
+    box-shadow: inset 3px 0 0 var(--op-1);
+}
+.panel-violeta .i-aviso.sin-leer:hover,
+[data-theme="dark"] .panel-violeta .i-aviso.sin-leer:hover { background: var(--neutro-fondo); border-color: var(--op-1); }
+.panel-violeta .i-aviso-icono { background: var(--tarjeta); border: 1px solid var(--campo-borde); }
+.panel-violeta .i-aviso.alerta .i-aviso-icono { background: var(--aviso-fondo); border-color: color-mix(in srgb, var(--aviso) 35%, transparent); }

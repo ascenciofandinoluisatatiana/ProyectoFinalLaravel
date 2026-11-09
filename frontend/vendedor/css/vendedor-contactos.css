@@ -1,0 +1,135 @@
+/* UMBRAL — Contactos del vendedor (sección navegable). Va después de panel-violeta.css */
+
+.c-panel { padding-bottom: 6px; }
+.c-pestanas { padding-bottom: 4px; }
+
+/* ---------- Filtros ---------- */
+.c-filtros {
+    display: grid; grid-template-columns: minmax(0, 1.5fr) repeat(4, minmax(0, 1fr)); gap: 10px;
+    align-items: center; padding: 14px 22px 10px;
+}
+.c-filtros select,
+.c-buscar input {
+    width: 100%; min-width: 0; padding: 11px 13px; border-radius: var(--radio-campo, 14px);
+    border: 1px solid var(--campo-borde); background: var(--campo); color: var(--texto);
+    font: inherit; font-size: 0.88rem; outline: none; transition: border-color 0.2s;
+}
+.c-filtros select { cursor: pointer; text-overflow: ellipsis; }
+.c-filtros select:focus,
+.c-buscar input:focus { border-color: var(--acento); }
+.c-buscar { position: relative; display: block; }
+.c-buscar i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; color: var(--texto-suave); pointer-events: none; }
+.c-buscar input { padding-left: 38px; }
+.c-buscar input::placeholder { color: var(--texto-suave); opacity: 0.85; }
+.c-limpiar { grid-column: 1 / -1; justify-self: start; }
+.c-limpiar[hidden], .c-encabezado[hidden], .c-lista[hidden], .c-mas[hidden] { display: none; }
+
+/* ---------- Lista: encabezado de columnas + filas ---------- */
+.c-encabezado,
+.c-fila {
+    display: grid; align-items: center; column-gap: 14px;
+    grid-template-columns: 44px minmax(140px, 1.05fr) minmax(0, 1.5fr) minmax(0, 1.1fr) 124px 142px 88px;
+}
+.c-encabezado {
+    margin: 6px 14px 0; padding: 10px 10px; border-bottom: 1px solid var(--campo-borde);
+    font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--op-texto);
+}
+.c-encabezado span:last-child { text-align: right; }
+.c-lista { padding: 2px 14px 14px; }
+
+/* Cabecera de grupo */
+.c-grupo { display: flex; align-items: center; gap: 10px; padding: 18px 10px 6px; }
+.c-grupo span { font-size: 0.74rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--texto); }
+.c-grupo::after { content: ''; order: 2; flex: 1; height: 1px; background: var(--campo-borde); }
+.c-grupo small { order: 3; min-width: 22px; padding: 1px 8px; border-radius: 999px; text-align: center; font-size: 0.72rem; font-weight: 800; color: var(--op-texto); background: var(--neutro-fondo); }
+
+.c-fila { position: relative; padding: 14px 10px; border-radius: 14px; transition: background 0.2s; }
+.c-fila:hover { background: var(--neutro-fondo); }
+.c-fila::after { content: ''; position: absolute; left: 10px; right: 10px; top: 0; height: 1px; background: var(--campo-borde); opacity: 0.7; pointer-events: none; }
+.c-grupo + .c-fila::after { display: none; }
+.c-fila.estado-nuevo::before { content: ''; position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px; border-radius: 3px; background: var(--op-1); }
+.c-fila.estado-nuevo .c-avatar { color: #fbf5ff; background: linear-gradient(135deg, var(--op-1), var(--op-2)); }
+.c-fila.estado-descartado .c-persona,
+.c-fila.estado-descartado .c-mensaje,
+.c-fila.estado-descartado .c-inmueble { opacity: 0.62; }
+
+.c-persona { min-width: 0; }
+.c-persona b { display: block; font-size: 0.92rem; line-height: 1.25; overflow-wrap: anywhere; }
+.c-medio { display: block; margin-top: 2px; font-size: 0.8rem; font-weight: 700; color: var(--acento); overflow-wrap: anywhere; }
+.c-medio i { margin-right: 4px; font-size: 0.72rem; }
+
+.c-mensaje { min-width: 0; }
+.c-msg {
+    margin: 0; font-size: 0.84rem; line-height: 1.45; color: var(--texto); white-space: pre-line; overflow-wrap: anywhere;
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden;
+}
+.c-fila.abierto .c-msg { display: block; -webkit-line-clamp: unset; line-clamp: unset; overflow: visible; }
+.c-vermas { padding: 3px 0 0; border: 0; background: none; font: inherit; font-size: 0.74rem; font-weight: 800; color: var(--op-texto); cursor: pointer; }
+.c-vermas:hover { text-decoration: underline; }
+
+/* En escritorio estos envoltorios no existen: sus hijos son columnas de la fila */
+.c-meta, .c-controles { display: contents; }
+
+.c-inmueble { min-width: 0; }
+.c-inmueble b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.84rem; line-height: 1.3; }
+.c-op { display: flex; align-items: center; gap: 6px; width: fit-content; margin-top: 4px; padding: 2px 9px; border-radius: 999px; font-size: 0.7rem; font-weight: 800; }
+.c-op.venta { color: var(--op-texto); background: var(--neutro-fondo); }
+.c-op.arriendo { color: var(--texto-suave); border: 1px solid var(--campo-borde); }
+
+.c-fecha b { display: block; font-size: 0.82rem; line-height: 1.3; }
+.c-fecha small { font-size: 0.72rem; color: var(--texto-suave); white-space: nowrap; }
+
+/* Selector de estado */
+.c-estado {
+    width: 100%; min-width: 0; padding: 7px 10px; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--campo-borde); background: var(--campo); color: var(--texto);
+    font: inherit; font-size: 0.78rem; font-weight: 800; outline: none;
+}
+.c-estado:focus-visible { border-color: var(--acento); }
+.c-estado:disabled { opacity: 0.6; cursor: progress; }
+.c-estado-nuevo { color: var(--aviso); background: var(--aviso-fondo); border-color: transparent; }
+.c-estado-en_seguimiento { color: var(--op-texto); background: var(--neutro-fondo); border-color: transparent; }
+.c-estado-cerrado { color: var(--ok); background: var(--ok-fondo); border-color: transparent; }
+.c-estado-descartado { color: var(--peligro); background: var(--peligro-fondo); border-color: transparent; }
+
+.c-acciones { display: flex; justify-content: flex-end; gap: 6px; }
+.c-acciones .v-btn-mini { padding: 8px 11px; }
+
+.c-mas { display: flex; justify-content: center; padding: 6px 14px 18px; }
+.c-vacio-btn { margin-top: 12px; }
+
+@media (pointer: coarse) {
+    .c-acciones .v-btn-mini { min-width: 42px; }
+    .c-estado, .c-filtros select, .c-buscar input { min-height: 42px; }
+}
+
+/* ---------- Tablet y teléfono: cada contacto es una tarjeta ---------- */
+@media (max-width: 1180px) {
+    .c-filtros { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .c-buscar { grid-column: 1 / -1; }
+    .c-encabezado { display: none; }
+
+    .c-fila { grid-template-columns: 44px minmax(0, 1fr); row-gap: 10px; align-items: start; padding: 16px 12px; }
+    .c-mensaje { grid-column: 1 / -1; }
+    .c-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; grid-column: 1 / -1; }
+    .c-controles { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; grid-column: 1 / -1; }
+    .c-estado { width: auto; min-width: 150px; }
+    .c-inmueble b { white-space: normal; }
+    .c-fila.estado-nuevo::before { top: 16px; bottom: 16px; }
+}
+@media (max-width: 640px) {
+    .c-filtros { padding: 12px 14px 8px; }
+    .c-pestanas { padding-left: 14px; padding-right: 14px; }
+    .c-lista { padding-left: 6px; padding-right: 6px; }
+}
+@media (max-width: 480px) {
+    .c-filtros { grid-template-columns: minmax(0, 1fr); }
+    .c-meta { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .c-controles { flex-direction: column; align-items: stretch; }
+    .c-estado { width: 100%; }
+    .c-acciones { justify-content: flex-start; }
+}
+
+/* ---------- Modo noche ---------- */
+[data-theme="dark"] .panel-violeta .c-fila.estado-nuevo .c-avatar { color: #fbf5ff; background: linear-gradient(135deg, #7415ad, #9a38d8); }
+[data-theme="dark"] .panel-violeta .c-fila:hover { background: rgba(201, 151, 246, 0.07); }

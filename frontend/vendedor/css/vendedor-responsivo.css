@@ -1,0 +1,246 @@
+/* =========================================================
+   UMBRAL — Panel del vendedor · ADAPTACIÓN A TODAS LAS PANTALLAS
+   Desde 280 px hasta pantallas grandes. Se carga el ÚLTIMO.
+   Solo ajusta medidas, columnas y tamaños de letra.
+   ========================================================= */
+
+/* ---------- Base: nada debe desbordar a los lados ---------- */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body.vendedor { overflow-x: hidden; }
+
+.v-pagina { min-height: 100vh; min-height: 100dvh; }
+.i-principal, .v-contenido, .v-contenido > *, .v-tarjeta, .v-rejilla > *, .v-campo { min-width: 0; }
+/* El contenedor de la derecha (gráfica) lleva un style="display:grid" en el HTML */
+.v-rejilla > div { grid-template-columns: minmax(0, 1fr); }
+
+.v-contenido {
+    gap: clamp(16px, 2.5vw, 24px);
+    padding: clamp(16px, 3vw, 28px) clamp(12px, 4vw, 40px) calc(48px + env(safe-area-inset-bottom, 0px));
+}
+@media (min-width: 1500px) { .i-app .v-contenido { width: min(1360px, 100%); } }
+
+/* ---------- Barra superior ---------- */
+.i-barra {
+    padding-top: calc(12px + env(safe-area-inset-top, 0px));
+    padding-left: max(clamp(12px, 3vw, 28px), env(safe-area-inset-left, 0px));
+    padding-right: max(clamp(12px, 3vw, 28px), env(safe-area-inset-right, 0px));
+}
+.i-titulo { min-width: 0; }
+
+/* ---------- Cabecera de cada pantalla (hero) ---------- */
+.v-hero { gap: 16px 20px; }
+.v-hero > div:first-child { flex: 1 1 min(320px, 100%); min-width: 0; }
+.v-hero h1 { font-size: clamp(1.7rem, 1.1rem + 3.2vw, 3.1rem); overflow-wrap: anywhere; }
+.v-hero p { max-width: 60ch; }
+.v-hero .v-etiqueta { overflow-wrap: anywhere; }
+@media (max-width: 520px) {
+    .v-hero > .v-chips { width: 100%; }
+    .v-hero > .v-chips .v-btn { flex: 1 1 100%; }
+}
+.v-chip { max-width: 100%; min-width: 0; white-space: normal; overflow-wrap: anywhere; line-height: 1.3; }
+
+/* ---------- Membresía y avisos ---------- */
+.v-membresia { padding: 16px clamp(14px, 3vw, 24px); }
+.v-membresia-info { flex: 1 1 260px; min-width: 0; }
+.v-membresia-info > i { flex: none; }
+.v-membresia-info > div { min-width: 0; }
+.v-membresia-info b, .v-membresia-info small { overflow-wrap: anywhere; }
+.v-aviso { overflow-wrap: anywhere; }
+
+/* ---------- Cifras (KPI) ---------- */
+.v-kpis { gap: clamp(10px, 2vw, 18px); }
+.v-kpi { padding: clamp(14px, 2.6vw, 22px); }
+.v-kpi b { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2rem); overflow-wrap: anywhere; }
+.v-kpi span { display: block; line-height: 1.3; overflow-wrap: anywhere; }
+@media (max-width: 1180px) {
+    .v-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .v-rejilla, .v-dos-col { grid-template-columns: minmax(0, 1fr); }
+}
+@media (min-width: 761px) and (max-width: 960px) {
+    .v-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+    .v-kpi-icono { width: 38px; height: 38px; border-radius: 12px; margin-bottom: 10px; }
+}
+@media (max-width: 339px) {
+    .v-kpis { grid-template-columns: minmax(0, 1fr); }
+    .v-kpi { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 14px; align-items: center; }
+    .v-kpi-icono { grid-row: 1 / span 3; margin-bottom: 0; }
+}
+
+/* ---------- Tarjetas y listas ---------- */
+@media (max-width: 520px) {
+    .v-tarjeta { border-radius: 20px; }
+    .v-tarjeta-cabeza { padding: 16px 16px 0; }
+    .v-tarjeta-cuerpo { padding: 12px 16px 18px; }
+    .v-lista { padding: 8px 8px 14px; }
+}
+.v-tarjeta-cabeza h2, .v-tarjeta-cabeza small { overflow-wrap: anywhere; }
+.v-grafica { height: clamp(190px, 52vw, 230px); }
+
+/* ---------- Inmuebles ---------- */
+.v-propiedades {
+    grid-template-columns: repeat(auto-fill, minmax(min(270px, 100%), 1fr));
+    gap: clamp(12px, 2vw, 18px);
+    padding: 16px clamp(12px, 3vw, 24px) clamp(14px, 3vw, 24px);
+}
+.v-prop { min-width: 0; }
+.v-prop-precio { font-size: clamp(1.1rem, 1rem + 0.6vw, 1.25rem); overflow-wrap: anywhere; }
+.v-prop h3, .v-prop-lugar { overflow-wrap: anywhere; }
+.v-prop-datos, .v-prop-metricas { flex-wrap: wrap; gap: 6px 14px; }
+.v-posicionado { max-width: calc(100% - 96px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.v-estado { max-width: calc(100% - 100px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 680px) {
+    .v-prop-acciones .v-btn { flex: 1 1 auto; }
+}
+@media (max-width: 400px) {
+    .v-prop-acciones { padding: 0 12px 12px; }
+    .v-prop-cuerpo { padding: 14px 14px 10px; }
+    .v-prop-metricas { padding: 10px 14px; }
+}
+
+/* ---------- Contactos y visitas ---------- */
+.v-lista { grid-template-columns: minmax(0, 1fr); }
+.v-fila { min-width: 0; }
+.v-fila-texto small { display: block; overflow-wrap: anywhere; }
+@media (max-width: 680px) {
+    .v-fila-texto span:not(.v-fila-contacto) {
+        display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+        white-space: normal; overflow-wrap: anywhere;
+    }
+}
+@media (max-width: 520px) {
+    .v-fila { flex-wrap: wrap; row-gap: 8px; padding: 12px 8px; }
+    .v-fila-texto { flex: 1 1 calc(100% - 56px); }
+    .v-fila-texto + .v-insignia { margin-inline-start: 52px; }
+    .v-fila-texto + .v-btn { margin-inline-start: 52px; }
+}
+
+/* ---------- Perfil: opciones Vender / Arrendar ---------- */
+.v-titulo-seccion { font-size: clamp(1.45rem, 1rem + 2vw, 1.7rem); overflow-wrap: anywhere; }
+.v-opciones { gap: clamp(14px, 2.5vw, 24px); }
+.v-opcion { padding: clamp(20px, 3.5vw, 32px); border-radius: clamp(20px, 3vw, 28px); min-width: 0; }
+.v-opcion h3 { font-size: clamp(1.7rem, 1.2rem + 2vw, 2.1rem); }
+.v-opcion-icono { width: clamp(52px, 9vw, 66px); height: clamp(52px, 9vw, 66px); font-size: clamp(1.3rem, 1rem + 1vw, 1.7rem); border-radius: 18px; }
+.v-opcion-datos { flex-wrap: wrap; gap: 10px clamp(12px, 3vw, 22px); }
+.v-opcion-cta { flex-wrap: wrap; }
+.v-opcion-datos div b { font-size: clamp(1.3rem, 1rem + 1vw, 1.6rem); }
+
+/* ---------- Perfil: cuenta y capacidades ---------- */
+.v-dato { align-items: flex-start; }
+.v-dato > div { min-width: 0; }
+.v-dato b { overflow-wrap: anywhere; }
+@media (min-width: 481px) and (max-width: 680px) {
+    .v-capacidades { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+    .v-capacidades { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- Ventanas (formularios) ---------- */
+dialog.v-ventana {
+    width: min(640px, calc(100vw - 24px));
+    max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px);
+    overscroll-behavior: contain;
+}
+.v-ventana-cabeza { position: sticky; top: 0; z-index: 5; background: inherit; padding-bottom: 6px; gap: 12px; }
+.v-ventana-cabeza h2 { min-width: 0; overflow-wrap: anywhere; }
+.v-icono-btn { flex: none; }
+.v-form-pie { flex-wrap: wrap; }
+.v-nota { overflow-wrap: anywhere; }
+
+@media (max-width: 680px) {
+    .v-form-rejilla { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .v-campo label { font-size: 0.8rem; }
+}
+@media (max-width: 520px) {
+    .v-form-rejilla > .v-campo:has(#f-tipo, #f-precio, #f-departamento, #f-ciudad, #f-barrio, #f-estrato) { grid-column: 1 / -1; }
+}
+@media (max-width: 339px) {
+    .v-form-rejilla { grid-template-columns: minmax(0, 1fr); }
+}
+@media (min-width: 481px) and (max-width: 680px) {
+    .v-planes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .v-plan { padding: 14px 8px; }
+}
+@media (max-width: 480px) {
+    .v-planes { grid-template-columns: minmax(0, 1fr); }
+}
+.i-plan-opcion { min-width: 0; }
+.i-plan-opcion small { overflow-wrap: anywhere; }
+
+@media (max-width: 520px) {
+    dialog.v-ventana { width: calc(100vw - 16px); max-height: calc(100vh - 16px); max-height: calc(100dvh - 16px); border-radius: 20px; }
+    .v-ventana-cabeza { padding: 14px 16px 6px; }
+    .v-ventana-cabeza h2 { font-size: 1.4rem; }
+    .v-ventana form { padding: 10px 16px 18px; gap: 12px; }
+    .i-ventana-destacar > p, .i-ventana-destacar > .i-planes-opciones { margin-left: 16px; margin-right: 16px; }
+    .v-form-pie { flex-direction: column-reverse; align-items: stretch; }
+    .v-form-pie .v-btn { width: 100%; }
+    .v-mapa { height: 240px; }
+}
+@media (max-width: 400px) {
+    .v-fotos { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
+}
+
+/* ---------- Aviso emergente ---------- */
+.v-toast { bottom: calc(20px + env(safe-area-inset-bottom, 0px)); width: max-content; max-width: calc(100vw - 24px); overflow-wrap: anywhere; }
+
+/* ---------- Letra y campos en teléfonos ---------- */
+@media (max-width: 960px) {
+    .v-campo input, .v-campo select, .v-campo textarea,
+    .i-idioma, .i-select-mini, .i-paquete-agregar select { font-size: 1rem; }
+    .v-fotos-num, .v-fotos-portada, .v-fotos-item figcaption { font-size: 0.75rem; }
+    .v-insignia, .v-estado, .v-posicionado, .v-prop-nfotos { font-size: 0.75rem; }
+}
+@media (max-width: 340px) {
+    .v-contenido { padding-left: 10px; padding-right: 10px; }
+    .v-hero { padding: 18px 16px; }
+    .v-btn { padding: 10px 14px; font-size: 0.88rem; }
+}
+
+/* ---------- Menú lateral desplegable (≤ 960 px) ---------- */
+@media (max-width: 960px) {
+    .i-lateral {
+        width: min(290px, 86vw);
+        height: 100vh; height: 100dvh;
+        padding-top: calc(22px + env(safe-area-inset-top, 0px));
+        padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+        overscroll-behavior: contain;
+    }
+    .i-nav a { padding: 13px 14px; }
+    html:has(.i-lateral.abierto), body:has(.i-lateral.abierto) { overflow: hidden; }
+    .i-salir { width: 44px; padding: 0; justify-content: center; }
+}
+@media (max-width: 520px) {
+    .i-barra { gap: 8px; padding-bottom: 10px; }
+    .i-icono, .i-salir { width: 40px; height: 40px; }
+    .i-idioma { height: 40px; width: 60px; padding: 0 4px; text-align: center; text-align-last: center; }
+}
+@media (max-width: 440px) {
+    .i-usuario { display: none; }
+}
+@media (max-width: 340px) {
+    .i-icono, .i-salir { width: 38px; height: 38px; }
+    .i-idioma { height: 38px; width: 54px; }
+    .i-barra { gap: 6px; }
+}
+
+/* ---------- Pantallas táctiles ---------- */
+@media (pointer: coarse) {
+    .v-btn-mini { min-height: 40px; padding: 8px 14px; }
+    .v-icon-circ { width: 40px; height: 40px; }
+    .v-fotos-quitar { width: 32px; height: 32px; font-size: 0.85rem; }
+    .v-icono-btn { width: 44px; height: 44px; }
+    .car-btn { width: 44px; height: 44px; }
+    .i-paquete-item button { width: 32px; height: 32px; }
+}
+@media (hover: none) {
+    .v-prop:hover, .v-opcion:hover, .v-btn-principal:hover { transform: none; }
+}
+
+/* ---------- Teléfono horizontal ---------- */
+@media (max-height: 480px) and (orientation: landscape) {
+    .v-ventana form { padding-bottom: 14px; }
+    .v-mapa { height: 200px; }
+}

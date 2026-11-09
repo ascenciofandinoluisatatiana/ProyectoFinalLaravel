@@ -190,7 +190,7 @@
     var ETIQUETA_CONTACTO = { nuevo: 'Nuevo', en_seguimiento: 'En seguimiento', cerrado: 'Cerrado', descartado: 'Descartado' };
 
     function pintarContactos() {
-        var lista = deMisInmuebles(datos.contactos).sort(function (a, b) { return new Date(b.fecha) - new Date(a.fecha); }).slice(0, 6);
+        var lista = deMisInmuebles(datos.contactos).sort(function (a, b) { return new Date(b.fecha) - new Date(a.fecha); }).slice(0, 3);
 
         $('d-contactos').innerHTML = lista.length ? lista.map(function (c) {
             var esCorreo = String(c.contacto).indexOf('@') !== -1;
@@ -214,18 +214,41 @@
         });
     }
 
+    // Visitas por atender: pendientes o confirmadas desde el inicio de hoy en adelante
+    function visitasAbiertas() {
+        var hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+        return deMisInmuebles(datos.visitas).filter(function (v) {
+            return (v.estado === 'pendiente' || v.estado === 'confirmada') && new Date(v.fecha) >= hoy;
+        });
+    }
+
+    function botonVisita(clase, icono, texto, atributos) {
+        return '<button type="button" class="v-btn v-btn-suave v-btn-mini ' + clase + '" ' + atributos + '><i class="fa-solid ' + icono + '"></i> ' + texto + '</button>';
+    }
+
     function pintarVisitas() {
-        var lista = proximasVisitas().sort(function (a, b) { return new Date(a.fecha) - new Date(b.fecha); }).slice(0, 5);
+        var lista = visitasAbiertas().sort(function (a, b) { return new Date(a.fecha) - new Date(b.fecha); }).slice(0, 5);
 
         $('d-visitas').innerHTML = lista.length ? lista.map(function (v) {
-            return '<div class="v-fila"><span class="v-fila-avatar">' + new Date(v.fecha).getDate() + '</span>' +
+            var yaPaso = new Date(v.fecha) <= new Date();
+            var quien = v.nombre + ' · ' + v.propiedad.titulo;
+            var datosVisita = 'data-visita-id="' + v.id + '" data-quien="' + V.esc(quien) + '" data-fecha="' + V.esc(v.fecha_local || '') + '"';
+
+            var acciones = '';
+            if (v.estado === 'pendiente') acciones += botonVisita('', 'fa-check', 'Confirmar', 'data-accion="confirmar" data-id="' + v.id + '"');
+            if (v.estado === 'confirmada') acciones += botonVisita('', 'fa-flag-checkered', 'Realizada', 'data-visita-accion="realizada" ' + datosVisita);
+            acciones += botonVisita('', 'fa-clock-rotate-left', 'Reprogramar', 'data-visita-accion="reprogramar" ' + datosVisita);
+            acciones += botonVisita('v-btn-peligro', 'fa-xmark', 'Cancelar', 'data-visita-accion="cancelada" ' + datosVisita);
+
+            return '<div class="v-fila v-visita"><span class="v-fila-avatar">' + new Date(v.fecha).getDate() + '</span>' +
                 '<div class="v-fila-texto"><b>' + V.esc(v.nombre) + '</b><span>' + V.esc(v.propiedad.titulo) + '</span>' +
                 '<small>' + V.esc(V.fecha(v.fecha)) + '</small></div>' +
-                '<span class="v-insignia ' + V.esc(v.estado) + '">' + (v.estado === 'confirmada' ? 'Confirmada' : 'Pendiente') + '</span>' +
-                (v.estado === 'pendiente' ? '<button type="button" class="v-btn v-btn-suave v-btn-mini" data-accion="confirmar" data-id="' + v.id + '" title="Confirmar visita" aria-label="Confirmar visita"><i class="fa-solid fa-check"></i></button>' : '') +
+                '<span class="v-insignia ' + V.esc(v.estado) + '">' + (v.estado === 'confirmada' ? 'Confirmada' : 'Pendiente') + (yaPaso ? ' · ya pasó' : '') + '</span>' +
+                '<div class="v-visita-acciones">' + acciones + '</div>' +
                 '</div>';
-        }).join('') : '<div class="v-vacio"><i class="fa-solid fa-calendar-check"></i>No tienes visitas programadas.</div>';
+        }).join('') : '<div class="v-vacio"><i class="fa-solid fa-calendar-check"></i>No tienes visitas programadas.<br>Usa “Programar visita” o agéndalas desde tus contactos.</div>';
     }
+
 
     /* ---------- Gráfica de contactos (Chart.js) ---------- */
     function pintarGrafica() {
@@ -266,7 +289,6 @@
         pintarMembresia();
         pintarKpis();
         pintarInmuebles();
-        pintarContactos();
         pintarVisitas();
         pintarGrafica();
     }
@@ -791,10 +813,21 @@
         }
     });
 
+
+        /* ---------- Visitas: programar a mano y refrescar cuando algo cambia ---------- */
+    $('d-visita-nueva').addEventListener('click', function () {
+        var opciones = misInmuebles().filter(function (p) { return p.estado !== OP.cierre; })
+            .map(function (p) { return { id: p.id, titulo: titulo(p) + ' · ' + V.cop(p.precio) }; });
+        if (!opciones.length) { V.toast('Primero registra un inmueble para poder programar visitas.'); return; }
+        V.visitas.programar({ propiedades: opciones });
+    });
+    document.addEventListener('umbral:visitas-cambiaron', function () { cargar(); });
+
     // Si cambia el tema, la gráfica se vuelve a dibujar con los colores nuevos
     document.addEventListener('umbral:tema', pintarGrafica);
 
     pintar();
+    document.dispatchEvent(new CustomEvent('umbral:datos'));
     cargarUbicaciones();
     cargar();
 })();

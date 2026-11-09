@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Contactos · Umbral</title>
+    <link rel="icon" type="image/png" href="/img/icono.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
+    <link rel="stylesheet" href="/vendedor/css/vendedor.css">
+    <link rel="stylesheet" href="/inmobiliaria/css/inmobiliaria.css">
+    <link rel="stylesheet" href="/css/panel-violeta.css">
+    <link rel="stylesheet" href="/vendedor/css/vendedor-contactos.css">
+    <link rel="stylesheet" href="/vendedor/css/vendedor-responsivo.css">
+    <link rel="stylesheet" href="/vendedor/css/vendedor-tarjetas.css">
+
+    <script>
+        try {
+            var tema = localStorage.getItem('umbral-tema');
+            if (tema === 'dark' || tema === 'light') document.documentElement.setAttribute('data-theme', tema);
+        } catch (e) {}
+    </script>
+</head>
+<body class="vendedor panel-violeta op-venta" data-pagina="vendedor-contactos">
+    <div class="v-pagina">
+        <header class="v-topbar" id="v-topbar"></header>
+
+        <main class="v-contenido">
+            <section class="v-tarjeta v-hero">
+                <div>
+                    <p class="v-etiqueta"><i class="fa-solid fa-comments"></i> Contactos</p>
+                    <h1 class="titulo-serif">Tus contactos</h1>
+                    <p>Todas las personas interesadas en tus inmuebles, en un solo lugar. Filtra, responde y lleva el seguimiento de cada una.</p>
+                </div>
+                <div class="v-chips" style="margin-top:0">
+                    <a class="v-btn v-btn-suave" href="/vendedor/perfil.html"><i class="fa-solid fa-arrow-left"></i> Mi perfil</a>
+                </div>
+            </section>
+
+            <section class="v-kpis" id="c-kpis" aria-label="Resumen de contactos"></section>
+
+            <section class="v-tarjeta c-panel" aria-labelledby="c-titulo">
+                <div class="v-tarjeta-cabeza">
+                    <h2 id="c-titulo">Lista de contactos</h2>
+                    <small id="c-resumen" aria-live="polite"></small>
+                </div>
+
+                <div class="i-pestanas c-pestanas" id="c-pestanas" role="group" aria-label="Filtrar por estado"></div>
+
+                <div class="c-filtros" id="c-filtros">
+                    <label class="c-buscar">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        <input type="search" id="c-buscar" placeholder="Buscar contacto o mensaje" autocomplete="off" aria-label="Buscar contactos">
+                    </label>
+                    <select id="c-operacion" aria-label="Operación">
+                        <option value="todas">Venta y arriendo</option>
+                        <option value="venta">Solo venta</option>
+                        <option value="arriendo">Solo arriendo</option>
+                    </select>
+                    <select id="c-inmueble" aria-label="Inmueble"></select>
+                    <select id="c-periodo" aria-label="Período">
+                        <option value="todo">Todo el tiempo</option>
+                        <option value="hoy">Hoy</option>
+                        <option value="7">Últimos 7 días</option>
+                        <option value="30">Últimos 30 días</option>
+                    </select>
+                    <select id="c-orden" aria-label="Ordenar por">
+                        <option value="recientes">Más recientes primero</option>
+                        <option value="antiguos">Más antiguos primero</option>
+                        <option value="nombre">Nombre (A–Z)</option>
+                        <option value="inmueble">Por inmueble</option>
+                    </select>
+                    <button type="button" class="v-btn v-btn-suave v-btn-mini c-limpiar" id="c-limpiar" hidden><i class="fa-solid fa-filter-circle-xmark"></i> Limpiar filtros</button>
+                </div>
+
+                <div class="c-encabezado" id="c-encabezado" aria-hidden="true" hidden>
+                    <span></span><span>Contacto</span><span>Mensaje</span><span>Inmueble</span><span>Recibido</span><span>Estado</span><span>Acciones</span>
+                </div>
+
+                <div class="i-estado-carga" id="c-carga"><i class="fa-solid fa-spinner fa-spin"></i>Cargando tus contactos…</div>
+                <div class="c-lista" id="c-lista" hidden></div>
+                <div class="c-mas" id="c-mas" hidden>
+                    <button type="button" class="v-btn v-btn-suave" id="c-mas-btn"></button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/vendedor/js/vendedor.js"></script>
+    <script src="/vendedor/js/visitas.js"></script>
+    <script src="/vendedor/js/contactos.js"></script>
+</body>
+</html>

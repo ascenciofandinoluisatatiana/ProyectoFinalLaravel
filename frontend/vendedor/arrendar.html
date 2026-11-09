@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Arrendar · Umbral</title>
     <link rel="icon" type="image/png" href="/img/icono.png">
 
@@ -23,6 +23,8 @@
     <link rel="stylesheet" href="/vendedor/css/vendedor.css">
     <link rel="stylesheet" href="/inmobiliaria/css/inmobiliaria.css">
     <link rel="stylesheet" href="/css/panel-violeta.css">
+    <link rel="stylesheet" href="/vendedor/css/vendedor-responsivo.css">
+    <link rel="stylesheet" href="/vendedor/css/vendedor-tarjetas.css">
 
     <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
     <script>
@@ -70,31 +72,24 @@
                 <div class="v-propiedades" id="d-propiedades"></div>
             </section>
 
-            <!-- Contactos, visitas y gráfica -->
+            <!-- Visitas y gráfica -->
             <div class="v-rejilla">
                 <section class="v-tarjeta">
                     <div class="v-tarjeta-cabeza">
-                        <h2>Contactos recientes</h2><small>Personas interesadas en tus inmuebles</small>
+                        <h2>Próximas visitas</h2>
+                        <button type="button" class="v-btn v-btn-suave v-btn-mini" id="d-visita-nueva"><i
+                                class="fa-solid fa-calendar-plus"></i> Programar visita</button>
                     </div>
-                    <div class="v-lista" id="d-contactos"></div>
+                    <div class="v-lista" id="d-visitas"></div>
                 </section>
-
-                <div style="display:grid;gap:24px">
-                    <section class="v-tarjeta">
-                        <div class="v-tarjeta-cabeza">
-                            <h2>Próximas visitas</h2>
-                        </div>
-                        <div class="v-lista" id="d-visitas"></div>
-                    </section>
-                    <section class="v-tarjeta">
-                        <div class="v-tarjeta-cabeza">
-                            <h2>Contactos de los últimos 7 días</h2>
-                        </div>
-                        <div class="v-tarjeta-cuerpo">
-                            <div class="v-grafica"><canvas id="d-grafica" aria-label="Contactos por día"></canvas></div>
-                        </div>
-                    </section>
-                </div>
+                <section class="v-tarjeta">
+                    <div class="v-tarjeta-cabeza">
+                        <h2>Contactos de los últimos 7 días</h2>
+                    </div>
+                    <div class="v-tarjeta-cuerpo">
+                        <div class="v-grafica"><canvas id="d-grafica" aria-label="Contactos por día"></canvas></div>
+                    </div>
+                </section>
             </div>
         </main>
     </div>
@@ -195,6 +190,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <script src="/js/carrusel.js"></script>
     <script src="/vendedor/js/vendedor.js"></script>
+    <script src="/vendedor/js/visitas.js"></script>
     <script src="/vendedor/js/dashboard.js"></script>
 </body>
 

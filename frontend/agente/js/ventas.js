@@ -41,6 +41,7 @@
         if (!r.data.length && pagina > 1) return cargar(pagina - 1);
         ultimo = r;
         pintarKpis(r.totales);
+        pintarGanancias(r.totales);
         pintarTabla(r.data);
         if (window.PanelExtra) window.PanelExtra.paginador($('d-paginador'), r.meta, function (n) {
             cargar(n).then(function () { $('d-tabla').scrollIntoView({ behavior: 'smooth', block: 'start' }); })
@@ -57,7 +58,28 @@
             kpi(0, 'fa-handshake', t.cierres, 'Cierres', 'En el periodo elegido') +
             kpi(1, 'fa-key', P.cop(t.total_ventas), 'Ventas', t.ventas + (t.ventas === 1 ? ' inmueble vendido' : ' inmuebles vendidos')) +
             kpi(2, 'fa-house-circle-check', P.cop(t.total_arriendos), 'Arriendos', t.arriendos + (t.arriendos === 1 ? ' inmueble arrendado' : ' inmuebles arrendados')) +
-            kpi(3, 'fa-hand-holding-dollar', P.cop(t.comisiones), 'Mis comisiones', P.cop(t.comisiones_pagadas) + ' ya pagadas');
+            kpi(3, 'fa-percent', '4 %', 'Mi comisión', 'De cada venta o canon de arriendo');
+    }
+
+    // Ganado = todas las comisiones; Pagado = ya las pagó la inmobiliaria; Me deben = la diferencia
+    function pintarGanancias(t) {
+        var ganado = Number(t.comisiones) || 0;
+        var pagado = Number(t.comisiones_pagadas) || 0;
+        var debe = Math.max(0, ganado - pagado);
+        var porcentaje = ganado ? Math.round(pagado / ganado * 100) : 0;
+        function cifra(clase, icono, titulo, valor, nota) {
+            return '<div class="i-ganancia ' + clase + '"><small><i class="fa-solid ' + icono + '"></i>' + titulo + '</small>' +
+                '<b>' + P.cop(valor) + '</b><em>' + P.esc(nota) + '</em></div>';
+        }
+        $('d-ganancias').innerHTML =
+            '<div class="i-ganancias-cifras">' +
+                cifra('', 'fa-sack-dollar', 'Total ganado', ganado, t.cierres + (t.cierres === 1 ? ' cierre con comisión' : ' cierres con comisión')) +
+                cifra('pagado', 'fa-circle-check', 'Ya me pagaron', pagado, 'Comisiones pagadas por la inmobiliaria') +
+                cifra('debe', 'fa-hourglass-half', 'Me deben', debe, 'Comisiones por pagar') +
+            '</div>' +
+            '<div class="i-progreso" role="progressbar" aria-label="Comisiones pagadas" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + porcentaje + '">' +
+                '<span style="width:' + porcentaje + '%"></span></div>' +
+            '<div class="i-progreso-texto"><span>' + porcentaje + ' % pagado</span><span>' + (100 - porcentaje) + ' % pendiente</span></div>';
     }
 
     function pintarTabla(lista) {

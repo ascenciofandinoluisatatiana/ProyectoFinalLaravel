@@ -145,7 +145,7 @@ class LlenadoUmbralSeeder extends Seeder
 
         // Reales (correos de verdad: reciben códigos y enlaces)
         $yola = $this->usuario(['name' => 'Yola Jorge Gómez', 'email' => 'gomezoyolajorge12@gmail.com', 'role_id' => $this->roles['inmobiliaria'],
-            'telefono' => '+57 300 555 0901', 'tipo_documento' => 'NIT', 'numero_documento' => '901234567-1', 'representante_legal' => 'Yola Jorge Gómez']);
+            'telefono' => '+57 300 555 0901', 'tipo_documento' => 'NIT', 'numero_documento' => '901555123-4', 'representante_legal' => 'Yola Jorge Gómez']);
         $heidy = $this->usuario(['name' => 'Heidy', 'email' => 'heidygr5821@gmail.com', 'role_id' => $this->roles['agente'],
             'telefono' => '+57 300 555 0902', 'tipo_documento' => 'CC', 'numero_documento' => '1000000902', 'inmobiliaria_id' => $yola->id]);
 

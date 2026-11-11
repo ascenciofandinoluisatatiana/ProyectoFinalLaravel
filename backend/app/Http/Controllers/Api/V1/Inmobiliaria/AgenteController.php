@@ -52,7 +52,7 @@ class AgenteController extends BaseInmobiliariaController
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:150', 'unique:users,email'],
             'telefono' => ['required', 'string', 'max:20'],
-            'tipo_documento' => ['required', Rule::in(['CC', 'CE'])],
+            'tipo_documento' => ['required', Rule::in(['CC'])],
             'numero_documento' => [
                 'required', 'string', 'max:30',
                 Rule::unique('users')->where(fn ($q) => $q->where('tipo_documento', $request->input('tipo_documento'))),

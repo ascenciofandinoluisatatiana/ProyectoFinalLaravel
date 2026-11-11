@@ -19,10 +19,19 @@
         const u = await fetch(`${API}/ubicaciones`, { headers: { 'Accept': 'application/json' } });
         if (u.ok) { const uj = await u.json(); if (uj.data && uj.data.length) UBIC = uj.data; }
       } catch (_) { }
-      const res = await fetch(`${API}/propiedades?per_page=100`, { headers: { 'Accept': 'application/json' } });
+      const pedir = n => fetch(`${API}/propiedades?per_page=100&page=${n}`, { headers: { 'Accept': 'application/json' } });
+      const res = await pedir(1);
       if (!res.ok) throw new Error('API ' + res.status);
       const json = await res.json();
       if (!json.data || !json.data.length) return;
+      // El servidor entrega 100 por página: se piden todas para que el portal vea todo el catálogo
+      const paginas = (json.meta && json.meta.last_page) || 1;
+      for (let n = 2; n <= paginas; n++) {
+        const r = await pedir(n);
+        if (!r.ok) break;
+        const j = await r.json();
+        json.data = json.data.concat(j.data || []);
+      }
       const map = new Map();
       P = json.data.map(p => {
         if (!map.has(p.seller.id)) map.set(p.seller.id, { ...p.seller, idx: map.size });

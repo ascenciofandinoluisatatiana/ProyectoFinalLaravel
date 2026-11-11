@@ -53,31 +53,48 @@ class PublicPropiedadController extends Controller
             ->withCount('calificaciones');
     }
 
+    /** Solo texto simple de tamaño razonable; cualquier otra cosa (listas, números raros) se ignora. */
+    private static function texto(mixed $valor, int $max = 100): ?string
+    {
+        return is_string($valor) && $valor !== '' && mb_strlen($valor) <= $max ? $valor : null;
+    }
+
+    /** Las propiedades de una cuenta desactivada no se muestran (el historial se conserva en la base). */
+    private static function conCuentaActiva($q)
+    {
+        return $q->whereHas('vendedor', fn ($u) => $u->where('estado', 'activo'));
+    }
+
     public function index(Request $r)
     {
-        $q = Propiedad::query()
+        $operacion = in_array($r->query('operacion'), ['venta', 'arriendo'], true) ? $r->query('operacion') : null;
+        $tipo = in_array($r->query('tipo'), ['apartamento', 'casa', 'finca', 'local', 'lote', 'oficina'], true) ? $r->query('tipo') : null;
+        $ciudad = self::texto($r->query('ciudad'));
+        $barrio = self::texto($r->query('barrio'));
+        $precioMax = filter_var($r->query('precio_max'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 999999999999]]);
+        $porPagina = max(1, min((int) $r->query('per_page', 100), 100));
+
+        $q = self::conCuentaActiva(Propiedad::query())
             ->select('propiedades.*')
             ->selectRaw(self::premiumSql())
             ->with(['vendedor' => self::vendedorConResenas(), 'fotos'])
             ->where('estado', 'publicada')
-            ->when($r->operacion,  fn ($q, $v) => $q->where('operacion', $v))
-            ->when($r->tipo,       fn ($q, $v) => $q->where('tipo', $v))
-            ->when($r->ciudad,     fn ($q, $v) => $q->where('ciudad', $v))
-            ->when($r->barrio,     fn ($q, $v) => $q->where('barrio', $v))
-            ->when($r->precio_max, fn ($q, $v) => $q->where('precio', '<=', $v))
+            ->when($operacion,  fn ($q, $v) => $q->where('operacion', $v))
+            ->when($tipo,       fn ($q, $v) => $q->where('tipo', $v))
+            ->when($ciudad,     fn ($q, $v) => $q->where('ciudad', $v))
+            ->when($barrio,     fn ($q, $v) => $q->where('barrio', $v))
+            ->when($precioMax !== false && $precioMax !== null, fn ($q) => $q->where('precio', '<=', $precioMax))
             ->orderByDesc('nivel')
             ->orderByDesc('score')
             ->orderByDesc('verificada')
             ->latest('propiedades.id');
 
-        return PropiedadPublicaResource::collection(
-            $q->paginate(min((int) $r->get('per_page', 100), 100))
-        );
+        return PropiedadPublicaResource::collection($q->paginate($porPagina));
     }
 
     public function show(int $id)
     {
-        $p = Propiedad::query()
+        $p = self::conCuentaActiva(Propiedad::query())
             ->select('propiedades.*')
             ->selectRaw(self::premiumSql())
             ->with(['vendedor' => self::vendedorConResenas(), 'fotos'])

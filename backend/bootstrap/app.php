@@ -19,7 +19,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'inmobiliaria.api' => \App\Http\Middleware\EnsureInmobiliariaApi::class,
             'agente.api' => \App\Http\Middleware\EnsureAgenteApi::class,
             'vendedor.api' => \App\Http\Middleware\EnsureVendedorApi::class,
+            'movimientos' => \App\Http\Middleware\RegistrarMovimientos::class,
         ]);
+
+        // Correos en minúsculas en todas las peticiones
+        $middleware->append(\App\Http\Middleware\NormalizarCorreo::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

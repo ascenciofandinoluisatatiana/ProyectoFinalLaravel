@@ -54,6 +54,7 @@
       details: ['Ver detalles', 'Details', 'Detalhes', 'Détails'],
       t_casa: ['Casa', 'House', 'Casa', 'Maison'], t_apartamento: ['Apartamento', 'Apartment', 'Apartamento', 'Appartement'],
       t_finca: ['Finca', 'Country estate', 'Chácara', 'Domaine'], t_local: ['Local comercial', 'Commercial space', 'Ponto comercial', 'Local commercial'], t_lote: ['Lote', 'Land lot', 'Terreno', 'Terrain'],
+      t_oficina: ['Oficina', 'Office', 'Escritório', 'Bureau'],
       in_: ['en', 'in', 'em', 'à'],
       estrato: ['Estrato', 'Socioeconomic stratum', 'Estrato', 'Strate'],
       location: ['Ubicación', 'Location', 'Localização', 'Localisation'],
@@ -108,4 +109,4 @@
       local: ['Local comercial en zona de alto flujo peatonal, vitrina amplia, baño privado y fácil acceso.', 'Commercial space in a high-foot-traffic area, wide storefront, private restroom and easy access.', 'Ponto comercial em área de grande fluxo de pedestres, vitrine ampla, banheiro privativo e fácil acesso.', 'Local commercial dans une zone très fréquentée, grande vitrine, sanitaires privés et accès facile.'],
       lote: ['Lote plano con excelente proyección de valorización, servicios disponibles y vías de acceso pavimentadas.', 'Flat lot with strong appreciation potential, utilities available and paved access roads.', 'Terreno plano com excelente potencial de valorização, serviços disponíveis e vias de acesso pavimentadas.', 'Terrain plat à fort potentiel de valorisation, services disponibles et routes d\'accès goudronnées.']
     };
-    const TYPE_ICON = { casa: 'fa-house', apartamento: 'fa-building', finca: 'fa-tree', local: 'fa-store', lote: 'fa-mountain-sun' };
+    const TYPE_ICON = { casa: 'fa-house', apartamento: 'fa-building', finca: 'fa-tree', local: 'fa-store', lote: 'fa-mountain-sun', oficina: 'fa-briefcase' };

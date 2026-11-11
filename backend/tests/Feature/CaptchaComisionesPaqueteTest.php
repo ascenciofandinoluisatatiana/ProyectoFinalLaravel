@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Comision;
 use App\Models\Membresia;
+use App\Models\OfertaPaquete;
 use App\Models\PaqueteMembresia;
 use App\Models\Pago;
 use App\Models\Propiedad;
@@ -119,26 +120,28 @@ class CaptchaComisionesPaqueteTest extends TestCase
     {
         $this->actingAs($this->inmo);
         $esperado = (int) round(59900 * 10 * 0.75);
+        $oro = OfertaPaquete::where('nombre', 'Oro')->firstOrFail();   // oferta inicial: 10 publicaciones, mensual, 25 %
 
-        $this->getJson('/api/v1/inmobiliaria/membresia')->assertOk()
-            ->assertJsonPath('paquete', null)->assertJsonPath('paquete_oferta.precio', $esperado);
+        $oferta = collect($this->getJson('/api/v1/inmobiliaria/membresia')->assertOk()
+            ->assertJsonCount(0, 'paquetes')->json('ofertas'))->firstWhere('id', $oro->id);
+        $this->assertSame($esperado, $oferta['precio']);
 
-        $this->postJson('/api/v1/inmobiliaria/membresia/paquete')->assertCreated();
+        $this->postJson('/api/v1/inmobiliaria/membresia/paquete', ['oferta_id' => $oro->id])->assertCreated();
         $this->assertSame($esperado * 100, Pago::sole()->monto_centavos);
-        $this->postJson('/api/v1/inmobiliaria/membresia/paquete')->assertStatus(422);   // uno vigente a la vez
+        $paquete = PaqueteMembresia::sole();
 
         $props = collect(range(1, 11))->map(fn () => $this->propiedad());
         foreach ($props->take(10) as $p) {
-            $this->postJson('/api/v1/inmobiliaria/membresia/paquete/publicaciones', ['propiedad_id' => $p->id])->assertCreated();
+            $this->postJson('/api/v1/inmobiliaria/membresia/paquete/publicaciones', ['paquete_id' => $paquete->id, 'propiedad_id' => $p->id])->assertCreated();
         }
         // El cupo 11 no cabe
-        $this->postJson('/api/v1/inmobiliaria/membresia/paquete/publicaciones', ['propiedad_id' => $props[10]->id])->assertStatus(422);
+        $this->postJson('/api/v1/inmobiliaria/membresia/paquete/publicaciones', ['paquete_id' => $paquete->id, 'propiedad_id' => $props[10]->id])->assertStatus(422);
 
         // Quitar una libera el cupo
         $this->deleteJson('/api/v1/inmobiliaria/membresia/paquete/publicaciones/' . $props[0]->id)->assertOk();
-        $this->postJson('/api/v1/inmobiliaria/membresia/paquete/publicaciones', ['propiedad_id' => $props[10]->id])->assertCreated();
+        $this->postJson('/api/v1/inmobiliaria/membresia/paquete/publicaciones', ['paquete_id' => $paquete->id, 'propiedad_id' => $props[10]->id])->assertCreated();
 
-        $this->getJson('/api/v1/inmobiliaria/membresia')->assertJsonPath('paquete.usados', 10);
+        $this->getJson('/api/v1/inmobiliaria/membresia')->assertJsonPath('paquetes.0.usados', 10);
         $lista = collect($this->getJson('/api/v1/inmobiliaria/propiedades')->json('data'))->keyBy('id');
         $this->assertTrue($lista[$props[10]->id]['destacado']['en_paquete']);
         $this->assertNull($lista[$props[0]->id]['destacado']);

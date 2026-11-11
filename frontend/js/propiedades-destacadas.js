@@ -242,6 +242,13 @@
         raiz.classList.add('dest-in');
     }
 
+    // Orden al azar: en cada visita se muestran otras 10 del mismo nivel
+    function mezclar(a) {
+        a = a.slice();
+        for (var i = a.length - 1; i > 0; i--) { var k = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[k]; a[k] = t; }
+        return a;
+    }
+
     async function cargar() {
         if (!API) {
             vista.innerHTML = '<p class="dest-aviso">No se encontró la configuración de la API.</p>';
@@ -249,13 +256,23 @@
             return;
         }
         try {
-            var respuesta = await fetch(API.replace(/\/$/, '') + '/public/propiedades?per_page=100', { headers: { Accept: 'application/json' } });
+            var pedir = function (n) { return fetch(API.replace(/\/$/, '') + '/public/propiedades?per_page=100&page=' + n, { headers: { Accept: 'application/json' } }); };
+            var respuesta = await pedir(1);
             if (!respuesta.ok) throw new Error('HTTP ' + respuesta.status);
             var json = await respuesta.json();
             var lista = Array.isArray(json.data) ? json.data : [];
 
+            // El servidor entrega primero las de membresía (Oro, Plata, Bronce): se piden páginas mientras la última sea de membresía
+            var paginas = (json.meta && json.meta.last_page) || 1;
+            for (var n = 2; n <= paginas && lista.length && lista[lista.length - 1].tier; n++) {
+                var r = await pedir(n);
+                if (!r.ok) break;
+                var j = await r.json();
+                lista = lista.concat(Array.isArray(j.data) ? j.data : []);
+            }
+
             grupos = NIVELES.map(function (nivel) {
-                return { nivel: nivel, props: lista.filter(function (p) { return pertenece(p, nivel); }).slice(0, POR_NIVEL), el: null };
+                return { nivel: nivel, props: mezclar(lista.filter(function (p) { return pertenece(p, nivel); })).slice(0, POR_NIVEL), el: null };
             }).filter(function (g) { return g.props.length; });
 
             if (!grupos.length) {

@@ -7,12 +7,10 @@ use Tests\TestCase;
 class ExampleTest extends TestCase
 {
     /**
-     * La página principal redirige al panel de administración.
+     * El panel vive en el frontend estático; Laravel solo responde su health check.
      */
-    public function test_the_application_redirects_to_the_admin_panel(): void
+    public function test_la_aplicacion_responde(): void
     {
-        $response = $this->get('/');
-
-        $response->assertRedirect(route('admin.panel'));
+        $this->get('/up')->assertOk();
     }
 }

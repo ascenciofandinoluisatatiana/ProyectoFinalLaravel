@@ -180,7 +180,7 @@ Route::prefix('v1/inmobiliaria')->middleware('web')->group(function () {
     Route::get('csrf', [InmobiliariaSesionController::class, 'csrf']);
     Route::post('sesion', [InmobiliariaSesionController::class, 'entrar'])->middleware('throttle:10,1');
 
-    Route::middleware('inmobiliaria.api')->group(function () {
+    Route::middleware(['inmobiliaria.api', 'movimientos'])->group(function () {
         Route::get('yo', [InmobiliariaSesionController::class, 'yo']);
         Route::post('salir', [InmobiliariaSesionController::class, 'salir']);
 
@@ -241,7 +241,7 @@ Route::prefix('v1/vendedor')->middleware('web')->group(function () {
     Route::get('csrf', [VendedorSesionController::class, 'csrf']);
     Route::post('sesion', [VendedorSesionController::class, 'entrar'])->middleware('throttle:10,1');
 
-    Route::middleware('vendedor.api')->group(function () {
+    Route::middleware(['vendedor.api', 'movimientos'])->group(function () {
         Route::get('yo', [VendedorSesionController::class, 'yo']);
         Route::post('salir', [VendedorSesionController::class, 'salir']);
         Route::get('perfil', [VendedorPerfilController::class, 'show']);
@@ -277,7 +277,7 @@ Route::prefix('v1/agente')->middleware('web')->group(function () {
     Route::get('csrf', [AgenteSesionController::class, 'csrf']);
     Route::post('sesion', [AgenteSesionController::class, 'entrar'])->middleware('throttle:10,1');
 
-    Route::middleware('agente.api')->group(function () {
+    Route::middleware(['agente.api', 'movimientos'])->group(function () {
         Route::get('yo', [AgenteSesionController::class, 'yo']);
         Route::post('salir', [AgenteSesionController::class, 'salir']);
 

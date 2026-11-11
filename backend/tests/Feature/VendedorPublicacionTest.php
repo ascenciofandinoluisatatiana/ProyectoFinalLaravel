@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Membresia;
+use App\Models\OfertaVendedor;
 use App\Models\Propiedad;
 use App\Models\Role;
 use App\Models\User;
@@ -49,6 +50,12 @@ class VendedorPublicacionTest extends TestCase
             'user_id' => $u->id, 'propiedad_id' => $propiedadId, 'plan' => $plan, 'precio' => 59900, 'estado' => 'activa',
             'fecha_inicio' => now()->toDateString(), 'fecha_fin' => now()->addMonth()->toDateString(),
         ]);
+    }
+
+    /** Id de la oferta de vendedor que creó la migración para ese plan (semanal, quincenal o mensual). */
+    private function oferta(string $plan): int
+    {
+        return (int) OfertaVendedor::where('plan_base', $plan)->value('id');
     }
 
     private function datosPropiedad(array $extra = []): array
@@ -151,8 +158,8 @@ class VendedorPublicacionTest extends TestCase
         $b = $this->postJson('/api/v1/vendedor/propiedades', $this->datosPropiedad(['barrio' => 'Cádiz']))->assertCreated()->json('data.id');
 
         // Paga la membresía solo del primero (pago simulado: se activa al instante)
-        $this->postJson('/api/v1/vendedor/membresia', ['plan' => 'quincenal', 'propiedad_id' => $a])
-            ->assertCreated()->assertJsonPath('data.propiedad_id', $a)->assertJsonPath('data.plan', 'quincenal');
+        $this->postJson('/api/v1/vendedor/membresia', ['oferta_id' => $this->oferta('quincenal'), 'propiedad_id' => $a])
+            ->assertCreated();
 
         $publicos = collect($this->getJson('/api/v1/public/propiedades')->assertOk()->json('data'))->keyBy('id');
         $this->assertTrue($publicos[$a]['prem']);
@@ -166,28 +173,29 @@ class VendedorPublicacionTest extends TestCase
         $this->assertNull($panel[$b]['membresia']);
     }
 
-    public function test_renovar_la_membresia_de_un_inmueble_no_pierde_dias(): void
+    public function test_un_inmueble_ya_posicionado_no_se_compra_dos_veces(): void
     {
         $id = $this->actingAs($this->vendedor)->postJson('/api/v1/vendedor/propiedades', $this->datosPropiedad())->json('data.id');
+        $oferta = $this->oferta('semanal');
 
-        $this->postJson('/api/v1/vendedor/membresia', ['plan' => 'semanal', 'propiedad_id' => $id])->assertCreated();
-        $this->postJson('/api/v1/vendedor/membresia', ['plan' => 'semanal', 'propiedad_id' => $id])->assertCreated()
-            ->assertJsonPath('data.fecha_inicio', now('America/Bogota')->addWeek()->toDateString());
+        $this->postJson('/api/v1/vendedor/membresia', ['oferta_id' => $oferta, 'propiedad_id' => $id])->assertCreated();
+        $this->postJson('/api/v1/vendedor/membresia', ['oferta_id' => $oferta, 'propiedad_id' => $id])
+            ->assertStatus(422)->assertJsonValidationErrors(['propiedad_id']);
     }
 
     public function test_la_membresia_exige_inmueble_propio_y_que_siga_en_el_portal(): void
     {
         $this->actingAs($this->vendedor);
 
-        $this->postJson('/api/v1/vendedor/membresia', ['plan' => 'semanal'])
+        $this->postJson('/api/v1/vendedor/membresia', ['oferta_id' => $this->oferta('semanal')])
             ->assertStatus(422)->assertJsonValidationErrors(['propiedad_id']);
 
         $otro = $this->usuario('vendedor');
         $ajena = Propiedad::create(array_merge($this->datosPropiedad(), ['user_id' => $otro->id, 'estado' => 'publicada']));
-        $this->postJson('/api/v1/vendedor/membresia', ['plan' => 'semanal', 'propiedad_id' => $ajena->id])->assertNotFound();
+        $this->postJson('/api/v1/vendedor/membresia', ['oferta_id' => $this->oferta('semanal'), 'propiedad_id' => $ajena->id])->assertNotFound();
 
         $vendida = Propiedad::create(array_merge($this->datosPropiedad(), ['user_id' => $this->vendedor->id, 'estado' => 'vendida']));
-        $this->postJson('/api/v1/vendedor/membresia', ['plan' => 'semanal', 'propiedad_id' => $vendida->id])
+        $this->postJson('/api/v1/vendedor/membresia', ['oferta_id' => $this->oferta('semanal'), 'propiedad_id' => $vendida->id])
             ->assertStatus(422)->assertJsonValidationErrors(['propiedad_id']);
     }
 
@@ -252,8 +260,8 @@ class VendedorPublicacionTest extends TestCase
         $id = $this->actingAs($this->vendedor)->postJson('/api/v1/vendedor/propiedades', $this->datosPropiedad())
             ->assertJsonPath('data.estado', 'publicada')->json('data.id');
 
-        $this->postJson('/api/v1/vendedor/membresia', ['plan' => 'quincenal', 'propiedad_id' => $id])
-            ->assertCreated()->assertJsonPath('data.plan', 'quincenal');
+        $this->postJson('/api/v1/vendedor/membresia', ['oferta_id' => $this->oferta('quincenal'), 'propiedad_id' => $id])
+            ->assertCreated();
         $this->getJson('/api/v1/vendedor/membresia')->assertOk()
             ->assertJsonPath('vigentes.0.plan', 'quincenal')->assertJsonPath('vigentes.0.propiedad_id', $id);
 

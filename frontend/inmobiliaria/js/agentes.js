@@ -112,7 +112,7 @@
                     '<td><div class="i-agente"><span class="v-fila-avatar">' + I.esc(I.iniciales(a.nombre)) + '</span>' +
                         '<div><b>' + I.esc(a.nombre) + '</b><small>' + I.esc(a.email) + '</small></div></div></td>' +
                     '<td>' + I.esc(a.telefono || '—') + '</td>' +
-                    '<td>' + I.esc((a.tipo_documento || '') + ' ' + (a.numero_documento || '')) + '</td>' +
+                    '<td class="i-nowrap">' + I.esc((a.tipo_documento || '') + ' ' + (a.numero_documento || '')) + '</td>' +
                     '<td class="num">' + Number(a.propiedades) + '</td>' +
                     '<td class="num">' + Number(a.contactos) + '</td>' +
                     '<td class="num">' + Number(a.visitas) + '</td>' +

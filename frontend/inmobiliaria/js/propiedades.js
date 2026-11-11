@@ -57,43 +57,34 @@
         });
     }
 
-    /* ---------- Tarjetas ---------- */
+    /* ---------- Tarjetas (mismo diseño de las tarjetas del portal del invitado) ---------- */
     function tarjeta(p) {
-        var botones = '';
-        function boton(accion, icono, texto) {
-            return '<button type="button" class="v-btn v-btn-suave v-btn-mini" data-accion="' + accion + '" data-id="' + p.id + '">' +
-                '<i class="fa-solid ' + icono + '"></i>' + texto + '</button>';
-        }
         var cierre = p.operacion === 'venta' ? 'vendida' : 'arrendada';
         var cerrada = p.estado === cierre;
-
-        if (p.estado === 'borrador') botones += boton('estado:publicada', 'fa-bullhorn', 'Publicar');
-        if (p.estado === 'publicada') botones += boton('estado:pausada', 'fa-pause', 'Pausar') +
-            boton('estado:' + cierre, 'fa-handshake', p.operacion === 'venta' ? 'Marcar vendida' : 'Marcar arrendada');
-        if (p.estado === 'pausada') botones += boton('estado:publicada', 'fa-play', 'Reanudar');
-        if (cerrada) botones += boton('estado:publicada', 'fa-rotate-left', 'Volver a publicar');
-        if (!cerrada) botones += boton('editar', 'fa-pen', 'Editar');
-        botones += boton('eliminar', 'fa-trash', 'Eliminar');
-
-        // Membresía de ESTA publicación: con plan sale primero en el portal; sin plan, después
         var d = p.destacado;
-        var destacado = '';
-        if (d && d.en_paquete) {
-            destacado = '<div class="i-destacado activo"><i class="fa-solid fa-layer-group"></i><span><b>Destacada · en tu paquete</b>' +
-                'Hasta el ' + I.esc(I.fechaLarga(d.fecha_fin)) + ' · cuenta como plan mensual</span>' +
-                '<a class="v-btn v-btn-suave v-btn-mini" href="/inmobiliaria/membresia.html"><i class="fa-solid fa-layer-group"></i>Ver paquete</a></div>';
-        } else if (d) {
-            destacado = '<div class="i-destacado activo"><i class="fa-solid fa-star"></i><span><b>Destacada · plan ' + I.esc(d.nombre_plan.toLowerCase()) + '</b>' +
-                'Hasta el ' + I.esc(I.fechaLarga(d.fecha_fin)) + ' · ' + Number(d.dias_restantes) + (d.dias_restantes === 1 ? ' día' : ' días') + '</span>' +
-                (!cerrada ? '<button type="button" class="v-btn v-btn-suave v-btn-mini" data-accion="destacar" data-id="' + p.id + '"><i class="fa-solid fa-rotate"></i>Renovar</button>' : '') +
-                '</div>';
-        } else if (!cerrada) {
-            destacado = '<div class="i-destacado"><i class="fa-solid fa-star"></i><span><b>Sin destacar</b>Se ve en el portal después de las destacadas.</span>' +
-                '<button type="button" class="v-btn v-btn-principal v-btn-mini" data-accion="destacar" data-id="' + p.id + '"><i class="fa-solid fa-star"></i>Destacar</button></div>';
+
+        function boton(accion, icono, texto, clase) {
+            return '<button type="button" class="i-pbtn ' + (clase || '') + '" data-accion="' + accion + '" data-id="' + p.id + '"' +
+                (texto ? '' : ' title="Eliminar" aria-label="Eliminar"') + '>' +
+                '<i class="fa-solid ' + icono + '"></i>' + (texto ? '<span>' + texto + '</span>' : '') + '</button>';
         }
 
-        var precio = I.cop(p.precio) + (p.operacion === 'arriendo' ? '<small> / mes</small>' : '');
-        var totalFotos = (p.imagen ? 1 : 0) + (p.fotos ? p.fotos.length : 0);
+        // Acciones: primero la del estado, luego editar y destacar; eliminar va solo con ícono
+        var botones = '';
+        if (p.estado === 'borrador') botones += boton('estado:publicada', 'fa-bullhorn', 'Publicar', 'principal');
+        if (p.estado === 'publicada') botones += boton('estado:' + cierre, 'fa-handshake', p.operacion === 'venta' ? 'Vendida' : 'Arrendada', 'principal') +
+            boton('estado:pausada', 'fa-pause', 'Pausar');
+        if (p.estado === 'pausada') botones += boton('estado:publicada', 'fa-play', 'Reanudar', 'principal');
+        if (cerrada) botones += boton('estado:publicada', 'fa-rotate-left', 'Volver a publicar', 'principal');
+        if (!cerrada) botones += boton('editar', 'fa-pen', 'Editar');
+        if (!cerrada && !(d && d.en_paquete)) botones += boton('destacar', d ? 'fa-rotate' : 'fa-star', d ? 'Renovar' : 'Destacar', 'oro');
+        botones += boton('eliminar', 'fa-trash', '', 'peligro');
+
+        // Línea corta de la membresía de esta publicación
+        var destacado = d
+            ? '<div class="i-pdestacado activo"><i class="fa-solid ' + (d.en_paquete ? 'fa-layer-group' : 'fa-star') + '"></i>' +
+                (d.en_paquete ? 'En tu paquete' : 'Plan ' + I.esc(d.nombre_plan.toLowerCase())) + ' · hasta el ' + I.esc(I.fechaLarga(d.fecha_fin)) + '</div>'
+            : (cerrada ? '' : '<div class="i-pdestacado" title="Sale en el portal después de las destacadas"><i class="fa-regular fa-star"></i>Sin destacar</div>');
 
         // Lo que le falta a la ficha para verse completa en el portal
         var falta = [];
@@ -101,30 +92,39 @@
         if (!p.descripcion) falta.push('descripción');
         if (!p.caracteristicas || !p.caracteristicas.length) falta.push('características');
         var aviso = falta.length && !cerrada
-            ? '<p class="i-incompleta"><i class="fa-solid fa-circle-exclamation"></i><span>Para que el invitado la vea completa, falta: ' + I.esc(falta.join(', ')) + '.</span></p>'
+            ? '<p class="i-pfalta" title="Para que el invitado la vea completa, falta: ' + I.esc(falta.join(', ')) + '"><i class="fa-solid fa-circle-exclamation"></i>Falta: ' + I.esc(falta.join(', ')) + '</p>'
             : '';
 
-        return '<article class="v-prop' + (d ? ' i-prop-destacada' : '') + '">' +
-            '<div class="v-prop-foto"><i class="fa-solid fa-house"></i>' + I.foto(p.imagen) +
-                '<span class="v-estado ' + I.esc(p.estado) + '">' + I.esc(I.ESTADOS_PROPIEDAD[p.estado] || p.estado) + '</span>' +
-                (d ? '<span class="i-sello-destacada"><i class="fa-solid fa-crown"></i>' + I.esc(d.en_paquete ? 'Paquete' : d.nombre_plan) + '</span>' : '') + '</div>' +
-            '<div class="v-prop-cuerpo">' +
-                '<div class="v-prop-precio">' + precio + '</div>' +
-                '<h3>' + I.esc((I.TIPOS[p.tipo] || p.tipo) + ' en ' + p.barrio) + (p.verificada ? ' <i class="fa-solid fa-circle-check i-verificada" title="Propiedad verificada"></i>' : '') + '</h3>' +
-                '<div class="v-prop-lugar"><i class="fa-solid fa-location-dot"></i> ' + I.esc(p.ciudad) + ', ' + I.esc(p.departamento) + '</div>' +
-                '<div class="v-prop-datos">' +
-                    '<span><i class="fa-solid fa-bed"></i>' + Number(p.habitaciones) + '</span>' +
-                    '<span><i class="fa-solid fa-bath"></i>' + Number(p.banos) + '</span>' +
-                    '<span><i class="fa-solid fa-ruler-combined"></i>' + Number(p.area) + ' m²</span>' +
-                    '<span><i class="fa-solid fa-camera"></i>' + totalFotos + '</span>' +
-                    '<span>' + (p.operacion === 'venta' ? 'Venta' : 'Arriendo') + '</span>' +
-                '</div>' + aviso + destacado +
-                '<div class="v-campo i-asignar"><label for="ag-' + p.id + '">Agente</label>' +
+        var renta = p.operacion === 'arriendo';
+        var agente = p.agente ? p.agente.nombre : '';
+
+        return '<article class="i-pcard' + (d ? ' destacada' : '') + '">' +
+            '<div class="i-pimg"><i class="fa-solid fa-house"></i>' + I.foto(p.imagen) +
+                '<div class="i-pbadges">' +
+                    '<span class="i-b ' + (renta ? 'arriendo' : 'venta') + '">' + (renta ? 'Arriendo' : 'Venta') + '</span>' +
+                    '<span class="i-b estado ' + I.esc(p.estado) + '">' + I.esc(I.ESTADOS_PROPIEDAD[p.estado] || p.estado) + '</span>' +
+                    (p.verificada ? '<span class="i-b verificada"><i class="fa-solid fa-circle-check"></i>Verificada</span>' : '') +
+                '</div>' +
+                (d ? '<span class="i-pcorona" title="Destacada"><i class="fa-solid fa-crown"></i>' + I.esc(d.en_paquete ? 'Paquete' : d.nombre_plan) + '</span>' : '') +
+            '</div>' +
+            '<div class="i-pbody">' +
+                '<div class="i-pprecio">' + I.cop(p.precio) + (renta ? '<small> / mes</small>' : '') + '</div>' +
+                '<div class="i-ptitulo">' + I.esc((I.TIPOS[p.tipo] || p.tipo) + ' en ' + p.barrio) + '</div>' +
+                '<div class="i-plugar"><i class="fa-solid fa-location-dot"></i>' + I.esc(p.ciudad) + ', ' + I.esc(p.departamento) + '</div>' +
+                '<div class="i-pdatos">' +
+                    '<span title="Habitaciones"><i class="fa-solid fa-bed"></i>' + Number(p.habitaciones) + '</span>' +
+                    '<span title="Baños"><i class="fa-solid fa-bath"></i>' + Number(p.banos) + '</span>' +
+                    '<span title="Área"><i class="fa-solid fa-ruler-combined"></i>' + Number(p.area) + ' m²</span>' +
+                    '<span title="Contactos"><i class="fa-solid fa-comments"></i>' + Number(p.contactos) + '</span>' +
+                    '<span title="Visitas"><i class="fa-solid fa-calendar-check"></i>' + Number(p.visitas) + '</span>' +
+                '</div>' +
+                destacado + aviso +
+                '<div class="i-pagente"><span class="i-pavatar">' + I.esc(agente ? I.iniciales(agente) : '?') + '</span>' +
+                    '<label class="v-oculto" for="ag-' + p.id + '">Agente</label>' +
                     '<select id="ag-' + p.id + '" data-asignar="' + p.id + '">' +
                     I.opcionesAgentes(agentes, p.agente ? p.agente.id : null) + '</select></div>' +
+                '<div class="i-pacciones">' + botones + '</div>' +
             '</div>' +
-            '<div class="v-prop-metricas"><span><b>' + p.contactos + '</b> contactos</span><span><b>' + p.visitas + '</b> visitas</span></div>' +
-            '<div class="v-prop-acciones">' + botones + '</div>' +
         '</article>';
     }
 

@@ -326,6 +326,9 @@
         llenarCiudades('', '');
     }
 
+    form.descripcion.addEventListener('input', function () {
+        $('f-descripcion-cuenta').textContent = form.descripcion.value.length;
+    });
     form.departamento.addEventListener('change', function () { llenarCiudades(form.departamento.value, ''); });
 
     /* ----- Fotos del inmueble: mínimo 5, máximo 15, con carrusel -----
@@ -589,7 +592,7 @@
         $('d-form-titulo').textContent = p ? 'Editar inmueble' : 'Registrar inmueble';
         $('d-form-nota').textContent = 'Publicar es gratis: el inmueble aparece en la zona normal al guardarlo. Después puedes posicionarlo con una membresía.';
         if (p) {
-            ['tipo', 'precio', 'barrio', 'direccion', 'habitaciones', 'banos', 'parqueaderos', 'area', 'estrato'].forEach(function (c) {
+            ['tipo', 'precio', 'barrio', 'direccion', 'habitaciones', 'banos', 'parqueaderos', 'area', 'estrato', 'descripcion'].forEach(function (c) {
                 form[c].value = p[c] == null ? '' : p[c];
             });
             form.departamento.value = p.departamento;
@@ -598,6 +601,7 @@
             form.departamento.value = '';
             llenarCiudades('', '');
         }
+        $('f-descripcion-cuenta').textContent = form.descripcion.value.length;
         iniciarFotos(p);
         ventanaForm.showModal();
         if (!ubicaciones.length) V.toast('La lista de departamentos está vacía: hay que cargar los municipios en la base de datos.');
@@ -638,6 +642,11 @@
             fd.append(c, String(form[c].value).trim());
         });
         if (form.estrato.value) fd.append('estrato', form.estrato.value);
+        // Descripción: al editar solo se envía si el inmueble ya la trae del servidor (o si se escribió algo),
+        // para no borrar la que ya está publicada.
+        if (form.descripcion.value.trim() !== '' || (existente && 'descripcion' in existente)) {
+            fd.append('descripcion', form.descripcion.value.trim());
+        }
         if (portadaNueva) fd.append('imagen', portadaNueva.blob, 'portada.jpg');
         else if (quitarPrincipal && !portadaGuardada) fd.append('quitar_imagen', '1');
         // Un inmueble nuevo se crea como borrador y se publica al final, cuando ya subieron todas las fotos

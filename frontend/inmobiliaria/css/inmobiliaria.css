@@ -609,3 +609,12 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
 [data-theme="dark"] .i-pbtn.oro { color: #fbbf24; }
 .i-pbtn.peligro { flex: 0 0 34px; padding: 0; color: var(--peligro); }
 .i-pbtn.peligro:hover { background: var(--peligro-fondo); }
+/* Cifras (KPI) en tonos morados, igual que los paneles del vendedor y el administrador */
+.i-app .k-1 { --k: #9333ea; }
+.i-app .k-2 { --k: #7e22ce; }
+.i-app .k-3 { --k: #a855f7; }
+.i-app .k-4 { --k: #6b21a8; }
+[data-theme="dark"] .i-app .k-1 { --k: #c084fc; }
+[data-theme="dark"] .i-app .k-2 { --k: #a855f7; }
+[data-theme="dark"] .i-app .k-3 { --k: #d8b4fe; }
+[data-theme="dark"] .i-app .k-4 { --k: #9333ea; }

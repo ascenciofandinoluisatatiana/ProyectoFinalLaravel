@@ -126,6 +126,12 @@
                         name="parqueaderos" type="number" min="0" max="50" value="0"></div>
                 <div class="v-campo"><label for="f-area">Área (m²)</label><input id="f-area" name="area" type="number"
                         min="1" required></div>
+                <div class="v-campo ancho">
+                    <label for="f-descripcion">Descripción</label>
+                    <textarea id="f-descripcion" name="descripcion" maxlength="3000" rows="5"
+                        placeholder="Cuenta lo que hace especial al inmueble: distribución, acabados, vista, cercanía a transporte, colegios o comercio…"></textarea>
+                    <p class="v-nota"><span id="f-descripcion-cuenta">0</span> / 3000 caracteres</p>
+                </div>
             </div>
             <!-- Fotos del inmueble: mínimo 5, máximo 15 -->
             <div class="v-campo ancho">

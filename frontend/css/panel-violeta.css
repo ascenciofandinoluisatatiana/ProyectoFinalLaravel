@@ -573,3 +573,96 @@ body.panel-violeta.op-arriendo,
 [data-theme="dark"] .panel-violeta .i-aviso.sin-leer:hover { background: var(--neutro-fondo); border-color: var(--op-1); }
 .panel-violeta .i-aviso-icono { background: var(--tarjeta); border: 1px solid var(--campo-borde); }
 .panel-violeta .i-aviso.alerta .i-aviso-icono { background: var(--aviso-fondo); border-color: color-mix(in srgb, var(--aviso) 35%, transparent); }
+
+/* =========================================================
+   Botones que resaltan (encabezado y formularios)
+   Mantienen la paleta violeta, con borde definido, una sombra
+   suave y un pequeño levante al pasar el cursor.
+   ========================================================= */
+.panel-violeta .v-btn { letter-spacing: 0.01em; }
+.panel-violeta .v-btn i { font-size: 0.85em; }
+
+/* --- Botón principal dentro del formulario (Guardar, Pagar…) --- */
+.panel-violeta .v-btn-principal {
+    box-shadow: 0 6px 16px rgba(126, 34, 206, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+.panel-violeta .v-btn-principal:hover {
+    transform: translateY(-1px); filter: brightness(1.08);
+    box-shadow: 0 10px 22px rgba(126, 34, 206, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+.panel-violeta .v-btn-principal:active { transform: translateY(0); }
+
+/* --- Botón secundario (Cancelar, Agregar fotos, Editar perfil…) --- */
+.panel-violeta .v-btn-suave {
+    font-weight: 800;
+    border: 1.5px solid color-mix(in srgb, #9333ea 45%, var(--campo-borde));
+    box-shadow: 0 3px 10px rgba(126, 34, 206, 0.12);
+}
+.panel-violeta .v-btn-suave:hover {
+    transform: translateY(-1px);
+    border-color: #9333ea; color: #7e22ce;
+    box-shadow: 0 6px 16px rgba(126, 34, 206, 0.22);
+}
+[data-theme="dark"] .panel-violeta .v-btn-suave {
+    color: #efe3fd; background: rgba(147, 51, 234, 0.14);
+    border-color: rgba(201, 151, 246, 0.50); box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
+}
+[data-theme="dark"] .panel-violeta .v-btn-suave:hover {
+    color: #fff; background: rgba(147, 51, 234, 0.30); border-color: #c997f6;
+    box-shadow: 0 6px 18px rgba(147, 51, 234, 0.35);
+}
+
+/* --- Encabezado: "Mi perfil" / "Registrar inmueble" y similares --- */
+.panel-violeta .v-hero .v-chips { gap: 12px; }
+.panel-violeta .v-hero .v-btn { padding: 12px 22px; border-radius: 14px; font-size: 0.92rem; }
+
+/* Principal: blanco lavanda con texto morado oscuro (resalta sobre el degradado) */
+.panel-violeta .v-hero .v-btn-principal,
+[data-theme="dark"] .panel-violeta .v-hero .v-btn-principal,
+[data-theme="dark"] .panel-violeta.op-arriendo .v-hero .v-btn-principal {
+    color: #3b0764; background: linear-gradient(180deg, #ffffff 0%, #f1ddff 100%);
+    border: 0; box-shadow: 0 10px 24px rgba(20, 0, 40, 0.38), inset 0 -2px 0 rgba(147, 51, 234, 0.18);
+}
+.panel-violeta .v-hero .v-btn-principal:hover,
+[data-theme="dark"] .panel-violeta .v-hero .v-btn-principal:hover,
+[data-theme="dark"] .panel-violeta.op-arriendo .v-hero .v-btn-principal:hover {
+    color: #3b0764; background: linear-gradient(180deg, #ffffff 0%, #f7e8ff 100%); filter: none;
+    transform: translateY(-2px); box-shadow: 0 14px 30px rgba(20, 0, 40, 0.45), inset 0 -2px 0 rgba(147, 51, 234, 0.25);
+}
+/* En tema claro el encabezado es lila: el principal va en morado intenso con texto blanco */
+[data-theme="light"] .panel-violeta .v-hero .v-btn-principal {
+    color: #fff; background: linear-gradient(100deg, #7e22ce 0%, #9333ea 100%);
+    box-shadow: 0 10px 22px rgba(126, 34, 206, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+[data-theme="light"] .panel-violeta .v-hero .v-btn-principal:hover {
+    color: #fff; background: linear-gradient(100deg, #6b21a8 0%, #7e22ce 100%);
+    box-shadow: 0 14px 28px rgba(126, 34, 206, 0.46), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Secundario del encabezado (Mi perfil): borde blanco grueso y relleno claro, se ve sobre cualquier morado */
+.panel-violeta .v-hero .v-btn-suave,
+[data-theme="dark"] .panel-violeta .v-hero .v-btn-suave {
+    color: #fff; background: rgba(255, 255, 255, 0.20);
+    border: 2px solid rgba(255, 255, 255, 0.92);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    box-shadow: 0 8px 20px rgba(20, 0, 40, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+.panel-violeta .v-hero .v-btn-suave:hover,
+[data-theme="dark"] .panel-violeta .v-hero .v-btn-suave:hover {
+    color: #4c1d95; background: #fff; border-color: #fff;
+    transform: translateY(-2px); box-shadow: 0 12px 26px rgba(20, 0, 40, 0.42);
+}
+[data-theme="light"] .panel-violeta .v-hero .v-btn-suave {
+    color: #6b21a8; background: #fff; border: 1.5px solid #9333ea;
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+    box-shadow: 0 8px 18px rgba(126, 34, 206, 0.20);
+}
+[data-theme="light"] .panel-violeta .v-hero .v-btn-suave:hover {
+    color: #fff; background: #7e22ce; border-color: #7e22ce;
+    box-shadow: 0 12px 24px rgba(126, 34, 206, 0.32);
+}
+
+.panel-violeta .v-btn:focus-visible { outline: 2px solid #c997f6; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+    .panel-violeta .v-btn, .panel-violeta .v-btn:hover { transition: none; transform: none; }
+}

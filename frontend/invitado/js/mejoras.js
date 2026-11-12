@@ -15,7 +15,11 @@
     copied: ['Enlace copiado', 'Link copied', 'Link copiado', 'Lien copié'],
     favAdd: ['Guardar en favoritos', 'Save to favorites', 'Salvar nos favoritos', 'Ajouter aux favoris'],
     favDel: ['Quitar de favoritos', 'Remove from favorites', 'Remover dos favoritos', 'Retirer des favoris'],
-    nuevo: ['Nuevo', 'New', 'Novo', 'Nouveau']
+    nuevo: ['Nuevo', 'New', 'Novo', 'Nouveau'],
+    nivel: ['Nivel', 'Level', 'Nível', 'Niveau'],
+    sub_oro: ['Máxima visibilidad: las primeras propiedades del portal', 'Maximum visibility: the first listings in the portal', 'Máxima visibilidade: os primeiros imóveis do portal', 'Visibilité maximale : les premières annonces du portail'],
+    sub_plata: ['Alta visibilidad: propiedades muy destacadas', 'High visibility: highly featured listings', 'Alta visibilidade: imóveis muito destacados', 'Haute visibilité : annonces très mises en avant'],
+    sub_bronce: ['Propiedades destacadas del portal', 'Featured listings', 'Imóveis em destaque', 'Annonces à la une']
   };
   function L(k) {
     var i = Math.max(0, LANGS.indexOf(lang));
@@ -77,20 +81,30 @@
       '</div></div></article>';
   };
 
-  /* ---------- premium: TODAS arriba, "ver más" para el resto abajo ---------- */
+  /* ---------- premium: TODAS arriba, separadas por nivel (Oro / Plata / Bronce); "ver más" para el resto abajo ---------- */
   window.cardsHTML = function (r) {
     if (typeof LOADING !== 'undefined' && LOADING) return skeletonHTML();
     var prem = S.view === 'cards' ? r.filter(function (p) { return p.prem; }) : [];
     if (!prem.length || filtersActive()) return r.map(function (p, i) { return card(p, i); }).join('');
     var rest = r.filter(function (p) { return !p.prem; });
 
+    /* una sección por nivel: Oro, Plata y Bronce (las premium sin nivel cuentan como Bronce) */
+    var porNivel = { oro: [], plata: [], bronce: [] };
+    prem.forEach(function (p) { porNivel[p.tier === 'oro' || p.tier === 'plata' ? p.tier : 'bronce'].push(p); });
+    var secciones = ['oro', 'plata', 'bronce'].filter(function (k) { return porNivel[k].length; }).map(function (k) {
+      return '<div class="tier-sec t-' + k + '" id="nivel-' + k + '">' +
+        '<div class="tier-head"><span class="tier-medal"><i class="fa-solid fa-medal"></i></span>' +
+        '<div><h4>' + L('nivel') + ' ' + t('tier_' + k) + '</h4><p>' + L('sub_' + k) + '</p></div>' +
+        '<span class="tier-n">' + porNivel[k].length + '</span></div>' +
+        '<div class="prem-track">' + porNivel[k].map(function (p, i) { return card(p, i, i + 1); }).join('') + '</div></div>';
+    }).join('');
+
     var h = '<section class="prem-wrap" aria-label="' + t('prem_title') + '">' +
       '<div class="prem-orb o1"></div><div class="prem-orb o2"></div>' +
       '<header class="prem-head"><div class="prem-crown"><i class="fa-solid fa-crown"></i></div>' +
       '<div><h3>' + t('prem_title') + '</h3><p>' + t('prem_sub') + '</p></div>' +
       '<span class="prem-count"><i class="fa-solid fa-gem"></i>' + prem.length + '</span></header>' +
-      '<div class="prem-track">' + prem.map(function (p, i) { return card(p, i, i + 1); }).join('') + '</div>' +
-      '</section>';
+      secciones + '</section>';
 
     if (!rest.length) return h;
     if (!S.showAll) {

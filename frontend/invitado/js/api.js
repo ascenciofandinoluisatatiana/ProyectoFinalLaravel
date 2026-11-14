@@ -14,29 +14,57 @@
     }
     const normDesc = p => String(p.descripcion || p.description || p.desc || '').trim();
 
+    // Vendedores ya vistos (se conserva entre tandas para que cada propiedad apunte al vendedor correcto)
+    const vendedoresMapa = new Map();
+    function convertir(lista) {
+      return lista.map(p => {
+        if (!vendedoresMapa.has(p.seller.id)) vendedoresMapa.set(p.seller.id, { ...p.seller, idx: vendedoresMapa.size });
+        const fotos = normFotos(p);
+        return { ...p, seller: vendedoresMapa.get(p.seller.id).idx, fotos, img: fotos[0] || '', desc: normDesc(p) };
+      });
+    }
+
     async function loadData() {
-      try {
-        const u = await fetch(`${API}/ubicaciones`, { headers: { 'Accept': 'application/json' } });
-        if (u.ok) { const uj = await u.json(); if (uj.data && uj.data.length) UBIC = uj.data; }
-      } catch (_) { }
       const pedir = n => fetch(`${API}/propiedades?per_page=100&page=${n}`, { headers: { 'Accept': 'application/json' } });
-      const res = await pedir(1);
+
+      // Ubicaciones y primera tanda se piden al mismo tiempo
+      const pUbic = fetch(`${API}/ubicaciones`, { headers: { 'Accept': 'application/json' } })
+        .then(u => u.ok ? u.json() : null).catch(() => null);
+      const [uj, res] = await Promise.all([pUbic, pedir(1)]);
+      if (uj && uj.data && uj.data.length) UBIC = uj.data;
       if (!res.ok) throw new Error('API ' + res.status);
       const json = await res.json();
       if (!json.data || !json.data.length) return;
-      // El servidor entrega 100 por página: se piden todas para que el portal vea todo el catálogo
+
+      // Se muestran de una vez las primeras 100; el resto se carga por detrás
+      P = convertir(json.data);
+      SELLERS = [...vendedoresMapa.values()];
+
       const paginas = (json.meta && json.meta.last_page) || 1;
-      for (let n = 2; n <= paginas; n++) {
-        const r = await pedir(n);
-        if (!r.ok) break;
-        const j = await r.json();
-        json.data = json.data.concat(j.data || []);
-      }
-      const map = new Map();
-      P = json.data.map(p => {
-        if (!map.has(p.seller.id)) map.set(p.seller.id, { ...p.seller, idx: map.size });
-        const fotos = normFotos(p);
-        return { ...p, seller: map.get(p.seller.id).idx, fotos, img: fotos[0] || '', desc: normDesc(p) };
-      });
-      SELLERS = [...map.values()];
+      if (paginas > 1) cargarResto(paginas).catch(() => { });
+    }
+
+    // Pide las demás tandas de 3 en 3 y las agrega en orden; al final refresca la lista una sola vez
+    async function cargarResto(paginas) {
+      const pedir = n => fetch(`${API}/propiedades?per_page=100&page=${n}`, { headers: { 'Accept': 'application/json' } });
+      const tandas = [];
+      let siguiente = 2;
+      const trabajador = async () => {
+        while (siguiente <= paginas) {
+          const n = siguiente++;
+          try {
+            const r = await pedir(n);
+            if (!r.ok) continue;
+            const j = await r.json();
+            tandas[n] = j.data || [];
+          } catch (_) { }
+        }
+      };
+      await Promise.all([trabajador(), trabajador(), trabajador()]);
+
+      const extra = tandas.filter(Boolean).reduce((a, t) => a.concat(t), []);
+      if (!extra.length) return;
+      P = P.concat(convertir(extra));
+      SELLERS = [...vendedoresMapa.values()];
+      applyI18n();
     }

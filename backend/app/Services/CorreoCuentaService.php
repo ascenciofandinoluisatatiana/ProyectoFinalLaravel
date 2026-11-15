@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
  *   - cuenta aprobada
  *   - cuenta rechazada (con el motivo que escribió el administrador)
  *   - cuenta nueva creada por el administrador
+ *   - documento en revisión (aviso corto a la persona y aviso a todos los administradores activos)
  *
  * Solo en español (las cuentas de rol son de Colombia).
  * Nunca rompe la acción del administrador: si el correo no sale, la aprobación o la creación
@@ -50,6 +51,41 @@ class CorreoCuentaService
             . "y con los mismos datos que escribes en el formulario.\n";
 
         return self::enviar($usuario, 'cuenta_rechazada', 'Tu registro en UMBRAL no fue aprobado', $texto);
+    }
+
+    /** Aviso corto a la persona: la IA no pudo decidir sola y el documento lo revisa soporte. */
+    public static function enRevision(User $usuario): bool
+    {
+        $texto = "Hola {$usuario->name},\n\n"
+            . "Recibimos tu registro en UMBRAL. Tu documento está en revisión por soporte.\n\n"
+            . "Te avisaremos por este correo apenas tengamos una respuesta.\n";
+
+        return self::enviar($usuario, 'cuenta_en_revision', 'Tu documento está en revisión en UMBRAL', $texto);
+    }
+
+    /** Aviso a TODOS los administradores activos: hay una cuenta que debe revisar una persona. */
+    public static function pendienteParaAdmins(User $cuenta, ?string $rol, int $puntaje, ?string $motivo): int
+    {
+        $administradores = User::where('estado', 'activo')
+            ->whereHas('role', fn ($q) => $q->where('nombre', 'administrador'))
+            ->get();
+
+        $enviados = 0;
+        foreach ($administradores as $admin) {
+            $texto = "Hola {$admin->name},\n\n"
+                . "Una cuenta nueva necesita tu revisión en UMBRAL.\n\n"
+                . "Nombre: {$cuenta->name}\n"
+                . 'Rol: ' . ($rol ?: 'sin rol') . "\n"
+                . "Puntaje de la IA: {$puntaje} de 100\n"
+                . 'Observación de la IA: ' . ($motivo ?: 'sin observaciones') . "\n\n"
+                . 'Revísala en el panel de administración, en Verificaciones: ' . self::portal() . "\n";
+
+            if (self::enviar($admin, 'cuenta_pendiente_admin', 'Cuenta pendiente de revisión en UMBRAL', $texto)) {
+                $enviados++;
+            }
+        }
+
+        return $enviados;
     }
 
     public static function creada(User $usuario): bool

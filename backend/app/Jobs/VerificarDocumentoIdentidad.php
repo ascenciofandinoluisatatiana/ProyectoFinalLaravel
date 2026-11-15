@@ -17,8 +17,10 @@ use Illuminate\Support\Facades\Storage;
 /**
  * Trabajo de segundo plano: revisa con la IA el documento que subió una cuenta nueva y decide.
  *
- *   - puntaje de 95 o más → la cuenta se aprueba sola (queda activa)
- *   - menos de 95         → la cuenta se rechaza sola, con el motivo de la IA
+ *   - puntaje de 90 o más → la cuenta se aprueba sola (queda activa)
+ *   - de 70 a 89          → la cuenta queda PENDIENTE para el administrador (con el puntaje y la
+ *                           observación de la IA); se avisa por correo a los administradores y a la persona
+ *   - menos de 70         → la cuenta se rechaza sola, con el motivo de la IA
  *   - si la IA falla (sin saldo, caída, error) → se reintenta; si sigue fallando,
  *     la cuenta queda PENDIENTE para el administrador (nunca se rechaza por un fallo de la IA)
  *
@@ -30,7 +32,10 @@ class VerificarDocumentoIdentidad implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable;
 
     /** Puntaje mínimo (de 0 a 100) para aprobar sin que nadie revise (se puede cambiar con DEEPSEEK_PUNTAJE_APROBAR). */
-    public const PUNTAJE_APROBAR = 95;
+    public const PUNTAJE_APROBAR = 90;
+
+    /** Puntaje mínimo para quedar en revisión del administrador; menos que esto se rechaza (DEEPSEEK_PUNTAJE_REVISION). */
+    public const PUNTAJE_REVISION = 70;
 
     public int $tries = 3;
     public int $timeout = 90;
@@ -51,6 +56,11 @@ class VerificarDocumentoIdentidad implements ShouldQueue
         $documento = DB::table('documentos_identidad')->where('user_id', $usuario->id)->orderByDesc('id')->first();
         if (! $documento) {
             $this->dejarPendiente(null, 'No se encontró la foto del documento.');
+            return;
+        }
+
+        // Ya quedó en revisión del administrador: no se vuelve a analizar ni a avisar
+        if ($documento->ia_estado === 'revision') {
             return;
         }
 
@@ -100,12 +110,30 @@ class VerificarDocumentoIdentidad implements ShouldQueue
 
     private function decidir(User $usuario, int $documentoId, array $resultado): void
     {
-        $aprueba = $resultado['puntaje'] >= (int) config('services.deepseek.puntaje_aprobar', self::PUNTAJE_APROBAR);
+        $puntaje = (int) $resultado['puntaje'];
+        $umbralAprobar = (int) config('services.deepseek.puntaje_aprobar', self::PUNTAJE_APROBAR);
+        $umbralRevision = min((int) config('services.deepseek.puntaje_revision', self::PUNTAJE_REVISION), $umbralAprobar);
+
+        if ($puntaje >= $umbralAprobar) {
+            $nivel = 'aprobar';
+        } elseif ($puntaje >= $umbralRevision) {
+            $nivel = 'revision';
+        } else {
+            $nivel = 'rechazar';
+        }
+
+        // En revisión la cuenta sigue pendiente y no se escribe en el historial (aún nadie decidió)
+        if ($nivel === 'revision') {
+            $this->enviarARevision($usuario, $documentoId, $resultado);
+            return;
+        }
+
+        $aprueba = $nivel === 'aprobar';
         $decision = $aprueba ? 'aprobada' : 'rechazada';
         $estadoNuevo = $aprueba ? 'activo' : 'inactivo';
 
         $motivo = $aprueba
-            ? 'Documento verificado por la IA (puntaje ' . $resultado['puntaje'] . ' de 100).'
+            ? 'Documento verificado por la IA (puntaje ' . $puntaje . ' de 100).'
             : $resultado['motivo'];
 
         $registro = DB::transaction(function () use ($usuario, $documentoId, $resultado, $decision, $estadoNuevo, $motivo, $aprueba) {
@@ -151,6 +179,39 @@ class VerificarDocumentoIdentidad implements ShouldQueue
         $aprueba
             ? CorreoCuentaService::aprobada($usuario)
             : CorreoCuentaService::rechazadaPorIA($usuario, $motivo);
+    }
+
+    /** Puntaje intermedio: la cuenta sigue pendiente, se guarda lo que dijo la IA y se avisa a los administradores y a la persona. */
+    private function enviarARevision(User $usuario, int $documentoId, array $resultado): void
+    {
+        $guardado = DB::transaction(function () use ($usuario, $documentoId, $resultado) {
+            $cuenta = User::whereKey($usuario->id)->lockForUpdate()->first();
+            if (! $cuenta || $cuenta->estado !== 'pendiente') {
+                return false;   // el administrador ya la había decidido
+            }
+
+            DB::table('documentos_identidad')->where('id', $documentoId)->update([
+                'ia_estado'      => 'revision',
+                'ia_puntaje'     => $resultado['puntaje'],
+                'ia_motivo'      => mb_substr($resultado['motivo'], 0, 500),
+                'ia_detalle'     => json_encode($resultado['detalle'], JSON_UNESCAPED_UNICODE),
+                'ia_revisado_en' => now(),
+            ]);
+
+            return true;
+        });
+
+        if (! $guardado) {
+            return;
+        }
+
+        // Los avisos nunca rompen el trabajo: si un correo no sale, queda anotado en registro_correo
+        try {
+            CorreoCuentaService::pendienteParaAdmins($usuario, $usuario->role?->nombre, (int) $resultado['puntaje'], $resultado['motivo']);
+            CorreoCuentaService::enRevision($usuario);
+        } catch (\Throwable $e) {
+            Log::warning('IA documento: no se pudieron enviar los avisos de revisión', ['user_id' => $usuario->id, 'error' => mb_substr($e->getMessage(), 0, 200)]);
+        }
     }
 
     /** La IA falló: se vuelve a intentar más tarde; en el último intento queda pendiente para el administrador. */

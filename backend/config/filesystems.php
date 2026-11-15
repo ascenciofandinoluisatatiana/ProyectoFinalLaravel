@@ -88,6 +88,8 @@ return [
             'visibility' => 'private',
             'request_checksum_calculation' => 'when_required',
             'response_checksum_validation' => 'when_required',
+            // Si el bucket no responde: falla rápido en vez de dejar la página colgada
+            'http' => ['connect_timeout' => 5, 'timeout' => 30],
             'throw' => true,
             'report' => false,
         ],

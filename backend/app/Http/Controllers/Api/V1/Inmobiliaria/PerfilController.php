@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Api\V1\Inmobiliaria;
 
+use App\Services\ImagenService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
@@ -37,18 +37,32 @@ class PerfilController extends BaseInmobiliariaController
             'logo.max' => 'El logo no puede superar 4 MB.',
         ]);
 
+        $imagenes = app(ImagenService::class);
+        $anterior = null;
+        $subida = null;
         if ($request->hasFile('logo')) {
-            if ($usuario->avatar) {
-                Storage::disk('public')->delete($usuario->avatar);
-            }
-            $usuario->avatar = $request->file('logo')->store('avatars', 'public');
+            // Primero se sube el logo nuevo; el anterior se borra solo si todo salió bien
+            $subida = $imagenes->subir($request->file('logo'), 'usuarios', 'logo');
+            $anterior = $usuario->avatar;
+            $usuario->avatar = $subida['ruta'];
         }
 
-        $usuario->fill([
-            'name' => $datos['name'],
-            'representante_legal' => $datos['representante_legal'],
-            'telefono' => $datos['telefono'],
-        ])->save();
+        try {
+            $usuario->fill([
+                'name' => $datos['name'],
+                'representante_legal' => $datos['representante_legal'],
+                'telefono' => $datos['telefono'],
+            ])->save();
+        } catch (\Throwable $e) {
+            if ($subida) {
+                $imagenes->borrar($subida['ruta']);
+            }
+            throw $e;
+        }
+
+        if ($anterior) {
+            $imagenes->borrar($anterior);
+        }
 
         return response()->json(['message' => 'Datos de la empresa actualizados.', 'data' => $this->formato($usuario)]);
     }

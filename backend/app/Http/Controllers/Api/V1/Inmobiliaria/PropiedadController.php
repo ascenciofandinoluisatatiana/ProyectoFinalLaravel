@@ -6,11 +6,11 @@ use App\Models\Comision;
 use App\Models\Propiedad;
 use App\Models\PropiedadFoto;
 use App\Services\CaptchaService;
+use App\Services\ImagenService;
 use App\Services\Inmobiliaria\ComisionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -85,11 +85,22 @@ class PropiedadController extends BaseInmobiliariaController
         $datos['user_id'] = $this->inmobiliaria($request)->id;
         $datos['verificada'] = false;
 
+        $subida = null;
         if ($request->hasFile('imagen')) {
-            $datos['imagen'] = $request->file('imagen')->store('propiedades', 'public');
+            $subida = $this->imagenes()->subir($request->file('imagen'), 'propiedades', 'imagen');
+            $datos['imagen'] = $subida['ruta'];
+            $datos['imagen_meta'] = $this->imagenes()->metadatos($subida);
         }
 
-        $propiedad = Propiedad::create($datos);
+        try {
+            $propiedad = Propiedad::create($datos);
+        } catch (\Throwable $e) {
+            // Si no se pudo guardar el registro, no se deja la foto huérfana en el bucket
+            if ($subida) {
+                $this->imagenes()->borrar($subida['ruta']);
+            }
+            throw $e;
+        }
 
         return response()->json([
             'message' => 'Propiedad registrada.',
@@ -103,14 +114,33 @@ class PropiedadController extends BaseInmobiliariaController
         $propiedad = $this->propiedadPropia($request, $id);
         $datos = $this->validar($request, false);
 
+        $anterior = null;
+        $subida = null;
         if ($request->hasFile('imagen') || $request->boolean('quitar_imagen')) {
-            $this->borrarImagen($propiedad);
-            $datos['imagen'] = $request->hasFile('imagen')
-                ? $request->file('imagen')->store('propiedades', 'public')
-                : null;
+            $anterior = $propiedad->imagen;
+            if ($request->hasFile('imagen')) {
+                // Primero se sube la nueva; la anterior solo se borra si todo salió bien
+                $subida = $this->imagenes()->subir($request->file('imagen'), 'propiedades', 'imagen');
+                $datos['imagen'] = $subida['ruta'];
+                $datos['imagen_meta'] = $this->imagenes()->metadatos($subida);
+            } else {
+                $datos['imagen'] = null;
+                $datos['imagen_meta'] = null;
+            }
         }
 
-        $propiedad->update($datos);
+        try {
+            $propiedad->update($datos);
+        } catch (\Throwable $e) {
+            if ($subida) {
+                $this->imagenes()->borrar($subida['ruta']);
+            }
+            throw $e;
+        }
+
+        if ($anterior) {
+            $this->imagenes()->borrar($anterior);
+        }
 
         return response()->json([
             'message' => 'Propiedad actualizada.',
@@ -185,10 +215,16 @@ class PropiedadController extends BaseInmobiliariaController
             ]);
         }
 
-        $foto = $propiedad->fotos()->create([
-            'ruta' => $request->file('foto')->store('propiedades', 'public'),
-            'orden' => (int) $propiedad->fotos()->max('orden') + 1,
-        ]);
+        $subida = $this->imagenes()->subir($request->file('foto'), 'propiedades', 'foto');
+        try {
+            $foto = $propiedad->fotos()->create([
+                'ruta' => $subida['ruta'],
+                'orden' => (int) $propiedad->fotos()->max('orden') + 1,
+            ] + $this->imagenes()->metadatos($subida));
+        } catch (\Throwable $e) {
+            $this->imagenes()->borrar($subida['ruta']);
+            throw $e;
+        }
 
         return response()->json(['message' => 'Foto agregada.', 'data' => ['id' => $foto->id, 'url' => $foto->url]], 201);
     }
@@ -291,12 +327,15 @@ class PropiedadController extends BaseInmobiliariaController
         $this->borrarArchivo($propiedad->imagen);
     }
 
-    /** Solo se borran fotos subidas al disco (no las imágenes de ejemplo del frontend). */
+    /** Borra la foto del bucket (no toca las imágenes de ejemplo del frontend). */
     private function borrarArchivo(?string $ruta): void
     {
-        if ($ruta && ! str_starts_with($ruta, '/') && ! str_starts_with($ruta, 'http')) {
-            Storage::disk('public')->delete($ruta);
-        }
+        $this->imagenes()->borrar($ruta);
+    }
+
+    protected function imagenes(): ImagenService
+    {
+        return app(ImagenService::class);
     }
 
     /** Membresías vigentes de las propiedades del listado (una sola consulta). */

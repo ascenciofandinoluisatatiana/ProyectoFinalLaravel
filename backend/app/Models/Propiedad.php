@@ -44,6 +44,7 @@ class Propiedad extends Model
         'lat'             => 'float',
         'lng'             => 'float',
         'caracteristicas' => 'array',
+        'imagen_meta'     => 'array',
     ];
 
     public function vendedor(): BelongsTo

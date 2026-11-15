@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Verificacion;
+use App\Services\ImagenService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * "Mi perfil" y "Ajustes de cuenta" del propio administrador que inició sesión.
@@ -101,15 +101,23 @@ class PerfilController extends Controller
         ]);
 
         $usuario = $request->user();
+        $imagenes = app(ImagenService::class);
 
-        if ($usuario->avatar) {
-            Storage::disk('public')->delete($usuario->avatar);
+        // Primero se sube la foto nueva; la anterior se borra solo si todo salió bien
+        $subida = $imagenes->subir($datos['avatar'], 'usuarios', 'avatar');
+        $anterior = $usuario->avatar;
+
+        try {
+            $usuario->avatar = $subida['ruta'];
+            $usuario->save();
+        } catch (\Throwable $e) {
+            $imagenes->borrar($subida['ruta']);
+            throw $e;
         }
 
-        $ruta = $datos['avatar']->store('avatars', 'public');
-
-        $usuario->avatar = $ruta;
-        $usuario->save();
+        if ($anterior) {
+            $imagenes->borrar($anterior);
+        }
 
         return redirect()
             ->route('admin.perfil')

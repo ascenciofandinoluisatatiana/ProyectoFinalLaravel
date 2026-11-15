@@ -68,10 +68,16 @@ class PropiedadController extends BasePropiedadController
             ]);
         }
 
-        $foto = $propiedad->fotos()->create([
-            'ruta' => $request->file('foto')->store('propiedades', 'public'),
-            'orden' => (int) $propiedad->fotos()->max('orden') + 1,
-        ]);
+        $subida = $this->imagenes()->subir($request->file('foto'), 'propiedades', 'foto');
+        try {
+            $foto = $propiedad->fotos()->create([
+                'ruta' => $subida['ruta'],
+                'orden' => (int) $propiedad->fotos()->max('orden') + 1,
+            ] + $this->imagenes()->metadatos($subida));
+        } catch (\Throwable $e) {
+            $this->imagenes()->borrar($subida['ruta']);
+            throw $e;
+        }
 
         return response()->json(['message' => 'Foto agregada.', 'data' => ['id' => $foto->id, 'url' => $foto->url]], 201);
     }

@@ -10,7 +10,7 @@ class PropiedadFoto extends Model
 {
     protected $table = 'propiedad_fotos';
 
-    protected $fillable = ['propiedad_id', 'ruta', 'orden'];
+    protected $fillable = ['propiedad_id', 'ruta', 'orden', 'nombre_original', 'peso', 'mime', 'disco'];
 
     public function propiedad(): BelongsTo
     {

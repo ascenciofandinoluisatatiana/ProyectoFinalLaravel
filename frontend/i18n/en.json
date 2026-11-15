@@ -196,5 +196,12 @@
   "restablecer.ok_titulo": "Done!",
   "restablecer.ok": "Your password was changed. You can now sign in.",
   "restablecer.ir_login": "Sign in",
-  "restablecer.enlace_invalido": "The link is not valid or has expired. Request a new one from the sign-in screen."
+  "restablecer.enlace_invalido": "The link is not valid or has expired. Request a new one from the sign-in screen.",
+  "reg.doc_persona": "Photo of your ID card",
+  "reg.doc_ayuda_persona": "A clear photo of the side of your ID card showing your photo, name and number. JPG, PNG or WebP, max 5 MB.",
+  "reg.doc_inmo": "Photo of the RUT",
+  "reg.doc_ayuda_inmo": "A clear photo of the RUT showing the NIT and the company name. JPG, PNG or WebP, max 5 MB.",
+  "val.doc_vacio": "Upload a photo of your document.",
+  "val.doc_tipo": "The photo must be JPG, PNG or WebP.",
+  "val.doc_peso": "The photo is larger than 5 MB. Upload a smaller one."
 }

@@ -196,5 +196,12 @@
   "restablecer.ok_titulo": "تم!",
   "restablecer.ok": "تم تغيير كلمة المرور. يمكنك الآن تسجيل الدخول.",
   "restablecer.ir_login": "تسجيل الدخول",
-  "restablecer.enlace_invalido": "الرابط غير صالح أو انتهت صلاحيته. اطلب رابطاً جديداً من شاشة تسجيل الدخول."
+  "restablecer.enlace_invalido": "الرابط غير صالح أو انتهت صلاحيته. اطلب رابطاً جديداً من شاشة تسجيل الدخول.",
+  "reg.doc_persona": "صورة بطاقة هويتك",
+  "reg.doc_ayuda_persona": "صورة واضحة لوجه البطاقة الذي يظهر فيه صورتك واسمك ورقمك. JPG أو PNG أو WebP، بحد أقصى 5 ميغابايت.",
+  "reg.doc_inmo": "صورة الـ RUT",
+  "reg.doc_ayuda_inmo": "صورة واضحة للـ RUT يظهر فيها رقم NIT والاسم التجاري. JPG أو PNG أو WebP، بحد أقصى 5 ميغابايت.",
+  "val.doc_vacio": "ارفع صورة مستندك.",
+  "val.doc_tipo": "يجب أن تكون الصورة بصيغة JPG أو PNG أو WebP.",
+  "val.doc_peso": "حجم الصورة أكبر من 5 ميغابايت. ارفع صورة أخف."
 }

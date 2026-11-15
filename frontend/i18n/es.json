@@ -196,5 +196,12 @@
   "restablecer.ok_titulo": "¡Listo!",
   "restablecer.ok": "Cambiamos tu contraseña. Ya puedes iniciar sesión.",
   "restablecer.ir_login": "Iniciar sesión",
-  "restablecer.enlace_invalido": "El enlace no es válido o ya venció. Pide uno nuevo desde el inicio de sesión."
+  "restablecer.enlace_invalido": "El enlace no es válido o ya venció. Pide uno nuevo desde el inicio de sesión.",
+  "reg.doc_persona": "Foto de tu cédula",
+  "reg.doc_ayuda_persona": "Foto clara de la cara de tu cédula donde se ven tu foto, nombre y número. JPG, PNG o WebP, máximo 5 MB.",
+  "reg.doc_inmo": "Foto del RUT",
+  "reg.doc_ayuda_inmo": "Foto clara del RUT donde se ven el NIT y la razón social. JPG, PNG o WebP, máximo 5 MB.",
+  "val.doc_vacio": "Sube la foto de tu documento.",
+  "val.doc_tipo": "La foto debe ser JPG, PNG o WebP.",
+  "val.doc_peso": "La foto pesa más de 5 MB. Sube una más liviana."
 }

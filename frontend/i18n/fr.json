@@ -196,5 +196,12 @@
   "restablecer.ok_titulo": "C'est fait !",
   "restablecer.ok": "Votre mot de passe a été modifié. Vous pouvez vous connecter.",
   "restablecer.ir_login": "Se connecter",
-  "restablecer.enlace_invalido": "Le lien n'est pas valide ou a expiré. Demandez-en un nouveau depuis l'écran de connexion."
+  "restablecer.enlace_invalido": "Le lien n'est pas valide ou a expiré. Demandez-en un nouveau depuis l'écran de connexion.",
+  "reg.doc_persona": "Photo de votre pièce d'identité",
+  "reg.doc_ayuda_persona": "Photo nette du côté de votre pièce d'identité où figurent votre photo, votre nom et votre numéro. JPG, PNG ou WebP, 5 Mo maximum.",
+  "reg.doc_inmo": "Photo du RUT",
+  "reg.doc_ayuda_inmo": "Photo nette du RUT où figurent le NIT et la raison sociale. JPG, PNG ou WebP, 5 Mo maximum.",
+  "val.doc_vacio": "Téléversez la photo de votre document.",
+  "val.doc_tipo": "La photo doit être au format JPG, PNG ou WebP.",
+  "val.doc_peso": "La photo dépasse 5 Mo. Téléversez-en une plus légère."
 }

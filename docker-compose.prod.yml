@@ -63,6 +63,8 @@ services:
     volumes:
       - ./backend:/var/www/html
       - umbral_backend_vendor:/var/www/html/vendor
+      # Límite de subida de PHP (fotos de documentos de hasta 5 MB)
+      - ./docker/backend/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
     networks:
       - umbral_network
 

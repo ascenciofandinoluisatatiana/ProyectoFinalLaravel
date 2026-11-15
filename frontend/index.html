@@ -34,6 +34,10 @@
         .campo-error { margin: 6px 4px 0; font-size: .8rem; font-weight: 600; line-height: 1.35; color: #d92d20; }
         [data-theme="dark"] .campo-error { color: #ff8a80; }
         .campo-error[hidden] { display: none; }
+        /* Campo de la foto del documento */
+        .campo input[type="file"] { font-size: .85rem; cursor: pointer; }
+        .campo input[type="file"]::file-selector-button { margin-right: 10px; padding: 6px 12px; border: 0; border-radius: 8px; background: var(--acento); color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+        .ayuda-campo { margin: 6px 4px 0; font-size: .78rem; line-height: 1.35; color: var(--texto-suave); }
         .campo.invalido { border-color: #d92d20; box-shadow: 0 0 0 3px rgba(217, 45, 32, .16); }
         [data-theme="dark"] .campo.invalido { border-color: #ff6b61; box-shadow: 0 0 0 3px rgba(255, 107, 97, .16); }
     </style>
@@ -496,6 +500,14 @@
                             <input type="text" id="reg-numero-doc" name="numero_documento" placeholder="Solo números" data-i18n-placeholder="reg.numero_doc_ph" inputmode="numeric" maxlength="12">
                         </div>
                         <p class="campo-error" id="err-reg-numero-doc" role="alert" hidden></p>
+
+                        <label class="etiqueta" for="reg-doc-persona" data-i18n="reg.doc_persona">Foto de tu cédula</label>
+                        <div class="campo">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="m21 16-5-4-8 7"/></svg>
+                            <input type="file" id="reg-doc-persona" name="documento" accept="image/jpeg,image/png,image/webp">
+                        </div>
+                        <p class="ayuda-campo" data-i18n="reg.doc_ayuda_persona">Foto clara de la cara de tu cédula donde se ven tu foto, nombre y número. JPG, PNG o WebP, máximo 5 MB.</p>
+                        <p class="campo-error" id="err-reg-doc-persona" role="alert" hidden></p>
                     </div>
 
                     <!-- ===== Campos de INMOBILIARIA ===== -->
@@ -520,6 +532,14 @@
                             <input type="text" id="reg-representante" name="representante_legal" maxlength="80" placeholder="Nombre del representante" data-i18n-placeholder="reg.representante_ph" autocomplete="off">
                         </div>
                         <p class="campo-error" id="err-reg-representante" role="alert" hidden></p>
+
+                        <label class="etiqueta" for="reg-doc-inmo" data-i18n="reg.doc_inmo">Foto del RUT</label>
+                        <div class="campo">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="m21 16-5-4-8 7"/></svg>
+                            <input type="file" id="reg-doc-inmo" name="documento" accept="image/jpeg,image/png,image/webp">
+                        </div>
+                        <p class="ayuda-campo" data-i18n="reg.doc_ayuda_inmo">Foto clara del RUT donde se ven el NIT y la razón social. JPG, PNG o WebP, máximo 5 MB.</p>
+                        <p class="campo-error" id="err-reg-doc-inmo" role="alert" hidden></p>
                     </div>
 
                     <!-- ===== Campos comunes ===== -->

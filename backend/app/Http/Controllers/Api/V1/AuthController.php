@@ -8,9 +8,12 @@ use App\Models\User;
 use App\Models\Verificacion;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -18,6 +21,14 @@ class AuthController extends Controller
 {
     private const MAX_INTENTOS = 5;        // intentos fallidos antes de bloquear
     private const MINUTOS_BLOQUEO = 15;    // minutos que dura el bloqueo
+
+    // Foto del documento de identidad que se sube al registrarse
+    private const DOC_MAX_KB = 5120;       // 5 MB
+    private const DOC_TIPOS = [            // tipo real de la imagen => extensión con la que se guarda
+        'image/jpeg' => 'jpg',
+        'image/png'  => 'png',
+        'image/webp' => 'webp',
+    ];
 
     /**
      * POST /api/v1/login
@@ -206,6 +217,9 @@ class AuthController extends Controller
      * antes de que el usuario pueda iniciar sesión en su panel (RF-009, RF-010, RF-011).
      *
      * Solo se acepta a quien declara residir en Colombia (RF-030 y RF-031).
+     *
+     * Además, quien se registra sube la foto de su documento (cédula o RUT), que se guarda
+     * en el Object Storage privado y se anota en la tabla documentos_identidad.
      */
     public function register(Request $request): JsonResponse
     {
@@ -237,7 +251,21 @@ class AuthController extends Controller
             'idioma_preferido'  => ['nullable', 'string', 'size:2', 'exists:idiomas,codigo'],
             'acepta_terminos'   => ['nullable', 'boolean'],
             'acepta_datos'      => ['nullable', 'boolean'],
+            'documento'         => ['required', 'file', 'mimes:jpg,jpeg,png,webp', 'max:' . self::DOC_MAX_KB],
+        ], [
+            'documento.required' => 'Sube la foto de tu documento.',
+            'documento.file'     => 'Sube la foto de tu documento.',
+            'documento.uploaded' => 'No se pudo subir la foto. Revisa que pese máximo 5 MB.',
+            'documento.mimes'    => 'La foto debe ser JPG, PNG o WebP.',
+            'documento.max'      => 'La foto pesa más de 5 MB. Sube una más liviana.',
         ]);
+
+        // Se revisa el contenido real del archivo (no solo el nombre): debe ser una imagen de verdad
+        $archivo = $request->file('documento');
+        $tipoReal = $this->tipoRealImagen($archivo);
+        if ($tipoReal === null) {
+            throw ValidationException::withMessages(['documento' => 'La foto debe ser JPG, PNG o WebP.']);
+        }
 
         // El mismo tipo y número de documento no puede registrarse dos veces
         $documentoOcupado = User::where('tipo_documento', $datos['tipo_documento'])
@@ -262,7 +290,35 @@ class AuthController extends Controller
             'estado'             => 'pendiente', // Espera aprobación del administrador
         ]);
 
-        
+        // Foto del documento: al Object Storage privado y a la tabla documentos_identidad.
+        // Si algo falla, la cuenta no queda creada a medias.
+        $ruta = null;
+        try {
+            $ruta = 'documentos-identidad/' . $usuario->id . '-' . (Str::slug($usuario->name) ?: 'usuario')
+                  . '/' . now()->format('Ymd-His') . '.' . self::DOC_TIPOS[$tipoReal];
+
+            Storage::disk('documentos')->put($ruta, file_get_contents($archivo->getRealPath()), 'private');
+
+            DB::table('documentos_identidad')->insert([
+                'user_id'      => $usuario->id,
+                'tipo'         => $esInmobiliaria ? 'nit' : 'cedula',
+                'archivo_url'  => $ruta,
+                'cifrado'      => false,
+                'fecha_carga'  => now(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Registro: no se pudo guardar el documento de identidad: ' . $e->getMessage(), ['user_id' => $usuario->id]);
+
+            if ($ruta) {
+                try { Storage::disk('documentos')->delete($ruta); } catch (\Throwable $x) { /* nada que hacer */ }
+            }
+            $usuario->delete();
+
+            return response()->json([
+                'message' => 'No pudimos guardar tu documento. Intenta de nuevo en unos minutos.',
+            ], 503);
+        }
+
         // Idioma preferido (opcional): se guarda solo si el formulario lo envía
         if (! empty($datos['idioma_preferido'])) {
             DB::table('users')->where('id', $usuario->id)->update([
@@ -301,5 +357,19 @@ class AuthController extends Controller
                 'rol'    => $usuario->role?->nombre,
             ],
         ], 201);
+    }
+
+    /**
+     * Mira el contenido del archivo (no su nombre) y devuelve su tipo real
+     * ('image/jpeg', 'image/png' o 'image/webp'). Devuelve null si no es una imagen de esos tipos.
+     */
+    private function tipoRealImagen(UploadedFile $archivo): ?string
+    {
+        $info = @getimagesize($archivo->getRealPath());
+        if ($info === false || empty($info['mime'])) {
+            return null;
+        }
+
+        return array_key_exists($info['mime'], self::DOC_TIPOS) ? $info['mime'] : null;
     }
 }

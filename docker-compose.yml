@@ -77,6 +77,8 @@ services:
       # dependencias de PHP al primer arranque, sin pisarse entre compañeros
       # ni subir esa carpeta a Git.
       - backend_vendor:/var/www/html/vendor
+      # Límite de subida de PHP (fotos de documentos de hasta 5 MB)
+      - ./docker/backend/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
     ports:
       - "${APP_PORT:-8000}:8000"
     networks:

@@ -196,5 +196,12 @@
   "restablecer.ok_titulo": "Pronto!",
   "restablecer.ok": "Sua senha foi alterada. Agora você pode entrar.",
   "restablecer.ir_login": "Entrar",
-  "restablecer.enlace_invalido": "O link não é válido ou já venceu. Peça um novo na tela de login."
+  "restablecer.enlace_invalido": "O link não é válido ou já venceu. Peça um novo na tela de login.",
+  "reg.doc_persona": "Foto do seu documento de identidade",
+  "reg.doc_ayuda_persona": "Foto nítida do lado do seu documento onde aparecem sua foto, nome e número. JPG, PNG ou WebP, máximo 5 MB.",
+  "reg.doc_inmo": "Foto do RUT",
+  "reg.doc_ayuda_inmo": "Foto nítida do RUT onde aparecem o NIT e a razão social. JPG, PNG ou WebP, máximo 5 MB.",
+  "val.doc_vacio": "Envie a foto do seu documento.",
+  "val.doc_tipo": "A foto deve ser JPG, PNG ou WebP.",
+  "val.doc_peso": "A foto tem mais de 5 MB. Envie uma mais leve."
 }

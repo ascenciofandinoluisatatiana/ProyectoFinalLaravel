@@ -210,6 +210,19 @@
         return '';
     }
 
+    // Foto del documento: debe existir, ser JPG/PNG/WebP y pesar máximo 5 MB
+    var DOC_TIPOS = ['image/jpeg', 'image/png', 'image/webp'];
+    var DOC_MAX = 5 * 1024 * 1024;
+    function reglaDocumento(idCampo) {
+        return function () {
+            var archivo = document.getElementById(idCampo).files[0];
+            if (!archivo) return tx('val.doc_vacio', 'Sube la foto de tu documento.');
+            if (DOC_TIPOS.indexOf(archivo.type) === -1) return tx('val.doc_tipo', 'La foto debe ser JPG, PNG o WebP.');
+            if (archivo.size > DOC_MAX) return tx('val.doc_peso', 'La foto pesa más de 5 MB. Sube una más liviana.');
+            return '';
+        };
+    }
+
     function reglaCorreo(v) {
         v = v.trim();
         if (!v) return tx('val.correo_vacio', 'Escribe tu correo electrónico.');
@@ -245,6 +258,8 @@
         { id: 'reg-razon',         regla: reglaRazon,         solo: 'inmobiliaria' },
         { id: 'reg-nit',           regla: reglaNit,           solo: 'inmobiliaria' },
         { id: 'reg-representante', regla: reglaRepresentante, solo: 'inmobiliaria' },
+        { id: 'reg-doc-persona',    regla: reglaDocumento('reg-doc-persona'), solo: 'persona' },
+        { id: 'reg-doc-inmo',       regla: reglaDocumento('reg-doc-inmo'),    solo: 'inmobiliaria' },
         { id: 'reg-correo',        regla: reglaCorreo,        solo: null },
         { id: 'reg-telefono',      regla: reglaTelefono,      solo: null },
         { id: 'reg-clave',         regla: reglaClave,         solo: null },
@@ -281,7 +296,7 @@
         entrada.addEventListener('input', function () {
             if (tocado || entrada.getAttribute('aria-invalid') === 'true') validarCampo(c);
             // Si cambia la contraseña, la confirmación se vuelve a revisar
-            if (c.id === 'reg-clave' && document.getElementById('reg-clave2').value) validarCampo(CAMPOS[8]);
+            if (c.id === 'reg-clave' && document.getElementById('reg-clave2').value) validarCampo(CAMPOS.filter(function (x) { return x.id === 'reg-clave2'; })[0]);
         });
     });
 
@@ -335,14 +350,20 @@
             campos.representante_legal = document.getElementById('reg-representante').value.trim().replace(/\s+/g, ' ');
         }
 
+        // Con foto adjunta, el registro se envía como formulario (no como JSON)
+        var cuerpo = new FormData();
+        Object.keys(campos).forEach(function (clave) { cuerpo.append(clave, campos[clave]); });
+        cuerpo.append('documento', document.getElementById(tipoCuenta === 'persona' ? 'reg-doc-persona' : 'reg-doc-inmo').files[0]);
+
         boton.disabled = true;
         mensaje.hidden = true;
 
         try {
+            // Sin 'Content-Type': el navegador lo pone solo, con el separador del archivo
             var respuesta = await fetch(API + '/registro', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify(campos)
+                headers: { 'Accept': 'application/json' },
+                body: cuerpo
             });
             var datos = await respuesta.json().catch(function () { return {}; });
 
@@ -350,6 +371,11 @@
                 if (respuesta.status === 403) {
                     // Solo Colombia puede registrarse para publicar
                     mostrar(window.t('msg.registro.solo_colombia'), 'error');
+                } else if (respuesta.status === 413) {
+                    // El servidor cortó la subida: la foto es demasiado pesada
+                    ponerError(tipoCuenta === 'persona' ? 'reg-doc-persona' : 'reg-doc-inmo', tx('val.doc_peso', 'La foto pesa más de 5 MB. Sube una más liviana.'));
+                } else if (respuesta.status === 503 && datos.message) {
+                    mostrar(datos.message, 'error');
                 } else if (respuesta.status === 422 && datos.errors) {
                     // El servidor dice qué campo falló: la alerta sale debajo de ese campo
                     var algunoEnPantalla = false;
@@ -359,14 +385,15 @@
                         password: 'reg-clave',
                         numero_documento: tipoCuenta === 'persona' ? 'reg-numero-doc' : 'reg-nit',
                         name: tipoCuenta === 'persona' ? 'reg-nombre' : 'reg-razon',
-                        representante_legal: 'reg-representante'
+                        representante_legal: 'reg-representante',
+                        documento: tipoCuenta === 'persona' ? 'reg-doc-persona' : 'reg-doc-inmo'
                     };
                     Object.keys(datos.errors).forEach(function (clave) {
                         var id = enPantalla[clave];
                         if (!id) return;
                         var texto = clave === 'email'
                             ? window.t('msg.registro.duplicado')
-                            : (clave === 'numero_documento' ? datos.errors[clave][0] : window.t('msg.registro.invalido'));
+                            : ((clave === 'numero_documento' || clave === 'documento') ? datos.errors[clave][0] : window.t('msg.registro.invalido'));
                         ponerError(id, texto);
                         if (!algunoEnPantalla) document.getElementById(id).focus();
                         algunoEnPantalla = true;

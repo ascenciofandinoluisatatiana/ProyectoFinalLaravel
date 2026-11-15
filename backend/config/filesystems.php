@@ -60,6 +60,21 @@ return [
             'report' => false,
         ],
 
+        'documentos' => [
+            'driver' => 's3',
+            'key' => env('OBJECT_STORAGE_ACCESS_KEY'),
+            'secret' => env('OBJECT_STORAGE_SECRET_KEY'),
+            'region' => env('OBJECT_STORAGE_REGION', 'default'),
+            'bucket' => env('OBJECT_STORAGE_BUCKET'),
+            'endpoint' => env('OBJECT_STORAGE_ENDPOINT'),
+            'use_path_style_endpoint' => env('OBJECT_STORAGE_USE_PATH_STYLE_ENDPOINT', true),
+            'visibility' => 'private',
+            'request_checksum_calculation' => 'when_required',
+            'response_checksum_validation' => 'when_required',
+            'throw' => true,
+            'report' => false,
+        ],
+
     ],
 
     /*

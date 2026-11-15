@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Route;
 | 2) Fotos nuevas: viven en el Object Storage (disco "imagenes"); Laravel las trae de
 |    allí y las entrega con la misma ruta, así el frontend no cambia.
 | Solo se permiten las carpetas propiedades/, usuarios/ y avatars/ (con año/mes opcional),
-| nombres simples (sin "..") y solo JPG, PNG o WebP. Los documentos de identidad NO
+| nombres simples (sin "..") y solo JPG, PNG, WebP o GIF. Los documentos de identidad NO
 | se pueden ver por aquí: viven en otro disco y otra carpeta.
 */
 Route::get('storage/{ruta}', function (string $ruta) {
@@ -42,7 +42,7 @@ Route::get('storage/{ruta}', function (string $ruta) {
         // No existe en el bucket (o el bucket no respondió): se muestra como no encontrada
         abort(404);
     }
-})->where('ruta', '(propiedades|usuarios|avatars)/([0-9]{4}/[0-9]{2}/)?[A-Za-z0-9_\-]+\.(jpg|jpeg|png|webp)');
+})->where('ruta', '(propiedades|usuarios|avatars)/([0-9]{4}/[0-9]{2}/)?[A-Za-z0-9_\-]+\.(jpg|jpeg|png|webp|gif)');
 
 // Para Google: mapa del sitio con cada inmueble publicado y robots.txt (nginx los manda aquí)
 Route::get('sitemap.xml', [SeoController::class, 'sitemap']);

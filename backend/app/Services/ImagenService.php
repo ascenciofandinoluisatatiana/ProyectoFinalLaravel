@@ -14,6 +14,7 @@ use Throwable;
  * Fotos de propiedades y de perfil en el Object Storage (disco "imagenes").
  *
  * - Revisa el tipo REAL del archivo (no solo la extensión), el peso y que sea una imagen.
+ * - Las fotos de propiedades también pueden ser GIF animados (hasta 8 MB); en perfiles no.
  * - Guarda con nombre único (UUID): {categoria}/{año}/{mes}/{uuid}.{ext}
  * - En la base de datos se guarda SOLO esa clave (el prefijo del proyecto lo pone el disco).
  * - Si el bucket falla o se demora, avisa con un mensaje claro y no deja nada a medias.
@@ -22,13 +23,18 @@ class ImagenService
 {
     public const DISCO = 'imagenes';
 
-    public const MAX_BYTES = 4 * 1024 * 1024; // 4 MB
+    public const MAX_BYTES = 4 * 1024 * 1024; // 4 MB (fotos)
+
+    public const MAX_BYTES_GIF = 8 * 1024 * 1024; // 8 MB (GIF animados)
 
     private const TIPOS = [
         'image/jpeg' => 'jpg',
         'image/png' => 'png',
         'image/webp' => 'webp',
     ];
+
+    /** Solo las propiedades aceptan GIF; los avatares y logos no. */
+    private const TIPO_GIF = ['image/gif' => 'gif'];
 
     private const CATEGORIAS = ['propiedades', 'usuarios'];
 
@@ -51,15 +57,23 @@ class ImagenService
         if ($peso <= 0) {
             $this->fallar($campo, 'El archivo está vacío.');
         }
-        if ($peso > self::MAX_BYTES) {
-            $this->fallar($campo, 'La foto no puede superar 4 MB.');
-        }
 
         // Tipo real por el contenido del archivo (si lo renombraron, no pasa)
+        $permitidos = $categoria === 'propiedades' ? self::TIPOS + self::TIPO_GIF : self::TIPOS;
         $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($origen);
-        $extension = self::TIPOS[$mime] ?? null;
+        $extension = $permitidos[$mime] ?? null;
         if ($extension === null || @getimagesize($origen) === false) {
-            $this->fallar($campo, 'La foto debe ser una imagen JPG, PNG o WebP válida.');
+            $this->fallar($campo, $categoria === 'propiedades'
+                ? 'El archivo debe ser una imagen JPG, PNG, WebP o un GIF válido.'
+                : 'La foto debe ser una imagen JPG, PNG o WebP válida.');
+        }
+
+        if ($mime === 'image/gif') {
+            if ($peso > self::MAX_BYTES_GIF) {
+                $this->fallar($campo, 'El GIF no puede superar 8 MB.');
+            }
+        } elseif ($peso > self::MAX_BYTES) {
+            $this->fallar($campo, 'La foto no puede superar 4 MB.');
         }
 
         $clave = sprintf('%s/%s/%s/%s.%s', $categoria, now()->format('Y'), now()->format('m'), (string) Str::uuid(), $extension);

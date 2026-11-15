@@ -18,6 +18,9 @@ RUN apt-get update \
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 RUN install-php-extensions pdo_pgsql redis zip
 
+# Subidas más grandes: GIF de propiedades de hasta 8 MB (el valor por defecto de PHP es 2 MB por archivo)
+RUN printf 'upload_max_filesize=10M\npost_max_size=12M\n' > /usr/local/etc/php/conf.d/zz-subidas.ini
+
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 # Carpetas con permisos abiertos: al crear los volúmenes con nombre (vendor y caché

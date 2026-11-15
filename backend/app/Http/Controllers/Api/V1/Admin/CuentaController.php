@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Verificacion;
-use Illuminate\Support\Facades\Storage;
+use App\Services\ImagenService;
 
 /**
  * Datos de la cuenta del administrador que inició sesión y listas
@@ -238,13 +238,23 @@ class CuentaController extends Controller
         ]);
 
         $usuario = $request->user();
+        $imagenes = app(ImagenService::class);
 
-        if ($usuario->avatar) {
-            Storage::disk('public')->delete($usuario->avatar);
+        // Primero se sube la foto nueva; la anterior se borra solo si todo salió bien
+        $subida = $imagenes->subir($datos['avatar'], 'usuarios', 'avatar');
+        $anterior = $usuario->avatar;
+
+        try {
+            $usuario->avatar = $subida['ruta'];
+            $usuario->save();
+        } catch (\Throwable $e) {
+            $imagenes->borrar($subida['ruta']);
+            throw $e;
         }
 
-        $usuario->avatar = $datos['avatar']->store('avatars', 'public');
-        $usuario->save();
+        if ($anterior) {
+            $imagenes->borrar($anterior);
+        }
 
         return response()->json([
             'mensaje' => 'Foto de perfil actualizada correctamente.',

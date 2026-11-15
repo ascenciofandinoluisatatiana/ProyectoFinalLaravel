@@ -40,6 +40,18 @@ class CorreoCuentaService
         return self::enviar($usuario, 'cuenta_rechazada', 'Tu cuenta en UMBRAL no fue aprobada', $texto);
     }
 
+    /** Rechazo automático de la IA al revisar el documento: explica el motivo y cómo volver a intentar. */
+    public static function rechazadaPorIA(User $usuario, string $motivo): bool
+    {
+        $texto = "Hola {$usuario->name},\n\n"
+            . "Revisamos el documento que subiste y tu registro en UMBRAL no fue aprobado.\n\n"
+            . "Motivo: {$motivo}\n\n"
+            . "Puedes volver a registrarte en " . self::portal() . " con una foto clara y completa de tu documento "
+            . "y con los mismos datos que escribes en el formulario.\n";
+
+        return self::enviar($usuario, 'cuenta_rechazada', 'Tu registro en UMBRAL no fue aprobado', $texto);
+    }
+
     public static function creada(User $usuario): bool
     {
         $texto = "Hola {$usuario->name},\n\n"

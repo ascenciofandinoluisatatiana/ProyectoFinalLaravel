@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\VerificarDocumentoIdentidad;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Verificacion;
@@ -220,6 +221,11 @@ class AuthController extends Controller
      *
      * Además, quien se registra sube la foto de su documento (cédula o RUT), que se guarda
      * en el Object Storage privado y se anota en la tabla documentos_identidad.
+     * Al terminar se manda a revisar con la IA en segundo plano (VerificarDocumentoIdentidad):
+     * ella aprueba o rechaza la cuenta sola; si falla, queda pendiente para el administrador.
+     *
+     * Una cuenta que la IA ya rechazó se reemplaza si la persona vuelve a registrarse con el
+     * mismo correo o documento (el historial del administrador se conserva).
      */
     public function register(Request $request): JsonResponse
     {
@@ -239,10 +245,17 @@ class AuthController extends Controller
 
         $esInmobiliaria = $request->input('tipo_cuenta') === 'inmobiliaria';
 
+        // Cuentas que la IA ya rechazó con este correo o documento: no cuentan como "ya registrado"
+        $reemplazables = $this->cuentasRechazadasPorIA(
+            (string) $request->input('email'),
+            (string) $request->input('tipo_documento'),
+            (string) $request->input('numero_documento')
+        );
+
         $datos = $request->validate([
             'tipo_cuenta'       => ['required', 'in:persona,inmobiliaria'],
             'name'              => ['required', 'string', 'max:255'],
-            'email'             => ['required', 'email', 'max:255', 'unique:users,email'],
+            'email'             => ['required', 'email', 'max:255', Rule::unique('users', 'email')->whereNotIn('id', $reemplazables)],
             'telefono'          => ['required', 'string', 'max:20'],
             'tipo_documento'    => ['required', 'string', Rule::in($esInmobiliaria ? ['NIT'] : ['CC', 'CE'])],
             'numero_documento'  => ['required', 'string', 'max:30'],
@@ -270,11 +283,17 @@ class AuthController extends Controller
         // El mismo tipo y número de documento no puede registrarse dos veces
         $documentoOcupado = User::where('tipo_documento', $datos['tipo_documento'])
             ->where('numero_documento', $datos['numero_documento'])
+            ->whereNotIn('id', $reemplazables)
             ->exists();
 
         if ($documentoOcupado) {
             // Error del campo: el formulario lo muestra debajo del número de documento
             throw ValidationException::withMessages(['numero_documento' => 'Este documento ya está registrado.']);
+        }
+
+        // Se retiran las cuentas que la IA rechazó antes (con su foto); su decisión sigue en el historial
+        foreach ($reemplazables as $idViejo) {
+            $this->retirarCuentaRechazada($idViejo);
         }
 
         $usuario = User::create([
@@ -345,10 +364,18 @@ class AuthController extends Controller
             }
         }
 
+        // La IA revisa el documento en segundo plano. Si no se pudo mandar a revisar,
+        // la cuenta igual queda pendiente para el administrador.
+        try {
+            VerificarDocumentoIdentidad::dispatch($usuario->id);
+        } catch (\Throwable $e) {
+            Log::error('Registro: no se pudo mandar el documento a revisar con la IA: ' . $e->getMessage(), ['user_id' => $usuario->id]);
+        }
+
         // Respondemos 201 con estado "pendiente" para que el frontend
         // muestre la pantalla de espera en vez de redirigir al panel.
         return response()->json([
-            'message' => 'Cuenta creada. Debes esperar a que el administrador la apruebe antes de poder entrar.',
+            'message' => 'Cuenta creada. Estamos revisando tu documento y te avisaremos por correo cuando tu cuenta esté lista.',
             'estado'  => 'pendiente',
             'usuario' => [
                 'id'     => $usuario->id,
@@ -371,5 +398,51 @@ class AuthController extends Controller
         }
 
         return array_key_exists($info['mime'], self::DOC_TIPOS) ? $info['mime'] : null;
+    }
+
+    /**
+     * IDs de cuentas con este correo o documento que la IA ya rechazó (la última decisión fue
+     * un rechazo automático). Esas cuentas se pueden reemplazar al volver a registrarse.
+     * Si el rechazo lo hizo el administrador, o la cuenta está activa o pendiente, no se toca.
+     */
+    private function cuentasRechazadasPorIA(string $email, string $tipoDocumento, string $numeroDocumento): array
+    {
+        $candidatas = User::where('estado', 'inactivo')
+            ->where(function ($consulta) use ($email, $tipoDocumento, $numeroDocumento) {
+                $consulta->where('email', $email);
+                if ($tipoDocumento !== '' && $numeroDocumento !== '') {
+                    $consulta->orWhere(function ($doc) use ($tipoDocumento, $numeroDocumento) {
+                        $doc->where('tipo_documento', $tipoDocumento)->where('numero_documento', $numeroDocumento);
+                    });
+                }
+            })
+            ->pluck('id');
+
+        return $candidatas->filter(function ($id) {
+            $ultima = Verificacion::where('user_id', $id)->orderByDesc('id')->first();
+
+            return $ultima && $ultima->origen === 'ia' && $ultima->decision === 'rechazada';
+        })->values()->all();
+    }
+
+    /** Borra la foto del Object Storage y la cuenta rechazada por la IA (el historial queda con su foto de nombre y correo). */
+    private function retirarCuentaRechazada(int $id): void
+    {
+        try {
+            $rutas = DB::table('documentos_identidad')->where('user_id', $id)->pluck('archivo_url');
+            foreach ($rutas as $ruta) {
+                try {
+                    Storage::disk('documentos')->delete($ruta);
+                } catch (\Throwable $e) {
+                    Log::warning('No se pudo borrar la foto de una cuenta rechazada: ' . $e->getMessage(), ['user_id' => $id]);
+                }
+            }
+
+            User::whereKey($id)->delete();
+        } catch (\Throwable $e) {
+            Log::error('No se pudo reemplazar la cuenta rechazada: ' . $e->getMessage(), ['user_id' => $id]);
+
+            throw ValidationException::withMessages(['email' => 'Este correo ya está registrado.']);
+        }
     }
 }

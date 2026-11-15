@@ -200,7 +200,7 @@
 
     <!-- Subtítulo (cambia según el estado) -->
     <p class="subtitulo" id="subtitulo">
-        Recibimos tu solicitud de registro. El administrador de UMBRAL
+        Recibimos tu solicitud de registro. El equipo de soporte de UMBRAL
         revisará tu información y activará tu cuenta pronto.
     </p>
 
@@ -216,7 +216,7 @@
             </li>
             <li class="paso-activo">
                 <span class="paso-num">2</span>
-                <span><strong>Revisión por el administrador.</strong> El equipo de UMBRAL verificará tus datos y documentos.</span>
+                <span><strong>Revisión por soporte.</strong> El equipo de soporte de UMBRAL verificará tus datos y documentos.</span>
             </li>
             <li>
                 <span class="paso-num">3</span>
@@ -270,11 +270,11 @@
             <i class="fa-solid fa-circle-xmark"></i>
             <p>
                 <strong>Tu cuenta fue rechazada</strong>
-                El administrador revisó tu información y no pudo aprobar
+                El equipo de soporte revisó tu información y no pudo aprobar
                 el registro.
             </p>
         </div>
-        <!-- Motivo escrito por el administrador (solo aparece si lo hay) -->
+        <!-- Motivo del rechazo, escrito por soporte o por la IA (solo aparece si lo hay) -->
         <div class="motivo" id="motivo" hidden>
             <span class="motivo-titulo"><i class="fa-solid fa-comment-dots"></i> Motivo del rechazo</span>
             <p id="motivo-texto"></p>
@@ -324,7 +324,7 @@
         var titulo  = document.getElementById('titulo');
         ponerIcono('aprobado', 'fa-check');
         titulo.textContent = nombre ? ('¡' + nombre + ', tu cuenta fue aprobada!') : '¡Tu cuenta fue aprobada!';
-        document.getElementById('subtitulo').textContent = 'El administrador revisó tu información y todo está en orden.';
+        document.getElementById('subtitulo').textContent = 'El equipo de soporte revisó tu información y todo está en orden.';
 
         document.getElementById('panel-espera').style.display    = 'none';
         document.getElementById('panel-aprobado').style.display  = 'block';
@@ -341,7 +341,7 @@
             document.getElementById('motivo').hidden = false;
         }
         document.getElementById('titulo').textContent = 'Tu cuenta fue rechazada';
-        document.getElementById('subtitulo').textContent = 'El administrador revisó tu información y no pudo aprobar el registro.';
+        document.getElementById('subtitulo').textContent = 'El equipo de soporte revisó tu información y no pudo aprobar el registro.';
 
         document.getElementById('panel-espera').style.display    = 'none';
         document.getElementById('panel-rechazado').style.display = 'block';

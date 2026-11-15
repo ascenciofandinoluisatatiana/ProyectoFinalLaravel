@@ -84,6 +84,35 @@ services:
     networks:
       - portal_network
 
+  # Trabajador de segundo plano: revisa con la IA (DeepSeek) los documentos de identidad
+  # de las cuentas nuevas. Usa el mismo código y la misma configuración que "app".
+  queue:
+    build:
+      context: ./docker/backend
+    container_name: portal_queue
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    command: ["php", "artisan", "queue:work", "--sleep=3", "--tries=3", "--timeout=90", "--max-time=3600"]
+    environment:
+      DB_HOST: ${DB_HOST_APP:-postgres}
+      DB_PORT: ${DB_PORT_APP:-5432}
+      DB_DATABASE: ${DB_DATABASE_APP:-${DB_DATABASE:-portal_inmobiliario}}
+      DB_USERNAME: ${DB_USERNAME_APP:-${DB_USERNAME:-portal}}
+      DB_PASSWORD: ${DB_PASSWORD_APP:-${DB_PASSWORD:-portal_secret}}
+      DB_SSLMODE: ${DB_SSLMODE:-prefer}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+    volumes:
+      - ./backend:/var/www/html
+      - backend_vendor:/var/www/html/vendor
+    networks:
+      - portal_network
+
   frontend:
     image: nginx:alpine
     container_name: portal_frontend

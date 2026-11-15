@@ -62,6 +62,9 @@ return [
         'url' => env('DEEPSEEK_URL', 'https://api.deepseek.com/chat/completions'),
         'model' => env('DEEPSEEK_MODEL', 'deepseek-flash'),
         'timeout' => env('DEEPSEEK_TIMEOUT', 30),
+        // Puntaje (0 a 100) desde el cual la IA aprueba una cuenta sola. Menos que eso se rechaza.
+        // En producción se deja en 95; solo se baja temporalmente para hacer pruebas con fotos de muestra.
+        'puntaje_aprobar' => (int) env('DEEPSEEK_PUNTAJE_APROBAR', 95),
     ],
 
     'slack' => [

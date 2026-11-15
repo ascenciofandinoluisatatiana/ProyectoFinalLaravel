@@ -52,6 +52,18 @@ return [
         'secret_key' => env('TURNSTILE_SECRET_KEY'),
     ],
 
+    /*
+     | DeepSeek: lee la foto del documento de identidad que se sube al registrarse.
+     | La clave se crea en platform.deepseek.com → API keys y va SOLO en el .env del backend.
+     | Sin clave, la IA "no está disponible" y las cuentas quedan pendientes para el administrador.
+     */
+    'deepseek' => [
+        'key' => env('DEEPSEEK_API_KEY'),
+        'url' => env('DEEPSEEK_URL', 'https://api.deepseek.com/chat/completions'),
+        'model' => env('DEEPSEEK_MODEL', 'deepseek-flash'),
+        'timeout' => env('DEEPSEEK_TIMEOUT', 30),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

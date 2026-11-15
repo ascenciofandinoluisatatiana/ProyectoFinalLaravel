@@ -221,6 +221,7 @@
     var LADO_MAX = 1600;
     var PESO_MAX = 900 * 1024;
     var TIPOS_FOTO = ['image/jpeg', 'image/png', 'image/webp'];
+    var GIF_MAX = 8 * 1024 * 1024;   // los GIF se suben tal cual (no se reducen) y pesan hasta 8 MB
 
     function cargarImagen(archivo) {
         return new Promise(function (ok, falla) {
@@ -232,8 +233,30 @@
         });
     }
 
-    async function reducir(archivo) {
-        if (TIPOS_FOTO.indexOf(archivo.type) === -1) throw new Error('“' + archivo.name + '” no es JPG, PNG o WebP.');
+    /* ---------- Alerta roja debajo del botón de fotos (se quita al elegir otro archivo) ---------- */
+    function alerta(idCaja, ancla, texto) {
+        var el = $(idCaja);
+        if (!texto) { if (el) el.hidden = true; return; }
+        if (!el) {
+            el = document.createElement('p');
+            el.id = idCaja;
+            el.setAttribute('role', 'alert');
+            el.style.cssText = 'margin:8px 0 0;padding:10px 14px;border-radius:12px;font-weight:700;font-size:0.88rem;' +
+                'color:var(--peligro);background:var(--peligro-fondo);border:1px solid var(--peligro)';
+            ancla.parentNode.insertAdjacentElement('afterend', el);
+        }
+        el.textContent = texto;
+        el.hidden = false;
+    }
+
+    // permitirGif: solo la galería acepta GIF; la foto principal no
+    async function reducir(archivo, permitirGif) {
+        if (archivo.type === 'image/gif') {
+            if (!permitirGif) throw new Error('La foto principal no puede ser un GIF. Agrégalo en “Más fotos”.');
+            if (archivo.size > GIF_MAX) throw new Error('No se pueden agregar GIF de más de 8 MB. “' + archivo.name + '” pesa ' + (archivo.size / 1048576).toFixed(1) + ' MB.');
+            return archivo;   // sin reducir: así conserva la animación
+        }
+        if (TIPOS_FOTO.indexOf(archivo.type) === -1) throw new Error('“' + archivo.name + '” no es JPG, PNG, WebP o GIF.');
         var img = await cargarImagen(archivo);
         var lado = Math.min(LADO_MAX, Math.max(img.naturalWidth, img.naturalHeight));
 
@@ -269,11 +292,15 @@
         var archivo = this.files[0];
         this.value = '';
         if (!archivo) return;
+        alerta('f-foto-alerta', $('f-foto-quitar'), '');
         try {
             fotoPrincipal = await reducir(archivo);
             quitarFoto = false;
             pintarFoto(URL.createObjectURL(fotoPrincipal));
-        } catch (err) { I.toast(err.message); }
+        } catch (err) {
+            alerta('f-foto-alerta', $('f-foto-quitar'), err.message);
+            I.toast(err.message);
+        }
     });
     $('f-foto-quitar').addEventListener('click', function () {
         fotoPrincipal = null;
@@ -300,6 +327,8 @@
     $('f-galeria').addEventListener('change', async function () {
         var archivos = Array.prototype.slice.call(this.files);
         this.value = '';
+        alerta('f-galeria-alerta', $('f-galeria-agregar'), '');
+        var errores = [];
         var cupo = maxFotos - totalGaleria();
         if (archivos.length > cupo) {
             I.toast('Solo caben ' + cupo + ' foto(s) más. Se tomaron las primeras.');
@@ -307,10 +336,11 @@
         }
         for (var i = 0; i < archivos.length; i++) {
             try {
-                var blob = await reducir(archivos[i]);
+                var blob = await reducir(archivos[i], true);
                 galeria.nuevas.push({ blob: blob, vista: URL.createObjectURL(blob) });
-            } catch (err) { I.toast(err.message); }
+            } catch (err) { errores.push(err.message); I.toast(err.message); }
         }
+        if (errores.length) alerta('f-galeria-alerta', $('f-galeria-agregar'), errores.join(' '));
         pintarGaleria();
     });
 
@@ -338,7 +368,8 @@
         }
         for (var j = 0; j < galeria.nuevas.length; j++) {
             var datos = new FormData();
-            datos.append('foto', galeria.nuevas[j].blob, 'foto-' + (j + 1) + '.jpg');
+            var esGif = galeria.nuevas[j].blob.type === 'image/gif';
+            datos.append('foto', galeria.nuevas[j].blob, 'foto-' + (j + 1) + (esGif ? '.gif' : '.jpg'));
             try { await I.api('/propiedades/' + id + '/fotos', { metodo: 'POST', formulario: datos }); }
             catch (err) { fallas++; }
         }
@@ -441,6 +472,8 @@
         galeria = { existentes: p && p.fotos ? p.fotos.slice() : [], nuevas: [], quitar: [] };
         form.reset();
         $('d-form-error').hidden = true;
+        alerta('f-galeria-alerta', $('f-galeria-agregar'), '');
+        alerta('f-foto-alerta', $('f-foto-quitar'), '');
         $('d-form-titulo').textContent = p ? 'Editar inmueble' : 'Registrar inmueble';
         $('f-estado-caja').hidden = !!p;   // el estado se cambia desde la tarjeta
         form.agente_id.innerHTML = I.opcionesAgentes(agentes, p && p.agente ? p.agente.id : null);

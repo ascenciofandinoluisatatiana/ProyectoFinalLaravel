@@ -200,13 +200,13 @@ class PropiedadController extends BaseInmobiliariaController
     public function agregarFoto(Request $request, $id): JsonResponse
     {
         $propiedad = $this->propiedadPropia($request, $id);
+        // El tipo real (JPG, PNG, WebP o GIF) y el peso exacto (fotos 4 MB, GIF 8 MB) los revisa ImagenService
         $request->validate([
-            'foto' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'foto' => ['required', 'file', 'max:8192'],
         ], [
             'foto.required' => 'Elige una foto.',
-            'foto.max' => 'La foto no puede superar 4 MB.',
-            'foto.image' => 'El archivo debe ser una imagen.',
-            'foto.mimes' => 'La foto debe ser JPG, PNG o WebP.',
+            'foto.file' => 'No se pudo recibir el archivo. Intenta de nuevo.',
+            'foto.max' => 'El archivo no puede superar 8 MB.',
         ]);
 
         if ($propiedad->fotos()->count() >= Propiedad::MAX_FOTOS) {

@@ -335,14 +335,14 @@
        Cada foto se reduce en el navegador (JPG liviano) antes de subirla.
        El servidor las guarda de a una: la primera es la portada (propiedades.imagen)
        y las demás van a la galería (propiedad_fotos). */
-    var MIN_FOTOS = 5, MAX_FOTOS = 15, LIMITE_MB = 4;
+    var MIN_FOTOS = 5, MAX_FOTOS = 15, LIMITE_MB = 4, LIMITE_GIF_MB = 8;
     var LADO_MAX = 1600, PESO_MAX = 900 * 1024;
     var TIPOS_FOTO = ['image/jpeg', 'image/png', 'image/webp'];
 
     // Lista que se ve en el formulario, en orden. Cada elemento es una de estas tres cosas:
     //   { existente: true, principal: true,  url }        portada ya guardada en el servidor
     //   { existente: true, principal: false, id, url }    foto de galería ya guardada
-    //   { existente: false, blob, url, peso }             foto nueva que se subirá al guardar
+    //   { existente: false, blob, url, peso, gif }        foto nueva que se subirá al guardar (gif = GIF animado, sin reducir)
     var fotos = [];
     var quitarPrincipal = false;   // el usuario quitó la portada que estaba guardada
     var quitarIds = [];            // ids de fotos de galería guardadas que se van a borrar
@@ -352,6 +352,22 @@
     // Si falta el HTML nuevo o carrusel.js, el formulario sigue funcionando (sin el módulo de fotos)
     var fotosListas = !!($('f-fotos') && $('f-fotos-lista') && $('f-carrusel') && window.Carrusel);
     if (!fotosListas) console.warn('Fotos: faltan vender.html/arrendar.html nuevos o /js/carrusel.js');
+
+    /* ---------- Alerta roja debajo del botón de fotos (se quita al elegir otro archivo) ---------- */
+    function alerta(idCaja, ancla, texto) {
+        var el = $(idCaja);
+        if (!texto) { if (el) el.hidden = true; return; }
+        if (!el) {
+            el = document.createElement('p');
+            el.id = idCaja;
+            el.setAttribute('role', 'alert');
+            el.style.cssText = 'margin:8px 0 0;padding:10px 14px;border-radius:12px;font-weight:700;font-size:0.88rem;' +
+                'color:var(--peligro);background:var(--peligro-fondo);border:1px solid var(--peligro)';
+            ancla.parentNode.insertAdjacentElement('afterend', el);
+        }
+        el.textContent = texto;
+        el.hidden = false;
+    }
 
     function pesoTexto(bytes) {
         return bytes >= 1048576 ? (bytes / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(bytes / 1024)) + ' KB';
@@ -364,6 +380,7 @@
     function iniciarFotos(p) {
         if (!fotosListas) { V.toast('Falta actualizar vender.html y arrendar.html y subir js/carrusel.js: el formulario de fotos está incompleto.'); return; }
         soltarVistas();
+        alerta('f-fotos-alerta', $('f-fotos-agregar'), '');
         fotos = [];
         quitarPrincipal = false;
         quitarIds = [];
@@ -373,10 +390,10 @@
         pintarFotos();
     }
 
-    // La portada es la guardada o, si no hay, la primera foto nueva
+    // La portada es la guardada o, si no hay, la primera foto nueva que no sea GIF
     function indicePortada() {
         var i = fotos.findIndex(function (f) { return f.existente && f.principal; });
-        return i !== -1 ? i : fotos.findIndex(function (f) { return !f.existente; });
+        return i !== -1 ? i : fotos.findIndex(function (f) { return !f.existente && !f.gif; });
     }
 
     function marcarActual(i) {
@@ -396,7 +413,7 @@
 
         $('f-fotos-nota').textContent = total < MIN_FOTOS
             ? 'Te ' + (MIN_FOTOS - total === 1 ? 'falta 1 foto' : 'faltan ' + (MIN_FOTOS - total) + ' fotos') + ' para llegar al mínimo de ' + MIN_FOTOS + '. Máximo ' + MAX_FOTOS + '.'
-            : 'La foto con la etiqueta “Portada” es la que se ve primero. Cada foto se reduce sola antes de subirla (límite de ' + LIMITE_MB + ' MB por foto).';
+            : 'La foto con la etiqueta “Portada” es la que se ve primero (no puede ser un GIF). Cada foto se reduce sola antes de subirla (límite de ' + LIMITE_MB + ' MB por foto). Los GIF se suben sin reducir y pesan hasta ' + LIMITE_GIF_MB + ' MB.';
         $('f-fotos-agregar').setAttribute('aria-disabled', total >= MAX_FOTOS ? 'true' : 'false');
 
         $('f-fotos-lista').innerHTML = fotos.map(function (f, i) {
@@ -405,7 +422,7 @@
                 '<span class="v-fotos-num">' + (i + 1) + ' / ' + MAX_FOTOS + '</span>' +
                 (i === portada ? '<span class="v-fotos-portada">Portada</span>' : '') +
                 '<button type="button" class="v-fotos-quitar" data-quitar="' + i + '" aria-label="Quitar foto ' + (i + 1) + '"><i class="fa-solid fa-xmark"></i></button>' +
-                '<figcaption>' + (f.existente ? 'Guardada' : pesoTexto(f.peso) + ' de ' + LIMITE_MB + ' MB') + '</figcaption>' +
+                '<figcaption>' + (f.existente ? 'Guardada' : pesoTexto(f.peso) + ' de ' + (f.gif ? LIMITE_GIF_MB : LIMITE_MB) + ' MB') + '</figcaption>' +
                 '</figure>';
         }).join('');
 
@@ -435,7 +452,12 @@
     }
 
     async function reducir(archivo) {
-        if (TIPOS_FOTO.indexOf(archivo.type) === -1) throw new Error('“' + archivo.name + '” no es JPG, PNG o WebP.');
+        // Los GIF se suben tal cual (sin reducir) para que conserven la animación
+        if (archivo.type === 'image/gif') {
+            if (archivo.size > LIMITE_GIF_MB * 1048576) throw new Error('No se pueden agregar GIF de más de ' + LIMITE_GIF_MB + ' MB. “' + archivo.name + '” pesa ' + (archivo.size / 1048576).toFixed(1) + ' MB.');
+            return archivo;
+        }
+        if (TIPOS_FOTO.indexOf(archivo.type) === -1) throw new Error('“' + archivo.name + '” no es JPG, PNG, WebP o GIF.');
         var img = await cargarImagen(archivo);
         var lado = Math.min(LADO_MAX, Math.max(img.naturalWidth, img.naturalHeight));
 
@@ -463,6 +485,8 @@
         var elegidas = Array.prototype.slice.call(this.files || []);
         this.value = '';
         if (!elegidas.length || procesando) return;
+        alerta('f-fotos-alerta', $('f-fotos-agregar'), '');
+        var errores = [];
 
         var cupo = MAX_FOTOS - fotos.length;
         if (cupo <= 0) { V.toast('Ya tienes las ' + MAX_FOTOS + ' fotos permitidas.'); return; }
@@ -477,12 +501,14 @@
         for (var i = 0; i < elegidas.length; i++) {
             try {
                 var blob = await reducir(elegidas[i]);
-                fotos.push({ existente: false, blob: blob, url: URL.createObjectURL(blob), peso: blob.size });
+                fotos.push({ existente: false, blob: blob, url: URL.createObjectURL(blob), peso: blob.size, gif: blob.type === 'image/gif' });
             } catch (err) {
+                errores.push(err.message);
                 V.toast(err.message);
             }
         }
         procesando = false;
+        if (errores.length) alerta('f-fotos-alerta', $('f-fotos-agregar'), errores.join(' '));
         if (fotos.length > primeraNueva) indiceCarrusel = primeraNueva;   // el carrusel salta a la primera foto agregada
         pintarFotos();
     });
@@ -630,11 +656,18 @@
 
         var existente = form.id.value ? inmueble(Number(form.id.value)) : null;
 
-        // Portada: la guardada, o si no hay, la primera foto nueva. El resto va a la galería.
+        // Portada: la guardada, o si no hay, la primera foto nueva que no sea GIF. El resto va a la galería.
         var portadaGuardada = fotos.some(function (f) { return f.existente && f.principal; });
         var nuevas = fotos.filter(function (f) { return !f.existente; });
-        var portadaNueva = portadaGuardada ? null : (nuevas[0] || null);
+        var portadaNueva = portadaGuardada ? null : (nuevas.filter(function (f) { return !f.gif; })[0] || null);
         var galeriaNuevas = nuevas.filter(function (f) { return f !== portadaNueva; });
+
+        // Si todas las fotos nuevas son GIF y no hay portada, no se puede guardar
+        if (fotosListas && !portadaGuardada && !portadaNueva && nuevas.length && !fotos.some(function (f) { return f.existente; })) {
+            V.toast('La portada no puede ser un GIF: agrega al menos una foto JPG, PNG o WebP.');
+            $('f-fotos-lista').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
 
         var fd = new FormData();
         fd.append('operacion', clave);
@@ -670,7 +703,7 @@
             for (var j = 0; j < galeriaNuevas.length; j++) {
                 if (boton) boton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Subiendo foto ' + (j + 1) + ' de ' + galeriaNuevas.length + '…';
                 var datosFoto = new FormData();
-                datosFoto.append('foto', galeriaNuevas[j].blob, 'foto-' + (j + 1) + '.jpg');
+                datosFoto.append('foto', galeriaNuevas[j].blob, 'foto-' + (j + 1) + (galeriaNuevas[j].gif ? '.gif' : '.jpg'));
                 try { await V.api('/propiedades/' + id + '/fotos', { metodo: 'POST', formulario: datosFoto }); }
                 catch (e2) { fallas++; }
             }

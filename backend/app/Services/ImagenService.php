@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -91,11 +92,18 @@ class ImagenService
     /**
      * Borra una imagen del bucket (y del disco local si todavía es una foto antigua).
      * No toca las imágenes de ejemplo del frontend (rutas que empiezan por / o http).
+     * Si otro registro todavía usa la misma foto (por ejemplo las propiedades de ejemplo que
+     * comparten imagen), NO se borra: así borrar una no daña a las demás.
+     * Por eso se debe llamar DESPUÉS de cambiar o borrar el registro que la usaba.
      * Un fallo al borrar no rompe la operación: queda en el registro de errores.
      */
     public function borrar(?string $ruta): void
     {
         if (! $ruta || str_starts_with($ruta, '/') || str_starts_with($ruta, 'http') || str_contains($ruta, '..')) {
+            return;
+        }
+
+        if ($this->enUso($ruta)) {
             return;
         }
 
@@ -118,6 +126,14 @@ class ImagenService
             'mime' => $subida['mime'],
             'disco' => $subida['disco'],
         ];
+    }
+
+    /** ¿Alguna propiedad, foto de galería o usuario sigue usando esta foto? */
+    private function enUso(string $ruta): bool
+    {
+        return DB::table('propiedades')->where('imagen', $ruta)->exists()
+            || DB::table('propiedad_fotos')->where('ruta', $ruta)->exists()
+            || DB::table('users')->where('avatar', $ruta)->exists();
     }
 
     private function limpiarNombre(?string $nombre): string

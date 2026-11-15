@@ -235,8 +235,9 @@ class PropiedadController extends BaseInmobiliariaController
         $propiedad = $this->propiedadPropia($request, $id);
         $foto = $propiedad->fotos()->whereKey((int) $fotoId)->firstOrFail();
 
-        $this->borrarArchivo($foto->ruta);
+        $ruta = $foto->ruta;
         $foto->delete();
+        $this->borrarArchivo($ruta); // después de borrar el registro: solo se borra si nadie más la usa
 
         return response()->json(['message' => 'Foto eliminada.']);
     }
@@ -245,11 +246,11 @@ class PropiedadController extends BaseInmobiliariaController
     public function destroy(Request $request, $id): JsonResponse
     {
         $propiedad = $this->propiedadPropia($request, $id);
-        $this->borrarImagen($propiedad);
-        foreach ($propiedad->fotos as $foto) {
-            $this->borrarArchivo($foto->ruta);
-        }
+        $rutas = $propiedad->fotos->pluck('ruta')->push($propiedad->imagen)->filter()->all();
         $propiedad->delete(); // sus fotos, contactos y visitas se borran en cascada
+        foreach ($rutas as $ruta) {
+            $this->borrarArchivo($ruta); // solo se borra del bucket si ningún otro registro la usa
+        }
 
         return response()->json(['message' => 'Propiedad eliminada.']);
     }
@@ -320,11 +321,6 @@ class PropiedadController extends BaseInmobiliariaController
         unset($datos['imagen']);
 
         return $datos;
-    }
-
-    private function borrarImagen(Propiedad $propiedad): void
-    {
-        $this->borrarArchivo($propiedad->imagen);
     }
 
     /** Borra la foto del bucket (no toca las imágenes de ejemplo del frontend). */

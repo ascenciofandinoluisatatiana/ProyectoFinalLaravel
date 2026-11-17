@@ -202,3 +202,17 @@ body:has(.mbg.open) .cb, body:has(.wl) .cb, body:has(.sidebar.open) .cb { displa
   font: inherit; font-size: 12.5px; font-weight: 700; color: #fff; background: linear-gradient(135deg, #8b5cf6, #6c3df5);
 }
 .cb-all:hover { filter: brightness(1.08); }
+
+/* Inmueble del que se está hablando (viene del botón "Preguntar a Umbra" del detalle) */
+.cb-foco {
+  display: flex; align-items: center; gap: 8px; margin: 0 12px 6px; padding: 7px 8px 7px 10px;
+  font-size: 12px; color: var(--text); border: 1px solid color-mix(in srgb, var(--primary) 40%, var(--border));
+  background: color-mix(in srgb, var(--primary) 9%, var(--card)); border-radius: 12px;
+}
+.cb-foco[hidden] { display: none; }
+.cb-foco > i { color: var(--primary); }
+.cb-foco > span { flex: 1; min-width: 0; line-height: 1.3; }
+.cb-foco small { color: var(--muted); font-size: 11px; }
+.cb-foco b { font-weight: 700; }
+.cb-foco-x { flex: none; width: 24px; height: 24px; border: 0; border-radius: 50%; background: transparent; color: var(--muted); cursor: pointer; }
+.cb-foco-x:hover { background: var(--soft); color: var(--text); }

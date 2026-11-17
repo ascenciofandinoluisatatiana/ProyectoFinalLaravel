@@ -302,3 +302,5 @@ Route::prefix('v1/agente')->middleware('web')->group(function () {
 
 // Asistente virtual del perfil de invitado (DeepSeek)
 Route::post('v1/public/chatbot', [\App\Http\Controllers\Api\V1\ChatbotController::class, 'mensaje'])->middleware('throttle:20,1');
+// El visitante pide ver un inmueble: llega al vendedor / inmobiliaria / agente como contacto + visita pendiente
+Route::post('v1/public/visitas', [\App\Http\Controllers\Api\V1\VisitaPublicaController::class, 'store'])->middleware('throttle:6,1');

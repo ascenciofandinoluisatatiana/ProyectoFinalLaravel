@@ -299,3 +299,6 @@ Route::prefix('v1/agente')->middleware('web')->group(function () {
         Route::post('perfil/clave', [AgentePerfilController::class, 'cambiarClave']);
     });
 });
+
+// Asistente virtual del perfil de invitado (DeepSeek)
+Route::post('v1/public/chatbot', [\App\Http\Controllers\Api\V1\ChatbotController::class, 'mensaje'])->middleware('throttle:20,1');

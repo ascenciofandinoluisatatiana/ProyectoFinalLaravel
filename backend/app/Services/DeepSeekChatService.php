@@ -8,8 +8,9 @@ use Illuminate\Support\Facades\Log;
 /**
  * Asistente virtual del perfil de invitado: responde dudas de cómo funciona UMBRAL.
  *
- * Usa la misma llave y el mismo modelo que ya están en config/services.php ('deepseek').
- * La llave vive solo en el .env del backend (DEEPSEEK_API_KEY); el navegador nunca la ve.
+ * Usa el mismo modelo y la misma URL que ya están en config/services.php ('deepseek').
+ * Su llave es propia: DEEPSEEK_CHATBOT_API_KEY; si no está definida, usa DEEPSEEK_API_KEY.
+ * Las llaves viven solo en el .env del backend; el navegador nunca las ve.
  *
  * responder() devuelve SIEMPRE:
  *   disponible : true si la IA respondió bien; false si falló (sin llave, sin saldo, caída...)
@@ -32,7 +33,7 @@ class DeepSeekChatService
      */
     public static function responder(array $mensajes, string $idioma = 'es', array $catalogo = []): array
     {
-        $clave = config('services.deepseek.key');
+        $clave = config('services.deepseek.chatbot_key') ?: config('services.deepseek.key');
         if (! $clave) {
             return self::noDisponible('Falta configurar la clave de DeepSeek en el servidor.');
         }

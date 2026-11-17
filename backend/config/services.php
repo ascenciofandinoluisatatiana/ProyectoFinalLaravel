@@ -59,6 +59,8 @@ return [
      */
     'deepseek' => [
         'key' => env('DEEPSEEK_API_KEY'),
+        // Clave aparte para el chatbot (Umbra). Si no se define, el chatbot usa 'key'.
+        'chatbot_key' => env('DEEPSEEK_CHATBOT_API_KEY'),
         'url' => env('DEEPSEEK_URL', 'https://api.deepseek.com/chat/completions'),
         'model' => env('DEEPSEEK_MODEL', 'deepseek-flash'),
         'timeout' => env('DEEPSEEK_TIMEOUT', 30),

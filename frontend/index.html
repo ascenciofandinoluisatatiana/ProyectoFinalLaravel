@@ -19,6 +19,8 @@
 
     <!-- Estilos propios de la página (landing y modal) -->
     <link rel="stylesheet" href="css/umbral.css?v=20261107n">
+    <link rel="stylesheet" href="css/subir.css?v=1">
+    <link rel="stylesheet" href="css/menu-responsivo.css?v=1">
 
     <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
     <script>
@@ -590,6 +592,12 @@
         </div>
     </div>
 
+    <!-- Flecha para volver al inicio (aparece al bajar) -->
+    <button type="button" class="boton-subir" id="boton-subir">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+        <span class="solo-lector" data-i18n="nav.subir">Volver al inicio</span>
+    </button>
+
     <script src="js/config.js"></script>
     <script src="js/tema.js"></script>
     <script src="js/i18n.js"></script>
@@ -598,5 +606,6 @@
     <script src="js/propiedades-destacadas.js?v=6"></script>
     <script src="js/animaciones.js"></script>
 <script src="js/auth-param.js"></script>
+    <script src="js/subir.js?v=1"></script>
 </body>
 </html>

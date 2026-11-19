@@ -1,0 +1,72 @@
+/* Umbral: botón flecha "Volver al inicio".
+   Aparece al bajar la página y sube suavemente hasta el inicio. */
+.boton-subir {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid #e3c985;
+    background: #1d0f2e;
+    color: #e3c985;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(20, 8, 38, 0.35);
+    z-index: 900;
+
+    /* Escondido arriba del todo; entra con animación */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(16px) scale(0.9);
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s, background 0.2s ease, color 0.2s ease;
+}
+
+.boton-subir.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+.boton-subir:hover,
+.boton-subir:focus-visible {
+    background: #e3c985;
+    color: #1d0f2e;
+    transform: translateY(-3px) scale(1.05);
+}
+
+.boton-subir:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 3px;
+}
+
+.boton-subir svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Texto solo para lectores de pantalla */
+.boton-subir .solo-lector {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+    .boton-subir { right: 14px; bottom: 14px; width: 46px; height: 46px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .boton-subir { transition: none; }
+}

@@ -1,5 +1,6 @@
     /* ============ filtros ============ */
     const uniq = a => [...new Set(a)].sort((x, y) => x.localeCompare(y, 'es'));
+    const normB = x => String(x == null ? '' : x).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
     function fill(sel, opts, val, allLabel) {
       sel.innerHTML = `<option value="">${allLabel}</option>` + opts.map(o => `<option value="${o[0]}">${o[1]}</option>`).join('');
       sel.value = opts.some(o => String(o[0]) === String(val)) ? val : '';
@@ -15,18 +16,25 @@
       fill($('#fCity'), cities.map(d => [d, d]), S.city, t('anyf'));
       if (!cities.includes(S.city)) S.city = '';
       const byC = byD.filter(p => !S.city || p.city === S.city);
-      fill($('#fBarrio'), uniq(byC.map(p => p.barrio)).map(d => [d, d]), S.barrio, t('any'));
-      if (!byC.some(p => p.barrio === S.barrio)) S.barrio = '';
+      // Barrio: se escribe (sirve en cualquier municipio) y se sugieren los barrios que ya tienen inmuebles
+      $('#dlBarrios').innerHTML = uniq(byC.map(p => p.barrio).filter(Boolean)).slice(0, 300).map(b => `<option value="${esc(b)}"></option>`).join('');
+      $('#fBarrio').value = S.barrio || '';
+      $('#fBarrio').setAttribute('placeholder', t('f_barrio_ph'));
       fill($('#fBeds'), [1, 2, 3, 4].map(n => [n, n + '+']), S.beds, t('any'));
       $('#fSort').innerHTML = [['rel', 's_rel'], ['low', 's_low'], ['high', 's_high']].map(o => `<option value="${o[0]}">${t(o[1])}</option>`).join('');
       $('#fSort').value = S.sort;
     }
+    /* Buscador de texto: sin importar mayúsculas ni tildes ("ibague" encuentra "Ibagué"); cada palabra escrita debe aparecer */
+    function cumpleBusqueda(p) {
+      const texto = normB(`${t('t_' + p.type)} ${p.type} ${p.city} ${p.barrio} ${p.dept} ${p.addr || ''}`);
+      return normB(S.q).split(/\s+/).filter(Boolean).every(w => texto.includes(w));
+    }
     function filtered() {
       let r = P.filter(p =>
         (S.op === 'all' || p.op === S.op) && (!S.type || p.type === S.type) && (!S.dept || p.dept === S.dept) &&
-        (!S.city || p.city === S.city) && (!S.barrio || p.barrio === S.barrio) && (!S.max || p.price <= +S.max) &&
+        (!S.city || p.city === S.city) && (!S.barrio || normB(p.barrio).includes(normB(S.barrio))) && (!S.max || p.price <= +S.max) &&
         (!S.beds || p.beds >= +S.beds) && (!S.favOnly || favs.includes(p.id)) && (S.seller === null || p.seller === S.seller) &&
-        (!S.q || (`${t('t_' + p.type)} ${p.type} ${p.city} ${p.barrio} ${p.dept}`).toLowerCase().includes(S.q.toLowerCase())));
+        (!S.q || cumpleBusqueda(p)));
       if (S.sort === 'low') r.sort((a, b) => a.price - b.price);
       else if (S.sort === 'high') r.sort((a, b) => b.price - a.price);
       else r = premRotar(r.sort((a, b) => (tierN(b) - tierN(a)) || ((b.score || 0) - (a.score || 0)) || (b.ver - a.ver))); // RF-053 + rotación semanal dentro de cada nivel

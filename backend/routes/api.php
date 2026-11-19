@@ -41,6 +41,7 @@ use App\Http\Controllers\Api\V1\Inmobiliaria\NotificacionController as Inmobilia
 use App\Http\Controllers\Api\V1\Inmobiliaria\VentaController as InmobiliariaVentaController;
 use App\Http\Controllers\Api\V1\Admin\ReporteController;
 use App\Http\Controllers\Api\V1\Vendedor\MembresiaController as VendedorMembresiaController;
+use App\Http\Controllers\Api\V1\Vendedor\NotificacionController as VendedorNotificacionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -265,6 +266,9 @@ Route::prefix('v1/vendedor')->middleware('web')->group(function () {
         Route::post('membresia', [VendedorMembresiaController::class, 'contratar']);
         Route::post('membresia/paquete/publicaciones', [VendedorMembresiaController::class, 'agregar']);
         Route::delete('membresia/paquete/publicaciones/{propiedad}', [VendedorMembresiaController::class, 'quitar'])->whereNumber('propiedad');
+        
+        Route::get('notificaciones', [VendedorNotificacionController::class, 'index']);
+        Route::post('notificaciones/leidas', [VendedorNotificacionController::class, 'leidas']);
     });
 });
 /*
@@ -302,3 +306,5 @@ Route::prefix('v1/agente')->middleware('web')->group(function () {
 
 // Asistente virtual del perfil de invitado (DeepSeek)
 Route::post('v1/public/chatbot', [\App\Http\Controllers\Api\V1\ChatbotController::class, 'mensaje'])->middleware('throttle:20,1');
+// El visitante pide ver un inmueble: llega al vendedor / inmobiliaria / agente como contacto + visita pendiente
+Route::post('v1/public/visitas', [\App\Http\Controllers\Api\V1\VisitaPublicaController::class, 'store'])->middleware('throttle:6,1');

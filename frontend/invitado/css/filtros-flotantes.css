@@ -1,0 +1,58 @@
+/* Botón "Filtros" junto al buscador y panel desplegable (filtros-flotantes.js) */
+.flt-btn {
+  display: none; align-items: center; gap: 8px; flex: none; height: 32px; padding: 0 12px;
+  font: inherit; font-size: 13px; font-weight: 700; color: var(--primary);
+  background: var(--soft); border: 1px solid color-mix(in srgb, var(--primary) 35%, var(--border));
+  border-radius: 999px; cursor: pointer; transition: background .2s, color .2s;
+}
+.flt-btn:hover, .flt-btn.on { color: #fff; background: var(--primary); }
+.flt-btn .flt-car { font-size: 10px; transition: transform .2s; }
+.flt-btn.on .flt-car { transform: rotate(180deg); }
+.flt-n {
+  min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; font-size: 11px; font-weight: 800;
+  display: inline-grid; place-items: center; color: #fff; background: var(--primary);
+}
+.flt-btn:hover .flt-n, .flt-btn.on .flt-n { background: #fff; color: var(--primary); }
+.flt-n[hidden] { display: none; }
+
+/* escritorio: pestaña que cuelga justo debajo del buscador de la barra, solo cuando ya se bajó a los resultados */
+.topbar .search { position: relative; }
+.topbar .search input { min-width: 0; }
+body.flt-away .flt-top {
+  display: inline-flex; position: absolute; right: 14px; top: calc(100% + 16px); z-index: 2; height: 32px;
+  border-top: 0; border-radius: 0 0 14px 14px; box-shadow: 0 8px 18px rgba(20, 8, 60, .22);
+  background: var(--card);
+}
+body.flt-away .flt-top:hover, body.flt-away .flt-top.on { background: var(--primary); }
+
+/* celular: el buscador de la barra no existe; botón flotante a la izquierda, sobre la barra inferior */
+@media (max-width: 600px) {
+  body.flt-away .flt-top { display: none; }
+  body.flt-away .flt-fab {
+    display: inline-flex; position: fixed; left: 14px; z-index: 56; height: 44px; padding: 0 16px;
+    bottom: calc(66px + 14px + env(safe-area-inset-bottom)); box-shadow: 0 10px 26px rgba(20, 8, 60, .35);
+    background: linear-gradient(135deg, #7c3aed, #5b21b6); color: #fff; border-color: transparent;
+  }
+  body.flt-away .flt-fab .flt-n { background: #fff; color: var(--primary); }
+}
+
+/* el panel de filtros, desplegado encima de la página */
+#fltBack {
+  position: fixed; inset: 0; z-index: 3000; opacity: 0; visibility: hidden;
+  background: rgba(14, 8, 40, .45); transition: opacity .2s, visibility .2s;
+}
+#fltBack.open { opacity: 1; visibility: visible; }
+.panel#filters.fdrop {
+  position: fixed !important; z-index: 3001; left: 50% !important; top: var(--flt-top, 70px) !important;
+  transform: translateX(-50%) !important; margin: 0 !important;
+  width: min(900px, calc(100vw - 24px)) !important;
+  max-height: calc(100vh - var(--flt-top, 70px) - 14px) !important; overflow-y: auto !important;
+  opacity: 1 !important; visibility: visible !important; pointer-events: auto !important;
+  box-shadow: 0 30px 80px rgba(10, 4, 40, .5) !important;
+  animation: fltDrop .22s ease;
+}
+.panel#filters.fdrop .fm-x { display: grid !important; place-items: center; width: 34px; height: 34px; border-radius: 50%; border: 0; background: var(--soft); color: var(--text); cursor: pointer; }
+.panel#filters.fdrop .fm-head { display: flex; align-items: center; justify-content: space-between; }
+@keyframes fltDrop { from { opacity: 0; transform: translate(-50%, -8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@media (prefers-reduced-motion: reduce) { .panel#filters.fdrop { animation: none; } #fltBack { transition: none; } }
+body:has(.mbg.open) .flt-fab, body:has(.wl) .flt-fab, body:has(.sidebar.open) .flt-fab { display: none !important; }

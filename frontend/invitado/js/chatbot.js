@@ -31,6 +31,8 @@
     off: ['Ahora no puedo responder. Intenta de nuevo en unos minutos.', 'I can\'t answer right now. Please try again in a few minutes.', 'Não posso responder agora. Tente novamente em alguns minutos.', 'Je ne peux pas répondre pour le moment. Réessayez dans quelques minutes.'],
     limit: ['Llegaste al límite de preguntas por hoy. Vuelve mañana o escribe directamente al vendedor.', 'You reached today\'s question limit. Come back tomorrow or write to the seller directly.', 'Você atingiu o limite de perguntas de hoje. Volte amanhã ou escreva diretamente ao vendedor.', 'Vous avez atteint la limite de questions du jour. Revenez demain ou écrivez directement au vendeur.'],
     net: ['No hay conexión. Revisa tu internet e intenta otra vez.', 'No connection. Check your internet and try again.', 'Sem conexão. Verifique sua internet e tente novamente.', 'Pas de connexion. Vérifiez votre internet et réessayez.'],
+    foco: ['Hablando de:', 'Talking about:', 'Falando sobre:', 'À propos de :'],
+    focoq: ['Dejar de hablar de esta propiedad', 'Stop talking about this property', 'Parar de falar deste imóvel', 'Ne plus parler de ce bien'],
     note: ['Respuestas generadas por IA; confirma los datos importantes con el vendedor.', 'AI-generated answers; confirm important details with the seller.', 'Respostas geradas por IA; confirme os dados importantes com o vendedor.', 'Réponses générées par IA ; confirmez les informations importantes avec le vendeur.']
   };
 
@@ -43,14 +45,30 @@
     ['¿Necesito cuenta para ver propiedades?', 'Do I need an account to browse?', 'Preciso de conta para ver imóveis?', 'Faut-il un compte pour consulter les annonces ?'],
     ['¿Cómo contacto al vendedor?', 'How do I contact the seller?', 'Como contato o vendedor?', 'Comment contacter le vendeur ?'],
     ['¿Mi mensaje sí le llega al vendedor?', 'Does my message really reach the seller?', 'Minha mensagem chega ao vendedor?', 'Mon message arrive-t-il au vendeur ?'],
-    ['¿Cómo pago una compra o arriendo?', 'How do I pay for a purchase or rental?', 'Como pago uma compra ou aluguel?', 'Comment payer un achat ou une location ?'],
+    ['¿Cómo cierro una compra o arriendo?', 'How do I close a purchase or rental?', 'Como fecho uma compra ou aluguel?', 'Comment conclure un achat ou une location ?'],
     ['¿Qué significa "Verificada"?', 'What does "Verified" mean?', 'O que significa "Verificada"?', 'Que signifie « Vérifiée » ?'],
     ['¿Qué son Oro, Plata y Bronce?', 'What are Gold, Silver and Bronze?', 'O que são Ouro, Prata e Bronze?', 'Que sont Or, Argent et Bronze ?'],
     ['¿Cómo guardo mis favoritos y búsquedas?', 'How do I save favorites and searches?', 'Como salvo favoritos e buscas?', 'Comment enregistrer favoris et recherches ?'],
     ['¿Cómo vendo o arriendo mi propiedad?', 'How do I sell or rent out my property?', 'Como vendo ou alugo meu imóvel?', 'Comment vendre ou louer mon bien ?']
   ];
 
-  var KEY = 'umbral_chat';
+  /* Preguntas sugeridas cuando el visitante viene del detalle de un inmueble ("Preguntar a Umbra") */
+  var SUGP = {
+    venta: [
+      ['¿Cuánto pagaría al mes por esta propiedad?', 'How much would I pay per month for this property?', 'Quanto eu pagaria por mês por este imóvel?', 'Combien paierais-je par mois pour ce bien ?'],
+      ['¿Qué debo revisar antes de comprarla?', 'What should I check before buying it?', 'O que devo verificar antes de comprá-lo?', 'Que dois-je vérifier avant de l\'acheter ?'],
+      ['¿Cómo agendo una visita?', 'How do I schedule a visit?', 'Como agendo uma visita?', 'Comment planifier une visite ?'],
+      ['¿Qué le pregunto al vendedor?', 'What should I ask the seller?', 'O que pergunto ao vendedor?', 'Que demander au vendeur ?']
+    ],
+    arriendo: [
+      ['¿Qué debo revisar antes de arrendarla?', 'What should I check before renting it?', 'O que devo verificar antes de alugá-lo?', 'Que dois-je vérifier avant de la louer ?'],
+      ['¿Cómo agendo una visita?', 'How do I schedule a visit?', 'Como agendo uma visita?', 'Comment planifier une visite ?'],
+      ['¿Qué le pregunto al vendedor?', 'What should I ask the seller?', 'O que pergunto ao vendedor?', 'Que demander au vendeur ?'],
+      ['¿Cómo contacto al vendedor?', 'How do I contact the seller?', 'Como contato o vendedor?', 'Comment contacter le vendeur ?']
+    ]
+  };
+  var foco = null;        // inmueble del que se está hablando (viene del detalle); null = conversación general
+  var KEY = 'umbral_chat', KEYF = 'umbral_chat_foco';
   var MAX_MSG = 12;       // lo que se guarda y se envía (el backend usa los últimos 10)
   var msgs = [];          // [{rol:'user'|'assistant', texto:'...', buscar:{...}|null, ids:[...], total:N}]
   var ocupado = false;
@@ -69,6 +87,25 @@
   function guardar() { try { sessionStorage.setItem(KEY, JSON.stringify(msgs.slice(-MAX_MSG))); } catch (_) { } }
   function cargar() { try { var a = JSON.parse(sessionStorage.getItem(KEY) || '[]'); if (Array.isArray(a)) msgs = a.filter(function (m) { return m && (m.rol === 'user' || m.rol === 'assistant') && typeof m.texto === 'string'; }).slice(-MAX_MSG); } catch (_) { } }
 
+  function focoProp() {
+    if (foco == null) return null;
+    return listaP().find(function (x) { return String(x.id) === String(foco); }) || null;
+  }
+  function setFoco(id) {
+    foco = id == null ? null : id;
+    try { if (foco == null) sessionStorage.removeItem(KEYF); else sessionStorage.setItem(KEYF, String(foco)); } catch (_) { }
+    pintarFoco(); pintarSug();
+  }
+  /* datos que se le dan a la IA del inmueble abierto (solo hechos que ya están en la página) */
+  function datosFoco() {
+    var p = focoProp(); if (!p) return null;
+    var v = (typeof SELLERS !== 'undefined' && SELLERS[p.seller]) || {};
+    return {
+      tipo: p.type, operacion: p.op, ciudad: p.city, barrio: p.barrio, precio: p.price, habitaciones: p.beds || 0,
+      banos: p.baths || 0, parqueaderos: p.park || 0, area: p.area || 0, estrato: p.estrato || 0,
+      vendedor: v.name || '', verificada: !!p.ver, descripcion: String(p.desc || '').slice(0, 500)
+    };
+  }
 
   /* ---------- búsqueda de propiedades (con las que la página ya tiene cargadas) ---------- */
   var MAX_TARJ = 4;
@@ -153,6 +190,7 @@
     '<button type="button" class="cb-ic" id="cbReset" data-cbt="reset"><i class="fa-solid fa-rotate-right"></i></button>' +
     '<button type="button" class="cb-ic" id="cbClose" data-cbt="close"><i class="fa-solid fa-xmark"></i></button></header>' +
     '<div class="cb-body" id="cbBody" aria-live="polite"></div>' +
+    '<div class="cb-foco" id="cbFoco" hidden><i class="fa-solid fa-house"></i><span><small data-cb="foco"></small> <b id="cbFocoT"></b></span><button type="button" class="cb-foco-x" id="cbFocoX" data-cbt="focoq"><i class="fa-solid fa-xmark"></i></button></div>' +
     '<div class="cb-sug" id="cbSug"></div>' +
     '<form class="cb-form" id="cbForm" autocomplete="off"><input id="cbIn" type="text" maxlength="500" data-cbph="ph" aria-label="Pregunta">' +
     '<button type="submit" class="cb-send" id="cbSend" data-cbt="send"><i class="fa-solid fa-paper-plane"></i></button></form>' +
@@ -181,13 +219,21 @@
     body.innerHTML = '';
     burbuja('assistant', '<span data-hello>' + esc(T('hello')) + '</span>');
     msgs.forEach(function (m) { burbuja(m.rol, m.rol === 'user' ? esc(m.texto) : md(m.texto)); if (m.rol === 'assistant' && m.ids) tarjetas(m); });
-    pintarSug();
+    pintarFoco(); pintarSug();
+  }
+  var lista = SUG;   // las que se muestran ahora (generales o del inmueble abierto)
+  function pintarFoco() {
+    var p = focoProp(), box = $('#cbFoco');
+    box.hidden = !p;
+    if (p) $('#cbFocoT').textContent = title(p) + ' · ' + cop(p.price) + (p.op === 'arriendo' ? ' ' + t('per_month') : '');
   }
   function pintarSug() {
     /* las sugerencias se muestran solo al empezar; después estorban */
     if (msgs.length) { sug.innerHTML = ''; sug.hidden = true; return; }
     sug.hidden = false;
-    sug.innerHTML = SUG.map(function (q, i) { return '<button type="button" class="cb-chip' + (i < 3 ? ' s' : '') + '" data-q="' + i + '">' + (i < 3 ? '<i class="fa-solid fa-magnifying-glass"></i>' : '') + esc(q[I()] || q[0]) + '</button>'; }).join('');
+    var fp = focoProp();
+    lista = fp ? SUGP[fp.op === 'arriendo' ? 'arriendo' : 'venta'] : SUG;
+    sug.innerHTML = lista.map(function (q, i) { return '<button type="button" class="cb-chip' + (!fp && i < 3 ? ' s' : '') + '" data-q="' + i + '">' + (!fp && i < 3 ? '<i class="fa-solid fa-magnifying-glass"></i>' : '') + esc(q[I()] || q[0]) + '</button>'; }).join('');
   }
 
   /* globito de invitación: una sola vez por sesión, a los 4 s; se cierra solo */
@@ -233,7 +279,7 @@
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({
         mensajes: msgs.map(function (m) { return { rol: m.rol, texto: m.texto, buscar: m.buscar || null }; }),
-        idioma: idioma(), ciudades: ciudadesDelPortal()
+        idioma: idioma(), ciudades: ciudadesDelPortal(), propiedad: datosFoco()
       })
     }).then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (j) { return { st: r.status, j: j }; });
@@ -267,7 +313,8 @@
   /* ---------- eventos ---------- */
   fab.addEventListener('click', function () { abrir(panel.hidden); });
   $('#cbClose').addEventListener('click', function () { abrir(false); fab.focus(); });
-  $('#cbReset').addEventListener('click', function () { msgs = []; guardar(); pintar(); inp.focus(); });
+  $('#cbReset').addEventListener('click', function () { msgs = []; guardar(); setFoco(null); pintar(); inp.focus(); });
+  $('#cbFocoX').addEventListener('click', function () { setFoco(null); inp.focus(); });
   form.addEventListener('submit', function (e) { e.preventDefault(); enviar(inp.value); });
   body.addEventListener('click', function (e) {
     var c = e.target.closest('[data-pid]');
@@ -277,15 +324,27 @@
   });
   sug.addEventListener('click', function (e) {
     var b = e.target.closest('[data-q]'); if (!b) return;
-    var q = SUG[+b.getAttribute('data-q')]; if (q) enviar(q[I()] || q[0]);
+    var q = lista[+b.getAttribute('data-q')]; if (q) enviar(q[I()] || q[0]);
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !panel.hidden) { abrir(false); fab.focus(); } });
   var sel = document.querySelector('#lang');
   if (sel) sel.addEventListener('change', function () {
-    textos();
+    textos(); pintarFoco();
     var h = body.querySelector('[data-hello]'); if (h) h.textContent = T('hello');
   });
 
+  /* "Preguntar a Umbra" del detalle de un inmueble: abre el chat nuevo, hablando de ese inmueble */
+  window.UmbraChat = {
+    sobre: function (id) {
+      if (ocupado) return;
+      msgs = []; guardar(); foco = id;
+      try { sessionStorage.setItem(KEYF, String(id)); } catch (_) { }
+      abrir(true); pintarFoco();
+    }
+  };
+
   cargar();
+  try { var f0 = sessionStorage.getItem(KEYF); if (f0 && msgs.length) foco = f0; } catch (_) { }
   textos();
+  var _i = setInterval(function () { if (window.__loadDone) { clearInterval(_i); pintarFoco(); } }, 400);
 })();

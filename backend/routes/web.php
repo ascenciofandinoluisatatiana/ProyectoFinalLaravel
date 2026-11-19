@@ -47,3 +47,7 @@ Route::get('storage/{ruta}', function (string $ruta) {
 // Para Google: mapa del sitio con cada inmueble publicado y robots.txt (nginx los manda aquí)
 Route::get('sitemap.xml', [SeoController::class, 'sitemap']);
 Route::get('robots.txt', [SeoController::class, 'robots']);
+
+// Enlaces compartidos de un inmueble: nginx manda aquí a WhatsApp, Facebook, Google, etc. para que vean foto, precio y ubicación
+Route::get('inmuebles/{operacion}/{slug}', [SeoController::class, 'ficha'])
+    ->where('operacion', 'venta|arriendo')->where('slug', '[A-Za-z0-9\-]+');

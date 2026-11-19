@@ -123,11 +123,13 @@ class NotificacionService
         return $this->respuesta($agente, $avisos);
     }
 
+
     /** Marca todas como leídas. */
     public function marcarLeidas(User $usuario): void
     {
         DB::table('notificaciones_lecturas')->updateOrInsert(['user_id' => $usuario->id], ['visto_en' => now()]);
     }
+
 
     /* =================== Piezas comunes =================== */
 

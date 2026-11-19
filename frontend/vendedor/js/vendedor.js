@@ -251,71 +251,25 @@
     function porId(id) { return document.getElementById(id); }
     function txn(clave, n) { return tx(clave).replace('{n}', function () { return n; }); }
 
-    function claveLeidos() {
-        var u = usuarioActual || {};
-        return 'umbral-avisos-leidos-' + (u.id || u.email || 'vendedor');
-    }
-    function leerLeidos() {
-        try { var l = JSON.parse(localStorage.getItem(claveLeidos()) || '[]'); return Array.isArray(l) ? l : []; } catch (e) { return []; }
-    }
-    function guardarLeidos(ids) {
-        try { localStorage.setItem(claveLeidos(), JSON.stringify(ids.slice(-300))); } catch (e) { }
-    }
-
-    function paginaOperacion(op) { return op === 'arriendo' ? OPERACIONES.arriendo.pagina : OPERACIONES.venta.pagina; }
-    function tituloInmueble(p) { return (TIPOS[p.tipo] || p.tipo) + ' en ' + p.barrio; }
-
-    function calcularAvisos(contactos, visitas, propiedades) {
-        var ahora = Date.now();
-        var alertas = [], visitasPend = [], contactosNuevos = [];
-
-        function operacionDe(id) {
-            var p = propiedades.filter(function (x) { return x.id === id; })[0];
-            return p ? p.operacion : 'venta';
-        }
-
-        // Visitas: dentro de 24 h → alerta; más adelante y sin confirmar → notificación
-        visitas.forEach(function (v) {
-            var t = new Date(v.fecha).getTime();
-            if (!(t > ahora) || (v.estado !== 'pendiente' && v.estado !== 'confirmada')) return;
-            var prop = v.propiedad || {};
-            var texto = v.nombre + ' · ' + (prop.titulo || '') + ' · ' + fecha(v.fecha);
-            var href = paginaOperacion(operacionDe(prop.id));
-            if (t - ahora <= DIA_MS) {
-                alertas.push({ id: 'vh' + v.id, tipo: 'alerta', icono: 'fa-clock', titulo: tx('av_visita_pronto'), texto: texto, cuando: '', href: href });
-            } else if (v.estado === 'pendiente') {
-                visitasPend.push({ id: 'vp' + v.id, tipo: 'notif', icono: 'fa-calendar-check', titulo: tx('av_visita_pend'), texto: texto, cuando: '', href: href });
-            }
-        });
-
-        // Membresías por vencer
-        propiedades.forEach(function (p) {
-            var m = p.membresia;
-            if (p.estado !== 'publicada' || !m || m.dias_restantes > 3) return;
-            var d = Number(m.dias_restantes) || 0;
-            var cuando = d === 0 ? tx('av_memb_hoy') : (d === 1 ? tx('av_memb_man') : txn('av_memb_dias', d));
-            alertas.push({ id: 'm' + p.id + '-' + m.fecha_fin, tipo: 'alerta', icono: 'fa-triangle-exclamation', titulo: tx('av_memb'), texto: tituloInmueble(p) + ' · ' + cuando, cuando: '', href: paginaOperacion(p.operacion) });
-        });
-
-        // Contactos nuevos y los que llevan más de 24 h sin respuesta
-        var nuevos = contactos.filter(function (c) { return c.estado === 'nuevo'; })
-            .sort(function (a, b) { return new Date(b.fecha) - new Date(a.fecha); });
-        var viejos = nuevos.filter(function (c) { return ahora - new Date(c.fecha).getTime() > DIA_MS; }).length;
-        if (viejos) {
-            alertas.push({ id: 'sr' + viejos, tipo: 'alerta', icono: 'fa-triangle-exclamation', titulo: txn('av_sin_resp', viejos), texto: tx('av_sin_resp_nota'), cuando: '', href: '/vendedor/contactos.html?estado=nuevo' });
-        }
-        nuevos.slice(0, 15).forEach(function (c) {
-            contactosNuevos.push({ id: 'c' + c.id, tipo: 'notif', icono: 'fa-comments', titulo: txn('av_contacto', c.nombre), texto: (c.propiedad && c.propiedad.titulo) || '', cuando: relativo(c.fecha), href: '/vendedor/contactos.html?estado=nuevo' });
-        });
-
-        return alertas.concat(visitasPend, contactosNuevos);
-    }
-
+    /* Los avisos los arma el servidor: GET /api/v1/vendedor/notificaciones
+       y "leídas" se guarda en el servidor: POST /api/v1/vendedor/notificaciones/leidas */
     async function cargarAvisos() {
         avisos.ultima = Date.now();
         try {
-            var r = await Promise.all([api('/contactos'), api('/visitas?periodo=proximas'), api('/propiedades')]);
-            avisos.lista = calcularAvisos(r[0].data || [], r[1].data || [], r[2].data || []);
+            var r = await api('/notificaciones');
+            avisos.lista = (r.data || []).map(function (a) {
+                return {
+                    id: a.id,
+                    // "aviso" = alerta (visita en 24 h, membresía por vencer, sin responder); lo demás = notificación
+                    tipo: a.tono === 'aviso' ? 'alerta' : 'notif',
+                    icono: a.icono,
+                    titulo: a.titulo,
+                    texto: a.detalle,
+                    cuando: relativo(a.fecha),
+                    href: a.url,
+                    nueva: !!a.nueva
+                };
+            });
             pintarAvisos();
         } catch (e) { /* sin conexión o sin sesión: se conserva lo que ya había */ }
     }
@@ -336,8 +290,7 @@
     function pintarAvisos() {
         var btn = porId('i-avisos-btn');
         if (!btn) return;
-        var leidos = leerLeidos();
-        function sinLeer(a) { return leidos.indexOf(a.id) === -1; }
+        function sinLeer(a) { return a.nueva; }
 
         var pendientes = avisos.lista.filter(sinLeer).length;
         var num = porId('i-avisos-num');
@@ -364,10 +317,9 @@
         }).join('') : '<div class="i-avisos-vacio"><i class="fa-solid fa-bell-slash"></i>' + esc(tx('av_vacio')) + '</div>';
     }
 
-    function marcarLeidos(ids) {
-        var l = leerLeidos();
-        ids.forEach(function (id) { if (l.indexOf(id) === -1) l.push(id); });
-        guardarLeidos(l);
+    async function marcarLeidos() {
+        try { await api('/notificaciones/leidas', { metodo: 'POST' }); } catch (e) { return; }
+        avisos.lista.forEach(function (a) { a.nueva = false; });
         pintarAvisos();
     }
 
@@ -387,17 +339,13 @@
             abrirAvisos(porId('i-avisos').hidden);
         });
         porId('i-avisos-leer').addEventListener('click', function () {
-            marcarLeidos(avisos.lista.map(function (a) { return a.id; }));
+            marcarLeidos();
         });
         porId('i-avisos-tabs').addEventListener('click', function (e) {
             var t = e.target.closest('[data-filtro]');
             if (!t) return;
             avisos.filtro = t.getAttribute('data-filtro');
             pintarAvisos();
-        });
-        porId('i-avisos-lista').addEventListener('click', function (e) {
-            var a = e.target.closest('[data-aviso]');
-            if (a) marcarLeidos([a.getAttribute('data-aviso')]);
         });
         pintarAvisos();
 

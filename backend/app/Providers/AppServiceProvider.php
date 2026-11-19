@@ -10,6 +10,8 @@ use App\Observers\LeadObserver;
 use App\Observers\PropiedadObserver;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use App\Models\Visita;
+use App\Observers\VisitaObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -32,6 +34,8 @@ class AppServiceProvider extends ServiceProvider
         
         // Conecta cada contacto nuevo con la publicación de su propiedad
         Lead::observe(LeadObserver::class);
+
+        Visita::observe(VisitaObserver::class);
 
         // Fechas relativas ("hace 2 horas") en español
         \Illuminate\Support\Carbon::setLocale('es');

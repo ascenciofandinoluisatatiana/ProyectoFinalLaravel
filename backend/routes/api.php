@@ -41,6 +41,7 @@ use App\Http\Controllers\Api\V1\Inmobiliaria\NotificacionController as Inmobilia
 use App\Http\Controllers\Api\V1\Inmobiliaria\VentaController as InmobiliariaVentaController;
 use App\Http\Controllers\Api\V1\Admin\ReporteController;
 use App\Http\Controllers\Api\V1\Vendedor\MembresiaController as VendedorMembresiaController;
+use App\Http\Controllers\Api\V1\Vendedor\NotificacionController as VendedorNotificacionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -265,6 +266,9 @@ Route::prefix('v1/vendedor')->middleware('web')->group(function () {
         Route::post('membresia', [VendedorMembresiaController::class, 'contratar']);
         Route::post('membresia/paquete/publicaciones', [VendedorMembresiaController::class, 'agregar']);
         Route::delete('membresia/paquete/publicaciones/{propiedad}', [VendedorMembresiaController::class, 'quitar'])->whereNumber('propiedad');
+        
+        Route::get('notificaciones', [VendedorNotificacionController::class, 'index']);
+        Route::post('notificaciones/leidas', [VendedorNotificacionController::class, 'leidas']);
     });
 });
 /*

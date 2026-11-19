@@ -22,6 +22,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'movimientos' => \App\Http\Middleware\RegistrarMovimientos::class,
         ]);
 
+        // Detrás de Caddy y Nginx: confiar en la dirección real de cada visitante
+        // (así los límites de intentos cuentan por persona y no para todo el sitio)
+        $middleware->trustProxies(at: '*');
+
         // Correos en minúsculas en todas las peticiones
         $middleware->append(\App\Http\Middleware\NormalizarCorreo::class);
     })

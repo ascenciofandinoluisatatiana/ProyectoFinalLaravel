@@ -54,14 +54,14 @@ Route::prefix('v1')->group(function () {
     Route::get('/health', HealthController::class);
 
     // Inicio de sesión
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:20,1');
 
     // Registro de cuentas nuevas (rol vendedor)
-    Route::post('/registro', [AuthController::class, 'register']);
+    Route::post('/registro', [AuthController::class, 'register'])->middleware('throttle:10,1');
 
     // Consulta pública del estado de una cuenta (para la pantalla de espera).
     // Solo devuelve el estado (pendiente/activo/inactivo), nunca datos sensibles.
-    Route::get('/estado-cuenta', [AuthController::class, 'estadoCuenta']);
+    Route::get('/estado-cuenta', [AuthController::class, 'estadoCuenta'])->middleware('throttle:60,1');
 
     // Recuperar contraseña por correo (todos los roles)
     Route::post('/recuperar-clave', [RecuperarClaveController::class, 'solicitar'])->middleware('throttle:5,1');

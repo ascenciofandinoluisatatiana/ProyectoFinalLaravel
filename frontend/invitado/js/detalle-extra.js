@@ -84,7 +84,7 @@
 
   function montar(id) {
     var p = P.find(function (x) { return x.id === id; });
-    var pay = document.querySelector('#detailBody [data-pay]');
+    var pay = document.querySelector('#detailBody [data-fav]');
     if (!p || !pay || document.querySelector('#nxBox')) return;
     pay.parentNode.insertBefore(new DOMParser().parseFromString(caja(p), 'text/html').body.firstChild, pay);
 

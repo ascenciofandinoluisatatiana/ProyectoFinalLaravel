@@ -32,7 +32,6 @@
         <div class="field"><label>${t('message')}</label><textarea name="m" rows="2"></textarea></div>
         <button class="btn btn-primary btn-sm" type="submit"><i class="fa-solid fa-paper-plane"></i>${t('send')}</button>
         <small style="font-size:11px;line-height:1.4;color:var(--muted)">${t('lead_aviso')}</small></form></div>
-    <button class="btn ${rent ? 'btn-orange' : 'btn-green'}" data-pay="${p.id}"><i class="fa-solid ${rent ? 'fa-key' : 'fa-cart-shopping'}"></i>${t(rent ? 'rent' : 'buy')} · PSE</button>
     <button class="btn btn-ghost" data-fav="${p.id}"><i class="${fav ? 'fa-solid' : 'fa-regular'} fa-heart" style="color:var(--red)"></i>${t('nav_favs')}</button>
   </div></div></div>
   ${RV.panelHTML()}`;

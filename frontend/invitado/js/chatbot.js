@@ -45,7 +45,7 @@
     ['¿Necesito cuenta para ver propiedades?', 'Do I need an account to browse?', 'Preciso de conta para ver imóveis?', 'Faut-il un compte pour consulter les annonces ?'],
     ['¿Cómo contacto al vendedor?', 'How do I contact the seller?', 'Como contato o vendedor?', 'Comment contacter le vendeur ?'],
     ['¿Mi mensaje sí le llega al vendedor?', 'Does my message really reach the seller?', 'Minha mensagem chega ao vendedor?', 'Mon message arrive-t-il au vendeur ?'],
-    ['¿Cómo pago una compra o arriendo?', 'How do I pay for a purchase or rental?', 'Como pago uma compra ou aluguel?', 'Comment payer un achat ou une location ?'],
+    ['¿Cómo cierro una compra o arriendo?', 'How do I close a purchase or rental?', 'Como fecho uma compra ou aluguel?', 'Comment conclure un achat ou une location ?'],
     ['¿Qué significa "Verificada"?', 'What does "Verified" mean?', 'O que significa "Verificada"?', 'Que signifie « Vérifiée » ?'],
     ['¿Qué son Oro, Plata y Bronce?', 'What are Gold, Silver and Bronze?', 'O que são Ouro, Prata e Bronze?', 'Que sont Or, Argent et Bronze ?'],
     ['¿Cómo guardo mis favoritos y búsquedas?', 'How do I save favorites and searches?', 'Como salvo favoritos e buscas?', 'Comment enregistrer favoris et recherches ?'],
@@ -64,7 +64,7 @@
       ['¿Qué debo revisar antes de arrendarla?', 'What should I check before renting it?', 'O que devo verificar antes de alugá-lo?', 'Que dois-je vérifier avant de la louer ?'],
       ['¿Cómo agendo una visita?', 'How do I schedule a visit?', 'Como agendo uma visita?', 'Comment planifier une visite ?'],
       ['¿Qué le pregunto al vendedor?', 'What should I ask the seller?', 'O que pergunto ao vendedor?', 'Que demander au vendeur ?'],
-      ['¿Cómo pago el arriendo?', 'How do I pay the rent?', 'Como pago o aluguel?', 'Comment payer le loyer ?']
+      ['¿Cómo contacto al vendedor?', 'How do I contact the seller?', 'Como contato o vendedor?', 'Comment contacter le vendeur ?']
     ]
   };
   var foco = null;        // inmueble del que se está hablando (viene del detalle); null = conversación general

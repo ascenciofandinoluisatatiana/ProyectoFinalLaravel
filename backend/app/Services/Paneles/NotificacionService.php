@@ -4,9 +4,8 @@ namespace App\Services\Paneles;
 
 use App\Models\Comision;
 use App\Models\Lead;
-use App\Models\Membresia;
+use App\Models\Notificacion;
 use App\Models\Pago;
-use App\Models\PaqueteMembresia;
 use App\Models\Propiedad;
 use App\Models\User;
 use App\Models\Visita;
@@ -59,25 +58,12 @@ class NotificacionService
                     $aprobado ? 'ok' : 'peligro'));
             });
 
-        // Membresías de publicaciones (y de la cuenta) que vencen en los próximos 3 días
-        $hoy = Carbon::now(self::ZONA)->startOfDay();
-        $titulos = Propiedad::whereIn('id', $ids)->get(['id', 'tipo', 'barrio', 'ciudad'])->keyBy('id');
-        Membresia::where('user_id', $inmobiliaria->id)->where('estado', 'activa')->whereNull('paquete_id')
-            ->whereDate('fecha_fin', '>=', $hoy->toDateString())
-            ->whereDate('fecha_fin', '<=', $hoy->copy()->addDays(3)->toDateString())
-            ->get()
-            ->each(fn (Membresia $m) => $avisos->push($this->aviso('vence-' . $m->id, 'fa-hourglass-half',
-                'Membresía por vencer', ($m->propiedad_id ? $this->titulo($titulos[$m->propiedad_id] ?? null) : 'Toda la cuenta')
-                . ' · vence el ' . $m->fecha_fin->format('d/m/Y'),
-                Carbon::parse($m->fecha_fin->toDateString(), self::ZONA)->subDays(3)->utc(), '/inmobiliaria/membresia.html', 'aviso')));
-
-        PaqueteMembresia::where('user_id', $inmobiliaria->id)
-            ->whereDate('fecha_fin', '>=', $hoy->toDateString())
-            ->whereDate('fecha_fin', '<=', $hoy->copy()->addDays(3)->toDateString())
-            ->get()
-            ->each(fn (PaqueteMembresia $pq) => $avisos->push($this->aviso('paquete-' . $pq->id, 'fa-layer-group',
-                'Paquete por vencer', $pq->nombreVisible() . ' · vence el ' . $pq->fecha_fin->format('d/m/Y'),
-                Carbon::parse($pq->fecha_fin->toDateString(), self::ZONA)->subDays(3)->utc(), '/inmobiliaria/membresia.html', 'aviso')));
+        // Avisos de vencimiento (8 días antes y cada día desde 5 días antes): los crea el comando diario
+        // "membresias:avisar-vencimiento" y quedan guardados en la tabla notificaciones.
+        Notificacion::where('user_id', $inmobiliaria->id)->where('tipo', 'vencimiento')->where('fecha', '>=', $desde)
+            ->orderByDesc('fecha')->orderByDesc('id')->limit(10)->get()
+            ->each(fn (Notificacion $n) => $avisos->push($this->aviso('venc-' . $n->id, $n->icono, $n->titulo, $n->mensaje,
+                $n->fecha, $n->url ?: '/inmobiliaria/membresia.html', 'aviso')));
 
         Comision::with('agente:id,name')->where('inmobiliaria_id', $inmobiliaria->id)->where('estado', '!=', 'anulada')
             ->where('created_at', '>=', $desde)->latest()->limit(self::POR_TIPO)->get()

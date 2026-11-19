@@ -3,7 +3,6 @@
 namespace App\Services\Paneles;
 
 use App\Models\Lead;
-use App\Models\Membresia;
 use App\Models\Notificacion;
 use App\Models\Propiedad;
 use App\Models\User;
@@ -14,9 +13,9 @@ use App\Models\Visita;
  *
  * Dos formas de que nazca una:
  *  1) En el momento del evento: LeadObserver (contacto nuevo) y VisitaObserver (visita nueva).
- *  2) Por el paso del tiempo (visita en las próximas 24 h, membresía por vencer, contacto sin
- *     responder): no hay un "evento" que las dispare, así que se generan aquí al consultar.
+ *  2) Por el paso del tiempo (visita en las próximas 24 h, contacto sin responder): no hay un "evento" que las dispare, así que se generan aquí al consultar.
  *     La clave única (user_id + clave) evita que se repitan.
+ *  3) Los avisos de membresía por vencer los crea el comando diario "membresias:avisar-vencimiento".
  */
 class NotificacionVendedorService
 {
@@ -87,18 +86,6 @@ class NotificacionVendedorService
                     'Visita próxima: ' . $v->nombre,
                     Notificacion::tituloPropiedad($v->propiedad) . ' · ' . $v->fecha->copy()->setTimezone(self::ZONA)->format('d/m h:i a'),
                     '/vendedor/visitas.html', 'fa-clock', 'aviso', $v->fecha->copy()->subDay()->max($v->created_at));
-            });
-
-        // Membresías que vencen en 3 días o menos
-        Membresia::with('propiedad')->where('user_id', $vendedor->id)->whereNotNull('propiedad_id')->where('estado', 'activa')
-            ->whereDate('fecha_fin', '>=', now(self::ZONA)->toDateString())
-            ->whereDate('fecha_fin', '<=', now(self::ZONA)->addDays(3)->toDateString())->get()
-            ->each(function (Membresia $m) use ($vendedor, &$filas) {
-                $dias = (int) now(self::ZONA)->startOfDay()->diffInDays($m->fecha_fin->copy()->startOfDay());
-                $cuando = $dias === 0 ? 'vence hoy' : ($dias === 1 ? 'vence mañana' : "vence en $dias días");
-                $filas[] = Notificacion::fila($vendedor->id, 'membresia-' . $m->id . '-' . $m->fecha_fin->toDateString(), 'alerta',
-                    'Membresía por vencer', Notificacion::tituloPropiedad($m->propiedad) . ' · ' . $cuando,
-                    '/vendedor/vender.html', 'fa-triangle-exclamation', 'aviso', $m->fecha_fin->copy()->subDays(3)->max($m->fecha_inicio));
             });
 
         Notificacion::crearVarias($filas);

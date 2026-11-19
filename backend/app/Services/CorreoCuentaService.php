@@ -99,6 +99,25 @@ class CorreoCuentaService
         return self::enviar($usuario, 'cuenta_creada', 'Tu cuenta en UMBRAL fue creada', $texto);
     }
 
+    /**
+     * Aviso de que una membresía o un paquete está por vencer (o vence hoy).
+     * Lo manda el comando diario "membresias:avisar-vencimiento": 8 días antes y cada día desde 5 días antes.
+     */
+    public static function porVencer(User $usuario, string $que, string $detalle, int $dias, string $fechaFin): bool
+    {
+        $cuando = $dias === 0 ? 'vence hoy' : ($dias === 1 ? 'vence mañana' : "vence en {$dias} días");
+
+        $texto = "Hola {$usuario->name},\n\n"
+            . "{$que} {$cuando} (fecha de fin: {$fechaFin}).\n"
+            . "{$detalle}\n\n"
+            . "Renuévalo a tiempo para que tus publicaciones sigan visibles. Entra aquí: " . self::portal() . "\n\n"
+            . ($dias <= 5
+                ? "Te avisaremos cada día hasta que lo renueves o venza.\n"
+                : "Si ya lo renovaste, ignora este mensaje.\n");
+
+        return self::enviar($usuario, 'membresia_por_vencer', "{$que} {$cuando} en UMBRAL", $texto);
+    }
+
     /** Dirección del portal: en cada PC es su puerto y en el servidor es el dominio (FRONTEND_URL). */
     private static function portal(): string
     {

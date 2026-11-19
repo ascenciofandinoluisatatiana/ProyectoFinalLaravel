@@ -37,8 +37,9 @@
       stat_verified: ['Propiedades verificadas', 'Verified properties', 'Imóveis verificados', 'Biens vérifiés'],
       op_all: ['Todas', 'All', 'Todas', 'Toutes'],
       buy: ['Comprar', 'Buy', 'Comprar', 'Acheter'], rent: ['Arrendar', 'Rent', 'Alugar', 'Louer'],
+      contact_cta: ['Contactar', 'Contact', 'Contatar', 'Contacter'],
       f_type: ['Tipo', 'Type', 'Tipo', 'Type'], f_dept: ['Departamento', 'Department', 'Departamento', 'Département'],
-      f_city: ['Ciudad / municipio', 'City / town', 'Cidade / município', 'Ville / commune'], f_barrio: ['Barrio', 'Neighborhood', 'Bairro', 'Quartier'],
+      f_city: ['Ciudad / municipio', 'City / town', 'Cidade / município', 'Ville / commune'], f_barrio: ['Barrio', 'Neighborhood', 'Bairro', 'Quartier'], f_barrio_ph: ['Escribe o elige un barrio', 'Type or pick a neighborhood', 'Digite ou escolha um bairro', 'Saisissez ou choisissez un quartier'],
       f_max: ['Precio máximo', 'Max price', 'Preço máximo', 'Prix maximum'], f_beds: ['Habitaciones', 'Bedrooms', 'Quartos', 'Chambres'], f_sort: ['Ordenar por', 'Sort by', 'Ordenar por', 'Trier par'],
       any: ['Todos', 'Any', 'Todos', 'Tous'], anyf: ['Todas', 'Any', 'Todas', 'Toutes'],
       s_rel: ['Relevancia', 'Relevance', 'Relevância', 'Pertinence'], s_low: ['Precio: menor a mayor', 'Price: low to high', 'Preço: menor para maior', 'Prix : croissant'], s_high: ['Precio: mayor a menor', 'Price: high to low', 'Preço: maior para menor', 'Prix : décroissant'],
@@ -73,14 +74,14 @@
       sent_ok: ['¡Mensaje enviado! El vendedor te contactará pronto.', 'Message sent! The seller will contact you soon.', 'Mensagem enviada! O vendedor entrará em contato.', 'Message envoyé ! Le vendeur vous contactera bientôt.'],
       req: ['Completa los campos obligatorios.', 'Please fill in the required fields.', 'Preencha os campos obrigatórios.', 'Veuillez remplir les champs obligatoires.'],
       sellers_title: ['Vendedores e inmobiliarias', 'Sellers & agencies', 'Vendedores e imobiliárias', 'Vendeurs et agences'],
-      pse_title_buy: ['Comprar con PSE', 'Buy with PSE', 'Comprar com PSE', 'Acheter avec PSE'], pse_title_rent: ['Arrendar con PSE', 'Rent with PSE', 'Alugar com PSE', 'Louer avec PSE'],
-      pse_text: ['Serás redirigido al portal seguro de PSE. UMBRAL no almacena datos bancarios.', 'You will be redirected to the secure PSE portal. UMBRAL does not store bank data.', 'Você será redirecionado ao portal seguro PSE. A UMBRAL não armazena dados bancários.', 'Vous serez redirigé vers le portail sécurisé PSE. UMBRAL ne stocke aucune donnée bancaire.'],
-      property: ['Propiedad', 'Property', 'Imóvel', 'Bien'], amount: ['Valor', 'Amount', 'Valor', 'Montant'],
-      b_name: ['Nombre completo', 'Full name', 'Nome completo', 'Nom complet'], b_mail: ['Correo electrónico', 'Email', 'E-mail', 'E-mail'], b_doc: ['Documento (CC / CE / NIT)', 'ID (CC / CE / NIT)', 'Documento (CC / CE / NIT)', 'Pièce d\'identité (CC / CE / NIT)'],
-      consent: ['Acepto los términos y la política de tratamiento de datos (Ley 1581 de 2012).', 'I accept the terms and the personal data policy (Law 1581 of 2012).', 'Aceito os termos e a política de dados pessoais (Lei 1581 de 2012).', 'J\'accepte les conditions et la politique de données personnelles (Loi 1581 de 2012).'],
-      go_pse: ['Continuar a PSE', 'Continue to PSE', 'Continuar para o PSE', 'Continuer vers PSE'],
-      redirecting: ['Redirigiendo al portal PSE…', 'Redirecting to the PSE portal…', 'Redirecionando ao portal PSE…', 'Redirection vers le portail PSE…'],
-      demo_pse: ['Modo demostración: configura PSE_URL con el checkout del proveedor.', 'Demo mode: set PSE_URL to the provider checkout.', 'Modo demonstração: configure PSE_URL com o checkout do provedor.', 'Mode démo : configurez PSE_URL avec le checkout du prestataire.'],
+
+
+
+
+
+
+
+
       fav_add: ['Añadida a favoritos', 'Added to favorites', 'Adicionado aos favoritos', 'Ajouté aux favoris'], fav_del: ['Quitada de favoritos', 'Removed from favorites', 'Removido dos favoritos', 'Retiré des favoris'],
       calc_title: ['Calculadora hipotecaria', 'Mortgage calculator', 'Calculadora de financiamento', 'Calculateur de prêt'],
       calc_note: ['Estimación informativa en COP.', 'Informative estimate in COP.', 'Estimativa informativa em COP.', 'Estimation indicative en COP.'],

@@ -21,7 +21,7 @@
       <div class="mini-seller"><div class="avatar">${s.ini}</div><div><b>${s.name}</b><small>${t(s.kind === 'agency' ? 'agency' : 'person')}</small></div></div>
       <div class="pactions">
         <button class="btn btn-ghost btn-sm" data-open="${p.id}"><i class="fa-solid fa-eye"></i>${t('details')}</button>
-        <button class="btn ${rent ? 'btn-orange' : 'btn-green'} btn-sm" data-pay="${p.id}"><i class="fa-solid ${rent ? 'fa-key' : 'fa-cart-shopping'}"></i>${t(rent ? 'rent' : 'buy')}</button>
+        <button class="btn btn-primary btn-sm" data-contact="${p.id}"><i class="fa-solid fa-comments"></i>${t('contact_cta')}</button>
       </div>
     </div></article>`;
     }

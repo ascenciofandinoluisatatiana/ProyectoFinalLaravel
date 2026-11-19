@@ -22,6 +22,8 @@
   <link rel="stylesheet" href="/invitado/css/experiencia.css">
   <link rel="stylesheet" href="/invitado/css/chatbot.css">
   <link rel="stylesheet" href="/invitado/css/detalle-extra.css">
+  <link rel="stylesheet" href="/invitado/css/filtros-flotantes.css">
+  <link rel="stylesheet" href="/invitado/css/contacto-rapido.css">
 </head>
 
 <body>
@@ -113,7 +115,7 @@
             <div class="field"><label data-i18n="f_type"></label><select id="fType"></select></div>
             <div class="field"><label data-i18n="f_dept"></label><select id="fDept"></select></div>
             <div class="field"><label data-i18n="f_city"></label><select id="fCity"></select></div>
-            <div class="field"><label data-i18n="f_barrio"></label><select id="fBarrio"></select></div>
+            <div class="field"><label data-i18n="f_barrio"></label><input id="fBarrio" list="dlBarrios" type="text" maxlength="60" autocomplete="off" data-i18n-ph="f_barrio_ph"><datalist id="dlBarrios"></datalist></div>
             <div class="field"><label data-i18n="f_max"></label><input id="fMax" type="number" min="0"
                 placeholder="COP"></div>
             <div class="field"><label data-i18n="f_beds"></label><select id="fBeds"></select></div>
@@ -167,12 +169,6 @@
       <div id="detailBody"></div>
     </div>
   </div>
-  <!-- PSE -->
-  <div class="mbg" id="mPse">
-    <div class="modal sm"><button class="mclose" data-close><i class="fa-solid fa-xmark"></i></button>
-      <div class="mbody" id="pseBody"></div>
-    </div>
-  </div>
   <!-- calculadora -->
   <div class="mbg" id="mCalc">
     <div class="modal sm"><button class="mclose" data-close><i class="fa-solid fa-xmark"></i></button>
@@ -216,7 +212,6 @@
   <script src="/invitado/js/detalle.js"></script>
   <script src="/invitado/js/calificaciones.js"></script>
   <script src="/invitado/js/actividad.js"></script>
-  <script src="/invitado/js/pago-pse.js"></script>
   <script src="/invitado/js/modales.js"></script>
   <script src="/invitado/js/eventos.js"></script>
   <script src="/invitado/js/mejoras.js"></script>
@@ -227,6 +222,8 @@
   <script src="/invitado/js/chatbot.js"></script>
   <script src="/invitado/js/novedades.js"></script>
   <script src="/invitado/js/detalle-extra.js"></script>
+  <script src="/invitado/js/filtros-flotantes.js"></script>
+  <script src="/invitado/js/contacto-rapido.js"></script>
   <script src="/js/efectos.js"></script>
   <script src="/js/hero.js"></script>
   <script src="/js/vendedores.js"></script>

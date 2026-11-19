@@ -266,8 +266,8 @@ Contactar al vendedor
 Calificaciones
 - En el detalle, la pestaña "Comentarios y calificación" muestra las reseñas del vendedor o inmobiliaria. Cualquier visitante puede calificar de 1 a 5 estrellas y comentar; se permite una reseña por dispositivo.
 
-Comprar o arrendar y pagos
-- Los botones "Comprar" o "Arrendar" inician el pago en línea con PSE. El portal indica que no guarda datos bancarios. Para condiciones del negocio (negociación, contrato, fechas), hay que hablar con el vendedor.
+Comprar, arrendar y pagos
+- UMBRAL NO procesa pagos de compras ni arriendos y no cobra al visitante por contactar. El portal conecta con el vendedor, la inmobiliaria o el agente: se les escribe con el formulario de contacto, se les llama o se agenda una visita desde "Ver detalles". El precio, la negociación, el contrato, las fechas y la forma de pago se acuerdan directamente con ellos. Nunca digas que hay un botón de pago.
 
 Vender o arrendar mi propiedad
 - El botón "Vende o arrienda" del menú lleva a crear una cuenta como vendedor particular, inmobiliaria o agente. Al registrarse se sube un documento de identidad (cédula para personas, RUT para inmobiliarias) que se verifica antes de publicar.

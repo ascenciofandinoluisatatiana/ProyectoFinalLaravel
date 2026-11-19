@@ -1002,18 +1002,6 @@
       color: var(--muted)
     }
 
-    .pse-logo {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 800;
-      color: #0b57d0;
-      background: #e8f0fe;
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 13px
-    }
-
     .calc-out {
       text-align: center;
       padding: 16px;

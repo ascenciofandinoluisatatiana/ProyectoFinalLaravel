@@ -56,8 +56,8 @@
     tr_rv_s: ['Una reseña por dispositivo', 'One review per device', 'Uma avaliação por dispositivo', 'Un avis par appareil'],
     tr_ct: ['Contacto directo', 'Direct contact', 'Contato direto', 'Contact direct'],
     tr_ct_s: ['Llama o escribe al vendedor', 'Call or message the seller', 'Ligue ou escreva ao vendedor', 'Appelez ou écrivez au vendeur'],
-    tr_pse: ['Pago seguro con PSE', 'Secure payment with PSE', 'Pagamento seguro com PSE', 'Paiement sécurisé PSE'],
-    tr_pse_s: ['No guardamos datos bancarios', 'We do not store bank data', 'Não guardamos dados bancários', 'Aucune donnée bancaire stockée'],
+    tr_free: ['Gratis para ti', 'Free for you', 'Grátis para você', 'Gratuit pour vous'],
+    tr_free_s: ['Explora y contacta sin costo', 'Browse and get in touch at no cost', 'Explore e entre em contato sem custo', 'Explorez et contactez sans frais'],
     ft_title: ['Vendedores mejor calificados', 'Top-rated sellers', 'Vendedores mais bem avaliados', 'Vendeurs les mieux notés'],
     ft_sub: ['Conoce a quienes publican en UMBRAL', 'Meet who lists on UMBRAL', 'Conheça quem anuncia na UMBRAL', 'Découvrez ceux qui publient sur UMBRAL'],
     ft_see: ['Ver inmuebles', 'See properties', 'Ver imóveis', 'Voir les biens'],
@@ -72,8 +72,8 @@
     faq2a: ['Que el vendedor verificó su identidad con documento en UMBRAL. Además puedes leer las calificaciones de otros usuarios en cada inmueble.', 'The seller has verified their identity with an ID document on UMBRAL. You can also read other users’ ratings on each property.', 'O vendedor verificou sua identidade com documento na UMBRAL. Você também pode ler as avaliações de outros usuários em cada imóvel.', 'Le vendeur a vérifié son identité avec un document sur UMBRAL. Vous pouvez aussi lire les avis des autres utilisateurs.'],
     faq3q: ['¿Cómo contacto al vendedor?', 'How do I contact the seller?', 'Como entro em contato com o vendedor?', 'Comment contacter le vendeur ?'],
     faq3a: ['Abre «Ver detalles» en el inmueble: ahí puedes llamar al vendedor o dejarle tu mensaje en el formulario de contacto.', 'Open “Details” on the property: you can call the seller or leave a message in the contact form.', 'Abra «Ver detalhes» no imóvel: ali você pode ligar ao vendedor ou deixar sua mensagem no formulário.', 'Ouvrez « Détails » sur le bien : vous pouvez appeler le vendeur ou lui écrire via le formulaire.'],
-    faq4q: ['¿Cómo funciona el pago con PSE?', 'How does PSE payment work?', 'Como funciona o pagamento com PSE?', 'Comment fonctionne le paiement PSE ?'],
-    faq4a: ['Al tocar «Comprar» o «Arrendar» te llevamos al portal seguro de PSE. UMBRAL no almacena tus datos bancarios.', 'When you tap “Buy” or “Rent” we send you to the secure PSE portal. UMBRAL does not store your bank data.', 'Ao tocar em «Comprar» ou «Alugar» levamos você ao portal seguro do PSE. A UMBRAL não armazena seus dados bancários.', 'En touchant « Acheter » ou « Louer » vous passez par le portail sécurisé PSE. UMBRAL ne stocke aucune donnée bancaire.'],
+    faq4q: ['¿Cómo cierro la compra o el arriendo?', 'How do I close the purchase or rental?', 'Como fecho a compra ou o aluguel?', 'Comment conclure l\'achat ou la location ?'],
+    faq4a: ['UMBRAL te conecta con el vendedor o la inmobiliaria: escríbeles, llámalos o agenda una visita desde «Ver detalles». El precio, el contrato y la forma de pago los acuerdas directamente con ellos; UMBRAL no recibe dinero de compras ni arriendos.', 'UMBRAL connects you with the seller or agency: message them, call them or schedule a visit from “Details”. You agree the price, contract and payment method directly with them; UMBRAL does not handle purchase or rental payments.', 'A UMBRAL conecta você ao vendedor ou à imobiliária: escreva, ligue ou agende uma visita em «Ver detalhes». Preço, contrato e forma de pagamento são combinados diretamente com eles; a UMBRAL não recebe dinheiro de compras nem aluguéis.', 'UMBRAL vous met en relation avec le vendeur ou l\'agence : écrivez-leur, appelez-les ou planifiez une visite depuis « Détails ». Prix, contrat et mode de paiement se conviennent directement avec eux ; UMBRAL ne perçoit aucun paiement d\'achat ou de location.'],
     faq5q: ['¿Puedo calificar a un vendedor?', 'Can I rate a seller?', 'Posso avaliar um vendedor?', 'Puis-je noter un vendeur ?'],
     faq5a: ['Sí. En «Ver detalles» entra a la pestaña «Comentarios y calificación». Se permite una reseña por dispositivo para que las opiniones sean reales.', 'Yes. In “Details” open the “Comments & rating” tab. One review per device keeps opinions genuine.', 'Sim. Em «Ver detalhes» abra a aba «Comentários e avaliação». Uma avaliação por dispositivo mantém as opiniões reais.', 'Oui. Dans « Détails » ouvrez l’onglet « Commentaires et note ». Un avis par appareil garantit des avis authentiques.'],
     faq6q: ['¿Cómo publico mi inmueble?', 'How do I list my property?', 'Como publico meu imóvel?', 'Comment publier mon bien ?'],
@@ -128,7 +128,7 @@
     '<div class="tr-i"><span class="tr-ic"><i class="fa-solid fa-circle-check"></i></span><div><b id="trVer"></b><small data-xk="tr_ver_s"></small></div></div>' +
     '<div class="tr-i"><span class="tr-ic"><i class="fa-solid fa-star"></i></span><div><b data-xk="tr_rv"></b><small data-xk="tr_rv_s"></small></div></div>' +
     '<div class="tr-i"><span class="tr-ic"><i class="fa-solid fa-comments"></i></span><div><b data-xk="tr_ct"></b><small data-xk="tr_ct_s"></small></div></div>' +
-    '<div class="tr-i"><span class="tr-ic"><i class="fa-solid fa-shield-halved"></i></span><div><b data-xk="tr_pse"></b><small data-xk="tr_pse_s"></small></div></div>' +
+    '<div class="tr-i"><span class="tr-ic"><i class="fa-solid fa-tag"></i></span><div><b data-xk="tr_free"></b><small data-xk="tr_free_s"></small></div></div>' +
     '</section>');
   var rapidos = H('<section class="quick" id="rapidos"><div class="q-row" id="qRow"></div>' +
     '<div class="qs"><button type="button" class="qs-save" id="qsSave" hidden><i class="fa-regular fa-bookmark"></i><span data-xk="qs_save"></span></button>' +

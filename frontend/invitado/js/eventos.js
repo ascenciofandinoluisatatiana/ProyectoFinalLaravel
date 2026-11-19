@@ -10,7 +10,11 @@
         try { localStorage.setItem('umbral_favs', JSON.stringify(favs)) } catch (_) { }
         render(); if ($('#mDetail').classList.contains('open')) openDetail(id); return
       }
-      if ((el = g('[data-pay]'))) { closeModals(); openPse(+el.dataset.pay); return }
+      if ((el = g('[data-contact]'))) { // "Contactar": ventana pequeña para hablar con el vendedor sin entrar al detalle
+        const id = +el.dataset.contact; closeModals();
+        if (window.UmbralContacto) UmbralContacto.abrir(id); else openDetail(id);
+        return
+      }
       if ((el = g('[data-open]'))) { e.preventDefault(); closeModals(); openDetail(+el.dataset.open); return }
       if ((el = g('[data-seller]'))) { S.seller = +el.dataset.seller; setView('cards'); $('#filters').scrollIntoView({ behavior: 'smooth' }); return }
       if ((el = g('[data-prem]'))) { const tr = $('.prem-track'); if (tr) tr.scrollBy({ left: +el.dataset.prem * tr.clientWidth * .8, behavior: 'smooth' }); return }
@@ -50,7 +54,7 @@
     $('#fType').onchange = e => { S.type = e.target.value; render() };
     $('#fDept').onchange = e => { S.dept = e.target.value; S.city = ''; S.barrio = ''; buildFilters(); render() };
     $('#fCity').onchange = e => { S.city = e.target.value; S.barrio = ''; buildFilters(); render() };
-    $('#fBarrio').onchange = e => { S.barrio = e.target.value; render() };
+    $('#fBarrio').oninput = e => { S.barrio = e.target.value.trim(); clearTimeout(window.__tb); window.__tb = setTimeout(render, 250) };
     $('#fBeds').onchange = e => { S.beds = e.target.value; render() };
     $('#fSort').onchange = e => { S.sort = e.target.value; render() };
     $('#fMax').oninput = e => { S.max = e.target.value; render() };

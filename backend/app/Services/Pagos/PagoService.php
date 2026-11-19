@@ -2,7 +2,6 @@
 
 namespace App\Services\Pagos;
 
-use App\Models\Lead;
 use App\Models\Membresia;
 use App\Models\Pago;
 use App\Models\OfertaPaquete;
@@ -11,7 +10,6 @@ use App\Models\PaqueteMembresia;
 use App\Models\PlanMembresia;
 use App\Models\Propiedad;
 use App\Models\User;
-use App\Services\Inmobiliaria\ComisionService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -145,24 +143,6 @@ class PagoService
     public function precioPlan(string $plan): float
     {
         return (float) PlanMembresia::precios()[$plan];
-    }
-
-    /** Compra o arriendo de un inmueble publicado (pagador sin cuenta). */
-    public function iniciarPropiedad(Propiedad $propiedad, array $pagador): array
-    {
-        $pago = Pago::create([
-            'referencia' => $this->nuevaReferencia($propiedad->operacion === 'venta' ? 'VEN' : 'ARR'),
-            'concepto' => 'propiedad',
-            'propiedad_id' => $propiedad->id,
-            'monto_centavos' => (int) $propiedad->precio * 100,
-            'moneda' => 'COP',
-            'proveedor' => $this->modo(),
-            'pagador_nombre' => $pagador['nombre'],
-            'pagador_correo' => $pagador['correo'],
-            'pagador_documento' => $pagador['documento'],
-        ]);
-
-        return $this->siguientePaso($pago);
     }
 
     /**
@@ -351,29 +331,6 @@ class PagoService
 
             return;
         }
-
-        $propiedad = $pago->propiedad_id ? Propiedad::whereKey($pago->propiedad_id)->lockForUpdate()->first() : null;
-        if (! $propiedad) {
-            return;
-        }
-
-        // El inmueble sale del portal (RF-063): vendido o arrendado, y el agente gana su comisión
-        if ($propiedad->estado === 'publicada') {
-            $propiedad->update(['estado' => $propiedad->operacion === 'venta' ? 'vendida' : 'arrendada']);
-            app(ComisionService::class)->registrarCierre($propiedad, 'portal');
-        }
-
-        // Quien publicó (y su agente) recibe los datos del comprador como un contacto
-        Lead::create([
-            'propiedad_id' => $propiedad->id,
-            'agente_id' => $propiedad->agente_id,
-            'nombre' => $pago->pagador_nombre,
-            'contacto' => $pago->pagador_correo,
-            'mensaje' => 'Pago aprobado por ' . ($propiedad->operacion === 'venta' ? 'la compra' : 'el arriendo')
-                . ' del inmueble. Referencia ' . $pago->referencia . ' · documento ' . $pago->pagador_documento . '.',
-            'consentimiento' => true,
-            'estado' => 'nuevo',
-        ]);
     }
 
     /** Paquete comprado: usa la copia guardada al iniciar el pago; las publicaciones se eligen después en el panel. */

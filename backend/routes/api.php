@@ -159,7 +159,6 @@ Route::prefix('v1/public')->group(function () {
         ->whereNumber('vendedor')->middleware('throttle:8,1');
 
     // Pagos con Wompi (compra o arriendo desde el portal y resultado del pago)
-    Route::post('pagos/propiedad', [PagoController::class, 'propiedad'])->middleware('throttle:5,1');
     Route::get('pagos/estado', [PagoController::class, 'estado'])->middleware('throttle:30,1');
 });
 

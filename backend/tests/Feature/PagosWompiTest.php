@@ -116,53 +116,17 @@ class PagosWompiTest extends TestCase
         $this->assertSame(0, Membresia::count());
     }
 
-    public function test_invitado_compra_un_inmueble_y_queda_vendido(): void
-    {
-        $this->conWompi();
-        $casa = $this->propiedad();
-
-        $r = $this->postJson('/api/v1/public/pagos/propiedad', [
-            'propiedad_id' => $casa->id, 'nombre' => 'Camila Ruiz', 'correo' => 'camila@correo.co',
-            'documento' => '1110222333', 'consentimiento' => true,
-        ])->assertOk();
-        $this->assertStringStartsWith('https://checkout.wompi.co/p/', $r->json('url'));
-        $pago = Pago::sole();
-        $this->assertSame(35000000000, $pago->monto_centavos);
-
-        $this->wompiResponde('tx-4', $pago->referencia, 'APPROVED', 35000000000);
-        $this->getJson('/api/v1/public/pagos/estado?id=tx-4')->assertJsonPath('data.estado', 'aprobado');
-
-        $this->assertSame('vendida', $casa->fresh()->estado);
-        $this->assertSame('Camila Ruiz', Lead::sole()->nombre);
-
-        // Ya no se puede volver a pagar
-        $this->postJson('/api/v1/public/pagos/propiedad', [
-            'propiedad_id' => $casa->id, 'nombre' => 'Otro', 'correo' => 'o@correo.co', 'documento' => '12345', 'consentimiento' => true,
-        ])->assertStatus(422);
-    }
-
-    public function test_invitado_debe_aceptar_tratamiento_de_datos(): void
-    {
-        $casa = $this->propiedad(['operacion' => 'arriendo', 'precio' => 2500000]);
-        $this->postJson('/api/v1/public/pagos/propiedad', [
-            'propiedad_id' => $casa->id, 'nombre' => 'X', 'correo' => 'x@correo.co', 'documento' => '12345',
-        ])->assertStatus(422)->assertJsonValidationErrors('consentimiento');
-    }
-
     public function test_webhook_valida_la_firma_de_wompi(): void
     {
         $this->conWompi();
-        $casa = $this->propiedad(['operacion' => 'arriendo', 'precio' => 2500000]);
-        $this->postJson('/api/v1/public/pagos/propiedad', [
-            'propiedad_id' => $casa->id, 'nombre' => 'Luis', 'correo' => 'l@correo.co', 'documento' => '98765', 'consentimiento' => true,
-        ])->assertOk();
+        $this->actingAs($this->inmo)->postJson('/api/v1/inmobiliaria/membresia', ['plan' => 'mensual'])->assertOk();
         $pago = Pago::sole();
 
         $evento = [
             'event' => 'transaction.updated',
             'data' => ['transaction' => [
                 'id' => 'tx-5', 'reference' => $pago->referencia, 'status' => 'APPROVED',
-                'amount_in_cents' => 250000000, 'payment_method_type' => 'NEQUI',
+                'amount_in_cents' => 5990000, 'payment_method_type' => 'NEQUI',
             ]],
             'signature' => ['properties' => ['transaction.id', 'transaction.status', 'transaction.amount_in_cents']],
             'timestamp' => 1761000000,
@@ -172,10 +136,10 @@ class PagosWompiTest extends TestCase
         $this->postJson('/api/v1/pagos/wompi/eventos', $evento, ['X-Event-Checksum' => 'falsa'])->assertStatus(400);
         $this->assertSame('pendiente', $pago->fresh()->estado);
 
-        $checksum = hash('sha256', 'tx-5APPROVED250000000' . '1761000000' . 'test_events_456');
+        $checksum = hash('sha256', 'tx-5APPROVED5990000' . '1761000000' . 'test_events_456');
         $this->postJson('/api/v1/pagos/wompi/eventos', $evento, ['X-Event-Checksum' => $checksum])->assertOk();
 
         $this->assertSame(['aprobado', 'NEQUI'], [$pago->fresh()->estado, $pago->fresh()->metodo]);
-        $this->assertSame('arrendada', $casa->fresh()->estado);
+        $this->assertSame(1, Membresia::count());
     }
 }

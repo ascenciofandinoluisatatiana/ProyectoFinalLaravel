@@ -19,7 +19,8 @@ use Illuminate\Support\Facades\Log;
  *   8 días antes  → un aviso
  *   5, 4, 3, 2, 1 y 0 días antes (el día que vence) → un aviso cada día
  *
- * Cada aviso = una notificación en la campana + un correo.
+ * Cada aviso = una notificación en la campana (una por membresía o paquete).
+ * Además, cada persona recibe UN SOLO correo al día con la lista de todo lo que le vence.
  *
  * Seguro:
  *  - Si el comando corre dos veces el mismo día, no repite la notificación ni el correo
@@ -65,7 +66,8 @@ class AvisarVencimientos extends Command
         $this->info('Fecha usada: ' . $hoyTxt . ($soloVer ? '  (solo ver: no se guarda ni se envía nada)' : ''));
 
         $total = 0;
-        $correos = 0;
+        /** Lo que se le va a decir a cada persona en su correo del día: [user_id => ['usuario' => User, 'items' => [...]]] */
+        $paraCorreo = [];
 
         /* ---------- Membresías individuales (una publicación o toda la cuenta) ---------- */
         $membresias = Membresia::with('usuario.role', 'propiedad')
@@ -97,10 +99,12 @@ class AvisarVencimientos extends Command
             }
 
             $detalle = $m->propiedad ? Notificacion::tituloPropiedad($m->propiedad) : 'Toda la cuenta';
-            $este = $this->avisar($m->usuario, 'm' . $m->id, 'Tu membresía', 'Membresía por vencer', $detalle,
-                $m->fecha_fin->toDateString(), $dias, 'fa-hourglass-half', $soloVer, $sinCorreo);
-            $total += $este['avisos'];
-            $correos += $este['correos'];
+            if ($this->avisar($m->usuario, 'm' . $m->id, 'Membresía por vencer', $detalle,
+                $m->fecha_fin->toDateString(), $dias, 'fa-hourglass-half', $soloVer)) {
+                $total++;
+                $paraCorreo[$m->user_id]['usuario'] = $m->usuario;
+                $paraCorreo[$m->user_id]['items'][] = ['que' => 'Membresía', 'detalle' => $detalle, 'dias' => $dias, 'fin' => $m->fecha_fin->format('d/m/Y')];
+            }
         }
 
         /* ---------- Paquetes ---------- */
@@ -114,14 +118,32 @@ class AvisarVencimientos extends Command
                 continue;
             }
 
-            $este = $this->avisar($pq->usuario, 'p' . $pq->id, 'Tu paquete', 'Paquete por vencer', $pq->nombreVisible(),
-                $pq->fecha_fin->toDateString(), $dias, 'fa-layer-group', $soloVer, $sinCorreo);
-            $total += $este['avisos'];
-            $correos += $este['correos'];
+            if ($this->avisar($pq->usuario, 'p' . $pq->id, 'Paquete por vencer', $pq->nombreVisible(),
+                $pq->fecha_fin->toDateString(), $dias, 'fa-layer-group', $soloVer)) {
+                $total++;
+                $paraCorreo[$pq->user_id]['usuario'] = $pq->usuario;
+                $paraCorreo[$pq->user_id]['items'][] = ['que' => 'Paquete', 'detalle' => $pq->nombreVisible(), 'dias' => $dias, 'fin' => $pq->fecha_fin->format('d/m/Y')];
+            }
+        }
+
+        /* ---------- Un correo por persona (las cuentas demo no reciben correo) ---------- */
+        $correos = 0;
+        foreach ($paraCorreo as $grupo) {
+            $usuario = $grupo['usuario'];
+            if ($sinCorreo || $this->esDemo($usuario)) {
+                continue;
+            }
+
+            if ($soloVer) {
+                $this->line("  Correo para {$usuario->email}: " . count($grupo['items']) . ' aviso(s) en un solo mensaje');
+                $correos++;
+            } elseif (CorreoCuentaService::porVencer($usuario, $grupo['items'])) {
+                $correos++;
+            }
         }
 
         $this->info($soloVer
-            ? "Se avisaría en {$total} caso(s)."
+            ? "Se avisaría en {$total} caso(s) y se enviaría(n) {$correos} correo(s)."
             : "Listo: {$total} aviso(s) nuevo(s) en la campana y {$correos} correo(s) enviado(s).");
 
         return self::SUCCESS;
@@ -152,13 +174,12 @@ class AvisarVencimientos extends Command
     }
 
     /**
-     * Guarda la notificación y manda el correo (el correo solo sale si la notificación es nueva,
-     * así nadie recibe el mismo aviso dos veces el mismo día).
-     *
-     * @return array{avisos:int, correos:int}
+     * Guarda la notificación en la campana. Devuelve true si el aviso es nuevo (o, en modo
+     * "solo ver", si se avisaría). Si ya existía la misma, devuelve false: así nadie recibe
+     * el mismo aviso dos veces el mismo día.
      */
-    private function avisar(User $usuario, string $origen, string $que, string $titulo, string $detalle,
-        string $fin, int $dias, string $icono, bool $soloVer, bool $sinCorreo): array
+    private function avisar(User $usuario, string $origen, string $titulo, string $detalle,
+        string $fin, int $dias, string $icono, bool $soloVer): bool
     {
         $cuando = $dias === 0 ? 'vence hoy' : ($dias === 1 ? 'vence mañana' : "vence en {$dias} días");
         $finBonito = Carbon::parse($fin)->format('d/m/Y');
@@ -166,10 +187,10 @@ class AvisarVencimientos extends Command
         $url = $rol === 'vendedor' ? '/vendedor/vender.html' : '/inmobiliaria/membresia.html';
 
         if ($soloVer) {
-            $this->line("  - {$usuario->email} ({$rol}): {$que} {$cuando} · {$detalle} · vence el {$finBonito}"
+            $this->line("  - {$usuario->email} ({$rol}): {$titulo} {$cuando} · {$detalle} · vence el {$finBonito}"
                 . ($this->esDemo($usuario) ? '  [demo: sin correo]' : ''));
 
-            return ['avisos' => 1, 'correos' => 0];
+            return true;
         }
 
         $fila = Notificacion::fila(
@@ -184,22 +205,11 @@ class AvisarVencimientos extends Command
         );
 
         try {
-            $nueva = DB::table('notificaciones')->insertOrIgnore($fila) === 1;
+            return DB::table('notificaciones')->insertOrIgnore($fila) === 1;
         } catch (\Throwable $e) {
             Log::warning('Aviso de vencimiento: no se pudo guardar la notificación: ' . $e->getMessage());
 
-            return ['avisos' => 0, 'correos' => 0];
+            return false;
         }
-
-        if (! $nueva) {
-            return ['avisos' => 0, 'correos' => 0];
-        }
-
-        $correo = 0;
-        if (! $sinCorreo && ! $this->esDemo($usuario) && CorreoCuentaService::porVencer($usuario, $que, $detalle, $dias, $finBonito)) {
-            $correo = 1;
-        }
-
-        return ['avisos' => 1, 'correos' => $correo];
     }
 }

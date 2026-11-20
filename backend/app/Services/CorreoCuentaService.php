@@ -100,22 +100,44 @@ class CorreoCuentaService
     }
 
     /**
-     * Aviso de que una membresía o un paquete está por vencer (o vence hoy).
-     * Lo manda el comando diario "membresias:avisar-vencimiento": 8 días antes y cada día desde 5 días antes.
+     * Un solo correo al día con todo lo que le vence a la persona (membresías y paquetes).
+     * Lo manda el comando diario "membresias:avisar-vencimiento".
+     *
+     * @param  array<int, array{que:string, detalle:string, dias:int, fin:string}>  $items
      */
-    public static function porVencer(User $usuario, string $que, string $detalle, int $dias, string $fechaFin): bool
+    public static function porVencer(User $usuario, array $items): bool
     {
-        $cuando = $dias === 0 ? 'vence hoy' : ($dias === 1 ? 'vence mañana' : "vence en {$dias} días");
+        if (! $items) {
+            return false;
+        }
+
+        usort($items, fn ($a, $b) => $a['dias'] <=> $b['dias']);
+        $cuando = fn (int $d) => $d === 0 ? 'vence hoy' : ($d === 1 ? 'vence mañana' : "vence en {$d} días");
+
+        $lineas = [];
+        foreach (array_slice($items, 0, 30) as $i) {
+            $lineas[] = "- {$i['que']}: {$i['detalle']} · {$cuando($i['dias'])} ({$i['fin']})";
+        }
+        if (count($items) > 30) {
+            $lineas[] = '- y ' . (count($items) - 30) . ' más. Míralas todas en el portal.';
+        }
+
+        $urgente = $items[0]['dias'] <= 5;
+        $unico = count($items) === 1;
 
         $texto = "Hola {$usuario->name},\n\n"
-            . "{$que} {$cuando} (fecha de fin: {$fechaFin}).\n"
-            . "{$detalle}\n\n"
-            . "Renuévalo a tiempo para que tus publicaciones sigan visibles. Entra aquí: " . self::portal() . "\n\n"
-            . ($dias <= 5
-                ? "Te avisaremos cada día hasta que lo renueves o venza.\n"
-                : "Si ya lo renovaste, ignora este mensaje.\n");
+            . ($unico ? "Esto está por vencer en UMBRAL:\n\n" : "Estas membresías y paquetes están por vencer en UMBRAL:\n\n")
+            . implode("\n", $lineas) . "\n\n"
+            . ($unico ? 'Renuévalo' : 'Renuévalos') . ' a tiempo para que tus publicaciones sigan visibles. Entra aquí: ' . self::portal() . "\n\n"
+            . ($urgente
+                ? "Te avisaremos cada día hasta que renueves o venza.\n"
+                : "Si ya renovaste, ignora este mensaje.\n");
 
-        return self::enviar($usuario, 'membresia_por_vencer', "{$que} {$cuando} en UMBRAL", $texto);
+        $asunto = $unico
+            ? ($items[0]['que'] === 'Paquete' ? 'Tu paquete ' : 'Tu membresía ') . $cuando($items[0]['dias']) . ' en UMBRAL'
+            : 'Tienes ' . count($items) . ' membresías o paquetes por vencer en UMBRAL';
+
+        return self::enviar($usuario, 'membresia_por_vencer', $asunto, $texto);
     }
 
     /** Dirección del portal: en cada PC es su puerto y en el servidor es el dominio (FRONTEND_URL). */

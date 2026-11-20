@@ -112,6 +112,8 @@ Route::prefix('v1/admin')->middleware(['web', 'admin.api'])->group(function () {
 
     // Membresías: cifras, planes y precios, lista de pagos y cancelación
     Route::get('membresias', [AdminMembresiaController::class, 'index']);
+    Route::get('membresias/gratis', [AdminMembresiaController::class, 'gratis']);
+    Route::put('membresias/gratis', [AdminMembresiaController::class, 'actualizarGratis']);
     Route::put('membresias/planes/{plan}', [AdminMembresiaController::class, 'actualizarPlan']);
     Route::post('membresias/{membresia}/cancelar', [AdminMembresiaController::class, 'cancelar'])->whereNumber('membresia');
     Route::get('membresias/paquetes', [AdminMembresiaController::class, 'paquetes']);

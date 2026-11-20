@@ -74,7 +74,10 @@ class UserController extends Controller
             ],
             'estado' => ['required', 'string', Rule::in(User::ESTADOS)],
             'password' => ['required', 'string', 'min:8'],
+            // Vacío = recibe el número general de cuentas nuevas
+            'publicaciones_gratis' => ['nullable', 'integer', 'between:0,5'],
         ], [
+            'publicaciones_gratis.between' => 'Las publicaciones gratis deben estar entre 0 y 5.',
             'name.required' => 'El nombre es obligatorio.',
             'email.required' => 'El correo es obligatorio.',
             'email.unique' => 'Ese correo ya está registrado en el portal.',
@@ -83,9 +86,19 @@ class UserController extends Controller
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
         ]);
 
-        $usuario = User::create($datos); // la contraseña se cifra con el cast del modelo
+        if (! isset($datos['publicaciones_gratis'])) {
+            unset($datos['publicaciones_gratis']); // el modelo le pone el número general de cuentas nuevas
+        }
 
-        Movimiento::registrar(auth()->user(), 'cuenta_creada', $this->describir($usuario));
+        $usuario = User::create($datos); // la contraseña se cifra con el cast del modelo
+        $usuario->refresh();
+
+        Movimiento::registrar(
+            auth()->user(),
+            'cuenta_creada',
+            $this->describir($usuario) . ($usuario->tieneRol('vendedor') || $usuario->tieneRol('inmobiliaria')
+                ? ' · Publicaciones gratis: ' . (int) $usuario->publicaciones_gratis : '')
+        );
 
         // Aviso por correo solo si la cuenta ya puede entrar (activa); no lleva la contraseña
         if ($usuario->estado === 'activo') {
@@ -109,7 +122,10 @@ class UserController extends Controller
             ],
             'estado' => ['required', 'string', Rule::in(User::ESTADOS)],
             'password' => ['nullable', 'string', 'min:8'],
+            // Las publicaciones gratis se definen al crear la cuenta y no se cambian después
+            'publicaciones_gratis' => ['prohibited'],
         ], [
+            'publicaciones_gratis.prohibited' => 'Las publicaciones gratis solo se definen al crear la cuenta y no se pueden cambiar después.',
             'email.unique' => 'Ese correo ya está registrado en el portal.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
         ]);
@@ -215,6 +231,7 @@ class UserController extends Controller
             'rol' => $usuario->role?->nombre,
             'role_id' => $usuario->role_id,
             'estado' => $usuario->estado,
+            'publicaciones_gratis' => (int) $usuario->publicaciones_gratis,
             'avatar' => $usuario->avatar,
             'creado' => optional($usuario->created_at)->format('d M Y'),
         ];

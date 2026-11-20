@@ -7,7 +7,9 @@ use App\Models\Membresia;
 use App\Models\OfertaPaquete;
 use App\Models\OfertaVendedor;
 use App\Models\PaqueteMembresia;
+use App\Models\Movimiento;
 use App\Models\PlanMembresia;
+use App\Services\Publicaciones\LimiteGratisService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -118,6 +120,37 @@ class MembresiaController extends Controller
     }
 
     /** PUT /membresias/planes/{plan} { precio } — el cambio no afecta pagos ya hechos (RF-058). */
+    /** GET /membresias/gratis → publicaciones gratis que reciben las cuentas nuevas */
+    public function gratis(): JsonResponse
+    {
+        return response()->json(['nuevas' => LimiteGratisService::valorNuevas()]);
+    }
+
+    /** PUT /membresias/gratis { nuevas } → solo cambia lo que reciben las cuentas NUEVAS (las existentes no se tocan) */
+    public function actualizarGratis(Request $request): JsonResponse
+    {
+        $datos = $request->validate(['nuevas' => ['required', 'integer', 'between:0,5']], [
+            'nuevas.required' => 'Escribe cuántas publicaciones gratis.',
+            'nuevas.integer' => 'Escribe un número entero.',
+            'nuevas.between' => 'Debe estar entre 0 y 5.',
+        ]);
+
+        $antes = LimiteGratisService::valorNuevas();
+        $nuevo = (int) $datos['nuevas'];
+        LimiteGratisService::fijarNuevas($nuevo);
+
+        if ($antes !== $nuevo) {
+            Movimiento::registrar($request->user(), 'gratis_nuevas', 'Cuentas nuevas: de ' . $antes . ' a ' . $nuevo . ' publicaciones gratis');
+        }
+
+        return response()->json([
+            'mensaje' => $antes === $nuevo
+                ? 'Ya estaba en ' . $nuevo . '. No hubo cambios.'
+                : 'Listo: las cuentas nuevas tendrán ' . $nuevo . ($nuevo === 1 ? ' publicación gratis.' : ' publicaciones gratis.') . ' Las cuentas que ya existen no cambian.',
+            'nuevas' => $nuevo,
+        ]);
+    }
+
     public function actualizarPlan(Request $request, string $plan): JsonResponse
     {
         $datos = $request->validate([

@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'role_id', 'inmobiliaria_id', 'telefono', 'tipo_documento', 'numero_documento', 'representante_legal', 'pais_residencia', 'estado', 'avatar'])]
+#[Fillable(['name', 'email', 'password', 'role_id', 'inmobiliaria_id', 'telefono', 'tipo_documento', 'numero_documento', 'representante_legal', 'pais_residencia', 'estado', 'avatar', 'publicaciones_gratis'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -24,6 +24,20 @@ class User extends Authenticatable
 
     /** Roles que aparecen en el formulario del panel (soporte e invitado son internos del sistema). */
     public const ROLES_PANEL = ['administrador', 'vendedor', 'inmobiliaria', 'agente'];
+
+    /** Cuenta nueva: copia el número de publicaciones gratis vigente (cambiarlo después no toca las existentes). */
+    protected static function booted(): void
+    {
+        static::creating(function (User $usuario) {
+            if (! array_key_exists('publicaciones_gratis', $usuario->getAttributes())) {
+                try {
+                    $usuario->publicaciones_gratis = \App\Services\Publicaciones\LimiteGratisService::valorNuevas();
+                } catch (\Throwable $e) {
+                    // si la tabla de ajustes no existe todavía, queda el valor por defecto de la base (1)
+                }
+            }
+        });
+    }
 
     /** Rol del usuario (administrador, vendedor, inmobiliaria, agente, soporte). */
     public function role(): BelongsTo

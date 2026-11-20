@@ -388,7 +388,9 @@
         t.textContent = mensaje;
         t.classList.add('visible');
         clearTimeout(temporizador);
-        temporizador = setTimeout(function () { t.classList.remove('visible'); }, 3200);
+        // Entre más largo el mensaje, más tiempo se queda en pantalla (mínimo 3,2 s, máximo 14 s)
+        var duracion = Math.min(14000, Math.max(3200, 2500 + String(mensaje).length * 70));
+        temporizador = setTimeout(function () { t.classList.remove('visible'); }, duracion);
     }
 
     // Cierra una ventana <dialog> con la X, con "Cancelar" o al tocar fuera.

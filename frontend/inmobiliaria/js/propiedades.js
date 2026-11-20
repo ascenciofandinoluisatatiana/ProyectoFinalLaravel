@@ -18,6 +18,16 @@
     var fotoPrincipal = null; // foto principal ya reducida (Blob)
     var catalogo = {};        // características: { clave: 'Texto' }
     var planes = [];          // planes para destacar una publicación (precio del administrador)
+
+    /* Publicaciones gratis: propiedades guardadas en borrador a la espera de pago (borde rojo) */
+    (function () {
+        if (document.getElementById('estilo-espera-pago')) return;
+        var st = document.createElement('style');
+        st.id = 'estilo-espera-pago';
+        st.textContent = '.i-pcard.espera-pago{border:2px solid #ef4444 !important;box-shadow:0 0 0 3px rgba(239,68,68,.15)}' +
+            '.i-b.estado.espera{background:#ef4444 !important;color:#fff !important}';
+        document.head.appendChild(st);
+    })();
     var captchaClave = null;  // clave de sitio de Cloudflare Turnstile (null = sin captcha)
     var captchaWidget = null, captchaToken = '';
     var maxFotos = 9;
@@ -71,13 +81,14 @@
 
         // Acciones: primero la del estado, luego editar y destacar; eliminar va solo con ícono
         var botones = '';
-        if (p.estado === 'borrador') botones += boton('estado:publicada', 'fa-bullhorn', 'Publicar', 'principal');
+        var espera = p.estado === 'borrador' && !!p.en_espera_pago;
+        if (p.estado === 'borrador') botones += espera ? boton('destacar', 'fa-credit-card', 'Pagar y publicar', 'principal') : boton('estado:publicada', 'fa-bullhorn', 'Publicar', 'principal');
         if (p.estado === 'publicada') botones += boton('estado:' + cierre, 'fa-handshake', p.operacion === 'venta' ? 'Vendida' : 'Arrendada', 'principal') +
             boton('estado:pausada', 'fa-pause', 'Pausar');
         if (p.estado === 'pausada') botones += boton('estado:publicada', 'fa-play', 'Reanudar', 'principal');
         if (cerrada) botones += boton('estado:publicada', 'fa-rotate-left', 'Volver a publicar', 'principal');
         if (!cerrada) botones += boton('editar', 'fa-pen', 'Editar');
-        if (!cerrada && !(d && d.en_paquete)) botones += boton('destacar', d ? 'fa-rotate' : 'fa-star', d ? 'Renovar' : 'Destacar', 'oro');
+        if (!cerrada && !espera && !(d && d.en_paquete)) botones += boton('destacar', d ? 'fa-rotate' : 'fa-star', d ? 'Renovar' : 'Destacar', 'oro');
         botones += boton('eliminar', 'fa-trash', '', 'peligro');
 
         // Línea corta de la membresía de esta publicación
@@ -98,11 +109,11 @@
         var renta = p.operacion === 'arriendo';
         var agente = p.agente ? p.agente.nombre : '';
 
-        return '<article class="i-pcard' + (d ? ' destacada' : '') + '">' +
+        return '<article class="i-pcard' + (d ? ' destacada' : '') + (espera ? ' espera-pago' : '') + '">' +
             '<div class="i-pimg"><i class="fa-solid fa-house"></i>' + I.foto(p.imagen) +
                 '<div class="i-pbadges">' +
                     '<span class="i-b ' + (renta ? 'arriendo' : 'venta') + '">' + (renta ? 'Arriendo' : 'Venta') + '</span>' +
-                    '<span class="i-b estado ' + I.esc(p.estado) + '">' + I.esc(I.ESTADOS_PROPIEDAD[p.estado] || p.estado) + '</span>' +
+                    '<span class="i-b estado ' + (espera ? 'espera' : I.esc(p.estado)) + '">' + (espera ? 'En espera de pago' : I.esc(I.ESTADOS_PROPIEDAD[p.estado] || p.estado)) + '</span>' +
                     (p.verificada ? '<span class="i-b verificada"><i class="fa-solid fa-circle-check"></i>Verificada</span>' : '') +
                 '</div>' +
                 (d ? '<span class="i-pcorona" title="Destacada"><i class="fa-solid fa-crown"></i>' + I.esc(d.en_paquete ? 'Paquete' : d.nombre_plan) + '</span>' : '') +
@@ -366,13 +377,19 @@
             try { await I.api('/propiedades/' + id + '/fotos/' + galeria.quitar[i], { metodo: 'DELETE' }); }
             catch (err) { fallas++; }
         }
-        for (var j = 0; j < galeria.nuevas.length; j++) {
-            var datos = new FormData();
-            var esGif = galeria.nuevas[j].blob.type === 'image/gif';
-            datos.append('foto', galeria.nuevas[j].blob, 'foto-' + (j + 1) + (esGif ? '.gif' : '.jpg'));
-            try { await I.api('/propiedades/' + id + '/fotos', { metodo: 'POST', formulario: datos }); }
-            catch (err) { fallas++; }
+        // Las fotos nuevas se suben de a 3 a la vez
+        var siguiente = 0;
+        async function subirFotos() {
+            while (siguiente < galeria.nuevas.length) {
+                var j = siguiente++;
+                var datos = new FormData();
+                var esGif = galeria.nuevas[j].blob.type === 'image/gif';
+                datos.append('foto', galeria.nuevas[j].blob, 'foto-' + (j + 1) + (esGif ? '.gif' : '.jpg'));
+                try { await I.api('/propiedades/' + id + '/fotos', { metodo: 'POST', formulario: datos }); }
+                catch (err) { fallas++; }
+            }
         }
+        await Promise.all([subirFotos(), subirFotos(), subirFotos()]);
         return fallas;
     }
 

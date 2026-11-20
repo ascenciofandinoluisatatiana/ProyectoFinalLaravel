@@ -17,6 +17,16 @@
     var datos = { propiedades: [], contactos: [], visitas: [], planes: [], ofertas: [], paquetes: [] };
     var grafica = null;
 
+    /* Publicaciones gratis: propiedades guardadas en borrador a la espera de pago (borde rojo) */
+    (function () {
+        if (document.getElementById('estilo-espera-pago')) return;
+        var st = document.createElement('style');
+        st.id = 'estilo-espera-pago';
+        st.textContent = '.v-prop.v-espera{border:2px solid #ef4444 !important;box-shadow:0 0 0 3px rgba(239,68,68,.15)}' +
+            '.v-estado.espera{background:#ef4444 !important;color:#fff !important}';
+        document.head.appendChild(st);
+    })();
+
     V.barra(usuario, clave);
 
     function $(id) { return document.getElementById(id); }
@@ -31,6 +41,7 @@
                 V.api('/membresia')
             ]);
             datos.propiedades = r[0].data || [];
+            datos.gratis = r[0].publicaciones_gratis != null ? Number(r[0].publicaciones_gratis) : null;
             datos.contactos = r[1].data || [];
             datos.visitas = r[2].data || [];
             datos.planes = r[3].planes || [];
@@ -62,13 +73,18 @@
     $('d-desc').textContent = OP.descripcion;
 
     /* ---------- Membresía (por publicación) ---------- */
+    function textoGratis() {
+        if (datos.gratis == null) return 'Publica gratis según tu cupo · la membresía se paga por inmueble';
+        return 'Tienes ' + datos.gratis + (datos.gratis === 1 ? ' publicación gratis' : ' publicaciones gratis') + ' · para publicar más, contrata un plan';
+    }
+
     function pintarMembresia() {
         var props = misInmuebles().filter(function (p) { return p.estado === 'publicada'; });
         var destacados = props.filter(posicionado).length;
 
         $('d-membresia').innerHTML =
             '<div class="v-membresia-info"><i class="fa-solid ' + (destacados ? 'fa-crown' : 'fa-bullhorn') + '"></i><div>' +
-            '<b>Publicar es gratis · la membresía se paga por inmueble</b>' +
+            '<b>' + textoGratis() + '</b>' +
             '<small>' + (destacados
                 ? destacados + (destacados === 1 ? ' inmueble está posicionado' : ' inmuebles están posicionados') + ' en las zonas destacadas. Los demás aparecen en la zona normal.'
                 : 'Todos tus inmuebles publicados aparecen en la zona normal. Usa “Posicionar” en cada uno para subirlo a las zonas destacadas.') +
@@ -139,11 +155,12 @@
             return '<button type="button" class="v-icon-circ ' + accion + '" data-accion="' + accion + '" data-id="' + p.id + '" title="' + texto + '" aria-label="' + texto + '">' + svg + '</button>';
         }
 
-        if (p.estado === 'borrador') botones += boton('publicar', 'fa-bullhorn', 'Publicar');
+        var espera = p.estado === 'borrador' && !!p.en_espera_pago;
+        if (p.estado === 'borrador') botones += espera ? boton('pagarpublicar', 'fa-credit-card', 'Pagar y publicar') : boton('publicar', 'fa-bullhorn', 'Publicar');
         if (p.estado === 'publicada') botones += boton('pausar', 'fa-pause', 'Pausar') + boton('cerrar', 'fa-handshake', OP.cierreAccion);
         if (p.estado === 'pausada') botones += boton('reanudar', 'fa-play', 'Reanudar');
         // Membresía de ESTE inmueble: lo sube a las zonas posicionadas mientras esté vigente
-        if (!cerrado) botones += boton('posicionar', 'fa-crown', posicionado(p) ? 'Renovar posición' : 'Posicionar');
+        if (!cerrado && !espera) botones += boton('posicionar', 'fa-crown', posicionado(p) ? 'Renovar posición' : 'Posicionar');
 
         var herramientas = '<div class="v-prop-herramientas">' +
             (cerrado ? '' : iconoCirc('editar', SVG_EDITAR, 'Editar inmueble')) +
@@ -153,10 +170,10 @@
             ? '<a class="v-enlace" href="https://www.google.com/maps?q=' + Number(p.lat) + ',' + Number(p.lng) + '" target="_blank" rel="noopener">Ver mapa</a>'
             : '';
 
-        return '<article class="v-prop">' +
+        return '<article class="v-prop' + (espera ? ' v-espera' : '') + '">' +
             '<div class="v-prop-foto"><i class="fa-solid fa-house"></i>' +
             (p.imagen ? '<img src="' + V.esc(p.imagen) + '" alt="" loading="lazy">' : '') +
-            '<span class="v-estado ' + V.esc(p.estado) + '">' + V.esc(ESTADOS[p.estado] || p.estado) + '</span>' +
+            '<span class="v-estado ' + (espera ? 'espera' : V.esc(p.estado)) + '">' + (espera ? 'En espera de pago' : V.esc(ESTADOS[p.estado] || p.estado)) + '</span>' +
             (posicionado(p) ? '<span class="v-posicionado" title="Vence el ' + V.esc(fechaLarga(p.membresia.fecha_fin)) + '"><i class="fa-solid fa-crown"></i> ' + V.esc(p.membresia.nombre_plan) + ' · ' + Number(p.membresia.dias_restantes) + ' d</span>' : '') + herramientas +
             '<span class="v-prop-nfotos" title="Fotos del inmueble"><i class="fa-solid fa-camera"></i> ' + ((p.imagen ? 1 : 0) + (p.fotos ? p.fotos.length : 0)) + '</span></div>' +
             '<div class="v-prop-cuerpo">' +
@@ -616,7 +633,7 @@
         form.reset();
         form.id.value = p ? p.id : '';
         $('d-form-titulo').textContent = p ? 'Editar inmueble' : 'Registrar inmueble';
-        $('d-form-nota').textContent = 'Publicar es gratis: el inmueble aparece en la zona normal al guardarlo. Después puedes posicionarlo con una membresía.';
+        $('d-form-nota').textContent = (datos.gratis != null ? 'Tienes ' + datos.gratis + (datos.gratis === 1 ? ' publicación gratis' : ' publicaciones gratis') + '. ' : '') + 'Si ya las usaste, el inmueble se guarda como borrador hasta que contrates un plan.';
         if (p) {
             ['tipo', 'precio', 'barrio', 'direccion', 'habitaciones', 'banos', 'parqueaderos', 'area', 'estrato', 'descripcion'].forEach(function (c) {
                 form[c].value = p[c] == null ? '' : p[c];
@@ -699,21 +716,29 @@
                 try { await V.api('/propiedades/' + id + '/fotos/' + quitarIds[k], { metodo: 'DELETE' }); }
                 catch (e1) { fallas++; }
             }
-            // Sube las fotos nuevas de la galería, de a una (cada envío es liviano)
-            for (var j = 0; j < galeriaNuevas.length; j++) {
-                if (boton) boton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Subiendo foto ' + (j + 1) + ' de ' + galeriaNuevas.length + '…';
-                var datosFoto = new FormData();
-                datosFoto.append('foto', galeriaNuevas[j].blob, 'foto-' + (j + 1) + (galeriaNuevas[j].gif ? '.gif' : '.jpg'));
-                try { await V.api('/propiedades/' + id + '/fotos', { metodo: 'POST', formulario: datosFoto }); }
-                catch (e2) { fallas++; }
+            // Sube las fotos nuevas de la galería, de a 3 a la vez (cada envío es liviano)
+            var siguiente = 0, terminadas = 0;
+            async function subirFotos() {
+                while (siguiente < galeriaNuevas.length) {
+                    var j = siguiente++;
+                    var datosFoto = new FormData();
+                    datosFoto.append('foto', galeriaNuevas[j].blob, 'foto-' + (j + 1) + (galeriaNuevas[j].gif ? '.gif' : '.jpg'));
+                    try { await V.api('/propiedades/' + id + '/fotos', { metodo: 'POST', formulario: datosFoto }); }
+                    catch (e2) { fallas++; }
+                    terminadas++;
+                    if (boton) boton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Subiendo fotos ' + terminadas + ' de ' + galeriaNuevas.length + '…';
+                }
             }
+            if (boton && galeriaNuevas.length) boton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Subiendo fotos 0 de ' + galeriaNuevas.length + '…';
+            await Promise.all([subirFotos(), subirFotos(), subirFotos()]);
 
             // Inmueble nuevo: solo se publica si TODAS las fotos quedaron guardadas
             var publicado = false;
+            var avisoEspera = null;
             if (!existente && !fallas) {
                 try {
-                    await V.api('/propiedades/' + id + '/estado', { metodo: 'PATCH', datos: { estado: 'publicada' } });
-                    publicado = true;
+                    var rEstado = await V.api('/propiedades/' + id + '/estado', { metodo: 'PATCH', datos: { estado: 'publicada' } });
+                    if (rEstado && rEstado.en_espera_pago) avisoEspera = rEstado.message; else publicado = true;
                 } catch (e3) { /* queda como borrador */ }
             }
 
@@ -723,7 +748,7 @@
             } else if (existente) {
                 V.toast('Inmueble actualizado.');
             } else {
-                V.toast(publicado ? 'Inmueble publicado. Usa “Posicionar” si quieres destacarlo.' : 'Guardado como borrador. Publícalo desde su tarjeta.');            }
+                V.toast(avisoEspera ? avisoEspera : publicado ? 'Inmueble publicado. Usa “Posicionar” si quieres destacarlo.' : 'Guardado como borrador. Publícalo desde su tarjeta.');            }
             await cargar();
         } catch (err) {
             if (err.message !== 'Sin acceso') V.toast(err.message);
@@ -830,7 +855,7 @@
         var id = Number(b.getAttribute('data-id'));
         var p = inmueble(id);
 
-        if (accion === 'posicionar' && p) return abrirPlanes(p);
+        if ((accion === 'posicionar' || accion === 'pagarpublicar') && p) return abrirPlanes(p);
         if (accion === 'editar' && p) return abrirForm(p);
         
         if (accion === 'eliminar' && !window.confirm('¿Eliminar este inmueble? También se quitarán sus contactos y visitas.')) return;
@@ -838,9 +863,9 @@
         b.disabled = true;
         try {
             var mensaje;
-            if (accion === 'publicar' && p) { await cambiarEstado(id, 'publicada'); mensaje = 'Inmueble publicado.'; }
+            if (accion === 'publicar' && p) { var rp = await cambiarEstado(id, 'publicada'); mensaje = rp && rp.en_espera_pago ? rp.message : 'Inmueble publicado.'; }
             else if (accion === 'pausar' && p) { await cambiarEstado(id, 'pausada'); mensaje = 'Publicación pausada.'; }
-            else if (accion === 'reanudar' && p) { await cambiarEstado(id, 'publicada'); mensaje = 'Publicación reanudada.'; }
+            else if (accion === 'reanudar' && p) { var rr = await cambiarEstado(id, 'publicada'); mensaje = rr && rr.en_espera_pago ? rr.message : 'Publicación reanudada.'; }
             else if (accion === 'cerrar' && p) { await cambiarEstado(id, OP.cierre); mensaje = OP.cierreMensaje; }
             else if (accion === 'eliminar' && p) { await V.api('/propiedades/' + id, { metodo: 'DELETE' }); mensaje = 'Inmueble eliminado.'; }
             else if (accion === 'atender') { await V.api('/contactos/' + id, { metodo: 'PATCH', datos: { estado: 'en_seguimiento' } }); mensaje = 'Contacto marcado como atendido.'; }

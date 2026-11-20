@@ -88,8 +88,10 @@ return [
             'visibility' => 'private',
             'request_checksum_calculation' => 'when_required',
             'response_checksum_validation' => 'when_required',
-            // Si el bucket no responde: falla rápido en vez de dejar la página colgada
-            'http' => ['connect_timeout' => 5, 'timeout' => 30],
+            // El bucket a veces se queda "pensando" (hasta 30 s). Si no responde en 12 s se cancela
+            // y se reintenta (hasta 4 intentos, en total menos de 60 s) en vez de dejar la página colgada.
+            'http' => ['connect_timeout' => 4, 'timeout' => 12],
+            'retries' => ['mode' => 'standard', 'max_attempts' => 4],
             'throw' => true,
             'report' => false,
         ],

@@ -23,6 +23,25 @@ class Membresia extends Model
         'mensual' => 59900,
     ];
 
+    /**
+     * Publicaciones gratis: al contratar una membresía para una propiedad que quedó "en espera
+     * de pago", esa propiedad se publica sola.
+     */
+    protected static function booted(): void
+    {
+        static::created(function (Membresia $membresia) {
+            if (! $membresia->propiedad_id) {
+                return;
+            }
+            $propiedad = Propiedad::find($membresia->propiedad_id);
+            if ($propiedad && $propiedad->en_espera_pago) {
+                $propiedad->estado = 'publicada';
+                $propiedad->en_espera_pago = false;
+                $propiedad->save();
+            }
+        });
+    }
+
     public function usuario(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');

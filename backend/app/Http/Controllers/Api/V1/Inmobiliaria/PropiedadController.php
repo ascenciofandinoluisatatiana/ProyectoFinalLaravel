@@ -8,6 +8,7 @@ use App\Models\PropiedadFoto;
 use App\Services\CaptchaService;
 use App\Services\ImagenService;
 use App\Services\Inmobiliaria\ComisionService;
+use App\Services\Publicaciones\LimiteGratisService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -71,6 +72,8 @@ class PropiedadController extends BaseInmobiliariaController
             // Catálogo para pintar las casillas del formulario
             'caracteristicas' => Propiedad::CARACTERISTICAS,
             'max_fotos' => Propiedad::MAX_FOTOS,
+            // Publicaciones que esta cuenta puede tener publicadas sin pagar
+            'publicaciones_gratis' => (int) $this->inmobiliaria($request)->publicaciones_gratis,
         ]);
     }
 
@@ -84,6 +87,14 @@ class PropiedadController extends BaseInmobiliariaController
         $datos = $this->validar($request, true);
         $datos['user_id'] = $this->inmobiliaria($request)->id;
         $datos['verificada'] = false;
+
+        // Publicaciones gratis: si la cuenta ya usó las suyas, la propiedad se guarda como borrador
+        // "en espera de pago" y se publica sola cuando se contrate un plan.
+        $enEspera = false;
+        if ($datos['estado'] === 'publicada' && ! app(LimiteGratisService::class)->puedePublicar($datos['user_id'])) {
+            $datos['estado'] = 'borrador';
+            $datos['en_espera_pago'] = $enEspera = true;
+        }
 
         $subida = null;
         if ($request->hasFile('imagen')) {
@@ -103,7 +114,8 @@ class PropiedadController extends BaseInmobiliariaController
         }
 
         return response()->json([
-            'message' => 'Propiedad registrada.',
+            'message' => $enEspera ? LimiteGratisService::MENSAJE : 'Propiedad registrada.',
+            'en_espera_pago' => $enEspera,
             'data' => $this->formato($propiedad->load(['agente:id,name', 'fotos'])->loadCount(['leads', 'visitas'])),
         ], 201);
     }
@@ -162,7 +174,16 @@ class PropiedadController extends BaseInmobiliariaController
         }
 
         $antes = $propiedad->estado;
-        $propiedad->update(['estado' => $datos['estado']]);
+        $enEspera = false;
+        $cambios = ['estado' => $datos['estado'], 'en_espera_pago' => false];
+
+        // Publicaciones gratis: al publicar (o volver a publicar) se revisa el límite de la cuenta
+        if ($datos['estado'] === 'publicada' && $antes !== 'publicada'
+            && ! app(LimiteGratisService::class)->puedePublicar($propiedad->user_id, $propiedad->id)) {
+            $cambios = ['estado' => 'borrador', 'en_espera_pago' => true];
+            $enEspera = true;
+        }
+        $propiedad->update($cambios);
 
         // Comisión del agente (4 %): se crea al cerrar y se anula si se vuelve a abrir
         $comisiones = app(ComisionService::class);
@@ -174,10 +195,11 @@ class PropiedadController extends BaseInmobiliariaController
         }
 
         return response()->json([
-            'message' => 'Estado actualizado.' . ($comision && $comision->wasRecentlyCreated
+            'message' => $enEspera ? LimiteGratisService::MENSAJE : 'Estado actualizado.' . ($comision && $comision->wasRecentlyCreated
                 ? ' Comisión de ' . $comision->agente->name . ': $' . number_format($comision->valor, 0, ',', '.') . ' (' . Comision::PORCENTAJE . ' %).'
                 : ''),
             'estado' => $propiedad->estado,
+            'en_espera_pago' => $enEspera,
         ]);
     }
 
@@ -364,6 +386,7 @@ class PropiedadController extends BaseInmobiliariaController
             'estrato' => $p->estrato,
             'verificada' => (bool) $p->verificada,
             'estado' => $p->estado,
+            'en_espera_pago' => (bool) $p->en_espera_pago,
             'imagen' => $this->urlImagen($p->imagen),
             'descripcion' => $p->descripcion,
             'pisos' => $p->pisos,

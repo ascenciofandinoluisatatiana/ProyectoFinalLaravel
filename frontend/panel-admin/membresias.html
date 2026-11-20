@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Membresías · UMBRAL</title>
+    <title>Suscripciones y publicaciones gratis · UMBRAL</title>
     <link rel="icon" type="image/png" href="/img/icono.png">
 
     <script>
@@ -89,10 +89,10 @@
                                 <i class="fa-solid fa-crown mr-1"></i>Módulo de membresías
                             </p>
                             <h1 class="titulo-grad mt-1 text-2xl font-extrabold sm:text-3xl">
-                                Membresías
+                                Suscripciones y publicaciones gratis
                             </h1>
                             <p class="mt-1.5 max-w-xl text-sm text-slate-400">
-                                Paquetes de inmobiliaria y de vendedor, pagos y estado de cada membresía.
+                                Paquetes de inmobiliaria y de vendedor, publicaciones gratis de las cuentas nuevas, pagos y filtros.
                             </p>
                         </div>
                     </div>
@@ -127,6 +127,7 @@
                     <div class="tb-barra" role="tablist">
                         <button type="button" class="tb-tab activo" role="tab" data-tab="inmo"><i class="fa-solid fa-building"></i><span>Paquetes de inmobiliaria</span></button>
                         <button type="button" class="tb-tab" role="tab" data-tab="vend"><i class="fa-solid fa-user-tag"></i><span>Paquetes de vendedor</span></button>
+                        <button type="button" class="tb-tab" role="tab" data-tab="gratis"><i class="fa-solid fa-gift"></i><span>Propiedades gratuitas</span></button>
                         <button type="button" class="tb-tab" role="tab" data-tab="pagos"><i class="fa-solid fa-credit-card"></i><span>Pagos y filtros</span></button>
                     </div>
 
@@ -218,6 +219,28 @@
                         <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 px-5 py-3.5">
                             <p id="compras-info-vend" class="text-xs text-slate-500"></p>
                             <div id="compras-botones-vend" class="flex items-center gap-1"></div>
+                        </div>
+                    </div>
+                    </div>
+
+                    <div id="tab-gratis" class="tb-panel">
+                    <!-- Publicaciones gratis de las cuentas nuevas -->
+                    <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 shadow-xl shadow-black/20">
+                        <h3 class="font-bold text-white">Propiedades gratuitas para cuentas nuevas</h3>
+                        <p class="mt-1 max-w-2xl text-xs text-slate-500">
+                            Cuántas propiedades puede tener publicadas, sin pagar, cada vendedor o inmobiliaria que se registre desde ahora.
+                            Pasado ese número, las propiedades se guardan como borrador hasta que contraten un plan.
+                            <b class="text-slate-300">Las cuentas que ya existen no cambian.</b>
+                        </p>
+                        <div class="mt-4 flex flex-wrap items-end gap-3">
+                            <div>
+                                <label for="gratis-nuevas" class="mb-1.5 block text-sm font-medium text-slate-300">Publicaciones gratis <span class="font-normal text-slate-500">(0 a 5)</span></label>
+                                <input id="gratis-nuevas" type="number" min="0" max="5" step="1"
+                                       class="w-40 rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-2.5 text-sm text-slate-200 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">
+                            </div>
+                            <button type="button" id="gratis-guardar" class="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-600/25 transition-all hover:from-violet-500 hover:to-indigo-500 active:scale-[0.98]">
+                                <i class="fa-solid fa-floppy-disk mr-1"></i>Guardar
+                            </button>
                         </div>
                     </div>
                     </div>

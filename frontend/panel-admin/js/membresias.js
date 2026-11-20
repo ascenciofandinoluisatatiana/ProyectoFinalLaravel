@@ -61,7 +61,9 @@
         caja.addEventListener('click', function () { caja.remove(); });
         document.body.appendChild(caja);
 
-        temporizadorAviso = setTimeout(function () { caja.remove(); }, correcto ? 4500 : 7000);
+        // Entre más largo el mensaje, más tiempo se queda (máximo 14 s)
+        var duracion = Math.min(14000, Math.max(correcto ? 4500 : 7000, 2500 + String(texto).length * 70));
+        temporizadorAviso = setTimeout(function () { caja.remove(); }, duracion);
     }
 
     /* ----- Cifras ----- */
@@ -447,6 +449,31 @@
             if (e.estado !== 401) mostrarAviso(e.message || 'No se pudieron cargar las compras de paquetes.', false);
         }
     }
+
+    /* ----- Propiedades gratuitas (cuentas nuevas) ----- */
+    (async function () {
+        var campo = document.getElementById('gratis-nuevas');
+        var boton = document.getElementById('gratis-guardar');
+        if (!campo || !boton) return;
+        try {
+            var g = await P.api('/membresias/gratis');
+            campo.value = g.nuevas;
+        } catch (e) {
+            if (e.estado !== 401) mostrarAviso(e.message || 'No se pudo cargar el número de publicaciones gratis.', false);
+        }
+        boton.addEventListener('click', async function () {
+            boton.disabled = true;
+            try {
+                var r = await P.api('/membresias/gratis', { metodo: 'PUT', cuerpo: { nuevas: campo.value } });
+                campo.value = r.nuevas;
+                mostrarAviso(r.mensaje, true);
+            } catch (e) {
+                if (e.estado !== 401) mostrarAviso((e.datos && e.datos.errors && e.datos.errors.nuevas ? e.datos.errors.nuevas[0] : e.message) || 'No se pudo guardar.', false);
+            } finally {
+                boton.disabled = false;
+            }
+        });
+    })();
 
     /* ----- Pestañas ----- */
     document.querySelector('.tb-barra').addEventListener('click', function (e) {

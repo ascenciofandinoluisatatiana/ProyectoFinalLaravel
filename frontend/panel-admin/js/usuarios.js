@@ -68,7 +68,7 @@
         requestAnimationFrame(function () {
             elemento.classList.remove('translate-x-6', 'opacity-0');
         });
-        setTimeout(function () { quitarToast(elemento); }, 4000);
+        setTimeout(function () { quitarToast(elemento); }, Math.min(14000, Math.max(4000, 2500 + String((titulo || '') + ' ' + (mensaje || '')).length * 70)));
     }
 
     function quitarToast(elemento) {
@@ -212,6 +212,10 @@
         document.getElementById('modal-titulo').textContent = 'Nuevo usuario';
         document.getElementById('clave-ayuda').textContent = '(mínimo 8 caracteres)';
         limpiarFormulario();
+        var cg = document.getElementById('campo-gratis');
+        cg.value = ''; cg.disabled = false; cg.placeholder = 'Predeterminado';
+        cg.classList.remove('cursor-not-allowed', 'opacity-60'); cg.title = '';
+        document.getElementById('gratis-ayuda').textContent = '(0 a 5 · vendedor e inmobiliaria · vacío = el número de cuentas nuevas)';
         abrirModal();
     }
 
@@ -228,12 +232,18 @@
         document.getElementById('campo-correo').value = fila.email;
         document.getElementById('campo-rol').value = fila.role_id;
         document.getElementById('campo-estado').value = fila.estado;
+        // Las publicaciones gratis solo se definen al crear la cuenta: aquí se ven, pero no se cambian
+        var cge = document.getElementById('campo-gratis');
+        cge.value = fila.publicaciones_gratis != null ? fila.publicaciones_gratis : '';
+        cge.disabled = true;
+        cge.classList.add('cursor-not-allowed', 'opacity-60'); cge.title = 'No se puede cambiar después de crear la cuenta';
+        document.getElementById('gratis-ayuda').textContent = '(solo se define al crear la cuenta)';
         abrirModal();
     }
 
     function mostrarErrores(errores) {
         formulario.querySelectorAll('.error-campo').forEach(function (p) { p.classList.add('hidden'); });
-        var mapa = { name: 'campo-nombre', email: 'campo-correo', role_id: 'campo-rol', estado: 'campo-estado', password: 'campo-clave' };
+        var mapa = { name: 'campo-nombre', email: 'campo-correo', role_id: 'campo-rol', estado: 'campo-estado', password: 'campo-clave', publicaciones_gratis: 'campo-gratis' };
         Object.keys(errores || {}).forEach(function (campo) {
             var control = document.getElementById(mapa[campo]);
             if (!control) return;
@@ -254,6 +264,9 @@
             estado: document.getElementById('campo-estado').value,
             password: document.getElementById('campo-clave').value
         };
+        // Vacío: al crear, la cuenta recibe el número general; al editar, no se cambia
+        var gratis = document.getElementById('campo-gratis').value;
+        if (creando && gratis !== '') cuerpo.publicaciones_gratis = gratis;
 
         boton.disabled = true;
         try {

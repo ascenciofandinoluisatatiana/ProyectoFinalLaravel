@@ -6,10 +6,11 @@ use App\Models\Lead;
 use App\Models\Notificacion;
 use App\Models\Propiedad;
 use App\Models\Publicacion;
+use App\Services\Paneles\AvisosGuardados;
 
 /**
  * Cada contacto nuevo queda conectado con la publicación de su propiedad
- * y le llega una notificación al vendedor dueño de la propiedad.
+ * y le llega una notificación al vendedor (o a la inmobiliaria y su agente).
  */
 class LeadObserver
 {
@@ -24,9 +25,11 @@ class LeadObserver
             ->value('id');
     }
 
-    /** Aviso para el vendedor: "Nuevo contacto". */
+    /** Aviso para el vendedor: "Nuevo contacto". Para inmobiliaria y agente, ver AvisosGuardados. */
     public function created(Lead $lead): void
     {
+        AvisosGuardados::contactoNuevo($lead);
+
         try {
             $propiedad = Propiedad::find($lead->propiedad_id);
             if (! $propiedad || ! Notificacion::esVendedor((int) $propiedad->user_id)) {
@@ -46,6 +49,14 @@ class LeadObserver
             );
         } catch (\Throwable $e) {
             // Avisar nunca debe romper el guardado del contacto
+        }
+    }
+
+    /** Le asignaron el contacto a un agente. */
+    public function updated(Lead $lead): void
+    {
+        if ($lead->wasChanged('agente_id') && $lead->agente_id) {
+            AvisosGuardados::contactoAsignado($lead);
         }
     }
 }

@@ -6,6 +6,8 @@ use App\Models\Lead;
 use App\Models\Membresia;
 use App\Models\Propiedad;
 use App\Models\User;
+use App\Models\Comision;
+use App\Observers\ComisionObserver;
 use App\Observers\LeadObserver;
 use App\Observers\PropiedadObserver;
 use Illuminate\Support\Facades\View;
@@ -36,6 +38,9 @@ class AppServiceProvider extends ServiceProvider
         Lead::observe(LeadObserver::class);
 
         Visita::observe(VisitaObserver::class);
+
+        // Avisos de comisiones para la inmobiliaria y el agente
+        Comision::observe(ComisionObserver::class);
 
         // Fechas relativas ("hace 2 horas") en español
         \Illuminate\Support\Carbon::setLocale('es');

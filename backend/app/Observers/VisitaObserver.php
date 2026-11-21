@@ -5,10 +5,12 @@ namespace App\Observers;
 use App\Models\Notificacion;
 use App\Models\Propiedad;
 use App\Models\Visita;
+use App\Services\Paneles\AvisosGuardados;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * Cuando alguien pide una visita, le llega una notificación al vendedor dueño de la propiedad.
+ * Cuando alguien pide una visita, le llega una notificación al vendedor dueño de la propiedad
+ * (o a la inmobiliaria y su agente; ver AvisosGuardados).
  */
 class VisitaObserver
 {
@@ -16,6 +18,8 @@ class VisitaObserver
 
     public function created(Visita $visita): void
     {
+        AvisosGuardados::visitaNueva($visita);
+
         try {
             $propiedad = Propiedad::find($visita->propiedad_id);
             if (! $propiedad) {
@@ -42,6 +46,17 @@ class VisitaObserver
             );
         } catch (\Throwable $e) {
             // Avisar nunca debe romper el guardado de la visita
+        }
+    }
+
+    /** Visita confirmada o cancelada, o asignada a otro agente. */
+    public function updated(Visita $visita): void
+    {
+        if ($visita->wasChanged('estado')) {
+            AvisosGuardados::visitaEstado($visita);
+        }
+        if ($visita->wasChanged('agente_id') && $visita->agente_id) {
+            AvisosGuardados::visitaAsignada($visita);
         }
     }
 }

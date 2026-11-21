@@ -37,6 +37,6 @@
         (!S.q || cumpleBusqueda(p)));
       if (S.sort === 'low') r.sort((a, b) => a.price - b.price);
       else if (S.sort === 'high') r.sort((a, b) => b.price - a.price);
-      else r = premRotar(r.sort((a, b) => (tierN(b) - tierN(a)) || ((b.score || 0) - (a.score || 0)) || (b.ver - a.ver))); // RF-053 + rotación semanal dentro de cada nivel
+      else r = premRotar(r.sort((a, b) => (tierN(b) - tierN(a)) || ((b.pos ? 1 : 0) - (a.pos ? 1 : 0)) || (new Date(b.created || 0) - new Date(a.created || 0)))); // RF-053 + rotación semanal dentro de cada nivel
       return r;
     }

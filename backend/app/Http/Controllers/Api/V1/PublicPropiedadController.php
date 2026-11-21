@@ -13,6 +13,8 @@ class PublicPropiedadController extends Controller
     {
         // Fecha de hoy en Colombia (no viene del usuario, es segura para el SQL)
         $hoy = \Illuminate\Support\Carbon::now('America/Bogota')->toDateString();
+        // Hora del servidor (UTC), igual que se guardan publicada_hasta y posicionada_hasta
+        $ahora = \Illuminate\Support\Carbon::now()->toDateTimeString();
 
         // PostgreSQL (el portal) y SQLite (pruebas automáticas) nombran distinto algunas funciones
         $sqlite = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite';
@@ -42,7 +44,10 @@ class PublicPropiedadController extends Controller
             + {$menor}(15, 3 * (SELECT COUNT(*) FROM leads l WHERE l.propiedad_id = propiedades.id))
         ) AS INTEGER)";
 
-        return "{$nivel} AS nivel, ({$nivel}) > 0 AS prem, {$score} AS score";
+        // Normal con posicionamiento pagado vigente
+        $pos = "(propiedades.posicionada_hasta IS NOT NULL AND propiedades.posicionada_hasta > '{$ahora}')";
+
+        return "{$nivel} AS nivel, ({$nivel}) > 0 AS prem, {$score} AS score, {$pos} AS pos";
     }
 
     /** Vendedor con su promedio de estrellas y total de reseñas (una sola consulta para todas las propiedades). */
@@ -65,6 +70,13 @@ class PublicPropiedadController extends Controller
         return $q->whereHas('vendedor', fn ($u) => $u->where('estado', 'activo'));
     }
 
+    /** Una normal por tiempo con la publicación vencida no se muestra (aunque el comando de cada hora aún no haya corrido). */
+    private static function vigente(): \Closure
+    {
+        return fn ($q) => $q->whereNull('propiedades.publicada_hasta')
+            ->orWhere('propiedades.publicada_hasta', '>', \Illuminate\Support\Carbon::now()->toDateTimeString());
+    }
+
     public function index(Request $r)
     {
         $operacion = in_array($r->query('operacion'), ['venta', 'arriendo'], true) ? $r->query('operacion') : null;
@@ -73,21 +85,30 @@ class PublicPropiedadController extends Controller
         $barrio = self::texto($r->query('barrio'));
         $precioMax = filter_var($r->query('precio_max'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 999999999999]]);
         $porPagina = max(1, min((int) $r->query('per_page', 100), 100));
+        // Filtros por medidas (mínimos) y estrato exacto
+        $areaMin = filter_var($r->query('area_min'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 1000000]]);
+        $banosMin = filter_var($r->query('banos_min'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 20]]);
+        $estrato = filter_var($r->query('estrato'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 6]]);
 
         $q = self::conCuentaActiva(Propiedad::query())
             ->select('propiedades.*')
             ->selectRaw(self::premiumSql())
             ->with(['vendedor' => self::vendedorConResenas(), 'fotos'])
             ->where('estado', 'publicada')
+            ->where(self::vigente())
             ->when($operacion,  fn ($q, $v) => $q->where('operacion', $v))
             ->when($tipo,       fn ($q, $v) => $q->where('tipo', $v))
             ->when($ciudad,     fn ($q, $v) => $q->where('ciudad', $v))
             ->when($barrio,     fn ($q, $v) => $q->where('barrio', $v))
             ->when($precioMax !== false && $precioMax !== null, fn ($q) => $q->where('precio', '<=', $precioMax))
+            ->when($areaMin !== false && $areaMin !== null, fn ($q) => $q->where('area', '>=', $areaMin))
+            ->when($banosMin !== false && $banosMin !== null, fn ($q) => $q->where('banos', '>=', $banosMin))
+            ->when($estrato !== false && $estrato !== null, fn ($q) => $q->where('estrato', $estrato))
+            // Oro, Plata y Bronce → normales posicionadas → normales por fecha (la más nueva primero)
             ->orderByDesc('nivel')
-            ->orderByDesc('score')
-            ->orderByDesc('verificada')
-            ->latest('propiedades.id');
+            ->orderByDesc('pos')
+            ->orderByDesc('propiedades.created_at')
+            ->orderByDesc('propiedades.id');
 
         return PropiedadPublicaResource::collection($q->paginate($porPagina));
     }
@@ -99,6 +120,7 @@ class PublicPropiedadController extends Controller
             ->selectRaw(self::premiumSql())
             ->with(['vendedor' => self::vendedorConResenas(), 'fotos'])
             ->where('estado', 'publicada')
+            ->where(self::vigente())
             ->findOrFail($id);
 
         return new PropiedadPublicaResource($p);

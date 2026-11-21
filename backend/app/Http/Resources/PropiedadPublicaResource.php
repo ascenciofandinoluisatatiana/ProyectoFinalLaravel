@@ -34,6 +34,7 @@ class PropiedadPublicaResource extends JsonResource
             'created' => $this->created_at?->toIso8601String(),
             'ver'     => (bool) $this->verificada,
             'prem'    => (bool) ($this->prem ?? false),
+            'pos'     => (bool) ($this->pos ?? false),   // normal con posicionamiento vigente
             'tier'    => [1 => 'bronce', 2 => 'plata', 3 => 'oro'][(int) ($this->nivel ?? 0)] ?? null,
             'score'   => (int) ($this->score ?? 0),
             // Ruta relativa: así funciona por el frontend (:3000) sin depender de APP_URL

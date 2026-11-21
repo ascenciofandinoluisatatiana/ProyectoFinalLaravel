@@ -24,7 +24,8 @@
     var NIVELES = [
         { clave: 'oro',    nombre: 'Oro',    etiqueta: 'Oro',    sub: 'Máxima visibilidad en Umbral' },
         { clave: 'plata',  nombre: 'Plata',  etiqueta: 'Plata',  sub: 'Alta visibilidad en Umbral' },
-        { clave: 'bronce', nombre: 'Bronce', etiqueta: 'Bronce', sub: 'Publicaciones destacadas en Umbral' }
+        { clave: 'bronce', nombre: 'Bronce', etiqueta: 'Bronce', sub: 'Publicaciones destacadas en Umbral' },
+        { clave: 'posicion', nombre: 'Posicionadas', etiqueta: 'Posicionada', sub: 'Publicaciones posicionadas en Umbral' }
     ];
 
     var ICONO = {
@@ -78,6 +79,7 @@
     }
 
     function pertenece(p, nivel) {
+        if (nivel.clave === 'posicion') return p.pos === true && !p.tier;   // normales con posicionamiento
         if (String(p.tier || '').toLowerCase() !== nivel.clave) return false;
         return nivel.clave === 'bronce' || p.prem === true;   // Oro y Plata solo con membresía activa
     }
@@ -262,9 +264,9 @@
             var json = await respuesta.json();
             var lista = Array.isArray(json.data) ? json.data : [];
 
-            // El servidor entrega primero las de membresía (Oro, Plata, Bronce): se piden páginas mientras la última sea de membresía
+            // El servidor entrega primero las de membresía (Oro, Plata, Bronce) y luego las posicionadas: se piden páginas mientras la última sea de uno de esos grupos
             var paginas = (json.meta && json.meta.last_page) || 1;
-            for (var n = 2; n <= paginas && lista.length && lista[lista.length - 1].tier; n++) {
+            for (var n = 2; n <= paginas && lista.length && (lista[lista.length - 1].tier || lista[lista.length - 1].pos); n++) {
                 var r = await pedir(n);
                 if (!r.ok) break;
                 var j = await r.json();

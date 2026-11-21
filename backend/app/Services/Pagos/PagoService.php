@@ -378,7 +378,7 @@ class PagoService
         if (! $propiedad) {
             return;
         }
-        $ahora = Carbon::now(self::ZONA);
+        $ahora = Carbon::now();   // hora del servidor, igual que la base de datos y el comando de vencimiento
         $dias = (int) ($copia['dias'] ?? 7);
 
         if (($copia['tipo'] ?? 'normal') === 'normal') {

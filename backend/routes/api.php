@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\VerificacionController as AdminVerificacionController;
 use App\Http\Controllers\Api\V1\Admin\CuentaController;
 use App\Http\Controllers\Api\V1\Admin\MembresiaController as AdminMembresiaController;
+use App\Http\Controllers\Api\V1\Admin\PlanPublicacionController as AdminPlanPublicacionController;
 use App\Http\Controllers\Api\V1\Admin\MovimientoController as AdminMovimientoController;
 use App\Http\Controllers\Api\V1\Admin\ResumenController;
 use App\Http\Controllers\Api\V1\Admin\SesionController as AdminSesionController;
@@ -115,6 +116,8 @@ Route::prefix('v1/admin')->middleware(['web', 'admin.api'])->group(function () {
     Route::get('membresias/gratis', [AdminMembresiaController::class, 'gratis']);
     Route::put('membresias/gratis', [AdminMembresiaController::class, 'actualizarGratis']);
     Route::put('membresias/planes/{plan}', [AdminMembresiaController::class, 'actualizarPlan']);
+    Route::get('membresias/planes-publicacion', [AdminPlanPublicacionController::class, 'index']);
+    Route::put('membresias/planes-publicacion/{id}', [AdminPlanPublicacionController::class, 'actualizar'])->whereNumber('id');
     Route::post('membresias/{membresia}/cancelar', [AdminMembresiaController::class, 'cancelar'])->whereNumber('membresia');
     Route::get('membresias/paquetes', [AdminMembresiaController::class, 'paquetes']);
     Route::post('membresias/paquetes', [AdminMembresiaController::class, 'crearPaquete']);

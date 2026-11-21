@@ -526,21 +526,73 @@
     /* ================= Pestañas ================= */
     var conteosSubs = null;   // { seguridad: {seguridad, accesos}, inmobiliaria: {seguridad, accesos, acciones}, ... }
 
+    var totalesTab = {};      // total de movimientos de cada pestaña (lo que dice el servidor)
+
+    // "Visto": cuántos movimientos había la última vez que se entró (se guarda en este navegador)
+    function vistoLeer(clave) {
+        try { var v = localStorage.getItem('umbral_mov_visto_' + clave); return v === null ? 0 : (parseInt(v, 10) || 0); } catch (e) { return 0; }
+    }
+    function vistoGuardar(clave, n) {
+        try { localStorage.setItem('umbral_mov_visto_' + clave, String(n)); } catch (e) {}
+    }
+    // Muestra solo los movimientos nuevos; si no hay ninguno, oculta el número
+    function mostrarNumero(el, total, clave) {
+        if (!el) return;
+        var nuevos = (total === undefined) ? null : Math.max(0, total - vistoLeer(clave));
+        el.textContent = (nuevos === null ? '–' : nuevos);
+        el.style.display = (nuevos === 0) ? 'none' : '';
+    }
+
+    // Número de la pestaña = lo que falta por ver en sus submenús
+    // (si la pestaña no tiene submenús con número, como Invitados, cuenta el total de la pestaña)
+    function pintarTabConteo(tab) {
+        var el = document.querySelector('[data-cuenta="' + tab + '"]');
+        if (!el) return;
+        var subs = conteosSubs && conteosSubs[tab];
+        if (!subs) {
+            mostrarNumero(el, totalesTab[tab], 'tab_' + tab);
+            return;
+        }
+        var falta = 0;
+        Object.keys(subs).forEach(function (sub) {
+            falta += Math.max(0, subs[sub] - vistoLeer('sub_' + tab + '_' + sub));
+        });
+        el.textContent = falta;
+        el.style.display = falta === 0 ? 'none' : '';
+    }
+
+    // Solo las pestañas sin submenús con número se dan por vistas al entrar
+    function marcarTabVista(tab) {
+        if ((conteosSubs && conteosSubs[tab]) || totalesTab[tab] === undefined) return;
+        vistoGuardar('tab_' + tab, totalesTab[tab]);
+        pintarTabConteo(tab);
+    }
+    // Al entrar a un submenú, solo sus movimientos cuentan como vistos
+    function marcarSubVista(tab, sub) {
+        if (!conteosSubs || !conteosSubs[tab] || conteosSubs[tab][sub] === undefined) return;
+        vistoGuardar('sub_' + tab + '_' + sub, conteosSubs[tab][sub]);
+        pintarSubConteos();
+        pintarTabConteo(tab);
+    }
+
     function pintarConteos(c) {
         Object.keys(c).forEach(function (k) {
             if (k === 'subs') { conteosSubs = c[k]; return; }
-            var e = document.querySelector('[data-cuenta="' + k + '"]');
-            if (e) e.textContent = c[k];
+            totalesTab[k] = c[k];
         });
+        Object.keys(totalesTab).forEach(pintarTabConteo);
+        // La pestaña y el submenú en que se está ya se están viendo
+        marcarTabVista(tabActual);
         pintarSubConteos();
+        marcarSubVista(tabActual, subActual);
     }
 
     // Número al lado de cada submenú (cambios de contraseña, inicios de sesión, acciones)
     function pintarSubConteos() {
         if (!conteosSubs || !conteosSubs[tabActual]) return;
         document.querySelectorAll('#subpestanas [data-subcuenta]').forEach(function (e) {
-            var n = conteosSubs[tabActual][e.getAttribute('data-subcuenta')];
-            e.textContent = (n === undefined ? '–' : n);
+            var sub = e.getAttribute('data-subcuenta');
+            mostrarNumero(e, conteosSubs[tabActual][sub], 'sub_' + tabActual + '_' + sub);
         });
     }
 
@@ -567,12 +619,14 @@
         document.getElementById('subpestanas').innerHTML = claves.map(function (k) {
             return '<button type="button" role="tab" data-sub="' + k + '" class="mov-pestana"><i class="fa-solid ' + SUBS[k].icono + '"></i>' + P.esc(SUBS[k].texto) + '<span class="cuenta" data-subcuenta="' + k + '">–</span></button>';
         }).join('');
+        marcarTabVista(tab);
         pintarSubConteos();
         elegirSub(claves[0]);
     }
 
     function elegirSub(sub) {
         subActual = sub;
+        marcarSubVista(tabActual, sub);
         document.querySelectorAll('#subpestanas [data-sub]').forEach(function (b) {
             b.classList.toggle('activa', b.getAttribute('data-sub') === sub);
         });

@@ -475,6 +475,66 @@
         });
     })();
 
+    /* ----- Planes de publicación (normal por tiempo y posicionamiento) ----- */
+    (function () {
+        var cont = document.getElementById('planes-pub');
+        if (!cont) return;
+        var TIPOS = {
+            normal: { titulo: 'Publicación normal por tiempo', icono: 'fa-clock', nota: 'Pasado el plazo, la propiedad vuelve a borrador.' },
+            posicionamiento: { titulo: 'Posicionamiento de normales', icono: 'fa-arrow-up-wide-short', nota: 'La propiedad normal sale antes en el portal durante el plazo.' }
+        };
+        var NOMBRE_DIAS = { 7: 'Semanal', 15: 'Quincenal', 30: 'Mensual' };
+
+        function pintar(planes) {
+            cont.innerHTML = Object.keys(TIPOS).map(function (tipo) {
+                var filas = planes.filter(function (p) { return p.tipo === tipo; }).map(function (p) {
+                    return '<div class="flex flex-wrap items-center gap-3 rounded-xl border border-slate-800 bg-slate-950/40 px-3 py-2.5" data-plan="' + p.id + '">' +
+                        '<i class="fa-solid fa-calendar-day text-violet-400"></i>' +
+                        '<div class="min-w-[7.5rem] flex-1"><p class="text-sm font-semibold text-white">' + (NOMBRE_DIAS[p.dias] || '') + '</p>' +
+                        '<p class="text-xs text-slate-500">' + p.dias + ' días</p></div>' +
+                        '<input type="number" min="1000" step="100" value="' + p.precio + '" data-precio aria-label="Precio en pesos" ' +
+                        'class="w-32 rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2 text-sm text-slate-200 outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20">' +
+                        '<label class="flex items-center gap-2 text-xs text-slate-400"><input type="checkbox" data-activo ' + (p.activo ? 'checked' : '') + ' class="h-4 w-4 accent-violet-600">Activo</label>' +
+                        '<button type="button" data-guardar-plan class="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-3 py-2 text-xs font-semibold text-white transition-all hover:from-violet-500 hover:to-indigo-500 active:scale-[0.98]"><i class="fa-solid fa-floppy-disk mr-1"></i>Guardar</button>' +
+                        '</div>';
+                }).join('');
+                return '<div><div class="mb-2 flex items-center gap-2"><i class="fa-solid ' + TIPOS[tipo].icono + ' text-amber-300"></i>' +
+                    '<h4 class="text-sm font-bold text-white">' + TIPOS[tipo].titulo + '</h4></div>' +
+                    '<p class="mb-3 text-xs text-slate-500">' + TIPOS[tipo].nota + '</p>' +
+                    '<div class="space-y-2">' + filas + '</div></div>';
+            }).join('');
+        }
+
+        async function cargarPlanes() {
+            try {
+                var d = await P.api('/membresias/planes-publicacion');
+                pintar(d.planes);
+            } catch (e) {
+                if (e.estado !== 401) mostrarAviso(e.message || 'No se pudieron cargar los planes de publicación.', false);
+            }
+        }
+
+        cont.addEventListener('click', async function (ev) {
+            var b = ev.target.closest('[data-guardar-plan]');
+            if (!b) return;
+            var fila = b.closest('[data-plan]');
+            b.disabled = true;
+            try {
+                var r = await P.api('/membresias/planes-publicacion/' + fila.getAttribute('data-plan'), {
+                    metodo: 'PUT',
+                    cuerpo: { precio: fila.querySelector('[data-precio]').value, activo: fila.querySelector('[data-activo]').checked }
+                });
+                pintar(r.planes);
+                mostrarAviso(r.mensaje, true);
+            } catch (e) {
+                if (e.estado !== 401) mostrarAviso((e.datos && e.datos.errors && e.datos.errors.precio ? e.datos.errors.precio[0] : e.message) || 'No se pudo guardar.', false);
+                b.disabled = false;
+            }
+        });
+
+        cargarPlanes();
+    })();
+
     /* ----- Pestañas ----- */
     document.querySelector('.tb-barra').addEventListener('click', function (e) {
         var b = e.target.closest('[data-tab]');

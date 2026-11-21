@@ -127,6 +127,7 @@
                     <div class="tb-barra" role="tablist">
                         <button type="button" class="tb-tab activo" role="tab" data-tab="inmo"><i class="fa-solid fa-building"></i><span>Paquetes de inmobiliaria</span></button>
                         <button type="button" class="tb-tab" role="tab" data-tab="vend"><i class="fa-solid fa-user-tag"></i><span>Paquetes de vendedor</span></button>
+                        <button type="button" class="tb-tab" role="tab" data-tab="planes"><i class="fa-solid fa-calendar-days"></i><span>Planes de publicación</span></button>
                         <button type="button" class="tb-tab" role="tab" data-tab="gratis"><i class="fa-solid fa-gift"></i><span>Propiedades gratuitas</span></button>
                         <button type="button" class="tb-tab" role="tab" data-tab="pagos"><i class="fa-solid fa-credit-card"></i><span>Pagos y filtros</span></button>
                     </div>
@@ -220,6 +221,18 @@
                             <p id="compras-info-vend" class="text-xs text-slate-500"></p>
                             <div id="compras-botones-vend" class="flex items-center gap-1"></div>
                         </div>
+                    </div>
+                    </div>
+
+                    <div id="tab-planes" class="tb-panel">
+                    <!-- Planes de publicación: normal por tiempo y posicionamiento de normales -->
+                    <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 shadow-xl shadow-black/20">
+                        <h3 class="font-bold text-white">Planes de publicación</h3>
+                        <p class="mt-1 max-w-2xl text-xs text-slate-500">
+                            Son 3 plazos fijos: semanal (7 días), quincenal (15 días) y mensual (30 días). Aquí solo cambias el precio y si el plan está activo.
+                            Un plan inactivo no se muestra para comprar.
+                        </p>
+                        <div id="planes-pub" class="mt-4 grid gap-4 lg:grid-cols-2"></div>
                     </div>
                     </div>
 

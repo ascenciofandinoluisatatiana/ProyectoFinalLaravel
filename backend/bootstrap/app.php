@@ -24,7 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Detrás de Caddy y Nginx: confiar en la dirección real de cada visitante
         // (así los límites de intentos cuentan por persona y no para todo el sitio)
-        $middleware->trustProxies(at: '*');
+        $middleware->trustProxies(at: ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16']);
 
         // Correos en minúsculas en todas las peticiones
         $middleware->append(\App\Http\Middleware\NormalizarCorreo::class);

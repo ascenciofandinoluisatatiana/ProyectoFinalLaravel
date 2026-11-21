@@ -39,8 +39,10 @@ services:
       retries: 10
 
   umbral_backend:
+    # PHP-FPM + opcache (S10). nginx (umbral_frontend) le habla por el puerto 9000 de la red interna.
     build:
       context: ./docker/backend
+      dockerfile: Dockerfile.prod
     container_name: umbral_backend
     restart: unless-stopped
     depends_on:
@@ -58,7 +60,6 @@ services:
       REDIS_HOST: umbral_redis
       REDIS_PORT: 6379
       FRONTEND_URL: https://umbral.proyectoscampus.top
-      PHP_CLI_SERVER_WORKERS: 4
       RUN_MIGRATIONS: ${RUN_MIGRATIONS:-true}
     volumes:
       - ./backend:/var/www/html

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Historial · Umbral</title>
+    <link rel="icon" type="image/png" href="/img/icono.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
+    <link rel="stylesheet" href="/vendedor/css/vendedor.css">
+    <link rel="stylesheet" href="/inmobiliaria/css/inmobiliaria.css">
+    <link rel="stylesheet" href="/css/panel-violeta.css">
+    <link rel="stylesheet" href="/vendedor/css/vendedor-contactos.css">
+    <link rel="stylesheet" href="/vendedor/css/vendedor-historial.css">
+    <link rel="stylesheet" href="/vendedor/css/vendedor-responsivo.css">
+    <link rel="stylesheet" href="/vendedor/css/vendedor-tarjetas.css">
+
+    <script>
+        try {
+            var tema = localStorage.getItem('umbral-tema');
+            if (tema === 'dark' || tema === 'light') document.documentElement.setAttribute('data-theme', tema);
+        } catch (e) {}
+    </script>
+</head>
+<body class="vendedor panel-violeta op-venta" data-pagina="vendedor-historial">
+    <div class="v-pagina">
+        <header class="v-topbar" id="v-topbar"></header>
+
+        <main class="v-contenido">
+            <section class="v-tarjeta v-hero">
+                <div>
+                    <p class="v-etiqueta"><i class="fa-solid fa-clock-rotate-left"></i> Historial</p>
+                    <h1 class="titulo-serif">Tu historial</h1>
+                    <p>Todas tus notificaciones guardadas: contactos, visitas y membresías, leídas y sin leer. Filtra por tipo, fecha o texto.</p>
+                </div>
+                <div class="v-chips" style="margin-top:0">
+                    <button type="button" class="v-btn v-btn-suave" id="h-leer" hidden><i class="fa-solid fa-check-double"></i> Marcar todo como leído</button>
+                    <a class="v-btn v-btn-suave" href="/vendedor/perfil.html"><i class="fa-solid fa-arrow-left"></i> Mi perfil</a>
+                </div>
+            </section>
+
+            <section class="v-kpis" id="h-kpis" aria-label="Resumen del historial"></section>
+
+            <section class="v-tarjeta c-panel" aria-labelledby="h-titulo">
+                <div class="v-tarjeta-cabeza">
+                    <h2 id="h-titulo">Notificaciones</h2>
+                    <small id="h-resumen" aria-live="polite"></small>
+                </div>
+
+                <div class="i-pestanas c-pestanas" id="h-pestanas" role="group" aria-label="Filtrar por estado"></div>
+
+                <div class="c-filtros h-filtros" id="h-filtros">
+                    <label class="c-buscar">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        <input type="search" id="h-buscar" placeholder="Buscar en el historial" autocomplete="off" aria-label="Buscar en el historial">
+                    </label>
+                    <select id="h-tipo" aria-label="Tipo">
+                        <option value="todos">Todos los tipos</option>
+                        <option value="contacto">Contactos</option>
+                        <option value="visita">Visitas</option>
+                        <option value="vencimiento">Membresías</option>
+                    </select>
+                    <label class="h-fecha"><span>Desde</span><input type="date" id="h-desde" aria-label="Desde"></label>
+                    <label class="h-fecha"><span>Hasta</span><input type="date" id="h-hasta" aria-label="Hasta"></label>
+                    <button type="button" class="v-btn v-btn-suave v-btn-mini c-limpiar" id="h-limpiar" hidden><i class="fa-solid fa-filter-circle-xmark"></i> Limpiar filtros</button>
+                </div>
+
+                <div class="i-estado-carga" id="h-carga"><i class="fa-solid fa-spinner fa-spin"></i>Cargando tu historial…</div>
+                <div class="h-lista" id="h-lista" hidden></div>
+                <div class="c-mas" id="h-mas" hidden>
+                    <button type="button" class="v-btn v-btn-suave" id="h-mas-btn"></button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/vendedor/js/vendedor.js"></script>
+    <script src="/vendedor/js/historial.js"></script>
+</body>
+</html>

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Membresia;
 use App\Models\Propiedad;
+use App\Services\Paneles\AvisosGuardados;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -55,12 +56,19 @@ class VencerPlanesPublicacion extends Command
             $this->line('#' . $propiedad->id . ': vuelve a borrador (venció ' . $propiedad->publicada_hasta . ').');
             $aBorrador++;
             if (! $soloVer) {
-                $propiedad->update([
-                    'estado' => 'borrador',
-                    'en_espera_pago' => true,
-                    'publicada_hasta' => null,
-                    'posicionada_hasta' => null,
-                ]);
+                // El aviso "La publicación venció" ya lo dice todo: no se manda además "pasó a borrador"
+                AvisosGuardados::$silenciarEstado = true;
+                try {
+                    $propiedad->update([
+                        'estado' => 'borrador',
+                        'en_espera_pago' => true,
+                        'publicada_hasta' => null,
+                        'posicionada_hasta' => null,
+                    ]);
+                } finally {
+                    AvisosGuardados::$silenciarEstado = false;
+                }
+                AvisosGuardados::planVencido($propiedad, 'normal');
             }
         }
 
@@ -74,6 +82,7 @@ class VencerPlanesPublicacion extends Command
             $sinPosicion++;
             if (! $soloVer) {
                 $propiedad->update(['posicionada_hasta' => null]);
+                AvisosGuardados::planVencido($propiedad, 'posicionamiento');
             }
         }
 

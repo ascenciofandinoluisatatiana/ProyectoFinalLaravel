@@ -5,6 +5,7 @@ namespace App\Services\Paneles;
 use App\Models\Comision;
 use App\Models\Lead;
 use App\Models\Notificacion;
+use App\Models\Pago;
 use App\Models\Propiedad;
 use App\Models\User;
 use App\Models\Visita;
@@ -23,6 +24,9 @@ use Illuminate\Support\Facades\Auth;
 class AvisosGuardados
 {
     private const ZONA = 'America/Bogota';
+
+    /** El comando que vence planes lo activa para que el agente no reciba además "pasó a borrador". */
+    public static bool $silenciarEstado = false;
 
     private const FRASES_ESTADO = [
         'publicada' => 'fue publicada',
@@ -130,7 +134,7 @@ class AvisosGuardados
     {
         self::seguro(function () use ($propiedad) {
             $frase = self::FRASES_ESTADO[$propiedad->estado] ?? null;
-            if (! $frase || ! self::paraRol($propiedad->agente_id, 'agente') || self::esQuienActua($propiedad->agente_id)) {
+            if (self::$silenciarEstado || ! $frase || ! self::paraRol($propiedad->agente_id, 'agente') || self::esQuienActua($propiedad->agente_id)) {
                 return;
             }
             Notificacion::crear((int) $propiedad->agente_id, 'propiedad-' . $propiedad->id . '-' . $propiedad->estado . '-' . now()->timestamp,
@@ -185,7 +189,123 @@ class AvisosGuardados
         });
     }
 
+    /* ===================== Pagos y planes de publicación ===================== */
+
+    /** Resultado de un pago de membresía o plan (inmobiliaria; el vendedor ya tiene los suyos). */
+    public static function pagoResultado(Pago $pago): void
+    {
+        self::seguro(function () use ($pago) {
+            if ($pago->concepto !== 'membresia' || ! self::paraRol($pago->user_id, 'inmobiliaria')) {
+                return;
+            }
+            $aprobado = $pago->estado === 'aprobado';
+            if (! $aprobado && ! in_array($pago->estado, ['rechazado', 'error', 'anulado'], true)) {
+                return;
+            }
+            Notificacion::crear((int) $pago->user_id, 'pago-' . $pago->id . '-' . $pago->estado, 'pago',
+                $aprobado ? 'Pago aprobado' : 'Pago ' . ($pago->estado === 'rechazado' ? 'rechazado' : 'no completado'),
+                '$' . number_format($pago->monto, 0, ',', '.') . ' · ' . $pago->referencia,
+                '/inmobiliaria/membresia.html', $aprobado ? 'fa-circle-check' : 'fa-circle-xmark', $aprobado ? 'ok' : 'peligro');
+        });
+    }
+
+    /** Se pagó una publicación normal por tiempo o un posicionamiento. */
+    public static function planActivado(Propiedad $propiedad, string $tipo, $hasta): void
+    {
+        self::seguro(function () use ($propiedad, $tipo, $hasta) {
+            $rol = self::rolDuenio($propiedad);
+            if (! $rol) {
+                return;
+            }
+            $fin = \Illuminate\Support\Carbon::parse($hasta)->setTimezone(self::ZONA)->format('d/m/Y');
+            Notificacion::crear((int) $propiedad->user_id, 'plan-' . $tipo . '-' . $propiedad->id . '-' . now()->timestamp, 'plan',
+                $tipo === 'normal' ? 'Publicación activa' : 'Posicionamiento activo',
+                Notificacion::tituloPropiedad($propiedad) . ' · hasta el ' . $fin,
+                self::urlDuenio($rol, $propiedad), $tipo === 'normal' ? 'fa-bullhorn' : 'fa-arrow-up', 'ok');
+        });
+    }
+
+    /**
+     * "Le quedan N días": avisa al dueño y al agente a cargo. Devuelve true si el aviso es nuevo
+     * (o, en modo solo ver, si se avisaría). Usa tipo "vencimiento" para que salga en la campana.
+     */
+    public static function planPorVencer(Propiedad $propiedad, string $tipo, string $finLocal, int $dias, bool $soloVer = false): bool
+    {
+        $nuevo = false;
+        self::seguro(function () use ($propiedad, $tipo, $finLocal, $dias, $soloVer, &$nuevo) {
+            $cuando = $dias === 0 ? 'vence hoy' : ($dias === 1 ? 'vence mañana' : "vence en {$dias} días");
+            $titulo = ($tipo === 'normal' ? 'Publicación por vencer' : 'Posicionamiento por vencer') . ': ' . $cuando;
+            $detalle = Notificacion::tituloPropiedad($propiedad) . ' · vence el ' . \Illuminate\Support\Carbon::parse($finLocal)->format('d/m/Y');
+            $icono = $tipo === 'normal' ? 'fa-hourglass-half' : 'fa-arrow-up';
+            $clave = 'plan-' . $tipo . '-' . $propiedad->id . '-' . $finLocal . '-d' . $dias;
+
+            $rol = self::rolDuenio($propiedad);
+            $filas = [];
+            if ($rol) {
+                $filas[] = Notificacion::fila((int) $propiedad->user_id, $clave, 'vencimiento', $titulo, $detalle,
+                    self::urlDuenio($rol, $propiedad), $icono, 'aviso');
+            }
+            if (self::paraRol($propiedad->agente_id, 'agente')) {
+                $filas[] = Notificacion::fila((int) $propiedad->agente_id, $clave, 'vencimiento', $titulo, $detalle,
+                    '/agente/propiedades.html', $icono, 'aviso');
+            }
+            if (! $filas) {
+                return;
+            }
+            if ($soloVer) {
+                $nuevo = true;
+
+                return;
+            }
+            $nuevo = \Illuminate\Support\Facades\DB::table('notificaciones')->insertOrIgnore($filas) > 0;
+        });
+
+        return $nuevo;
+    }
+
+    /** El plan ya venció (publicación normal o posicionamiento): avisa al dueño y al agente. */
+    public static function planVencido(Propiedad $propiedad, string $tipo): void
+    {
+        self::seguro(function () use ($propiedad, $tipo) {
+            $titulo = $tipo === 'normal' ? 'La publicación venció' : 'El posicionamiento terminó';
+            $detalle = Notificacion::tituloPropiedad($propiedad);
+            $clave = 'plan-fin-' . $tipo . '-' . $propiedad->id . '-' . now()->timestamp;
+            $icono = $tipo === 'normal' ? 'fa-hourglass-end' : 'fa-arrow-down';
+
+            $rol = self::rolDuenio($propiedad);
+            if ($rol) {
+                Notificacion::crear((int) $propiedad->user_id, $clave, 'plan', $titulo, $detalle,
+                    self::urlDuenio($rol, $propiedad), $icono, 'aviso');
+            }
+            if (self::paraRol($propiedad->agente_id, 'agente')) {
+                Notificacion::crear((int) $propiedad->agente_id, $clave, 'plan', $titulo, $detalle,
+                    '/agente/propiedades.html', $icono, 'aviso');
+            }
+        });
+    }
+
     /* ===================== Piezas internas ===================== */
+
+    /** "vendedor" o "inmobiliaria" si el dueño de la propiedad es uno de los dos. */
+    private static function rolDuenio(Propiedad $propiedad): ?string
+    {
+        foreach (['inmobiliaria', 'vendedor'] as $rol) {
+            if (self::paraRol($propiedad->user_id, $rol)) {
+                return $rol;
+            }
+        }
+
+        return null;
+    }
+
+    private static function urlDuenio(string $rol, Propiedad $propiedad): string
+    {
+        if ($rol === 'inmobiliaria') {
+            return '/inmobiliaria/propiedades.html';
+        }
+
+        return $propiedad->operacion === 'venta' ? '/vendedor/vender.html' : '/vendedor/arrendar.html';
+    }
 
     private static function fecha(Visita $visita): string
     {

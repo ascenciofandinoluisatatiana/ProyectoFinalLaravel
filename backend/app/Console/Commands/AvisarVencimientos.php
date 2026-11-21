@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use App\Models\Membresia;
 use App\Models\Notificacion;
 use App\Models\PaqueteMembresia;
+use App\Models\Propiedad;
+use App\Services\Paneles\AvisosGuardados;
 use App\Models\User;
 use App\Services\CorreoCuentaService;
 use Illuminate\Console\Command;
@@ -126,6 +128,9 @@ class AvisarVencimientos extends Command
             }
         }
 
+        /* ---------- Planes de publicación (normal por tiempo y posicionamiento): solo campana, sin correo ---------- */
+        $total += $this->avisarPlanesPublicacion($hoy, $hoyTxt, $soloVer);
+
         /* ---------- Un correo por persona (las cuentas demo no reciben correo) ---------- */
         $correos = 0;
         foreach ($paraCorreo as $grupo) {
@@ -147,6 +152,43 @@ class AvisarVencimientos extends Command
             : "Listo: {$total} aviso(s) nuevo(s) en la campana y {$correos} correo(s) enviado(s).");
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Publicaciones normales por tiempo y posicionamientos que vencen en 2 días o hoy.
+     * El aviso le llega al dueño (vendedor o inmobiliaria) y al agente a cargo.
+     * Una propiedad con membresía vigente no se avisa: esa membresía la mantiene publicada.
+     */
+    private function avisarPlanesPublicacion(Carbon $hoy, string $hoyTxt, bool $soloVer): int
+    {
+        $total = 0;
+        $limite = $hoy->copy()->addDays(3)->endOfDay()->setTimezone('UTC');
+
+        foreach (['normal' => 'publicada_hasta', 'posicionamiento' => 'posicionada_hasta'] as $tipo => $columna) {
+            $propiedades = Propiedad::whereNotNull($columna)->where($columna, '<=', $limite)
+                ->when($tipo === 'normal', fn ($q) => $q->where('estado', 'publicada'))
+                ->orderBy('id')->get();
+
+            foreach ($propiedades as $p) {
+                $fin = Carbon::parse($p->{$columna})->setTimezone(self::ZONA)->toDateString();
+                $dias = $this->diasFaltantes($hoyTxt, $fin);
+                if (! in_array($dias, [2, 0], true)) {
+                    continue;
+                }
+                if ($tipo === 'normal' && Membresia::where('propiedad_id', $p->id)->where('estado', 'activa')
+                    ->whereDate('fecha_fin', '>=', $hoyTxt)->exists()) {
+                    continue;
+                }
+                if (AvisosGuardados::planPorVencer($p, $tipo, $fin, $dias, $soloVer)) {
+                    $total++;
+                    if ($soloVer) {
+                        $this->line("  - #{$p->id} ({$tipo}): vence en {$dias} día(s), el {$fin}");
+                    }
+                }
+            }
+        }
+
+        return $total;
     }
 
     /** Solo cuentas activas con correo. */

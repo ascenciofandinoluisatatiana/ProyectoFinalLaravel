@@ -318,6 +318,7 @@ class PagoService
     public function actualizar(Pago $pago, string $estado, ?string $transaccionId, ?string $metodo, int $montoCentavos): Pago
     {
         $recienAprobado = false;
+        $estadoAntes = $pago->estado;
 
         $pago = DB::transaction(function () use ($pago, $estado, $transaccionId, $metodo, $montoCentavos, &$recienAprobado) {
             $pago = Pago::whereKey($pago->id)->lockForUpdate()->first();
@@ -357,6 +358,11 @@ class PagoService
                 'titulo' => 'Pago aprobado: ' . $pago->plan,
                 'valor' => $pago->monto,
             ]);
+        }
+
+        // Aviso guardado para la inmobiliaria (aprobado, rechazado, no completado); no repite si el estado no cambió
+        if ($recienAprobado || ($pago->estado !== $estadoAntes && in_array($pago->estado, ['rechazado', 'error', 'anulado'], true))) {
+            \App\Services\Paneles\AvisosGuardados::pagoResultado($pago);
         }
 
         return $pago;
@@ -409,6 +415,10 @@ class PagoService
             $propiedad->posicionada_hasta = $base->copy()->addDays($dias);
         }
         $propiedad->save();
+
+        // Aviso guardado: el plan quedó activo hasta tal fecha (se avisa fuera de la transacción de la propiedad)
+        $tipo = ($copia['tipo'] ?? 'normal') === 'normal' ? 'normal' : 'posicionamiento';
+        \App\Services\Paneles\AvisosGuardados::planActivado($propiedad, $tipo, $tipo === 'normal' ? $propiedad->publicada_hasta : $propiedad->posicionada_hasta);
     }
 
     /** Paquete comprado: usa la copia guardada al iniciar el pago; las publicaciones se eligen después en el panel. */

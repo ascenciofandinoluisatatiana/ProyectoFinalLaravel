@@ -27,14 +27,14 @@ class NotificacionController extends Controller
 
     /**
      * GET /api/v1/vendedor/notificaciones/historial
-     *   ?estado=todas|sin_leer|leidas &tipo=contacto|visita|membresia
+     *   ?estado=todas|sin_leer|leidas &tipo=contacto|visita|vencimiento
      *   &desde=2026-11-01 &hasta=2026-11-30 &q=texto &pagina=1 &por_pagina=15
      */
     public function historial(Request $request, NotificacionVendedorService $notificaciones): JsonResponse
     {
         $filtros = $request->validate([
             'estado' => ['nullable', Rule::in(['todas', 'sin_leer', 'leidas'])],
-            'tipo' => ['nullable', Rule::in(['contacto', 'visita', 'membresia'])],
+            'tipo' => ['nullable', Rule::in(['contacto', 'visita', 'vencimiento'])],
             'desde' => ['nullable', 'date_format:Y-m-d'],
             'hasta' => ['nullable', 'date_format:Y-m-d'],
             'q' => ['nullable', 'string', 'max:100'],

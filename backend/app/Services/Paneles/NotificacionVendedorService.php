@@ -58,9 +58,10 @@ class NotificacionVendedorService
     /**
      * Historial completo del vendedor (leídas y sin leer, sin límite de días), con filtros y paginación.
      *
-     * Filtros (todos opcionales): estado = todas|sin_leer|leidas, tipo = contacto|visita|membresia,
+     * Filtros (todos opcionales): estado = todas|sin_leer|leidas, tipo = contacto|visita|vencimiento,
      * desde / hasta = fecha Y-m-d (hora de Colombia), q = texto en título o detalle,
      * pagina y por_pagina.
+     * Filtros (todos opcionales): estado = todas|sin_leer|leidas, tipo = contacto|visita|vencimiento,
      */
     public function historial(User $vendedor, array $f): array
     {

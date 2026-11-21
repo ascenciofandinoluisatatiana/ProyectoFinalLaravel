@@ -1,0 +1,28 @@
+/* UMBRAL — Historial de notificaciones del vendedor. Va después de vendedor-contactos.css */
+
+.h-filtros { grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr)); }
+.h-fecha { display: grid; gap: 4px; min-width: 0; }
+.h-fecha span { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--op-texto); }
+.h-fecha input {
+    width: 100%; min-width: 0; padding: 10px 13px; border-radius: var(--radio-campo, 14px);
+    border: 1px solid var(--campo-borde); background: var(--campo); color: var(--texto);
+    font: inherit; font-size: 0.88rem; outline: none; transition: border-color 0.2s;
+}
+.h-fecha input:focus { border-color: var(--acento); }
+.h-filtros .c-buscar { align-self: end; }
+.h-filtros select { align-self: end; }
+
+.h-lista { padding: 2px 14px 14px; }
+.h-lista[hidden], #h-leer[hidden] { display: none; }
+.h-lista .i-aviso { padding: 13px 12px; }
+.h-lista .i-aviso.tono-ok .i-aviso-icono { color: var(--ok, #1f9d6b); }
+.h-lista .i-aviso.tono-peligro .i-aviso-icono { color: var(--peligro, #d64545); }
+.h-leida-en { opacity: 0.85; }
+
+@media (max-width: 760px) {
+    .h-filtros { grid-template-columns: repeat(2, minmax(0, 1fr)); padding-left: 14px; padding-right: 14px; }
+    .h-filtros .c-buscar { grid-column: 1 / -1; }
+}
+@media (max-width: 420px) {
+    .h-filtros { grid-template-columns: minmax(0, 1fr); }
+}

@@ -270,6 +270,8 @@ Route::prefix('v1/vendedor')->middleware('web')->group(function () {
         
         Route::get('notificaciones', [VendedorNotificacionController::class, 'index']);
         Route::post('notificaciones/leidas', [VendedorNotificacionController::class, 'leidas']);
+
+        Route::get('notificaciones/historial', [VendedorNotificacionController::class, 'historial']);
     });
 });
 /*

@@ -127,6 +127,7 @@
         arriendo: { es: 'Arrendar', en: 'Rent out', pt: 'Alugar', fr: 'Louer' },
         tipo: { es: 'Vendedor · Persona', en: 'Seller · Individual', pt: 'Vendedor · Pessoa', fr: 'Vendeur · Particulier' },
         contactos: { es: 'Contactos', en: 'Contacts', pt: 'Contatos', fr: 'Contacts' },
+        historial: { es: 'Historial', en: 'History', pt: 'Histórico', fr: 'Historique' },
         avisos: { es: 'Notificaciones y alertas', en: 'Notifications and alerts', pt: 'Notificações e alertas', fr: 'Notifications et alertes' },
         av_todo: { es: 'Todo', en: 'All', pt: 'Tudo', fr: 'Tout' },
         av_notif: { es: 'Notificaciones', en: 'Notifications', pt: 'Notificações', fr: 'Notifications' },
@@ -134,6 +135,7 @@
         av_leer: { es: 'Marcar todo como leído', en: 'Mark all as read', pt: 'Marcar tudo como lido', fr: 'Tout marquer comme lu' },
         av_vacio: { es: 'Estás al día: no hay avisos por ahora.', en: 'You are all caught up: nothing new.', pt: 'Você está em dia: nada novo.', fr: 'Vous êtes à jour : rien de nouveau.' },
         av_ver: { es: 'Ver todos los contactos', en: 'View all contacts', pt: 'Ver todos os contatos', fr: 'Voir tous les contacts' },
+        av_ver: { es: 'Ver todo el historial', en: 'View full history', pt: 'Ver todo o histórico', fr: 'Voir tout l’historique' },
         av_contacto: { es: '{n} se interesó en tu inmueble', en: '{n} is interested in your property', pt: '{n} se interessou pelo seu imóvel', fr: '{n} s’intéresse à votre bien' },
         av_visita_pend: { es: 'Visita por confirmar', en: 'Visit to confirm', pt: 'Visita por confirmar', fr: 'Visite à confirmer' },
         av_visita_pronto: { es: 'Visita en las próximas 24 horas', en: 'Visit within the next 24 hours', pt: 'Visita nas próximas 24 horas', fr: 'Visite dans les 24 prochaines heures' },
@@ -153,6 +155,7 @@
     var SECCIONES = [
         { id: 'perfil', grupo: 'g_principal', href: '/vendedor/perfil.html', icono: 'fa-user' },
         { id: 'contactos', grupo: 'g_principal', href: '/vendedor/contactos.html', icono: 'fa-comments' },
+        { id: 'historial', grupo: 'g_principal', href: '/vendedor/historial.html', icono: 'fa-clock-rotate-left' },
         { id: 'venta', grupo: 'g_operaciones', href: OPERACIONES.venta.pagina, icono: OPERACIONES.venta.icono },
         { id: 'arriendo', grupo: 'g_operaciones', href: OPERACIONES.arriendo.pagina, icono: OPERACIONES.arriendo.icono }
     ];
@@ -283,7 +286,7 @@
             '<button type="button" class="i-avisos-leer" id="i-avisos-leer"><i class="fa-solid fa-check-double"></i> ' + esc(tx('av_leer')) + '</button></div>' +
             '<div class="i-avisos-tabs" id="i-avisos-tabs"></div>' +
             '<div class="i-avisos-lista" id="i-avisos-lista"></div>' +
-            '<a class="i-avisos-pie" href="/vendedor/contactos.html">' + esc(tx('av_ver')) + ' <i class="fa-solid fa-arrow-right"></i></a>' +
+            '<a class="i-avisos-pie" href="/vendedor/historial.html">' + esc(tx('av_ver')) + ' <i class="fa-solid fa-arrow-right"></i></a>' +
             '</div></div>';
     }
 

@@ -387,6 +387,10 @@ class PropiedadController extends BaseInmobiliariaController
             'verificada' => (bool) $p->verificada,
             'estado' => $p->estado,
             'en_espera_pago' => (bool) $p->en_espera_pago,
+            // Planes nuevos: hasta cuándo está publicada (normal por tiempo) y hasta cuándo está posicionada
+            'publicada_hasta' => $p->publicada_hasta ? \Illuminate\Support\Carbon::parse($p->publicada_hasta)->toIso8601String() : null,
+            'posicionada_hasta' => $p->posicionada_hasta ? \Illuminate\Support\Carbon::parse($p->posicionada_hasta)->toIso8601String() : null,
+            'pos' => (bool) ($p->posicionada_hasta && \Illuminate\Support\Carbon::parse($p->posicionada_hasta)->isFuture()),
             'imagen' => $this->urlImagen($p->imagen),
             'descripcion' => $p->descripcion,
             'pisos' => $p->pisos,

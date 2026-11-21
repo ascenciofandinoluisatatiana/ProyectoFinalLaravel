@@ -170,11 +170,15 @@ class VentasNotificacionesTest extends TestCase
         $this->cierres();
         $casa = Propiedad::first();
         Lead::create(['propiedad_id' => $casa->id, 'nombre' => 'Ana', 'contacto' => '3', 'estado' => 'nuevo']);
-        Visita::create(['propiedad_id' => $casa->id, 'nombre' => 'Beto', 'contacto' => '3', 'fecha' => now()->addDays(3), 'estado' => 'confirmada']);
-        Pago::create([
+        $visita = Visita::create(['propiedad_id' => $casa->id, 'nombre' => 'Beto', 'contacto' => '3', 'fecha' => now()->addDays(3), 'estado' => 'pendiente']);
+        // Los avisos se guardan al ocurrir el cambio y no le llegan a quien lo hace: la confirma alguien sin sesión (p. ej. el vendedor o el sistema)
+        \Illuminate\Support\Facades\Auth::logout();
+        $visita->update(['estado' => 'confirmada']);
+        $pago = Pago::create([
             'referencia' => 'X-R', 'concepto' => 'membresia', 'user_id' => $this->inmo->id, 'plan' => 'semanal',
             'monto_centavos' => 1990000, 'moneda' => 'COP', 'estado' => 'rechazado', 'proveedor' => 'wompi',
         ]);
+        \App\Services\Paneles\AvisosGuardados::pagoResultado($pago);   // lo que hace PagoService al recibir el resultado
 
         $r = $this->actingAs($this->inmo)->getJson('/api/v1/inmobiliaria/notificaciones')->assertOk();
         $titulos = collect($r->json('data'))->pluck('titulo')->implode(' | ');
@@ -190,7 +194,7 @@ class VentasNotificacionesTest extends TestCase
     public function test_campana_del_agente_avisa_comisiones(): void
     {
         $this->cierres();
-        DB::table('comisiones')->where('estado', 'pendiente')->update(['estado' => 'pagada', 'pagada_en' => now()]);
+        Comision::where('estado', 'pendiente')->get()->each->update(['estado' => 'pagada', 'pagada_en' => now()]);   // con el modelo, para que se guarde el aviso
 
         $r = $this->actingAs($this->agente)->getJson('/api/v1/agente/notificaciones')->assertOk();
         $titulos = collect($r->json('data'))->pluck('titulo')->implode(' | ');

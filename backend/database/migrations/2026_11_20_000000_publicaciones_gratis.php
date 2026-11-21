@@ -22,7 +22,10 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->unsignedSmallInteger('publicaciones_gratis')->default(1);
         });
-        DB::statement('ALTER TABLE users ADD CONSTRAINT users_publicaciones_gratis_rango CHECK (publicaciones_gratis BETWEEN 0 AND 5)');
+        // La restricción solo existe en PostgreSQL (SQLite, que usan las pruebas automáticas, no permite ALTER ... ADD CONSTRAINT)
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE users ADD CONSTRAINT users_publicaciones_gratis_rango CHECK (publicaciones_gratis BETWEEN 0 AND 5)');
+        }
 
         Schema::table('propiedades', function (Blueprint $table) {
             $table->boolean('en_espera_pago')->default(false);
@@ -34,7 +37,9 @@ return new class extends Migration
         Schema::table('propiedades', function (Blueprint $table) {
             $table->dropColumn('en_espera_pago');
         });
-        DB::statement('ALTER TABLE users DROP CONSTRAINT IF EXISTS users_publicaciones_gratis_rango');
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE users DROP CONSTRAINT IF EXISTS users_publicaciones_gratis_rango');
+        }
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('publicaciones_gratis');
         });

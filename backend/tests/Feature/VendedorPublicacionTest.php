@@ -153,6 +153,7 @@ class VendedorPublicacionTest extends TestCase
 
     public function test_la_membresia_posiciona_solo_el_inmueble_pagado(): void
     {
+        $this->vendedor->forceFill(['publicaciones_gratis' => 5])->save();   // con 1 sola gratis, la segunda quedaría en espera de pago
         $this->actingAs($this->vendedor);
         $a = $this->postJson('/api/v1/vendedor/propiedades', $this->datosPropiedad(['barrio' => 'Belén']))->assertCreated()->json('data.id');
         $b = $this->postJson('/api/v1/vendedor/propiedades', $this->datosPropiedad(['barrio' => 'Cádiz']))->assertCreated()->json('data.id');

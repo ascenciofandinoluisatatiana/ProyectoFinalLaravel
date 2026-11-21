@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\VerificacionController as AdminVerificacionContro
 use App\Http\Controllers\Api\V1\Admin\CuentaController;
 use App\Http\Controllers\Api\V1\Admin\MembresiaController as AdminMembresiaController;
 use App\Http\Controllers\Api\V1\Admin\PlanPublicacionController as AdminPlanPublicacionController;
+use App\Http\Controllers\Api\V1\PlanesPublicacionController;
 use App\Http\Controllers\Api\V1\Admin\MovimientoController as AdminMovimientoController;
 use App\Http\Controllers\Api\V1\Admin\ResumenController;
 use App\Http\Controllers\Api\V1\Admin\SesionController as AdminSesionController;
@@ -220,6 +221,9 @@ Route::prefix('v1/inmobiliaria')->middleware('web')->group(function () {
         // Membresía (pago simulado hasta integrar PSE) y perfil de la empresa
         Route::get('membresia', [InmobiliariaMembresiaController::class, 'show']);
         Route::post('membresia', [InmobiliariaMembresiaController::class, 'contratar']);
+        Route::get('planes-publicacion', [PlanesPublicacionController::class, 'planes']);
+        Route::post('propiedades/{id}/publicar-normal', [PlanesPublicacionController::class, 'publicarNormal'])->whereNumber('id');
+        Route::post('propiedades/{id}/posicionar', [PlanesPublicacionController::class, 'posicionar'])->whereNumber('id');
 
         // Paquete mensual de 10 publicaciones destacadas (elegidas libremente)
         Route::post('membresia/paquete', [InmobiliariaMembresiaController::class, 'comprarPaquete']);
@@ -268,6 +272,9 @@ Route::prefix('v1/vendedor')->middleware('web')->group(function () {
 
         Route::get('membresia', [VendedorMembresiaController::class, 'show']);
         Route::post('membresia', [VendedorMembresiaController::class, 'contratar']);
+        Route::get('planes-publicacion', [PlanesPublicacionController::class, 'planes']);
+        Route::post('propiedades/{id}/publicar-normal', [PlanesPublicacionController::class, 'publicarNormal'])->whereNumber('id');
+        Route::post('propiedades/{id}/posicionar', [PlanesPublicacionController::class, 'posicionar'])->whereNumber('id');
         Route::post('membresia/paquete/publicaciones', [VendedorMembresiaController::class, 'agregar']);
         Route::delete('membresia/paquete/publicaciones/{propiedad}', [VendedorMembresiaController::class, 'quitar'])->whereNumber('propiedad');
         

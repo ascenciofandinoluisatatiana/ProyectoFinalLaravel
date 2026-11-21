@@ -8,6 +8,7 @@ use App\Models\OfertaPaquete;
 use App\Models\OfertaVendedor;
 use App\Models\PaqueteMembresia;
 use App\Models\PlanMembresia;
+use App\Models\PlanPublicacion;
 use App\Models\Propiedad;
 use App\Models\User;
 use Illuminate\Support\Carbon;
@@ -130,6 +131,34 @@ class PagoService
                 'descuento' => null,
             ], JSON_UNESCAPED_UNICODE),
             'monto_centavos' => (int) $oferta->precio * 100,
+            'moneda' => 'COP',
+            'proveedor' => $this->modo(),
+            'pagador_nombre' => $usuario->name,
+            'pagador_correo' => $usuario->email,
+        ]);
+
+        return $this->siguientePaso($pago);
+    }
+
+    /**
+     * Plan nuevo de publicación: normal por tiempo o posicionamiento de una normal (7/15/30 días).
+     * Se guarda una copia de lo cotizado; al aprobarse se activa en la propiedad.
+     */
+    public function iniciarPlanPublicacion(User $usuario, PlanPublicacion $plan, Propiedad $propiedad): array
+    {
+        $pago = Pago::create([
+            'referencia' => $this->nuevaReferencia($plan->tipo === 'normal' ? 'PUB' : 'POS'),
+            'concepto' => 'membresia',
+            'user_id' => $usuario->id,
+            'propiedad_id' => $propiedad->id,
+            'plan' => ($plan->tipo === 'normal' ? 'Normal ' : 'Posic. ') . $plan->dias . ' días',
+            'oferta_datos' => json_encode([
+                'rol' => 'plan_publicacion',
+                'tipo' => $plan->tipo,
+                'plan_publicacion_id' => $plan->id,
+                'dias' => $plan->dias,
+            ], JSON_UNESCAPED_UNICODE),
+            'monto_centavos' => (int) $plan->precio * 100,
             'moneda' => 'COP',
             'proveedor' => $this->modo(),
             'pagador_nombre' => $usuario->name,
@@ -321,6 +350,12 @@ class PagoService
 
     private function aplicar(Pago $pago): void
     {
+        $copia = $pago->oferta_datos ? (json_decode($pago->oferta_datos, true) ?: []) : [];
+        if (($copia['rol'] ?? null) === 'plan_publicacion') {
+            $this->activarPlanPublicacion($pago, $copia);
+
+            return;
+        }
         if ($pago->concepto === 'membresia' && $pago->plan === PaqueteMembresia::PLAN) {
             $this->activarPaquete($pago);
 
@@ -331,6 +366,33 @@ class PagoService
 
             return;
         }
+    }
+
+    /**
+     * Normal por tiempo: publica la propiedad hasta hoy + días. Posicionamiento: marca hasta cuándo sale primero.
+     * Si todavía le quedaban días, los nuevos se suman al final (no pierde los que ya pagó).
+     */
+    private function activarPlanPublicacion(Pago $pago, array $copia): void
+    {
+        $propiedad = Propiedad::where('user_id', $pago->user_id)->find($pago->propiedad_id);
+        if (! $propiedad) {
+            return;
+        }
+        $ahora = Carbon::now(self::ZONA);
+        $dias = (int) ($copia['dias'] ?? 7);
+
+        if (($copia['tipo'] ?? 'normal') === 'normal') {
+            $actual = $propiedad->publicada_hasta ? Carbon::parse($propiedad->publicada_hasta) : null;
+            $base = ($actual && $actual->isFuture() && $propiedad->estado === 'publicada') ? $actual : $ahora;
+            $propiedad->estado = 'publicada';
+            $propiedad->en_espera_pago = false;
+            $propiedad->publicada_hasta = $base->copy()->addDays($dias);
+        } else {
+            $actual = $propiedad->posicionada_hasta ? Carbon::parse($propiedad->posicionada_hasta) : null;
+            $base = ($actual && $actual->isFuture()) ? $actual : $ahora;
+            $propiedad->posicionada_hasta = $base->copy()->addDays($dias);
+        }
+        $propiedad->save();
     }
 
     /** Paquete comprado: usa la copia guardada al iniciar el pago; las publicaciones se eligen después en el panel. */

@@ -67,6 +67,12 @@ class PagoController extends Controller
     private function detalle(Pago $pago): string
     {
         $p = $pago->propiedad;
+        $datosPlan = $pago->oferta_datos ? (json_decode($pago->oferta_datos, true) ?: []) : [];
+        if (($datosPlan['rol'] ?? null) === 'plan_publicacion') {
+            return (($datosPlan['tipo'] ?? '') === 'normal' ? 'Publicación normal por ' : 'Posicionamiento por ')
+                . ($datosPlan['dias'] ?? '') . ' días'
+                . ($p ? ' · ' . ucfirst($p->tipo) . ' en ' . $p->barrio . ', ' . $p->ciudad : '');
+        }
         if ($pago->plan === \App\Models\PaqueteMembresia::PLAN) {
             $copia = $pago->oferta_datos ? (json_decode($pago->oferta_datos, true) ?: []) : [];
 

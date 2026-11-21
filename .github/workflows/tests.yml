@@ -1,0 +1,78 @@
+# S7 · Integración continua: en cada push (y en cada pull request) se corren las pruebas automáticas del backend.
+# Instala PHP 8.4, hace composer install, levanta PostgreSQL y ejecuta php artisan test.
+name: Pruebas
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+# si llegan dos pushes seguidos a la misma rama, solo se termina el último
+concurrency:
+  group: pruebas-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pruebas:
+    name: php artisan test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: umbral_pruebas
+          POSTGRES_USER: portal
+          POSTGRES_PASSWORD: portal_secret
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U portal -d umbral_pruebas"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    defaults:
+      run:
+        working-directory: backend
+
+    env:
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: umbral_pruebas
+      DB_USERNAME: portal
+      DB_PASSWORD: portal_secret
+
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Instalar PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, intl, bcmath, zip, fileinfo, pdo_pgsql, pgsql, pdo_sqlite, sqlite3
+          coverage: none
+          tools: composer:v2
+
+      - name: Guardar las dependencias de composer entre ejecuciones
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: composer-
+
+      - name: composer install
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Preparar .env y la clave de la aplicación
+        run: |
+          cp .env.example .env
+          php artisan key:generate --no-interaction
+
+      - name: php artisan test
+        run: php artisan test --no-interaction

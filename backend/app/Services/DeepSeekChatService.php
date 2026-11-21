@@ -135,6 +135,9 @@ class DeepSeekChatService
             'precio_min'       => $num($b['precio_min'] ?? null, 999999999999),
             'precio_max'       => $num($b['precio_max'] ?? null, 999999999999),
             'habitaciones_min' => $num($b['habitaciones_min'] ?? null, 10),
+            'banos_min'        => $num($b['banos_min'] ?? null, 10),
+            'area_min'         => $num($b['area_min'] ?? null, 100000),
+            'estrato'          => ($e = $num($b['estrato'] ?? null, 6)) !== null && $e >= 1 ? $e : null,
             'parqueadero'      => ($b['parqueadero'] ?? null) === true ? true : null,
             'orden'            => in_array($b['orden'] ?? null, ['menor_precio', 'mayor_precio'], true) ? $b['orden'] : null,
         ];
@@ -220,7 +223,7 @@ REGLAS
 - FORMATO OBLIGATORIO: responde SIEMPRE un único objeto JSON válido, sin texto fuera del JSON, con esta forma exacta:
   {"respuesta": "texto para el visitante", "buscar": null}
   "buscar" es null salvo que el visitante pida ver, buscar o que le recomienden propiedades; en ese caso es un objeto con SOLO los filtros que el visitante dijo (los demás van en null):
-  {"operacion": "venta"|"arriendo"|null, "tipo": "apartamento"|"casa"|"finca"|"local"|"lote"|"oficina"|null, "ciudad": texto|null, "barrio": texto|null, "precio_min": entero en pesos|null, "precio_max": entero en pesos|null, "habitaciones_min": entero|null, "parqueadero": true|null, "orden": "menor_precio"|"mayor_precio"|null}
+  {"operacion": "venta"|"arriendo"|null, "tipo": "apartamento"|"casa"|"finca"|"local"|"lote"|"oficina"|null, "ciudad": texto|null, "barrio": texto|null, "precio_min": entero en pesos|null, "precio_max": entero en pesos|null, "habitaciones_min": entero|null, "banos_min": entero|null, "area_min": metros cuadrados mínimos, entero|null, "estrato": entero de 1 a 6|null, "parqueadero": true|null, "orden": "menor_precio"|"mayor_precio"|null}
 - Cuando "buscar" no es null, el sistema mostrará debajo las tarjetas reales con foto. Tu "respuesta" debe ser UNA frase corta y neutra (por ejemplo "Estas son opciones que encajan con lo que pides:"). No describas, listes ni inventes propiedades, precios ni cantidades. Si falta un dato clave (por ejemplo no dijo si compra o arrienda), busca con lo que sabes y pregunta después si quiere afinar.
 - Montos: "500 millones" = 500000000; "2 millones de arriendo" = 2000000. Escribe la ciudad exactamente como aparece en CIUDADES DISPONIBLES cuando coincida (con tildes). Si el visitante ya hizo una búsqueda antes y dice "más baratas", "mejor en arriendo", "con 3 habitaciones", etc., repite sus filtros anteriores ajustando solo lo nuevo.
 - Si dice que no quiere ver propiedades o hace una pregunta general, "buscar" es null.

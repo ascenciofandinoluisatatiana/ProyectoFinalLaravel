@@ -121,6 +121,9 @@
       if (b.precio_min != null && p.price < b.precio_min) return false;
       if (b.precio_max != null && p.price > b.precio_max) return false;
       if (b.habitaciones_min != null && (p.beds || 0) < b.habitaciones_min) return false;
+      if (b.banos_min != null && (p.baths || 0) < b.banos_min) return false;
+      if (b.area_min != null && (p.area || 0) < b.area_min) return false;
+      if (b.estrato != null && (p.estrato || 0) !== b.estrato) return false;
       if (b.parqueadero && !(p.park > 0)) return false;
       return true;
     });

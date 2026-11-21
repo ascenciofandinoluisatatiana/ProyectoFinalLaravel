@@ -238,6 +238,7 @@ Route::prefix('v1/inmobiliaria')->middleware('web')->group(function () {
         Route::get('membresia/pagos', [InmobiliariaMembresiaController::class, 'pagos']);
         Route::get('notificaciones', [InmobiliariaNotificacionController::class, 'index']);
         Route::post('notificaciones/leidas', [InmobiliariaNotificacionController::class, 'leidas']);
+        Route::get('notificaciones/historial', [InmobiliariaNotificacionController::class, 'historial']);
         Route::patch('comisiones/{id}', [InmobiliariaComisionController::class, 'update'])->whereNumber('id');
         Route::get('perfil', [InmobiliariaPerfilController::class, 'show']);
         Route::post('perfil', [InmobiliariaPerfilController::class, 'update']);
@@ -304,6 +305,7 @@ Route::prefix('v1/agente')->middleware('web')->group(function () {
         Route::get('ventas', [AgenteVentaController::class, 'index']);
         Route::get('notificaciones', [AgenteNotificacionController::class, 'index']);
         Route::post('notificaciones/leidas', [AgenteNotificacionController::class, 'leidas']);
+        Route::get('notificaciones/historial', [AgenteNotificacionController::class, 'historial']);
 
         Route::get('contactos', [AgenteContactoController::class, 'index']);
         Route::patch('contactos/{id}', [AgenteContactoController::class, 'update'])->whereNumber('id');

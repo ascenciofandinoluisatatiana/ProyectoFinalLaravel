@@ -206,6 +206,7 @@ Route::prefix('v1/inmobiliaria')->middleware('web')->group(function () {
         Route::delete('propiedades/{id}', [InmobiliariaPropiedadController::class, 'destroy'])->whereNumber('id');
 
         // Agentes y equipo
+        Route::get('agentes/movimientos', [\App\Http\Controllers\Api\V1\Inmobiliaria\MovimientoController::class, 'agentes']);
         Route::get('agentes', [InmobiliariaAgenteController::class, 'index']);
         Route::post('agentes', [InmobiliariaAgenteController::class, 'store']);
         Route::put('agentes/{id}', [InmobiliariaAgenteController::class, 'update'])->whereNumber('id');
@@ -214,6 +215,7 @@ Route::prefix('v1/inmobiliaria')->middleware('web')->group(function () {
         // Contactos (leads) y visitas
         Route::get('contactos', [InmobiliariaContactoController::class, 'index']);
         Route::patch('contactos/{id}', [InmobiliariaContactoController::class, 'update'])->whereNumber('id');
+        Route::get('contactos/{id}/movimientos', [\App\Http\Controllers\Api\V1\Inmobiliaria\MovimientoController::class, 'contacto'])->whereNumber('id');
         Route::get('visitas', [InmobiliariaVisitaController::class, 'index']);
         Route::post('visitas', [InmobiliariaVisitaController::class, 'store']);
         Route::patch('visitas/{id}', [InmobiliariaVisitaController::class, 'update'])->whereNumber('id');
@@ -309,6 +311,7 @@ Route::prefix('v1/agente')->middleware('web')->group(function () {
 
         Route::get('contactos', [AgenteContactoController::class, 'index']);
         Route::patch('contactos/{id}', [AgenteContactoController::class, 'update'])->whereNumber('id');
+        Route::get('contactos/{id}/movimientos', [\App\Http\Controllers\Api\V1\Agente\ContactoMovimientoController::class, 'index'])->whereNumber('id');
 
         Route::get('visitas', [AgenteVisitaController::class, 'index']);
         Route::post('visitas', [AgenteVisitaController::class, 'store']);

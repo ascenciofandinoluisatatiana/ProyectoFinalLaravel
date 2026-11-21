@@ -70,7 +70,8 @@ class RegistrarMovimientos
     private function tituloDeEstado(Request $request, ?string $entidad, string $articulo, ?int $id, array $partes): ?string
     {
         $estado = $request->input('estado');
-        if (! is_string($estado) || ! preg_match('/^[a-z_]{2,20}$/', $estado) || ! in_array('estado', $partes, true)) {
+        if (! is_string($estado) || ! preg_match('/^[a-z_]{2,20}$/', $estado)
+            || ! (in_array('estado', $partes, true) || ($request->isMethod('PATCH') && in_array($entidad, ['contacto', 'visita'], true)))) {
             return null;
         }
         $num = $id ? ' #' . $id : '';
@@ -88,7 +89,7 @@ class RegistrarMovimientos
 
         return $frase !== null
             ? $frase . $num
-            : 'Cambió el estado de ' . $articulo . $num . ' a ' . str_replace('_', ' ', $estado);
+            : 'Cambió el estado ' . (str_starts_with($articulo, 'el ') ? 'del ' . substr($articulo, 3) : 'de ' . $articulo) . $num . ' a ' . str_replace('_', ' ', $estado);
     }
 
     private function anotar(Request $request, string $verbo, int $codigo, string $resultado): void

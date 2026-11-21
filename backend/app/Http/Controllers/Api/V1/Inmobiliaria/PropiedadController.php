@@ -178,7 +178,9 @@ class PropiedadController extends BaseInmobiliariaController
         $cambios = ['estado' => $datos['estado'], 'en_espera_pago' => false];
 
         // Publicaciones gratis: al publicar (o volver a publicar) se revisa el límite de la cuenta
+        // Si la propiedad ya tiene un plan vigente (membresía o publicación normal por tiempo), no se cobra de nuevo
         if ($datos['estado'] === 'publicada' && $antes !== 'publicada'
+            && ! $this->tienePlanVigente($propiedad)
             && ! app(LimiteGratisService::class)->puedePublicar($propiedad->user_id, $propiedad->id)) {
             $cambios = ['estado' => 'borrador', 'en_espera_pago' => true];
             $enEspera = true;
@@ -201,6 +203,19 @@ class PropiedadController extends BaseInmobiliariaController
             'estado' => $propiedad->estado,
             'en_espera_pago' => $enEspera,
         ]);
+    }
+
+    /** ¿Ya pagó un plan que sigue vigente? (membresía oro/plata/bronce o publicación normal por tiempo) */
+    private function tienePlanVigente(Propiedad $propiedad): bool
+    {
+        if ($propiedad->publicada_hasta && \Carbon\Carbon::parse($propiedad->publicada_hasta)->isFuture()) {
+            return true;
+        }
+
+        return \App\Models\Membresia::where('propiedad_id', $propiedad->id)
+            ->where('estado', 'activa')
+            ->whereDate('fecha_fin', '>=', now()->toDateString())
+            ->exists();
     }
 
     /** PATCH /propiedades/{id}/agente  { agente_id | null } */

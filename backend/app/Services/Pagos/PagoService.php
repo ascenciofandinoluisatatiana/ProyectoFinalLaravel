@@ -3,6 +3,7 @@
 namespace App\Services\Pagos;
 
 use App\Models\Membresia;
+use App\Models\Movimiento;
 use App\Models\Pago;
 use App\Models\OfertaPaquete;
 use App\Models\OfertaVendedor;
@@ -316,7 +317,9 @@ class PagoService
      */
     public function actualizar(Pago $pago, string $estado, ?string $transaccionId, ?string $metodo, int $montoCentavos): Pago
     {
-        return DB::transaction(function () use ($pago, $estado, $transaccionId, $metodo, $montoCentavos) {
+        $recienAprobado = false;
+
+        $pago = DB::transaction(function () use ($pago, $estado, $transaccionId, $metodo, $montoCentavos, &$recienAprobado) {
             $pago = Pago::whereKey($pago->id)->lockForUpdate()->first();
 
             // Un pago aprobado ya no cambia
@@ -336,6 +339,7 @@ class PagoService
             ]);
 
             if ($estado === 'aprobado') {
+                $recienAprobado = true;
                 $pago->pagado_en = now();
                 $pago->numero_comprobante = 'COMP-' . now()->format('Ymd') . '-' . str_pad((string) $pago->id, 6, '0', STR_PAD_LEFT);
                 $this->aplicar($pago);
@@ -344,6 +348,18 @@ class PagoService
 
             return $pago;
         });
+
+        // Movimiento del pago aprobado (fuera de la transacción: anotarlo nunca debe afectar al pago)
+        if ($recienAprobado) {
+            Movimiento::registrar($pago->user_id, 'pago_aprobado', $pago->referencia . ' · ' . $pago->plan, [
+                'entidad' => 'pago',
+                'entidad_id' => $pago->id,
+                'titulo' => 'Pago aprobado: ' . $pago->plan,
+                'valor' => $pago->monto,
+            ]);
+        }
+
+        return $pago;
     }
 
     /* =================== Lo que se compró =================== */

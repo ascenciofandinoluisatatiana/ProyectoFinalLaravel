@@ -163,7 +163,7 @@
                     '<div><span>Referencia</span><b>' + esc(d.referencia) + '</b></div>' +
                 '</div>' +
                 '<div class="r-acciones"><a class="v-btn v-btn-principal" href="' + esc(d.volver) + '"><i class="fa-solid fa-arrow-left"></i> Volver</a></div>' +
-                (d.simulado ? '<p class="r-nota">Pago simulado: el servidor no tiene llaves de Wompi configuradas.</p>' : '');
+                (d.simulado ? '<p class="r-nota"><i class="fa-solid fa-flask"></i> Modo de prueba: este pago es simulado y no se cobró dinero real.</p>' : '');
         }
 
         function fallo(mensaje) {

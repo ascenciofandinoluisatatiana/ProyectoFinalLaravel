@@ -69,9 +69,9 @@ prepare_project() {
     log "Backend listo."
 }
 
-# La preparación solo se hace al arrancar el servidor. Si ejecutas otra cosa
+# La preparación solo se hace al arrancar el servidor (artisan serve en desarrollo, php-fpm en producción). Si ejecutas otra cosa
 # (por ejemplo: docker compose run --rm app bash) se salta y va directo al comando.
-if [ "${1:-}" = "php" ] && [ "${2:-}" = "artisan" ] && [ "${3:-}" = "serve" ]; then
+if { [ "${1:-}" = "php" ] && [ "${2:-}" = "artisan" ] && [ "${3:-}" = "serve" ]; } || [ "${1:-}" = "php-fpm" ]; then
     prepare_project
 fi
 

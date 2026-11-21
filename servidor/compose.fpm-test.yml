@@ -1,0 +1,42 @@
+# PRUEBA S10: PHP-FPM + nginx nuevo AL LADO del sistema real. No toca los contenedores de producción.
+# Uso (desde /opt/apps/umbral):
+#   docker compose -f docker-compose.prod.yml -f servidor/compose.fpm-test.yml up -d --build umbral_backend_fpm umbral_web_test
+# La prueba responde solo en el servidor: http://127.0.0.1:8081
+services:
+  umbral_backend_fpm:
+    build:
+      context: ./docker/backend
+      dockerfile: Dockerfile.prod
+    image: umbral-backend-fpm:test
+    container_name: umbral_backend_fpm
+    restart: "no"
+    environment:
+      DB_HOST: umbral_postgres
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_SSLMODE: prefer
+      REDIS_HOST: umbral_redis
+      REDIS_PORT: 6379
+      FRONTEND_URL: https://umbral.proyectoscampus.top
+      RUN_MIGRATIONS: "false"
+    volumes:
+      - ./backend:/var/www/html
+      # Solo lectura: la prueba no puede modificar las dependencias del sistema real
+      - umbral_backend_vendor:/var/www/html/vendor:ro
+      - ./docker/backend/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
+    networks:
+      - umbral_network
+
+  umbral_web_test:
+    image: nginx:alpine
+    container_name: umbral_web_test
+    restart: "no"
+    ports:
+      - "127.0.0.1:8081:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./docker/nginx/prod-fpm.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - umbral_network

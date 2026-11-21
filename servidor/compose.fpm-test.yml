@@ -35,8 +35,14 @@ services:
     restart: "no"
     ports:
       - "127.0.0.1:8081:80"
+    # prod-fpm.conf busca a PHP-FPM como "umbral_backend:9000" (así se llamará en producción).
+    # En la prueba el contenedor se llama umbral_backend_fpm, así que se cambia el nombre en una copia.
+    command:
+      - sh
+      - -c
+      - sed 's/umbral_backend:9000/umbral_backend_fpm:9000/' /conf/prod-fpm.conf > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'
     volumes:
       - ./frontend:/usr/share/nginx/html:ro
-      - ./docker/nginx/prod-fpm.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/nginx/prod-fpm.conf:/conf/prod-fpm.conf:ro
     networks:
       - umbral_network

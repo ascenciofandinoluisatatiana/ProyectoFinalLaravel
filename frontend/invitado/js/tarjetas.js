@@ -1,11 +1,11 @@
     /* ============ render ============ */
     function card(p, i, rank) {
       const s = SELLERS[p.seller], rent = p.op === 'arriendo', fav = favs.includes(p.id);
-      return `<article class="pcard${p.prem ? ' is-prem' : ''}${rank ? ' has-rank' : ''}" style="--i:${i || 0}">
+      return `<article class="pcard${p.prem ? ' is-prem' : ''}${p.pos && !p.prem ? ' is-pos' : ''}${rank ? ' has-rank' : ''}" style="--i:${i || 0}">
     <div class="pimg" style="${imgStyle(p)}" data-open="${p.id}">${icon(p)}
       <div class="badges"><span class="b ${rent ? 'b-rent' : 'b-sale'}">${t(rent ? 'rental' : 'sale')}</span>
       ${p.ver ? `<span class="b b-ver"><i class="fa-solid fa-circle-check"></i>${t('verified')}</span>` : ''}
-      ${p.prem ? `<span class="b b-prem"><i class="fa-solid fa-star"></i>${t('premium')}</span>` : ''}</div>
+      ${p.prem ? `<span class="b b-prem"><i class="fa-solid fa-star"></i>${t('premium')}</span>` : ''}${p.pos && !p.prem ? `<span class="b b-pos"><i class="fa-solid fa-arrow-up"></i>${t('positioned')}</span>` : ''}</div>
       ${rank ? `<span class="rank ${tierCls(p)}">#${rank}</span><span class="tier-chip ${tierCls(p)}">${t('tier_' + (p.tier || 'bronce'))}</span>` : ''}<button class="fav ${fav ? 'on' : ''}" data-fav="${p.id}"><i class="${fav ? 'fa-solid' : 'fa-regular'} fa-heart"></i></button>
     </div>
     <div class="pbody">

@@ -943,3 +943,9 @@
       }
     }
   
+
+/* ===== Normal posicionada: distintivo morado oscuro (el dorado es de Oro/Plata/Bronce) ===== */
+.b-pos { background: #4c1d95; color: #ede9fe; border: 1px solid #a78bfa; }
+.b-pos i { margin-right: 4px; }
+[data-theme="light"] .b-pos { background: #ede9fe; color: #5b21b6; border-color: #7c3aed; }
+.pcard.is-pos { box-shadow: 0 0 0 1.5px #6d28d9, 0 10px 26px rgba(109, 40, 217, .28); }

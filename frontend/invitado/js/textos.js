@@ -48,7 +48,7 @@
       clear: ['Limpiar', 'Clear', 'Limpar', 'Réinitialiser'],
       v_cards: ['Tarjetas', 'Cards', 'Cartões', 'Cartes'], v_map: ['Mapa', 'Map', 'Mapa', 'Carte'],
       no_results: ['No encontramos propiedades con esos filtros.', 'No properties match those filters.', 'Nenhum imóvel encontrado com esses filtros.', 'Aucun bien ne correspond à ces filtres.'],
-      verified: ['Verificada', 'Verified', 'Verificado', 'Vérifié'], premium: ['Destacada', 'Featured', 'Destaque', 'En vedette'],
+      verified: ['Verificada', 'Verified', 'Verificado', 'Vérifié'], premium: ['Destacada', 'Featured', 'Destaque', 'En vedette'], positioned: ['Posicionada', 'Positioned', 'Posicionado', 'Mis en avant'],
       sale: ['Venta', 'Sale', 'Venda', 'Vente'], rental: ['Arriendo', 'Rent', 'Aluguel', 'Location'],
       per_month: ['/mes', '/month', '/mês', '/mois'],
       m2: ['m²', 'm²', 'm²', 'm²'],

@@ -44,11 +44,12 @@
       return '<button type="button" class="sh ' + cls + '" data-share="' + k + '" data-sid="' + p.id +
         '" aria-label="' + L(k) + '" title="' + L(k) + '"><i class="' + ic + '"></i></button>';
     };
-    return '<article class="pcard' + (p.prem ? ' is-prem' : '') + (rank ? ' has-rank' : '') + '" style="--i:' + (i || 0) + '">' +
+    return '<article class="pcard' + (p.prem ? ' is-prem' : '') + (p.pos && !p.prem ? ' is-pos' : '') + (rank ? ' has-rank' : '') + '" style="--i:' + (i || 0) + '">' +
       '<div class="pimg" style="' + imgStyle(p) + '" data-open="' + p.id + '">' + icon(p) +
       '<div class="badges"><span class="b ' + (rent ? 'b-rent' : 'b-sale') + '">' + t(rent ? 'rental' : 'sale') + '</span>' +
       (esNuevo(p) ? '<span class="b b-new"><i class="fa-solid fa-bolt"></i>' + L('nuevo') + '</span>' : '') +
-      (p.prem ? '<span class="b b-prem"><i class="fa-solid fa-star"></i>' + t('premium') + '</span>' : '') + '</div>' +
+      (p.prem ? '<span class="b b-prem"><i class="fa-solid fa-star"></i>' + t('premium') + '</span>' : '') +
+      (p.pos && !p.prem ? '<span class="b b-pos"><i class="fa-solid fa-arrow-up"></i>' + t('positioned') + '</span>' : '') + '</div>' +
       (p.ver ? '<span class="ver-pill"><i class="fa-solid fa-circle-check"></i>' + t('verified') + '</span>' : '') +
       (rank ? '<span class="rank ' + tierCls(p) + '">#' + rank + '</span><span class="tier-chip ' + tierCls(p) + '">' + t('tier_' + (p.tier || 'bronce')) + '</span>' : '') +
       '<button type="button" class="fav ' + (fav ? 'on' : '') + '" data-fav="' + p.id + '" aria-pressed="' + fav + '" aria-label="' + L(fav ? 'favDel' : 'favAdd') + '">' +

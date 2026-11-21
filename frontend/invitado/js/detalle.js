@@ -6,7 +6,7 @@
       const d = (p.desc || '').trim(), fotos = p.fotos || []; $('#detailBody').innerHTML = `
   <div class="mhero" style="${fotos.length ? '' : imgStyle(p)}">${fotos.length ? carouselHTML(fotos) : icon(p)}    <div class="badges"><span class="b ${rent ? 'b-rent' : 'b-sale'}">${t(rent ? 'rental' : 'sale')}</span>
     ${p.ver ? `<span class="b b-ver"><i class="fa-solid fa-circle-check"></i>${t('verified')}</span>` : ''}
-    ${p.prem ? `<span class="b b-prem"><i class="fa-solid fa-star"></i>${t('premium')}</span>` : ''}</div></div>
+    ${p.prem ? `<span class="b b-prem"><i class="fa-solid fa-star"></i>${t('premium')}</span>` : ''}${p.pos && !p.prem ? `<span class="b b-pos"><i class="fa-solid fa-arrow-up"></i>${t('positioned')}</span>` : ''}</div></div>
   ${RV.tabsHTML()}
   <div class="dpanel" id="panelInfo" role="tabpanel" aria-labelledby="tabInfo"><div class="mcols"><div>
     <div class="price" style="font-size:30px">${cop(p.price)}${rent ? `<small> ${t('per_month')}</small>` : ''}</div>

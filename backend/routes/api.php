@@ -139,6 +139,9 @@ Route::prefix('v1/admin')->middleware(['web', 'admin.api'])->group(function () {
 
     // Movimientos: seguridad (eventos_seguridad) y acciones de inmobiliarias, agentes y vendedores
     Route::get('movimientos', [AdminMovimientoController::class, 'index']);
+    // Campana del administrador: ver todas (con filtros) y marcar como leídas
+    Route::get('notificaciones', [\App\Http\Controllers\Api\V1\Admin\NotificacionController::class, 'index']);
+    Route::post('notificaciones/leidas', [\App\Http\Controllers\Api\V1\Admin\NotificacionController::class, 'leidas']);
     Route::get('invitados', [\App\Http\Controllers\Api\V1\Admin\InvitadoController::class, 'index']);
     Route::get('invitados/contactos', [\App\Http\Controllers\Api\V1\Admin\InvitadoController::class, 'contactos']);
     Route::get('invitados/{id}', [\App\Http\Controllers\Api\V1\Admin\InvitadoController::class, 'show'])->whereNumber('id');

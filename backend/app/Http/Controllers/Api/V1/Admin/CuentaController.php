@@ -275,51 +275,14 @@ class CuentaController extends Controller
         // Cuentas esperando verificación (insignia del menú lateral)
         $totalPendientes = User::where('estado', 'pendiente')->count();
 
-        // Actividad reciente real del portal: últimos registros y pagos
-        $actividad = collect();
-
-        User::with('role')->latest()->take(4)->get()
-            ->each(function (User $usuario) use ($actividad) {
-                $actividad->push([
-                    'tipo' => 'registro',
-                    'icono' => 'fa-user-plus',
-                    'color' => 'violet',
-                    'titulo' => 'Nuevo registro: ' . $usuario->name,
-                    'detalle' => 'Rol: ' . ($usuario->role?->nombre ?? 'sin rol'),
-                    'fecha' => $usuario->created_at,
-                    'referencia' => $usuario->email,
-                ]);
-            });
-
-        Membresia::with('usuario')->latest()->take(4)->get()
-            ->each(function (Membresia $membresia) use ($actividad) {
-                $actividad->push([
-                    'tipo' => 'pago',
-                    'icono' => 'fa-credit-card',
-                    'color' => 'emerald',
-                    'titulo' => 'Pago de membresía ' . (Membresia::NOMBRES_PLAN[$membresia->plan] ?? $membresia->plan),
-                    'detalle' => ($membresia->usuario?->name ?? 'Usuario') . ' · $' . number_format((float) $membresia->precio, 0, ',', '.') . ' COP',
-                    'fecha' => $membresia->created_at,
-                    'referencia' => null,
-                ]);
-            });
-
-        $notificaciones = $actividad->sortByDesc('fecha')->take(5)->values()
-            ->map(fn (array $evento) => [
-                'tipo' => $evento['tipo'],
-                'icono' => $evento['icono'],
-                'color' => $evento['color'],
-                'titulo' => $evento['titulo'],
-                'detalle' => $evento['detalle'],
-                'referencia' => $evento['referencia'],
-                'fecha' => $evento['fecha']?->toIso8601String(),
-                'hace' => $evento['fecha']?->diffForHumans(),
-            ]);
+        // Campana: lo más reciente del portal (registros, pagos y errores graves) y cuántos son nuevos
+        $campana = app(\App\Services\Paneles\NotificacionAdminService::class)->recientes(Auth::guard('web')->user(), 10);
 
         return response()->json([
             'total_usuarios' => $totalUsuarios,
             'total_pendientes' => $totalPendientes,
-            'notificaciones' => $notificaciones,
+            'notificaciones' => $campana['data'],
+            'sin_leer' => $campana['sin_leer'],
             'sistema' => [
                 'laravel' => app()->version(),
                 'php' => PHP_VERSION,

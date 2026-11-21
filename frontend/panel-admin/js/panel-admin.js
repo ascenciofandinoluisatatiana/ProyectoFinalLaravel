@@ -21,10 +21,11 @@
         membresias:     { nuevo: '/panel-admin/membresias.html',     viejo: '/admin/membresias' },
         reportes:       { nuevo: '/panel-admin/reportes.html',       viejo: '/admin/reportes' },
         movimientos:    { nuevo: '/panel-admin/movimientos.html',    viejo: '/panel-admin/movimientos.html' },
+        notificaciones: { nuevo: '/panel-admin/notificaciones.html', viejo: '/panel-admin/notificaciones.html' },
         ajustes:        { nuevo: '/panel-admin/ajustes.html',        viejo: '/admin/ajustes' },
         perfil:         { nuevo: '/panel-admin/perfil.html',         viejo: '/admin/perfil' }
     };
-    var MIGRADAS = ['panel', 'usuarios', 'verificaciones', 'ajustes', 'perfil', 'membresias', 'reportes', 'movimientos'];
+    var MIGRADAS = ['panel', 'usuarios', 'verificaciones', 'ajustes', 'perfil', 'membresias', 'reportes', 'movimientos', 'notificaciones'];
 
     var cuerpo = document.body;
     var pagina = cuerpo.getAttribute('data-pagina') || 'panel';
@@ -186,7 +187,8 @@
        Barra superior
        --------------------------------------------------------- */
     function htmlNotificacion(n) {
-        var colores = n.color === 'emerald' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-violet-500/10 text-violet-400';
+        // Solo colores de la paleta: morado, y dorado para pagos no completados y errores
+        var colores = n.color === 'gold' ? 'bg-amber-500/10 text-amber-400' : 'bg-violet-500/10 text-violet-400';
         var enlace = n.tipo === 'registro' && n.referencia
             ? url('usuarios') + '?q=' + encodeURIComponent(n.referencia)
             : null;
@@ -201,13 +203,17 @@
                 '<p class="mt-0.5 text-[11px] text-slate-600">' + esc(n.hace) + '</p>' +
             '</div>';
 
+        // Las nuevas (desde la última vez que se abrió la campana) llevan una rayita morada a la izquierda
+        var marca = n.nueva ? ' style="box-shadow: inset 3px 0 0 #8b5cf6"' : '';
+
         return '<li>' + (enlace
-            ? '<a href="' + esc(enlace) + '" class="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-slate-800/50">' + contenido + '</a>'
-            : '<div class="flex items-start gap-3 px-4 py-3">' + contenido + '</div>') + '</li>';
+            ? '<a href="' + esc(enlace) + '" class="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-slate-800/50"' + marca + '>' + contenido + '</a>'
+            : '<div class="flex items-start gap-3 px-4 py-3"' + marca + '>' + contenido + '</div>') + '</li>';
     }
 
     function htmlBarra(usuario, resumen) {
         var notificaciones = resumen.notificaciones || [];
+        var sinLeer = Number(resumen.sin_leer || 0);
         var lista = notificaciones.length
             ? notificaciones.map(htmlNotificacion).join('')
             : '<li class="px-4 py-8 text-center text-sm text-slate-500">Sin actividad por ahora.</li>';
@@ -224,16 +230,17 @@
                         '<i class="fa-solid fa-moon icono-luna"></i><i class="fa-solid fa-sun icono-sol"></i>' +
                     '</button>' +
                     '<div class="relative">' +
-                        '<button type="button" data-abre="menu-notificaciones" class="boton-barra">' +
+                        '<button type="button" data-abre="menu-notificaciones" class="boton-barra" aria-label="Notificaciones">' +
                             '<i class="fa-regular fa-bell"></i>' +
                         '</button>' +
+                        '<span id="badge-notificaciones"' + (sinLeer > 0 ? '' : ' hidden') + ' style="position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#8b5cf6;color:#fff;font-size:10px;font-weight:800;display:' + (sinLeer > 0 ? 'grid' : 'none') + ';place-items:center;pointer-events:none;box-shadow:0 0 0 2px var(--ad-card, #0f172a)">' + (sinLeer > 99 ? '99+' : sinLeer) + '</span>' +
                         '<div id="menu-notificaciones" data-menu="notificaciones" class="absolute right-0 mt-2 hidden w-80 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl shadow-black/50">' +
                             '<div class="border-b border-slate-800 px-4 py-3">' +
                                 '<p class="text-sm font-bold text-white">Actividad reciente</p>' +
-                                '<p class="text-[11px] text-slate-500">Últimos registros y pagos del portal</p>' +
+                                '<p class="text-[11px] text-slate-500">Registros, pagos y errores del portal</p>' +
                             '</div>' +
                             '<ul class="max-h-80 divide-y divide-slate-800/70 overflow-y-auto">' + lista + '</ul>' +
-                            '<a href="' + url('usuarios') + '" class="block border-t border-slate-800 px-4 py-2.5 text-center text-xs font-medium text-violet-400 transition-colors hover:bg-slate-800/50 hover:text-violet-300">Ver gestión de usuarios</a>' +
+                            '<a href="' + url('notificaciones') + '" class="block border-t border-slate-800 px-4 py-2.5 text-center text-xs font-medium text-violet-400 transition-colors hover:bg-slate-800/50 hover:text-violet-300">Ver todas las notificaciones</a>' +
                         '</div>' +
                     '</div>' +
                     '<div class="relative">' +
@@ -264,6 +271,14 @@
     /* ---------------------------------------------------------
        Comportamientos: menú móvil, menús desplegables, tema y salir
        --------------------------------------------------------- */
+    function marcarNotificacionesLeidas() {
+        var insignia = document.getElementById('badge-notificaciones');
+        if (!insignia || insignia.hidden || insignia.style.display === 'none') return;
+        insignia.hidden = true;
+        insignia.style.display = 'none';
+        api('/notificaciones/leidas', { metodo: 'POST' }).catch(function () { /* si falla, se vuelve a intentar la próxima vez */ });
+    }
+
     function activarComportamientos() {
         var menu = document.getElementById('menu-lateral');
         var fondo = document.getElementById('fondo-menu');
@@ -309,7 +324,11 @@
                 var desplegable = document.getElementById(boton.getAttribute('data-abre'));
                 var estabaAbierto = !desplegable.classList.contains('hidden');
                 cerrarTodos();
-                if (!estabaAbierto) desplegable.classList.remove('hidden');
+                if (!estabaAbierto) {
+                    desplegable.classList.remove('hidden');
+                    // Al abrir la campana, las notificaciones quedan leídas y el contador baja a 0
+                    if (desplegable.id === 'menu-notificaciones') marcarNotificacionesLeidas();
+                }
             });
         });
         document.addEventListener('click', function (evento) {
@@ -380,7 +399,7 @@
         mostrarErrorGeneral('Revisa tu conexión y que el servidor esté encendido, e inténtalo de nuevo.');
     });
 
-    window.PanelAdmin = { api: api, listo: listo, esc: esc, url: url };
+    window.PanelAdmin = { api: api, listo: listo, esc: esc, url: url, marcarNotificacionesLeidas: marcarNotificacionesLeidas };
 
     // Animaciones y transiciones de todas las páginas del panel (archivo aparte: js/animaciones.js)
     var animaciones = document.createElement('script');

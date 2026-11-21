@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Notificaciones · UMBRAL</title>
+    <link rel="icon" type="image/png" href="/img/icono.png">
+
+    <!-- Aplica el tema guardado ANTES de pintar la página (evita el parpadeo) -->
+    <script>
+        (function () {
+            var tema = 'light';
+            try {
+                var guardado = localStorage.getItem('umbral-tema');
+                if (guardado === 'dark' || guardado === 'light') tema = guardado;
+            } catch (e) {}
+            document.documentElement.setAttribute('data-theme', tema);
+        })();
+    </script>
+
+    <!-- Fuente del panel: la misma del dashboard de invitado -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/admin/admin.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
+    <link rel="stylesheet" href="/assets/admin/fontawesome/css/regular.min.css">
+    <link rel="stylesheet" href="/assets/admin/tema.css">
+
+    <style>
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--ad-borde); border-radius: 8px; }
+        html[data-theme="dark"] input[type="date"], html[data-theme="dark"] select { color-scheme: dark; }
+        html[data-theme="light"] input[type="date"], html[data-theme="light"] select { color-scheme: light; }
+
+        /* Tarjetas de arriba: también son los botones que filtran por tipo */
+        .not-resumen { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; }
+        .not-tarjeta { display: flex; align-items: center; gap: .9rem; text-align: left; width: 100%; border-radius: 20px; border: 1px solid var(--ad-borde); background: var(--ad-card); padding: .8rem 1.1rem; min-width: 0; cursor: pointer; font: inherit; color: inherit; transition: border-color .15s ease, background .15s ease, transform .15s ease; }
+        .not-tarjeta:hover { border-color: var(--ad-primary2); transform: translateY(-1px); }
+        .not-tarjeta.activa { border-color: var(--ad-primary2); background: var(--ad-soft); box-shadow: 0 0 0 1px var(--ad-primary2) inset; }
+        .not-tarjeta .num { font-size: 1.6rem; font-weight: 800; color: var(--ad-text); line-height: 1.1; flex-shrink: 0; }
+        .not-tarjeta.activa .num { color: var(--ad-primary); }
+        .not-tarjeta .txt { font-size: .8rem; font-weight: 600; color: var(--ad-muted); line-height: 1.25; min-width: 0; }
+        .not-tarjeta .txt small { display: block; font-weight: 500; font-size: .7rem; opacity: .8; }
+        @media (max-width: 760px) { .not-resumen { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+        /* Panel de filtros */
+        .not-panel { border-radius: 20px; border: 1px solid var(--ad-borde); background: var(--ad-card); overflow: hidden; }
+        .not-panel-cab { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: .8rem 1.1rem; border-bottom: 1px solid var(--ad-borde); }
+        .not-panel-cab h2 { font-size: .8rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--ad-primary); margin: 0; }
+        .not-limpiar { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 10px; border: 1px solid var(--ad-borde2, var(--ad-borde)); background: transparent; color: var(--ad-primary); font-size: 12px; font-weight: 700; cursor: pointer; }
+        .not-limpiar:hover { background: var(--ad-soft); }
+        .not-limpiar[hidden] { display: none; }
+        .not-filtros { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 14px; padding: 1rem 1.1rem; }
+        .not-filtros .dos { grid-column: span 2; }
+        .not-filtros .todo { grid-column: 1 / -1; }
+        .not-filtros [hidden] { display: none !important; }
+        @media (max-width: 900px) { .not-filtros { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 520px) { .not-filtros { grid-template-columns: 1fr; } .not-filtros .dos { grid-column: auto; } }
+        .not-etq { display: block; margin-bottom: 5px; font-size: 11px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--ad-muted); }
+        .not-campo { width: 100%; padding: .6rem .9rem; border-radius: 12px; border: 1px solid var(--ad-borde); background-color: var(--ad-card); color: var(--ad-text); font-size: .85rem; outline: none; min-width: 0; }
+        .not-campo:focus { border-color: var(--ad-primary2); }
+        .not-campo option { background-color: var(--ad-card); color: var(--ad-text); }
+        select.not-campo { cursor: pointer; }
+        .not-buscar { position: relative; }
+        .not-buscar i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: .8rem; color: var(--ad-muted); pointer-events: none; }
+        .not-buscar .not-campo { padding-left: 2.1rem; }
+        .not-atajos { display: flex; flex-wrap: wrap; gap: 6px; }
+        .not-atajo { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--ad-borde); background: transparent; color: var(--ad-muted); font-size: 12px; font-weight: 700; cursor: pointer; transition: all .15s ease; }
+        .not-atajo:hover { color: var(--ad-text); border-color: var(--ad-primary2); }
+        .not-atajo.activo { background: var(--ad-primary2); border-color: transparent; color: #fff; }
+        .not-aviso { grid-column: 1 / -1; font-size: 12px; color: #f59e0b; }
+        .not-aviso[hidden] { display: none; }
+
+        /* Etiquetas de los filtros activos */
+        .not-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: .7rem 1.1rem; border-top: 1px solid var(--ad-borde); font-size: 12px; color: var(--ad-muted); }
+        .not-chips[hidden] { display: none; }
+        .not-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 4px 3px 10px; border-radius: 999px; background: var(--ad-soft); color: var(--ad-primary); font-weight: 700; }
+        .not-chip button { width: 18px; height: 18px; display: grid; place-items: center; border: 0; border-radius: 50%; background: transparent; color: inherit; cursor: pointer; font-size: 10px; }
+        .not-chip button:hover { background: var(--ad-borde); }
+
+        /* Lista */
+        .not-lista { list-style: none; margin: 0; padding: 0; }
+        .not-item { display: flex; align-items: flex-start; gap: .85rem; padding: .85rem 1.1rem; border-bottom: 1px solid var(--ad-borde); min-width: 0; }
+        .not-item:last-child { border-bottom: 0; }
+        .not-item.nueva { box-shadow: inset 3px 0 0 var(--ad-primary2); }
+        .not-ico { flex: none; width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: var(--ad-soft); color: var(--ad-primary); }
+        .not-ico.oro { color: #f59e0b; background: rgba(245, 158, 11, .12); }
+        .not-cuerpo { flex: 1; min-width: 0; }
+        .not-cuerpo b { display: block; font-size: .875rem; color: var(--ad-text); overflow-wrap: anywhere; }
+        .not-cuerpo small { display: block; font-size: .78rem; color: var(--ad-muted); overflow-wrap: anywhere; }
+        .not-der { flex: none; text-align: right; font-size: .75rem; color: var(--ad-muted); max-width: 40%; }
+        .not-etiqueta { display: inline-block; margin-top: 4px; padding: 1px 8px; border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; background: var(--ad-soft); color: var(--ad-primary); }
+        .not-vacio { padding: 3rem 1.25rem; text-align: center; }
+        .not-vacio[hidden] { display: none; }
+        .not-vacio .icono { margin: 0 auto 12px; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; background: var(--ad-soft); color: var(--ad-primary); }
+        @media (max-width: 520px) { .not-item { flex-wrap: wrap; } .not-der { max-width: none; text-align: left; flex: 1 1 100%; padding-left: calc(38px + .85rem); } }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 font-sans antialiased" data-pagina="notificaciones" data-titulo="Notificaciones">
+
+    <div id="app" class="min-h-screen" style="visibility:hidden">
+        <div id="zona-menu"></div>
+
+        <div class="flex min-h-screen flex-col lg:pl-72 transition-all duration-300">
+            <div id="zona-barra"></div>
+
+            <main class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+                <div class="mx-auto max-w-5xl space-y-5">
+
+                    <!-- Encabezado de la sección -->
+                    <div class="hero-admin relative overflow-hidden rounded-2xl border border-slate-800 p-6 sm:p-8">
+                        <span class="hero-blob hero-blob-1"></span>
+                        <span class="hero-blob hero-blob-2"></span>
+                        <div class="relative">
+                            <p class="text-xs font-semibold uppercase tracking-wider text-violet-400">
+                                <i class="fa-regular fa-bell mr-1"></i>Campana
+                            </p>
+                            <h1 class="titulo-grad mt-1 text-2xl font-extrabold sm:text-3xl">Notificaciones</h1>
+                            <p class="mt-1.5 max-w-xl text-sm text-slate-400">
+                                Todo lo que pasa en el portal: cuentas nuevas, pagos de membresías y planes, y errores graves del sistema. Toca una tarjeta para ver solo ese tipo.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Tarjetas: cada una filtra por tipo -->
+                    <div class="not-resumen" role="group" aria-label="Filtrar por tipo">
+                        <button type="button" class="not-tarjeta activa" data-tipo=""><span class="num" id="resumen-total">–</span><span class="txt">Notificaciones<small>Todas</small></span></button>
+                        <button type="button" class="not-tarjeta" data-tipo="registro"><span class="num" id="resumen-registros">–</span><span class="txt">Registros<small>Cuentas nuevas</small></span></button>
+                        <button type="button" class="not-tarjeta" data-tipo="pago"><span class="num" id="resumen-pagos">–</span><span class="txt">Pagos<small>Membresías y planes</small></span></button>
+                        <button type="button" class="not-tarjeta" data-tipo="error"><span class="num" id="resumen-errores">–</span><span class="txt">Errores<small>Fallos graves</small></span></button>
+                    </div>
+
+                    <!-- Filtros -->
+                    <div class="not-panel">
+                        <div class="not-panel-cab">
+                            <h2><i class="fa-solid fa-sliders" style="margin-right:6px"></i>Filtros</h2>
+                            <button type="button" class="not-limpiar" id="limpiar" hidden><i class="fa-solid fa-xmark"></i>Limpiar filtros</button>
+                        </div>
+
+                        <div class="not-filtros">
+                            <div class="dos">
+                                <label class="not-etq" for="filtro-q">Buscar</label>
+                                <div class="not-buscar"><i class="fa-solid fa-magnifying-glass"></i><input type="search" id="filtro-q" class="not-campo" placeholder="Nombre, correo, plan o referencia…"></div>
+                            </div>
+                            <div>
+                                <label class="not-etq" for="filtro-desde">Desde</label>
+                                <input type="date" id="filtro-desde" class="not-campo">
+                            </div>
+                            <div>
+                                <label class="not-etq" for="filtro-hasta">Hasta</label>
+                                <input type="date" id="filtro-hasta" class="not-campo">
+                            </div>
+
+                            <div class="dos">
+                                <span class="not-etq">Atajos de fecha</span>
+                                <div class="not-atajos" id="atajos">
+                                    <button type="button" class="not-atajo" data-atajo="hoy">Hoy</button>
+                                    <button type="button" class="not-atajo" data-atajo="7">Últimos 7 días</button>
+                                    <button type="button" class="not-atajo" data-atajo="30">Últimos 30 días</button>
+                                    <button type="button" class="not-atajo" data-atajo="mes">Este mes</button>
+                                </div>
+                            </div>
+                            <div id="campo-rol" hidden>
+                                <label class="not-etq" for="filtro-rol">Rol de la cuenta</label>
+                                <select id="filtro-rol" class="not-campo">
+                                    <option value="">Todos los roles</option>
+                                    <option value="inmobiliaria">Inmobiliaria</option>
+                                    <option value="agente">Agente</option>
+                                    <option value="vendedor">Vendedor</option>
+                                    <option value="administrador">Administrador</option>
+                                </select>
+                            </div>
+                            <div id="campo-pago" hidden>
+                                <label class="not-etq" for="filtro-pago">Estado del pago</label>
+                                <select id="filtro-pago" class="not-campo">
+                                    <option value="">Todos los pagos</option>
+                                    <option value="aprobado">Aprobados</option>
+                                    <option value="no_completado">No completados</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="not-etq" for="filtro-orden">Orden</label>
+                                <select id="filtro-orden" class="not-campo">
+                                    <option value="recientes">Más recientes primero</option>
+                                    <option value="antiguas">Más antiguas primero</option>
+                                </select>
+                            </div>
+                            <p class="not-aviso" id="aviso-fechas" hidden><i class="fa-solid fa-circle-exclamation"></i> La fecha "Desde" no puede ser después de la fecha "Hasta".</p>
+                        </div>
+
+                        <div class="not-chips" id="chips" hidden></div>
+
+                        <ul id="lista" class="not-lista" style="border-top:1px solid var(--ad-borde)"></ul>
+
+                        <div id="vacio" class="not-vacio" hidden>
+                            <div class="icono"><i class="fa-regular fa-bell-slash"></i></div>
+                            <p class="text-sm font-medium text-slate-400" id="vacio-titulo">No hay notificaciones para mostrar</p>
+                            <p class="mt-0.5 text-xs text-slate-600">Prueba quitando algún filtro.</p>
+                        </div>
+
+                        <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 px-5 py-3.5">
+                            <p id="paginacion-info" class="text-xs text-slate-500"></p>
+                            <div id="paginacion-botones" class="flex items-center gap-1"></div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="border-t border-slate-800/60 px-6 py-4 text-xs text-slate-600 flex flex-wrap items-center justify-between gap-2">
+                <span>UMBRAL · El paso hacia un nuevo hogar</span>
+                <span>Panel de administración · Colombia</span>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Fondo oscurecido detrás del menú móvil -->
+    <div id="fondo-menu" class="fixed inset-0 z-30 hidden bg-black/60 backdrop-blur-sm lg:hidden transition-opacity duration-300"></div>
+
+    <script src="js/panel-admin.js"></script>
+    <script src="js/notificaciones.js"></script>
+</body>
+</html>

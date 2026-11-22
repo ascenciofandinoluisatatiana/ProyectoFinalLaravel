@@ -8,16 +8,7 @@
 
     <!-- Aplica el tema guardado ANTES de pintar la página (evita el parpadeo).
          Usa la misma clave que el login. Sin tema guardado empieza en claro. -->
-    <script>
-        (function () {
-            var tema = 'light';
-            try {
-                var guardado = localStorage.getItem('umbral-tema');
-                if (guardado === 'dark' || guardado === 'light') tema = guardado;
-            } catch (e) {}
-            document.documentElement.setAttribute('data-theme', tema);
-        })();
-    </script>
+    <script src="/assets/inline/tema-panel-admin.js"></script>
 
     <!-- Recursos del panel: Tailwind compilado, FontAwesome, Chart.js y la fuente Plus Jakarta Sans.
          Hoy los entrega Laravel desde public/assets/admin (nginx reenvía /assets). -->

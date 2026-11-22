@@ -6,16 +6,7 @@
     <title>Ajustes de cuenta · UMBRAL</title>
     <link rel="icon" type="image/png" href="/img/icono.png">
 
-    <script>
-        (function () {
-            var tema = 'light';
-            try {
-                var guardado = localStorage.getItem('umbral-tema');
-                if (guardado === 'dark' || guardado === 'light') tema = guardado;
-            } catch (e) {}
-            document.documentElement.setAttribute('data-theme', tema);
-        })();
-    </script>
+    <script src="/assets/inline/tema-panel-admin.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">

@@ -23,14 +23,7 @@
     <link rel="stylesheet" href="css/menu-responsivo.css?v=1">
 
     <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
-    <script>
-        try {
-            var tema = localStorage.getItem('umbral-tema');
-            if (tema === 'dark' || tema === 'light') {
-                document.documentElement.setAttribute('data-theme', tema);
-            }
-        } catch (e) {}
-    </script>
+    <script src="/assets/inline/tema-inicio.js"></script>
     <style>
         /* Alertas de los campos del registro */
         .campo-error { margin: 6px 4px 0; font-size: .8rem; font-weight: 600; line-height: 1.35; color: #d92d20; }

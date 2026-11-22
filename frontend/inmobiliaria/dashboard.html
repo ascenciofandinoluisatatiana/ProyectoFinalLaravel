@@ -19,12 +19,7 @@
     <link rel="stylesheet" href="/inmobiliaria/css/inmobiliaria.css">
 
     <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
-    <script>
-        try {
-            var tema = localStorage.getItem('umbral-tema');
-            if (tema === 'dark' || tema === 'light') document.documentElement.setAttribute('data-theme', tema);
-        } catch (e) {}
-    </script>
+    <script src="/assets/inline/tema-claro-oscuro.js"></script>
 </head>
 <body class="vendedor op-venta" data-pagina="inmobiliaria-dashboard">
     <div class="v-pagina">

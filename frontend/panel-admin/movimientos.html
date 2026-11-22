@@ -7,16 +7,7 @@
     <link rel="icon" type="image/png" href="/img/icono.png">
 
     <!-- Aplica el tema guardado ANTES de pintar la página (evita el parpadeo) -->
-    <script>
-        (function () {
-            var tema = 'light';
-            try {
-                var guardado = localStorage.getItem('umbral-tema');
-                if (guardado === 'dark' || guardado === 'light') tema = guardado;
-            } catch (e) {}
-            document.documentElement.setAttribute('data-theme', tema);
-        })();
-    </script>
+    <script src="/assets/inline/tema-panel-admin.js"></script>
 
     <!-- Fuente del panel: la misma del dashboard de invitado -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

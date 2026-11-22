@@ -370,8 +370,10 @@
             '<div class="mx-auto max-w-md px-6 py-8 text-center">' +
                 '<p class="text-lg font-bold text-white">No se pudo cargar el panel</p>' +
                 '<p class="mt-2 text-sm text-slate-400">' + esc(texto) + '</p>' +
-                '<button type="button" onclick="window.location.reload()" class="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-2.5 text-sm font-semibold text-white">Reintentar</button>' +
+                '<button type="button" id="reintentar-panel" class="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-2.5 text-sm font-semibold text-white">Reintentar</button>' +
             '</div>';
+        var reintentar = document.getElementById('reintentar-panel');
+        if (reintentar) reintentar.addEventListener('click', function () { window.location.reload(); });
         app.style.visibility = 'visible';
     }
 

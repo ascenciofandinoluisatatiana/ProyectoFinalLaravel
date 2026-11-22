@@ -6,12 +6,7 @@
     <title>Panel · Umbral</title>
     <link rel="icon" type="image/png" href="img/icono.png">
     <link rel="stylesheet" href="css/base.css">
-    <script>
-        try {
-            var t = localStorage.getItem('umbral-tema');
-            if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
-        } catch (e) {}
-    </script>
+    <script src="/assets/inline/tema-panel.js"></script>
     <style>
         .panel { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: var(--fondo-degradado); }
         .panel-caja { width: min(480px, 100%); padding: 32px; border-radius: 24px; text-align: center;
@@ -34,50 +29,6 @@
     </main>
 
     <script src="js/i18n.js"></script>
-    <script>
-        var datosUsuario = localStorage.getItem('umbral-usuario') || sessionStorage.getItem('umbral-usuario');
-        var esInvitado = !datosUsuario && !!sessionStorage.getItem('umbral-invitado');
-        var u = null;
-
-        if (datosUsuario) {
-            try { u = JSON.parse(datosUsuario); } catch (e) { u = null; }
-        }
-
-        if (!u && !esInvitado) {
-            window.location.href = 'index.html';   // sin sesión, de vuelta al inicio
-        }
-
-        // Pinta los textos que dependen de la sesión, en el idioma actual
-        function pintar() {
-            if (!u && !esInvitado) return;
-
-            var saludo = document.getElementById('saludo');
-            var correo = document.getElementById('correo');
-            var rol = document.getElementById('rol');
-
-            if (esInvitado) {
-                saludo.textContent = window.t('panel.invitado');
-                correo.style.display = 'none';
-                rol.textContent = window.t('panel.invitado_desc');
-            } else {
-                var nombreRol = window.t('rol.' + u.rol);
-                if (nombreRol === 'rol.' + u.rol) nombreRol = u.rol;   // rol sin traducción
-
-                saludo.textContent = window.t('panel.hola', { nombre: u.nombre });
-                correo.textContent = u.email;
-                rol.textContent = window.t('panel.rol', { rol: nombreRol });
-            }
-        }
-
-        // Se vuelve a pintar cada vez que se carga o cambia el idioma
-        document.addEventListener('umbral:idioma', pintar);
-
-        document.getElementById('salir').addEventListener('click', function () {
-            localStorage.removeItem('umbral-usuario');
-            sessionStorage.removeItem('umbral-usuario');
-            sessionStorage.removeItem('umbral-invitado');
-            window.location.href = 'index.html';
-        });
-    </script>
+    <script src="/assets/inline/panel-sesion.js"></script>
 </body>
 </html>

@@ -27,12 +27,7 @@
     <link rel="stylesheet" href="/vendedor/css/vendedor-tarjetas.css">
 
     <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
-    <script>
-        try {
-            var tema = localStorage.getItem('umbral-tema');
-            if (tema === 'dark' || tema === 'light') document.documentElement.setAttribute('data-theme', tema);
-        } catch (e) { }
-    </script>
+    <script src="/assets/inline/tema-claro-oscuro.js"></script>
 </head>
 
 <body class="vendedor panel-violeta op-arriendo" data-pagina="vendedor-arriendo" data-operacion="arriendo">

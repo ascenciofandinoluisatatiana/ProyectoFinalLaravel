@@ -167,6 +167,8 @@ html:not([data-theme="light"]) .marca-img { filter: brightness(1.9) saturate(1.1
 
 /* ---------- Barra superior (igual que .topbar del invitado) ---------- */
 .barra-sup { background: var(--ad-card); border-bottom: 1px solid var(--ad-borde); }
+/* La barra queda fija arriba al bajar: su caja contenedora tiene que ser la que se pega */
+#zona-barra { position: sticky; top: 0; z-index: 20; }
 .barra-sup > div { padding-top: 16px; padding-bottom: 16px; }
 @media (min-width: 640px) { .barra-sup > div { padding-left: 28px; padding-right: 28px; } }
 .barra-titulo { font-size: 19px; font-weight: 700; white-space: nowrap; color: var(--ad-text); }
@@ -662,7 +664,18 @@ html .barra-sup > div { gap: 8px; }
     html .hero-admin p { overflow-wrap: anywhere; }
 
     /* Tablas: más compactas; si no caben, se deslizan de lado dentro de su tarjeta */
-    html .overflow-x-auto > table { min-width: 32rem !important; font-size: 12.5px; }
+    /* Las tablas conservan su ancho propio (40 o 48 rem) y se deslizan de lado: así las columnas no quedan delgaditas */
+    html .overflow-x-auto > table { font-size: 12.5px; }
+    /* Ancho mínimo cómodo para las columnas con texto */
+    html .overflow-x-auto td { min-width: 7.5rem; }
+    html #tabla-historial td:nth-child(2), html #tabla-pendientes td:nth-child(1), html #tabla-usuarios td:nth-child(1),
+    html #tabla-compras-inmo td:nth-child(1), html #tabla-compras-vend td:nth-child(1), html #tabla-membresias td:nth-child(1),
+    html #tabla-compras td:nth-child(1) { min-width: 12rem; }
+    html #tabla-historial td:nth-child(4), html #tabla-pendientes td:nth-child(3) { min-width: 15rem; }
+    html #tabla-compras-inmo td:nth-child(2), html #tabla-compras-inmo td:nth-child(3), html #tabla-compras-inmo td:nth-child(4),
+    html #tabla-compras-vend td:nth-child(2), html #tabla-compras-vend td:nth-child(3), html #tabla-compras-vend td:nth-child(4),
+    html #tabla-compras td:nth-child(2), html #tabla-compras td:nth-child(3), html #tabla-compras td:nth-child(4),
+    html #tabla-membresias td:nth-child(3), html #tabla-membresias td:nth-child(4) { min-width: 10rem; }
     html .overflow-x-auto th, html .overflow-x-auto td { padding-left: 10px !important; padding-right: 10px !important; }
     html .overflow-x-auto { -webkit-overflow-scrolling: touch; }
 }

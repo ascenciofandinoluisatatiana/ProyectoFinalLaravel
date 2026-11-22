@@ -51,6 +51,30 @@
         .tb-tab.activo { color: #fff; background: linear-gradient(135deg, var(--ad-g1), var(--ad-g2)); }
         .tb-panel { display: none; }
         .tb-panel.activo { display: block; }
+
+        /* Planes de publicación: un recuadro por tipo y una tarjeta por plan */
+        .plan-grupo { padding: 16px; border: 1px solid var(--ad-borde); border-radius: 16px; background: var(--ad-card); }
+        .plan-grupo-cab { display: flex; align-items: center; gap: 10px; }
+        .plan-grupo-cab i { font-size: 1.05rem; color: var(--ad-primary); }
+        .plan-grupo-cab h4 { margin: 0; font-size: .95rem; font-weight: 800; color: var(--ad-text); }
+        .plan-grupo-nota { margin: 4px 0 14px; font-size: .78rem; color: var(--ad-muted); }
+        .plan-lista { display: grid; gap: 12px; }
+        .plan-card { padding: 14px; border: 1px solid var(--ad-borde); border-radius: 14px; background: var(--ad-soft); }
+        .plan-card-cab { display: flex; align-items: center; gap: 12px; }
+        .plan-card-ico { display: grid; place-items: center; width: 36px; height: 36px; flex: none; border-radius: 10px; color: var(--ad-primary); background: var(--ad-card); border: 1px solid var(--ad-borde); }
+        .plan-card-nombre { margin: 0; font-size: .95rem; font-weight: 700; color: var(--ad-text); }
+        .plan-card-dias { margin: 0; font-size: .78rem; color: var(--ad-muted); }
+        .plan-campo { display: block; margin-top: 12px; }
+        .plan-campo > span { display: block; margin-bottom: 6px; font-size: .75rem; font-weight: 600; color: var(--ad-muted); }
+        .plan-precio { position: relative; }
+        .plan-precio b { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-weight: 700; color: var(--ad-muted); }
+        .plan-precio input { width: 100%; padding: 10px 14px 10px 30px; border: 1px solid var(--ad-borde2); border-radius: 12px; background: var(--ad-card); color: var(--ad-text); font-size: .9rem; outline: none; }
+        .plan-precio input:focus { border-color: var(--ad-primary2); box-shadow: 0 0 0 3px rgba(147, 51, 234, .2); }
+        .plan-card-pie { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; }
+        .plan-activo { display: inline-flex; align-items: center; gap: 8px; font-size: .82rem; color: var(--ad-text2); cursor: pointer; }
+        .plan-activo input { width: 18px; height: 18px; accent-color: #9333ea; }
+        .plan-guardar { padding: 9px 18px; border: 0; border-radius: 12px; background: linear-gradient(135deg, var(--ad-g1), var(--ad-g2)); color: #fff; font-size: .82rem; font-weight: 700; cursor: pointer; }
+        .plan-guardar:disabled { opacity: .6; cursor: not-allowed; }
         @media (max-width: 520px) { .tb-tab { flex: 1 1 100%; justify-content: flex-start; } }
 
         /* Ventana crear / editar */
@@ -282,7 +306,6 @@
                             </select>
                         </div>
 
-                        <div class="overflow-x-auto">
                             <div class="flex flex-wrap items-center gap-3 border-b border-slate-800 p-4">
                                 <label class="flex items-center gap-2 text-xs text-slate-500">Pago desde
                                     <input type="date" id="filtro-desde" style="color-scheme:dark"
@@ -305,6 +328,7 @@
                                     <i class="fa-solid fa-eraser"></i> Limpiar filtros
                                 </button>
                             </div>
+                            <div class="overflow-x-auto">
                             <table class="w-full min-w-[48rem] text-left text-sm">
                                 <thead class="border-b border-slate-800 text-[11px] uppercase tracking-wider text-slate-500">
                                     <tr>

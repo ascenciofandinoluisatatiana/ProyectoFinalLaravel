@@ -631,6 +631,7 @@ section[id] { scroll-margin-top: 86px; }
     z-index: 50;
     display: grid;
     place-items: center;
+    grid-template-columns: minmax(0, 1fr); /* la caja no se ensancha más que la pantalla */
     padding: 20px;
 }
 .modal-auth[hidden] { display: none; }
@@ -649,6 +650,7 @@ section[id] { scroll-margin-top: 86px; }
     position: relative;
     z-index: 1;
     width: min(520px, 100%);
+    min-width: 0;
     max-height: calc(100vh - 40px);
     overflow-y: auto;
     padding: clamp(24px, 4vw, 36px);

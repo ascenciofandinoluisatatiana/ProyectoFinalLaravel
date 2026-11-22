@@ -109,9 +109,37 @@ services:
     volumes:
       - ./frontend:/usr/share/nginx/html:ro
       - ./docker/nginx/prod.conf:/etc/nginx/conf.d/default.conf:ro
+      # Vigilante de seguridad: nginx escribe aquí el registro de visitas y lee la lista de IP bloqueadas
+      - ./vigilante/logs:/var/log/umbral
+      - ./vigilante/bloqueados:/etc/nginx/vigilante
+      - ./docker/nginx/recargar-bloqueados.sh:/recargar-bloqueados.sh:ro
+    # Crea la lista vacía si no existe, vigila cambios en ella (recarga nginx) y arranca nginx
+    command: ["/bin/sh", "-c", "touch /etc/nginx/vigilante/bloqueados.conf; /bin/sh /recargar-bloqueados.sh & exec nginx -g 'daemon off;'"]
     networks:
       - umbral_network
       - proxy
+
+  # Vigilante de seguridad en Python (carpeta seguridad-python/): lee el registro de visitas de nginx
+  # y bloquea 30 minutos las IP que atacan (muchos fallos de login, escaneo de rutas, rutas de ataque).
+  # Para apagarlo sin tocar nada más: docker stop umbral_vigilante
+  umbral_vigilante:
+    build:
+      context: ./seguridad-python
+    container_name: umbral_vigilante
+    restart: unless-stopped
+    depends_on:
+      - umbral_frontend
+    environment:
+      # IP que nunca se bloquean (separadas por coma). Las redes privadas ya están incluidas.
+      IPS_PERMITIDAS: ${VIGILANTE_IPS_PERMITIDAS:-181.128.79.248}
+      VIG_MAX_AUTH_FALLOS: ${VIGILANTE_MAX_AUTH_FALLOS:-10}
+      VIG_MAX_404: ${VIGILANTE_MAX_404:-20}
+      VIG_BLOQUEO_MIN: ${VIGILANTE_BLOQUEO_MIN:-30}
+    volumes:
+      - ./vigilante/logs:/logs
+      - ./vigilante/bloqueados:/bloqueados
+    networks:
+      - umbral_network
 
 networks:
   umbral_network:

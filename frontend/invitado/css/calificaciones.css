@@ -6,7 +6,7 @@
    ===================================================================== */
 
 :root {
-  --star: #f5b301;
+  --star: #d4b062;
 }
 
 /* ---------- Pestañas ---------- */
@@ -272,7 +272,7 @@
   display: block;
   height: 100%;
   border-radius: 99px;
-  background: linear-gradient(90deg, #fcd34d, var(--star));
+  background: linear-gradient(90deg, #e3c985, var(--star));
   transition: width .5s ease;
 }
 
@@ -407,7 +407,7 @@
   font-size: 13px;
   font-weight: 600;
   color: var(--red);
-  background: color-mix(in srgb, var(--red) 12%, transparent);
+  background: var(--soft);
   padding: 9px 12px;
   border-radius: 10px;
 }
@@ -536,6 +536,11 @@
   }
 }
 
+@media (max-width: 380px) {
+  .dtabs .dtab > i { display: none; }
+  .dtabs .dtab { padding: 10px 8px; font-size: 12.5px; }
+}
+
 @media (max-width: 600px) {
   .dtabs {
     padding: 8px 12px 0;
@@ -543,10 +548,10 @@
   }
 
   .dtab {
-    flex: 1;
+    flex: 1 0 auto;
     justify-content: center;
     text-align: center;
-    white-space: normal;
+    white-space: nowrap;
     padding: 10px 8px;
     font-size: 13px;
     gap: 6px;

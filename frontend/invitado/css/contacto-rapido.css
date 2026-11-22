@@ -23,7 +23,6 @@
 }
 .ct-a i { font-size: 16px; color: var(--primary); }
 .ct-a:hover { transform: translateY(-1px); border-color: var(--primary); background: var(--soft); }
-.ct-wa i { color: #22c55e; }
 .ct-or { display: flex; align-items: center; gap: 8px; margin: 14px 0 10px; font-size: 12px; color: var(--muted); }
 .ct-or::before, .ct-or::after { content: ""; flex: 1; height: 1px; background: var(--border); }
 #ctForm { gap: 10px; }
@@ -38,3 +37,9 @@
 .ct-links { display: flex; gap: 8px; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border); flex-wrap: wrap; }
 .ct-l { display: inline-flex; align-items: center; gap: 5px; padding: 2px 0; border: 0; background: none; font: inherit; font-size: 13px; font-weight: 700; color: var(--primary); cursor: pointer; }
 .ct-l:hover { text-decoration: underline; }
+@media (max-width: 420px) {
+  .ct-acts { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .ct-a { flex-direction: column; padding: 8px 2px; font-size: 11.5px; gap: 4px; }
+  .ct-a i { font-size: 15px; }
+  .ct-sel small { display: block; }
+}

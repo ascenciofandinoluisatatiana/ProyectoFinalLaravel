@@ -155,8 +155,8 @@
   font-weight: 800;
   letter-spacing: .03em;
   text-transform: uppercase;
-  color: #3b2400;
-  background: linear-gradient(135deg, #fde68a, #f59e0b);
+  color: #140826;
+  background: linear-gradient(135deg, #f1e2b4, #d4b062);
 }
 
 .ha-title {
@@ -236,7 +236,7 @@
   box-shadow: 0 10px 26px rgba(6, 2, 22, .4);
 }
 
-.ha-chip i { color: #86efac; }
+.ha-chip i { color: #c084fc; }
 .ha-c2 i { color: #c4b5fd; }
 
 /* =====================================================================
@@ -312,9 +312,23 @@
   .ha-card { width: 244px; left: 0; }
 }
 
-/* celulares: se quita la imagen para que el buscador quede arriba */
-@container hero (max-width: 559px) {
-  .hero-art { display: none; }
+/* celulares y tabletas: la casa pasa a ser el FONDO del banner (sin franja aparte), con el texto encima y un velo morado para que se lea.
+   Así el banner mide mucho menos y la imagen no desaparece. */
+@container hero (max-width: 859px) {
+  .hero.has-art { position: relative; gap: 0; padding: 22px 18px 18px; }
+  .hero.has-art .hero-in { position: relative; z-index: 2; }
+  .hero.has-art .hero-art { position: absolute; inset: 0; z-index: 0; padding: 0; }
+  .hero-art .ha-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; border-radius: 0; box-shadow: none; }
+  .hero-art::before { display: none; }
+  .hero-art::after {                                      /* velo morado sobre la foto */
+    content: ""; position: absolute; inset: 0; z-index: 4; pointer-events: none;
+    background: linear-gradient(180deg, rgba(40, 14, 92, .72) 0%, rgba(58, 18, 120, .66) 55%, rgba(30, 10, 70, .82) 100%);
+  }
+  .hero-art .ha-card, .hero-art .ha-chip { display: none !important; }
+  .hero.has-art h2 { font-size: 26px; }
+  .hero.has-art p { font-size: 13.5px; margin-bottom: 12px; }
+  .hero.has-art .pills { display: none; }
+}
 }
 
 /* ---------- accesibilidad: sin movimiento ---------- */

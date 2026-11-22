@@ -6,7 +6,7 @@
       const pts = [];
       list.forEach(p => {
         const m = L.marker([p.lat, p.lng]).addTo(mapLayer);
-        m.bindPopup(`<b>${title(p)}</b><br>${cop(p.price)}${p.op === 'arriendo' ? t('per_month') : ''}<br><a href="#" data-open="${p.id}" style="color:#6c3df5;font-weight:700">${t('details')} →</a>`);
+        m.bindPopup(`<b>${title(p)}</b><br>${cop(p.price)}${p.op === 'arriendo' ? t('per_month') : ''}<br><a href="#" data-open="${p.id}" style="color:#7e22ce;font-weight:700">${t('details')} →</a>`);
         pts.push([p.lat, p.lng]);
       });
       setTimeout(() => { map.invalidateSize(); if (pts.length) map.fitBounds(pts, { padding: [40, 40], maxZoom: 12 }) }, 50);

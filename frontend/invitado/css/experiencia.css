@@ -40,9 +40,9 @@
   background: var(--soft);
 }
 
-.tr-i:nth-child(1) .tr-ic { color: #059669; background: rgba(16, 185, 129, .14); }
-.tr-i:nth-child(2) .tr-ic { color: #d97706; background: rgba(245, 158, 11, .16); }
-.tr-i:nth-child(4) .tr-ic { color: #2563eb; background: rgba(59, 130, 246, .14); }
+.tr-i:nth-child(1) .tr-ic { color: #7e22ce; background: rgba(126, 34, 206, .14); }
+.tr-i:nth-child(2) .tr-ic { color: #d4b062; background: rgba(212, 176, 98, .16); }
+.tr-i:nth-child(4) .tr-ic { color: #9333ea; background: rgba(147, 51, 234, .14); }
 
 .tr-i b {
   display: block;
@@ -411,7 +411,7 @@
   border-radius: 50%;
   font-size: 9px;
   color: #fff;
-  background: var(--red);
+  background: var(--primary);
 }
 
 .cmp-bar .btn em { font-style: normal; opacity: .9; }
@@ -499,12 +499,12 @@
 }
 
 .cmp-c small { font-size: 11px; font-weight: 500; color: var(--muted); }
-.cmp-c small i { color: #f59e0b; }
+.cmp-c small i { color: #d4b062; }
 .cmp-price { font-size: 16px; color: var(--primary); }
 
 .cmp-c.best {
-  background: rgba(16, 185, 129, .14);
-  box-shadow: inset 0 0 0 1.5px rgba(16, 185, 129, .55);
+  background: rgba(126, 34, 206, .14);
+  box-shadow: inset 0 0 0 1.5px rgba(126, 34, 206, .55);
 }
 
 .cmp-c.best::after {
@@ -512,7 +512,7 @@
   font-family: "Font Awesome 6 Free";
   font-weight: 900;
   font-size: 10px;
-  color: #059669;
+  color: #7e22ce;
 }
 
 .cmp-min { padding: 24px 8px; text-align: center; color: var(--muted); }
@@ -574,7 +574,7 @@
   font-size: 22px;
 }
 
-.ft-head h3 i { color: #f59e0b; }
+.ft-head h3 i { color: #d4b062; }
 .ft-head p { margin: 4px 0 14px; font-size: 14px; color: var(--muted); }
 
 .ft-grid {
@@ -614,8 +614,8 @@
   border-radius: 999px;
   font-size: 11px;
   font-weight: 800;
-  color: #047857;
-  background: rgba(16, 185, 129, .15);
+  color: #6b21a8;
+  background: rgba(126, 34, 206, .15);
 }
 
 .ft-c .btn { width: 100%; justify-content: center; margin-top: auto; }
@@ -818,7 +818,7 @@
     line-height: 16px;
     text-align: center;
     color: #fff;
-    background: var(--red);
+    background: var(--primary);
   }
 
   body:has(.mbg.open) .bnav, body:has(.wl) .bnav, body:has(.sidebar.open) .bnav { display: none; }

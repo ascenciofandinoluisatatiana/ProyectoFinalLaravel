@@ -4,15 +4,15 @@
       --text: #1b1535;
       --muted: #6b6785;
       --border: #e7e2f7;
-      --primary: #6c3df5;
+      --primary: #7e22ce;
       --primary2: #8b5cf6;
       --soft: #efe9ff;
-      --green: #10b981;
-      --orange: #f59e0b;
-      --blue: #3b82f6;
-      --red: #ef4444;
+      --green: #2f9e6e;
+      --orange: #d4b062;
+      --blue: #a855f7;
+      --red: #c8424f;
       --shadow: 0 6px 24px rgba(88, 60, 180, .08);
-      --banner: linear-gradient(120deg, #e6dcfb 0%, #d9d4fb 45%, #cfe6fb 100%);
+      --banner: linear-gradient(120deg, #e6dcfb 0%, #e0d4fb 45%, #e9d5ff 100%);
     }
 
     [data-theme="dark"] {
@@ -23,7 +23,7 @@
       --border: #2b2447;
       --soft: #261e47;
       --shadow: 0 6px 24px rgba(0, 0, 0, .35);
-      --banner: linear-gradient(120deg, #2a1f55 0%, #241d4d 50%, #183056 100%);
+      --banner: linear-gradient(120deg, #2a1f55 0%, #241d4d 50%, #140826 100%);
     }
 
     * {
@@ -113,7 +113,7 @@
       place-items: center;
       color: #fff;
       font-size: 22px;
-      box-shadow: 0 6px 16px rgba(108, 61, 245, .4)
+      box-shadow: 0 6px 16px rgba(126, 34, 206, .4)
     }
 
     .brand b {
@@ -312,9 +312,9 @@
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #5b2ff0, #7c4dff);
+      background: linear-gradient(135deg, #7e22ce, #9333ea);
       color: #fff;
-      box-shadow: 0 6px 16px rgba(108, 61, 245, .35)
+      box-shadow: 0 6px 16px rgba(126, 34, 206, .35)
     }
 
     .btn-primary:hover {
@@ -331,15 +331,15 @@
     }
 
     .btn-green {
-      background: linear-gradient(135deg, #059669, #10b981);
+      background: linear-gradient(135deg, #7e22ce, #9333ea);
       color: #fff;
-      box-shadow: 0 6px 16px rgba(16, 185, 129, .3)
+      box-shadow: 0 6px 16px rgba(126, 34, 206, .3)
     }
 
     .btn-orange {
-      background: linear-gradient(135deg, #ea8a04, #f59e0b);
-      color: #fff;
-      box-shadow: 0 6px 16px rgba(245, 158, 11, .3)
+      background: linear-gradient(135deg, #c9a24d, #d4b062);
+      color: #140826;
+      box-shadow: 0 6px 16px rgba(212, 176, 98, .3)
     }
 
     .btn-sm {
@@ -499,7 +499,7 @@
     }
 
     .op.active {
-      background: linear-gradient(135deg, #5b2ff0, #7c4dff);
+      background: linear-gradient(135deg, #7e22ce, #9333ea);
       color: #fff;
       border-color: transparent
     }
@@ -650,19 +650,20 @@
     }
 
     .b-sale {
-      background: #5b2ff0
+      background: #7e22ce
     }
 
     .b-rent {
-      background: #0ea5e9
+      background: #9333ea
     }
 
     .b-ver {
-      background: #10b981
+      background: #6b21a8
     }
 
     .b-prem {
-      background: #f59e0b
+      background: #d4b062;
+      color: #140826
     }
 
     .fav {
@@ -1111,7 +1112,7 @@
       background:
         linear-gradient(110deg, rgba(40, 16, 100, .88) 0%, rgba(76, 40, 190, .66) 55%, rgba(20, 60, 140, .5) 100%),
         url(/img/hero.jpg) center/cover no-repeat,
-        linear-gradient(120deg, #4c1d95 0%, #6c3df5 55%, #2563eb 100%);
+        linear-gradient(120deg, #4c1d95 0%, #7e22ce 55%, #9333ea 100%);
       box-shadow: 0 18px 50px rgba(60, 30, 160, .28)
     }
 
@@ -1136,7 +1137,7 @@
     .hero::after {
       width: 300px;
       height: 300px;
-      background: #38bdf8;
+      background: #a855f7;
       bottom: -140px;
       left: 30%
     }

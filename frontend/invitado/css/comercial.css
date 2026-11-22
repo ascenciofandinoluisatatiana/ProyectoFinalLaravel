@@ -29,8 +29,8 @@
 /* "Nuevo": publicado en los últimos 14 días */
 .b-new {
   color: #fff;
-  background: linear-gradient(135deg, #f43f5e, #fb923c);
-  box-shadow: 0 4px 14px rgba(244, 63, 94, .45);
+  background: linear-gradient(135deg, #9333ea, #7e22ce);
+  box-shadow: 0 4px 14px rgba(147, 51, 234, .45);
   animation: bNuevo 2.6s ease-in-out infinite;
 }
 
@@ -39,8 +39,8 @@
 }
 
 @keyframes bNuevo {
-  0%, 100% { box-shadow: 0 4px 14px rgba(244, 63, 94, .45); }
-  50% { box-shadow: 0 4px 22px rgba(251, 146, 60, .8); }
+  0%, 100% { box-shadow: 0 4px 14px rgba(147, 51, 234, .45); }
+  50% { box-shadow: 0 4px 22px rgba(212, 176, 98, .8); }
 }
 
 /* "Verificada": sello de confianza abajo a la derecha de la foto (arriba a la izquierda quedan operación y Nuevo) */
@@ -57,14 +57,14 @@
   font-size: 11px;
   font-weight: 800;
   line-height: 1;
-  color: #047857;
+  color: #6b21a8;
   background: rgba(255, 255, 255, .95);
   box-shadow: 0 6px 16px rgba(0, 0, 0, .3);
   pointer-events: none;
 }
 
 .pcard .pimg .ver-pill i {
-  color: #10b981;
+  color: #7e22ce;
   font-size: 13px;
 }
 
@@ -134,9 +134,9 @@
   place-items: center;
   border-radius: 10px;
   font-size: 13px;
-  color: #3b2400;
-  background: linear-gradient(135deg, #fde68a, #f59e0b);
-  box-shadow: 0 8px 20px rgba(245, 158, 11, .45);
+  color: #140826;
+  background: linear-gradient(135deg, #f1e2b4, #d4b062);
+  box-shadow: 0 8px 20px rgba(212, 176, 98, .45);
 }
 
 .gc-list {
@@ -159,7 +159,7 @@
 .gc-list i {
   flex: none;
   margin-top: 2px;
-  color: #86efac;
+  color: #c084fc;
 }
 
 .gc-cta a.btn-primary {

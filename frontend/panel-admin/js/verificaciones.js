@@ -399,7 +399,7 @@
 
     /* ================= Arranque ================= */
     P.listo.then(function () {
-        if (window.location.hash === '#historial') mostrarPestana('historial');
+        if ((window.UMBRAL_RUTA ? window.UMBRAL_RUTA.hash : window.location.hash) === '#historial') mostrarPestana('historial');
         else cargar(1);
     }).catch(function (error) {
         if (error && error.estado !== 401 && window.console) console.error('Verificaciones:', error);

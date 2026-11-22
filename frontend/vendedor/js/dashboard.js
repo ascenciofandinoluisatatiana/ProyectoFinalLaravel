@@ -22,8 +22,8 @@
         if (document.getElementById('estilo-espera-pago')) return;
         var st = document.createElement('style');
         st.id = 'estilo-espera-pago';
-        st.textContent = '.v-prop.v-espera{border:2px solid #ef4444 !important;box-shadow:0 0 0 3px rgba(239,68,68,.15)}' +
-            '.v-estado.espera{background:#ef4444 !important;color:#fff !important}';
+        st.textContent = '.v-prop.v-espera{border:2px solid #9333ea !important;box-shadow:0 0 0 3px rgba(147, 51, 234,.15)}' +
+            '.v-estado.espera{background:#9333ea !important;color:#fff !important}';
         document.head.appendChild(st);
     })();
 
@@ -284,7 +284,7 @@
 
         var estilo = getComputedStyle(document.body);
         var color = estilo.getPropertyValue('--op-1').trim() || '#5b3df0';
-        var texto = estilo.getPropertyValue('--texto-suave').trim() || '#5b6385';
+        var texto = estilo.getPropertyValue('--texto-suave').trim() || '#7e22ce';
         var rejilla = estilo.getPropertyValue('--campo-borde').trim() || '#e3e1ee';
 
         if (grafica) grafica.destroy();

@@ -72,12 +72,12 @@ body.panel-violeta.op-arriendo {
     --boton-gradiente: linear-gradient(90deg, #7415ad 0%, #8e2ac8 100%);
     --sombra: none;
     --neutro-fondo: rgba(201, 151, 246, 0.10);
-    --ok: #5cc197;
-    --ok-fondo: rgba(92, 193, 151, 0.14);
+    --ok: #c997f6;
+    --ok-fondo: rgba(201, 151, 246, 0.14);
     --aviso: #dcb25c;
     --aviso-fondo: rgba(220, 178, 92, 0.12);
-    --peligro: #e68497;
-    --peligro-fondo: rgba(230, 132, 151, 0.14);
+    --peligro: #b25ae8;
+    --peligro-fondo: rgba(178, 90, 232, 0.14);
 
     --op-1: #9a38d8;
     --op-2: #b25ae8;
@@ -295,15 +295,15 @@ body.panel-violeta::after { display: none; }
 
 /* Estado de los inmuebles */
 [data-theme="dark"] .panel-violeta .v-estado { background: rgba(13, 11, 20, 0.90); color: #f3eff8; border: 1px solid rgba(201, 151, 246, 0.30); }
-[data-theme="dark"] .panel-violeta .v-estado.publicada { background: #25805f; border-color: transparent; }
-[data-theme="dark"] .panel-violeta .v-estado.borrador { background: #94682a; border-color: transparent; }
+[data-theme="dark"] .panel-violeta .v-estado.publicada { background: #7e22ce; border-color: transparent; }
+[data-theme="dark"] .panel-violeta .v-estado.borrador { background: #d4b062; color: #140826; border-color: transparent; }
 [data-theme="dark"] .panel-violeta .v-estado.pausada { background: #4d4560; border-color: transparent; }
 
 /* Botones circulares sobre las fotos (editar / eliminar) */
 .panel-violeta .v-icon-circ { box-shadow: none; border: 1px solid rgba(116, 21, 173, 0.16); }
 [data-theme="dark"] .panel-violeta .v-icon-circ { color: #e9d8fb; background: rgba(19, 16, 25, 0.94); border-color: rgba(201, 151, 246, 0.26); }
 [data-theme="dark"] .panel-violeta .v-icon-circ.editar:hover { background: #7415ad; color: #fbf5ff; }
-[data-theme="dark"] .panel-violeta .v-icon-circ.eliminar:hover { background: #b84a5e; color: #fbf5ff; }
+[data-theme="dark"] .panel-violeta .v-icon-circ.eliminar:hover { background: #7e22ce; color: #fbf5ff; }
 .panel-violeta .v-icon-circ.editar:hover { background: var(--op-1); color: #fbf5ff; }
 
 /* ---------- Ventanas, avisos y carrusel ---------- */
@@ -475,7 +475,7 @@ body.panel-violeta.op-arriendo,
 .panel-violeta .v-avatar,
 [data-theme="dark"] .panel-violeta .v-avatar { background: linear-gradient(135deg, #7e22ce, #9333ea); color: #fff; }
 .panel-violeta #i-tema { color: #7e22ce; }
-[data-theme="dark"] .panel-violeta #i-tema { color: #fbbf24; }
+[data-theme="dark"] .panel-violeta #i-tema { color: #e3c985; }
 
 /* ---------- Cabecera de cada pantalla: lila suave en claro, morado profundo en oscuro ---------- */
 [data-theme="light"] .panel-violeta .v-hero {

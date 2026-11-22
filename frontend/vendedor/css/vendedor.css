@@ -10,28 +10,28 @@
 /* ---------- Color por operación ---------- */
 :root {
     --op-1: #5b3df0;
-    --op-2: #2f6bff;
+    --op-2: #9333ea;
     --op-texto: #5b3df0;
     --op-glow: rgba(124, 58, 237, 0.16);
     --op-sombra: rgba(91, 61, 240, 0.35);
-    --ok: #0f9d6b;
-    --ok-fondo: rgba(16, 185, 129, 0.14);
-    --aviso: #b7791f;
-    --aviso-fondo: rgba(245, 158, 11, 0.16);
-    --peligro: #d6455d;
-    --peligro-fondo: rgba(239, 68, 68, 0.12);
-    --neutro-fondo: rgba(99, 102, 241, 0.10);
+    --ok: #7e22ce;
+    --ok-fondo: rgba(126, 34, 206, 0.14);
+    --aviso: #d4b062;
+    --aviso-fondo: rgba(212, 176, 98, 0.16);
+    --peligro: #9333ea;
+    --peligro-fondo: rgba(147, 51, 234, 0.12);
+    --neutro-fondo: rgba(126, 34, 206, 0.10);
 }
 [data-theme="dark"] {
-    --op-texto: #9aa8ff;
+    --op-texto: #c997f6;
     --op-glow: rgba(139, 92, 246, 0.22);
-    --ok: #34d399;
-    --aviso: #fbbf24;
-    --peligro: #fb7185;
+    --ok: #c997f6;
+    --aviso: #e3c985;
+    --peligro: #b25ae8;
 }
-.op-venta { --op-1: #5b3df0; --op-2: #2f6bff; --op-texto: #5b3df0; --op-glow: rgba(124, 58, 237, 0.16); --op-sombra: rgba(91, 61, 240, 0.35); }
-.op-arriendo { --op-1: #0d9488; --op-2: #2563eb; --op-texto: #0b8a7e; --op-glow: rgba(20, 184, 166, 0.18); --op-sombra: rgba(13, 148, 136, 0.35); }
-[data-theme="dark"] .op-venta { --op-texto: #9aa8ff; --op-glow: rgba(139, 92, 246, 0.22); }
+.op-venta { --op-1: #5b3df0; --op-2: #9333ea; --op-texto: #5b3df0; --op-glow: rgba(124, 58, 237, 0.16); --op-sombra: rgba(91, 61, 240, 0.35); }
+.op-arriendo { --op-1: #0d9488; --op-2: #7e22ce; --op-texto: #0b8a7e; --op-glow: rgba(20, 184, 166, 0.18); --op-sombra: rgba(13, 148, 136, 0.35); }
+[data-theme="dark"] .op-venta { --op-texto: #c997f6; --op-glow: rgba(139, 92, 246, 0.22); }
 [data-theme="dark"] .op-arriendo { --op-texto: #4fe0cb; --op-glow: rgba(20, 184, 166, 0.22); }
 
 /* ---------- Fondo y estructura ---------- */
@@ -52,7 +52,7 @@ body.vendedor::after {
     opacity: 0.55;
 }
 body.vendedor::before { width: 420px; height: 420px; top: -120px; right: -100px; background: var(--op-glow); }
-body.vendedor::after  { width: 360px; height: 360px; bottom: -140px; left: -100px; background: rgba(37, 99, 235, 0.14); }
+body.vendedor::after  { width: 360px; height: 360px; bottom: -140px; left: -100px; background: rgba(126, 34, 206, 0.14); }
 
 .v-pagina { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
 .v-contenido { width: min(1240px, 100%); margin: 0 auto; padding: 28px clamp(16px, 4vw, 40px) 64px; display: grid; gap: 24px; }
@@ -163,7 +163,7 @@ body.vendedor::after  { width: 360px; height: 360px; bottom: -140px; left: -100p
 .v-capacidad span { font-size: 0.8rem; color: var(--texto-suave); }
 
 /* ---------- Avisos ---------- */
-.v-aviso { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 18px; border-radius: 16px; font-size: 0.85rem; color: var(--aviso); background: var(--aviso-fondo); border: 1px solid rgba(245, 158, 11, 0.35); }
+.v-aviso { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 18px; border-radius: 16px; font-size: 0.85rem; color: var(--aviso); background: var(--aviso-fondo); border: 1px solid rgba(212, 176, 98, 0.35); }
 .v-aviso span i { margin-right: 8px; }
 .v-aviso button { border: 0; background: transparent; font-weight: 800; color: inherit; text-decoration: underline; }
 
@@ -179,7 +179,7 @@ body.vendedor::after  { width: 360px; height: 360px; bottom: -140px; left: -100p
 .v-kpi-icono { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; margin-bottom: 16px; color: var(--k); background: color-mix(in srgb, var(--k) 14%, transparent); }
 .v-kpi b { display: block; font-size: 2rem; font-weight: 800; line-height: 1.1; }
 .v-kpi span { font-size: 0.85rem; color: var(--texto-suave); }
-.k-1 { --k: var(--op-1); } .k-2 { --k: #2f8cf0; } .k-3 { --k: #e0922b; } .k-4 { --k: #12a578; }
+.k-1 { --k: var(--op-1); } .k-2 { --k: #9333ea; } .k-3 { --k: #d4b062; } .k-4 { --k: #7e22ce; }
 @keyframes v-entrada { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 
 /* ---------- Inmuebles ---------- */
@@ -189,9 +189,9 @@ body.vendedor::after  { width: 360px; height: 360px; bottom: -140px; left: -100p
 .v-prop-foto { position: relative; aspect-ratio: 16 / 9; background: linear-gradient(135deg, var(--op-1), var(--op-2)); display: grid; place-items: center; color: rgba(255, 255, 255, 0.8); font-size: 2.2rem; }
 .v-prop-foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .v-estado { position: absolute; top: 12px; left: 12px; padding: 4px 11px; border-radius: 999px; font-size: 0.72rem; font-weight: 800; background: rgba(15, 20, 40, 0.72); color: #fff; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
-.v-estado.publicada { background: rgba(16, 150, 105, 0.9); }
-.v-estado.borrador { background: rgba(217, 119, 6, 0.92); }
-.v-estado.pausada { background: rgba(100, 110, 140, 0.92); }
+.v-estado.publicada { background: rgba(126, 34, 206, 0.9); }
+.v-estado.borrador { background: rgba(212, 176, 98, 0.95); color: #140826; }
+.v-estado.pausada { background: rgba(77, 69, 96, 0.92); }
 .v-prop-cuerpo { padding: 16px 18px 12px; display: grid; gap: 4px; }
 .v-prop-precio { font-size: 1.25rem; font-weight: 800; color: var(--op-texto); }
 .v-prop-precio small { font-size: 0.75rem; font-weight: 600; color: var(--texto-suave); }
@@ -230,7 +230,7 @@ dialog.v-ventana::backdrop { background: rgba(6, 10, 30, 0.55); -webkit-backdrop
 .v-form-rejilla { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .v-campo label { display: block; font-size: 0.76rem; font-weight: 700; margin-bottom: 6px; color: var(--texto-suave); }
 .v-campo input, .v-campo select { width: 100%; padding: 11px 13px; border-radius: var(--radio-campo); border: 1px solid var(--campo-borde); background: var(--campo); color: var(--texto); font: inherit; font-size: 0.9rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
-.v-campo input:focus, .v-campo select:focus { border-color: var(--acento); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18); }
+.v-campo input:focus, .v-campo select:focus { border-color: var(--acento); box-shadow: 0 0 0 3px rgba(126, 34, 206, 0.18); }
 .v-campo.ancho { grid-column: 1 / -1; }
 .v-form-pie { display: flex; justify-content: flex-end; gap: 10px; padding-top: 6px; }
 .v-planes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
@@ -240,7 +240,7 @@ dialog.v-ventana::backdrop { background: rgba(6, 10, 30, 0.55); -webkit-backdrop
 .v-nota { font-size: 0.78rem; color: var(--texto-suave); }
 
 /* ---------- Aviso emergente ---------- */
-.v-toast { position: fixed; bottom: 24px; left: 50%; z-index: 200; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; padding: 12px 22px; border-radius: 14px; font-weight: 700; font-size: 0.88rem; color: #fff; background: #151c3a; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35); transition: 0.3s; max-width: calc(100vw - 32px); text-align: center; }
+.v-toast { position: fixed; bottom: 24px; left: 50%; z-index: 200; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; padding: 12px 22px; border-radius: 14px; font-weight: 700; font-size: 0.88rem; color: #fff; background: #140826; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35); transition: 0.3s; max-width: calc(100vw - 32px); text-align: center; }
 .v-toast.visible { opacity: 1; transform: translate(-50%, 0); }
 
 /* ---------- Adaptación a pantallas pequeñas ---------- */
@@ -264,11 +264,11 @@ dialog.v-ventana::backdrop { background: rgba(6, 10, 30, 0.55); -webkit-backdrop
 [dir="rtl"] .v-topbar-der { margin-left: 0; margin-right: auto; }
 /* Iconos de editar / eliminar, foto y mapa */
 .v-prop-herramientas { position: absolute; top: 10px; right: 10px; z-index: 2; display: flex; gap: 6px; }
-.v-icon-circ { width: 36px; height: 36px; border: 0; border-radius: 50%; display: grid; place-items: center; color: #1b2250; background: rgba(255, 255, 255, 0.93); box-shadow: 0 6px 16px rgba(10, 15, 40, 0.28); transition: transform 0.2s, background 0.2s, color 0.2s; }
+.v-icon-circ { width: 36px; height: 36px; border: 0; border-radius: 50%; display: grid; place-items: center; color: #140826; background: rgba(255, 255, 255, 0.93); box-shadow: 0 6px 16px rgba(10, 15, 40, 0.28); transition: transform 0.2s, background 0.2s, color 0.2s; }
 .v-icon-circ svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .v-icon-circ:hover { transform: scale(1.1); }
 .v-icon-circ.editar:hover { background: var(--acento); color: #fff; }
-.v-icon-circ.eliminar:hover { background: #e0334f; color: #fff; }
+.v-icon-circ.eliminar:hover { background: #7e22ce; color: #fff; }
 .v-icon-circ:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
 .v-enlace { margin-left: 6px; font-weight: 700; color: var(--op-texto); text-decoration: none; white-space: nowrap; }
 .v-enlace:hover { text-decoration: underline; }
@@ -311,7 +311,7 @@ dialog.v-ventana::backdrop { background: rgba(6, 10, 30, 0.55); -webkit-backdrop
 .v-prop-nfotos { position: absolute; right: 10px; bottom: 10px; z-index: 1; display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 800; color: #fff; background: rgba(15, 20, 40, 0.72); }
 .v-fila-texto .v-fila-contacto { color: var(--acento); font-weight: 700; margin: 1px 0 2px; }
 .v-fila-contacto i { font-size: 0.72rem; margin-right: 3px; }
-.v-posicionado { position: absolute; bottom: 12px; left: 12px; padding: 4px 11px; border-radius: 999px; font-size: 0.72rem; font-weight: 800; color: #3b2a00; background: linear-gradient(135deg, #ffd978, #f5b53a); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); }
+.v-posicionado { position: absolute; bottom: 12px; left: 12px; padding: 4px 11px; border-radius: 999px; font-size: 0.72rem; font-weight: 800; color: #140826; background: linear-gradient(135deg, #e3c985, #d4b062); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); }
 .v-posicionado i { margin-right: 4px; }
 /* ---------- Campana de notificaciones y alertas (barra superior) ---------- */
 .i-avisos-caja { position: relative; flex: none; }

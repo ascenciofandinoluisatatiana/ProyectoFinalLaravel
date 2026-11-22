@@ -10,15 +10,15 @@
     </div>
     <div class="pbody">
       <div class="price">${cop(p.price)}${rent ? `<small> ${t('per_month')}</small>` : ''}</div>
-      <div class="ptitle">${title(p)}</div>
-      <div class="loc"><i class="fa-solid fa-location-dot"></i>${ubic(p)}</div>
+      <div class="ptitle">${esc(title(p))}</div>
+      <div class="loc"><i class="fa-solid fa-location-dot"></i>${esc(ubic(p))}</div>
       <div class="specs">
         ${p.beds ? `<span><i class="fa-solid fa-bed"></i>${p.beds}</span>` : ''}
         ${p.baths ? `<span><i class="fa-solid fa-bath"></i>${p.baths}</span>` : ''}
         ${p.park ? `<span><i class="fa-solid fa-car"></i>${p.park}</span>` : ''}
         <span><i class="fa-solid fa-ruler-combined"></i>${p.area.toLocaleString('es-CO')} ${t('m2')}</span>
       </div>
-      <div class="mini-seller"><div class="avatar">${s.ini}</div><div><b>${s.name}</b><small>${t(s.kind === 'agency' ? 'agency' : 'person')}</small></div></div>
+      <div class="mini-seller"><div class="avatar">${esc(s.ini)}</div><div><b>${esc(s.name)}</b><small>${t(s.kind === 'agency' ? 'agency' : 'person')}</small></div></div>
       <div class="pactions">
         <button class="btn btn-ghost btn-sm" data-open="${p.id}"><i class="fa-solid fa-eye"></i>${t('details')}</button>
         <button class="btn btn-primary btn-sm" data-contact="${p.id}"><i class="fa-solid fa-comments"></i>${t('contact_cta')}</button>
@@ -107,14 +107,14 @@
       $('#s1').textContent = P.length; $('#s2').textContent = new Set(P.map(p => p.city)).size;
       $('#s3').textContent = SELLERS.length; $('#s4').textContent = P.filter(p => p.ver).length;
       const chip = $('#sellerChip');
-      if (S.seller !== null) { chip.style.display = 'inline-flex'; chip.innerHTML = `<i class="fa-solid fa-user"></i>${SELLERS[S.seller].name} <button id="chipX"><i class="fa-solid fa-xmark"></i></button>` }
+      if (S.seller !== null) { chip.style.display = 'inline-flex'; chip.innerHTML = `<i class="fa-solid fa-user"></i>${esc(SELLERS[S.seller].name)} <button id="chipX"><i class="fa-solid fa-xmark"></i></button>` }
       else chip.style.display = 'none';
       if (S.view === 'map') renderMap(r);
     }
     function renderSellers() {
       $('#sellers').innerHTML = SELLERS.map((s, i) => `<div class="scard">
-    <div class="top"><div class="avatar">${s.ini}</div><div><h4>${s.name}</h4><small>${t(s.kind === 'agency' ? 'agency' : 'person')} · ${P.filter(p => p.seller === i).length} ${t('props_n')}</small>
+    <div class="top"><div class="avatar">${esc(s.ini)}</div><div><h4>${esc(s.name)}</h4><small>${t(s.kind === 'agency' ? 'agency' : 'person')} · ${P.filter(p => p.seller === i).length} ${t('props_n')}</small>
     </div></div>
-    <ul><li><i class="fa-solid fa-phone"></i>${s.phone}</li><li><i class="fa-solid fa-envelope"></i>${s.email}</li></ul>
+    <ul><li><i class="fa-solid fa-phone"></i>${esc(s.phone)}</li><li><i class="fa-solid fa-envelope"></i>${esc(s.email)}</li></ul>
     <button class="btn btn-ghost btn-sm" style="width:100%" data-seller="${i}"><i class="fa-solid fa-house"></i>${t('see_props')}</button></div>`).join('');
     }

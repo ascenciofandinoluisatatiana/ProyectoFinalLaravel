@@ -2,7 +2,7 @@
     const uniq = a => [...new Set(a)].sort((x, y) => x.localeCompare(y, 'es'));
     const normB = x => String(x == null ? '' : x).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
     function fill(sel, opts, val, allLabel) {
-      sel.innerHTML = `<option value="">${allLabel}</option>` + opts.map(o => `<option value="${o[0]}">${o[1]}</option>`).join('');
+      sel.innerHTML = `<option value="">${allLabel}</option>` + opts.map(o => `<option value="${esc(o[0])}">${esc(o[1])}</option>`).join('');
       sel.value = opts.some(o => String(o[0]) === String(val)) ? val : '';
     }
     function buildFilters() {

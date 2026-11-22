@@ -58,8 +58,8 @@
       '</div>' +
       '<div class="pbody">' +
       '<div class="price">' + cop(p.price) + (rent ? '<small> ' + t('per_month') + '</small>' : '') + '</div>' +
-      '<div class="ptitle">' + title(p) + '</div>' +
-      '<div class="loc"><i class="fa-solid fa-location-dot"></i>' + ubic(p) + '</div>' +
+      '<div class="ptitle">' + esc(title(p)) + '</div>' +
+      '<div class="loc"><i class="fa-solid fa-location-dot"></i>' + esc(ubic(p)) + '</div>' +
       '<div class="specs">' +
       (p.beds ? '<span><i class="fa-solid fa-bed"></i>' + p.beds + '</span>' : '') +
       (p.baths ? '<span><i class="fa-solid fa-bath"></i>' + p.baths + '</span>' : '') +
@@ -67,7 +67,7 @@
       '<span><i class="fa-solid fa-ruler-combined"></i>' + p.area.toLocaleString('es-CO') + ' ' + t('m2') + '</span>' +
       '</div>' +
       '<div class="pfoot">' +
-      '<div class="mini-seller"><div class="avatar">' + s.ini + '</div><div><b>' + s.name + '</b><small>' + t(s.kind === 'agency' ? 'agency' : 'person') + RV.mini(s) + '</small></div></div>' +
+      '<div class="mini-seller"><div class="avatar">' + esc(s.ini) + '</div><div><b>' + esc(s.name) + '</b><small>' + t(s.kind === 'agency' ? 'agency' : 'person') + RV.mini(s) + '</small></div></div>' +
       '<div class="pshare" role="group" aria-label="' + L('share') + '">' +
       '<button type="button" class="sh-toggle" data-shtoggle aria-haspopup="true" aria-expanded="false" aria-label="' + L('share') + '" title="' + L('share') + '"><i class="fa-solid fa-share-nodes"></i></button>' +
       '<div class="sh-menu">' +

@@ -1529,3 +1529,11 @@
     }
 
     
+
+/* Cambio de tema claro/oscuro: durante ese instante se apagan las transiciones para que todo cambie a la vez */
+.sin-transiciones,
+.sin-transiciones *,
+.sin-transiciones *::before,
+.sin-transiciones *::after {
+  transition: none !important;
+}

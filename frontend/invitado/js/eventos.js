@@ -64,9 +64,13 @@
 
     /* tema claro / oscuro */
     function setTheme(th) {
-      document.documentElement.dataset.theme = th;
+      var raiz = document.documentElement;
+      raiz.classList.add('sin-transiciones');   // todo cambia en el mismo instante, sin desvanecerse
+      raiz.dataset.theme = th;
       $('#themeBtn').innerHTML = `<i class="fa-solid ${th === 'dark' ? 'fa-sun' : 'fa-moon'}"></i>`;
       try { localStorage.setItem('umbral_theme', th) } catch (_) { }
+      void raiz.offsetWidth;                    // aplica el cambio ya, antes de volver a encender las transiciones
+      requestAnimationFrame(function () { requestAnimationFrame(function () { raiz.classList.remove('sin-transiciones'); }); });
     }
     $('#themeBtn').onclick = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
     setTheme(localStorage.getItem('umbral_theme') || 'dark');

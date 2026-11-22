@@ -1,3 +1,5 @@
+:root { --fuente-serif: 'Plus Jakarta Sans', system-ui, sans-serif; --fuente-sans: 'Plus Jakarta Sans', system-ui, sans-serif; }
+
 /* =========================================================
    UMBRAL — Panel del vendedor (persona)
    Usa las variables de css/base.css (tema claro / oscuro),

@@ -1,8 +1,19 @@
-# Portal Inmobiliario Global — Fase 1
+# UMBRAL — Portal Inmobiliario Global
 
-Fundación técnica del proyecto: **Laravel 13 + API REST + PostgreSQL + Redis**, corriendo
-en Docker. Esta es la carpeta base que usamos **todos los del equipo**, sin importar el
-sistema operativo o cómo tenga cada quien configurado Docker.
+Portal inmobiliario con **Laravel 13 + API REST + PostgreSQL + Redis**, corriendo en
+Docker, y un frontend estático servido por nginx. Esta es la carpeta que usamos
+**todos los del equipo**, sin importar el sistema operativo o cómo tenga cada quien
+configurado Docker.
+
+Qué incluye hoy:
+
+- **Perfiles:** Invitado, Vendedor, Inmobiliaria, Agente y Administrador, cada uno con su
+  panel en `frontend/`.
+- **API pública** (`/api/v1/public`) para el catálogo de inmuebles, calificaciones y contacto.
+- **Planes y membresías**, con pagos y avisos de vencimiento por correo.
+- **Umbra**, el asistente de chat con DeepSeek, y verificación de documentos de identidad.
+- **Idiomas:** español, inglés, portugués y francés (árabe en el registro).
+- **Pruebas automáticas** (GitHub Actions, workflow "Pruebas") con PHP 8.4 y PostgreSQL.
 
 ## Por qué esta carpeta está armada así
 

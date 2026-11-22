@@ -309,11 +309,22 @@
     }
     cajaColombia.addEventListener('change', validarColombia);
 
+    // Aviso de privacidad: la casilla es obligatoria (S12)
+    var cajaPrivacidad = document.getElementById('reg-privacidad');
+    function validarPrivacidad() {
+        var texto = cajaPrivacidad.checked ? '' : window.t('msg.registro.privacidad');
+        var aviso = document.getElementById('err-reg-privacidad');
+        aviso.textContent = texto; aviso.hidden = !texto;
+        return texto;
+    }
+    cajaPrivacidad.addEventListener('change', validarPrivacidad);
+
     // Al cambiar entre persona e inmobiliaria se limpian las alertas
     opcionesCuenta.forEach(function (op) {
         op.addEventListener('click', function () {
             CAMPOS.forEach(function (c) { ponerError(c.id, ''); });
             document.getElementById('err-reg-colombia').hidden = true;
+            document.getElementById('err-reg-privacidad').hidden = true;
         });
     });
 
@@ -327,8 +338,10 @@
             if (validarCampo(c) && !primero) primero = c.id;
         });
         var errorColombia = validarColombia();
+        var errorPrivacidad = validarPrivacidad();
         if (primero) { document.getElementById(primero).focus(); return; }
         if (errorColombia) { cajaColombia.focus(); return; }
+        if (errorPrivacidad) { cajaPrivacidad.focus(); return; }
 
         var campos = {
             tipo_cuenta: tipoCuenta,

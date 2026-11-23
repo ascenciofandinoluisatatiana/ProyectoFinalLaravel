@@ -16,7 +16,26 @@
     async function cargar() {
         agentes = (await I.api('/agentes')).data;
         pintar();
-        await cargarComisiones();
+        var sel = $('m-agente'), elegido = sel.value;
+        sel.innerHTML = '<option value="">Todos</option>' + agentes.map(function (a) { return '<option value="' + a.id + '">' + I.esc(a.nombre) + '</option>'; }).join('');
+        sel.value = elegido;
+        await Promise.all([cargarComisiones(), cargarMovimientos(1)]);
+    }
+
+    /* ---------- IN7: movimientos de los agentes (GET /agentes/movimientos) ---------- */
+    async function cargarMovimientos(n) {
+        var P = window.PanelExtra, lista = $('m-lista');
+        if (!P) return;
+        try {
+            var q = ['pagina=' + n, 'por_pagina=10'].concat(P.filtrosQuery($('m-filtros')));
+            var r = await I.api('/agentes/movimientos?' + q.join('&'));
+            $('m-resumen').textContent = r.resumen ? r.resumen.total + ' en total · ' + r.resumen.errores + ' con error' : '';
+            lista.innerHTML = r.data.length ? r.data.map(function (m) { return P.filaMovimiento(m, true); }).join('')
+                : '<li class="i-mov-vacio"><i class="fa-regular fa-clock"></i> No hay movimientos con esos filtros.</li>';
+            P.paginador($('m-paginador'), r.meta, function (p) { cargarMovimientos(p).then(function () { $('movimientos').scrollIntoView({ behavior: 'smooth', block: 'start' }); }); });
+        } catch (err) {
+            lista.innerHTML = '<li class="i-mov-vacio">' + I.esc(err.message) + '</li>';
+        }
     }
 
     /* ---------- Comisiones ---------- */
@@ -218,6 +237,7 @@
 
     (async function () {
         if (!await I.iniciar('agentes')) return;
+        if (window.PanelExtra) window.PanelExtra.prepararFiltros($('m-filtros'), function () { cargarMovimientos(1); });
         try {
             await cargar();
             $('d-cargando').hidden = true;

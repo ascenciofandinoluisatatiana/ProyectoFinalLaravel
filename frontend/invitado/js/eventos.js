@@ -59,7 +59,7 @@
     $('#fSort').onchange = e => { S.sort = e.target.value; render() };
     $('#fMax').oninput = e => { S.max = e.target.value; render() };
     $('#q').oninput = e => { S.q = e.target.value; render() };
-    $('#lang').onchange = e => { lang = e.target.value; try { localStorage.setItem('umbral_lang', lang) } catch (_) { } applyI18n() };
+    $('#lang').onchange = e => { lang = e.target.value; try { localStorage.setItem('umbral-idioma', lang) } catch (_) { } applyI18n() };
     ['cPrice', 'cDown', 'cRate', 'cYears'].forEach(i => $('#' + i).oninput = calc);
 
     /* tema claro / oscuro */

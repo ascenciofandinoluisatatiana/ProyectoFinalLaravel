@@ -23,6 +23,11 @@
             var guardado = localStorage.getItem(CLAVE);
             if (guardado && IDIOMAS[guardado]) return guardado;
         } catch (e) {}
+        // Si el Invitado guardó el suyo con la clave vieja, se respeta
+        try {
+            var viejo = localStorage.getItem('umbral_lang');
+            if (viejo && IDIOMAS[viejo]) return viejo;
+        } catch (e) {}
         var nav = (navigator.language || 'es').slice(0, 2).toLowerCase();
         return IDIOMAS[nav] ? nav : 'es';
     }
@@ -64,7 +69,8 @@
     }
 
     // 4) Carga el JSON del idioma y lo aplica
-    async function cambiar(codigo) {
+    // guardar = true solo cuando la persona lo elige en el menú; al abrir la página no se guarda nada
+    async function cambiar(codigo, guardar) {
         if (!IDIOMAS[codigo]) codigo = 'es';
 
         try {
@@ -85,9 +91,11 @@
             raiz.setAttribute('lang', codigo);
             raiz.setAttribute('dir', IDIOMAS[codigo].dir);
 
-            try {
-                localStorage.setItem(CLAVE, codigo);
-            } catch (e) {}
+            if (guardar) {
+                try {
+                    localStorage.setItem(CLAVE, codigo);
+                } catch (e) {}
+            }
 
             aplicar();
 
@@ -117,7 +125,7 @@
         menu.addEventListener('click', function (e) {
             var opcion = e.target.closest('[data-idioma]');
             if (!opcion) return;
-            cambiar(opcion.getAttribute('data-idioma'));
+            cambiar(opcion.getAttribute('data-idioma'), true);
             abrir(false);
         });
 
@@ -129,7 +137,7 @@
 
     function arrancar() {
         iniciarMenu();
-        cambiar(idiomaInicial());
+        cambiar(idiomaInicial(), false);
     }
 
     if (document.readyState === 'loading') {

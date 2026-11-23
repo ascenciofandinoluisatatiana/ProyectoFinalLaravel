@@ -39,6 +39,12 @@
 
                 <section class="v-tarjeta">
                     <div class="i-pestanas" id="d-pestanas" role="group" aria-label="Filtrar por estado"></div>
+                    <form class="i-filtros-compactos" id="d-filtros" novalidate role="search" aria-label="Filtros">
+                        <label class="i-fc-buscar"><i class="fa-solid fa-magnifying-glass"></i><span class="v-oculto">Buscar</span><input name="q" type="search" placeholder="Nombre, teléfono, mensaje o barrio" maxlength="100"></label>
+                        <label class="i-fc"><span>Desde</span><input name="desde" type="date"></label>
+                        <label class="i-fc"><span>Hasta</span><input name="hasta" type="date"></label>
+                        <button type="button" class="i-icono-mini" data-limpiar title="Limpiar filtros" aria-label="Limpiar filtros"><i class="fa-solid fa-eraser"></i></button>
+                    </form>
                     <div class="v-lista" id="d-contactos"></div>
                     <div class="i-paginador" id="d-paginador"></div>
                 </section>

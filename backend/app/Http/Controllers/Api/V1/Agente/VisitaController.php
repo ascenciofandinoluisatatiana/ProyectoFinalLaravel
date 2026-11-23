@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Agente;
 
 use App\Http\Controllers\Api\V1\Concerns\ManejaVisitas;
+use App\Http\Controllers\Api\V1\Concerns\FiltrosListado;
 use App\Http\Controllers\Api\V1\Concerns\Paginacion;
 use App\Http\Controllers\Controller;
 use App\Models\Lead;
@@ -17,13 +18,14 @@ class VisitaController extends Controller
 {
     use ManejaVisitas;
     use Paginacion;
+    use FiltrosListado;
 
     private function mias(Request $request)
     {
         return Visita::where('agente_id', $request->user()->id);
     }
 
-    /** GET /api/v1/agente/visitas?periodo=proximas|pasadas|todas */
+    /** GET /api/v1/agente/visitas?periodo=proximas|pasadas|todas&estado=&desde=&hasta=&q= */
     public function index(Request $request): JsonResponse
     {
         $consulta = $this->mias($request)->with(['propiedad:id,tipo,barrio,ciudad,direccion', 'agente:id,name']);
@@ -35,6 +37,11 @@ class VisitaController extends Controller
         } else {
             $consulta->orderByDesc('fecha');
         }
+        if (in_array($request->query('estado'), Visita::ESTADOS, true)) {
+            $consulta->where('estado', $request->query('estado'));
+        }
+        $this->filtrarFechas($consulta, $request, 'fecha');
+        $this->filtrarTexto($consulta, $request, ['nombre', 'contacto', 'nota', 'propiedad.barrio', 'propiedad.ciudad']);
 
         return response()->json($this->listado($consulta->orderBy('id'), $request, fn (Visita $v) => $this->formatoVisita($v)));
     }

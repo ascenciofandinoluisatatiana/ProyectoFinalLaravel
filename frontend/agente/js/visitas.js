@@ -17,7 +17,8 @@
     // nueva: número de página (al cambiar de periodo se vuelve a la 1)
     async function cargar(nueva) {
         if (nueva) pagina = nueva;
-        var r = await I.api('/visitas?periodo=' + periodo + '&pagina=' + pagina + '&por_pagina=12');
+        var extra = window.PanelExtra ? window.PanelExtra.filtrosQuery($('d-filtros')) : [];
+        var r = await I.api('/visitas?periodo=' + periodo + '&pagina=' + pagina + '&por_pagina=12' + (extra.length ? '&' + extra.join('&') : ''));
         if (!r.data.length && pagina > 1) return cargar(pagina - 1);
         visitas = r.data;
         pintar();
@@ -143,6 +144,7 @@
 
     (async function () {
         if (!await I.iniciar('visitas')) return;
+        if (window.PanelExtra) window.PanelExtra.prepararFiltros($('d-filtros'), function () { cargar(1).catch(function (err) { I.toast(err.message); }); });
         try {
             propiedades = (await I.api('/propiedades')).data;
             await cargar();

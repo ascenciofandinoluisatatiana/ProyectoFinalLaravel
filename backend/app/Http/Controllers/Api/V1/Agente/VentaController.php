@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Agente;
 
+use App\Http\Controllers\Api\V1\Concerns\FiltrosListado;
 use App\Http\Controllers\Api\V1\Concerns\Paginacion;
 use App\Http\Controllers\Controller;
 use App\Models\Comision;
@@ -18,6 +19,7 @@ use Illuminate\Support\Carbon;
 class VentaController extends Controller
 {
     use Paginacion;
+    use FiltrosListado;
 
     private const ZONA = 'America/Bogota';
 
@@ -27,12 +29,13 @@ class VentaController extends Controller
             'desde' => ['nullable', 'date_format:Y-m-d'],
             'hasta' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:desde'],
             'operacion' => ['nullable', 'in:venta,arriendo'],
+            'q' => ['nullable', 'string', 'max:100'],
         ], [
             'hasta.after_or_equal' => 'La fecha final debe ser igual o posterior a la inicial.',
         ]);
         $yo = $request->user();
 
-        $filtrada = function () use ($yo, $datos) {
+        $filtrada = function () use ($yo, $datos, $request) {
             $q = Comision::where('agente_id', $yo->id)
                 ->where('inmobiliaria_id', $yo->inmobiliaria_id)
                 ->where('estado', '!=', 'anulada');
@@ -46,7 +49,7 @@ class VentaController extends Controller
                 $q->where('operacion', $datos['operacion']);
             }
 
-            return $q;
+            return $this->filtrarTexto($q, $request, ['inmueble']);
         };
 
         $listado = $this->listado($filtrada()->orderByDesc('cerrada_en')->orderByDesc('id'), $request, fn (Comision $c) => [

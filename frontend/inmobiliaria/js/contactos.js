@@ -72,6 +72,7 @@
                     '<select data-cambiar="agente_id" data-id="' + c.id + '" aria-label="Agente asignado">' +
                         I.opcionesAgentes(agentes, c.agente ? c.agente.id : null, 'Sin agente') + '</select>' +
                     '<button type="button" class="v-btn v-btn-suave v-btn-mini" data-visita="' + c.id + '"><i class="fa-solid fa-calendar-plus"></i>Programar visita</button>' +
+                    '<button type="button" class="v-btn v-btn-suave v-btn-mini" data-historial="' + c.id + '"><i class="fa-solid fa-clock-rotate-left"></i>Historial</button>' +
                 '</div>' +
             '</div>';
         }).join('');
@@ -105,6 +106,12 @@
     }
 
     $('d-contactos').addEventListener('click', function (e) {
+        var h = e.target.closest('[data-historial]');
+        if (h && window.PanelExtra) {
+            var ch = contactos.filter(function (c) { return c.id === Number(h.getAttribute('data-historial')); })[0];
+            window.PanelExtra.historialContacto(I.api, ch.id, ch.nombre + ' · ' + ch.propiedad.titulo);
+            return;
+        }
         var b = e.target.closest('[data-visita]');
         if (!b) return;
         var id = Number(b.getAttribute('data-visita'));

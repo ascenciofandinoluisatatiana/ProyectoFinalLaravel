@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Agente;
 
 use App\Http\Controllers\Api\V1\Concerns\ManejaVisitas;
+use App\Http\Controllers\Api\V1\Concerns\FiltrosListado;
 use App\Http\Controllers\Api\V1\Concerns\Paginacion;
 use App\Http\Controllers\Controller;
 use App\Models\Lead;
@@ -15,6 +16,7 @@ class ContactoController extends Controller
 {
     use ManejaVisitas;
     use Paginacion;
+    use FiltrosListado;
 
     private function mios(Request $request)
     {
@@ -24,13 +26,15 @@ class ContactoController extends Controller
             ->whereHas('propiedad', fn ($q) => $q->where('user_id', $yo->inmobiliaria_id));
     }
 
-    /** GET /api/v1/agente/contactos?estado= */
+    /** GET /api/v1/agente/contactos?estado=&desde=&hasta=&q= */
     public function index(Request $request): JsonResponse
     {
         $consulta = $this->mios($request)->with('propiedad:id,tipo,barrio,ciudad,operacion')->withCount('visitas');
         if (in_array($request->query('estado'), Lead::ESTADOS, true)) {
             $consulta->where('estado', $request->query('estado'));
         }
+        $this->filtrarFechas($consulta, $request, 'created_at');
+        $this->filtrarTexto($consulta, $request, ['nombre', 'contacto', 'mensaje', 'propiedad.barrio', 'propiedad.ciudad']);
 
         $totales = $this->mios($request)->selectRaw('estado, COUNT(*) as total')->groupBy('estado')->pluck('total', 'estado');
 

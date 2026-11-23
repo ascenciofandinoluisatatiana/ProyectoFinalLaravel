@@ -308,6 +308,56 @@
         if (limpiar) limpiar.addEventListener('click', function () { form.reset(); avisar(); });
     }
 
+    /* =================== Movimientos (B10: historial de un contacto) =================== */
+    var ENTIDADES = { propiedad: 'fa-house', visita: 'fa-calendar-check', contacto: 'fa-comments', venta: 'fa-handshake',
+        comision: 'fa-hand-holding-dollar', agente: 'fa-user-tie', pago: 'fa-credit-card', membresia: 'fa-crown' };
+
+    function fechaHora(iso) {
+        return iso ? new Date(iso).toLocaleString('es-CO', { timeZone: 'America/Bogota', day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+    }
+
+    // Una fila de movimiento: ícono de la entidad, título, quién y cuándo, y el resultado con ícono y texto
+    function filaMovimiento(m, conQuien) {
+        var bien = m.resultado !== 'error';
+        return '<li class="i-mov">' +
+            '<span class="i-mov-icono"><i class="fa-solid ' + (ENTIDADES[m.entidad] || 'fa-circle-dot') + '"></i></span>' +
+            '<div class="i-mov-texto"><b>' + esc(m.titulo || m.accion) + '</b>' +
+                '<small>' + (conQuien && m.quien ? esc(m.quien.nombre) + ' · ' : '') + esc(fechaHora(m.fecha)) +
+                (m.valor ? ' · ' + pesos(m.valor) : '') + '</small></div>' +
+            '<span class="i-mov-estado ' + (bien ? 'ok' : 'error') + '"><i class="fa-solid ' + (bien ? 'fa-check' : 'fa-xmark') + '"></i>' + (bien ? 'Correcto' : 'Error') + '</span>' +
+        '</li>';
+    }
+
+    // Ventana con el historial de un contacto: api('/contactos/ID/movimientos?pagina=N')
+    function historialContacto(api, id, titulo) {
+        var v = document.getElementById('i-historial');
+        if (!v) {
+            v = document.createElement('dialog');
+            v.id = 'i-historial';
+            v.className = 'v-ventana';
+            v.innerHTML = '<div class="v-ventana-cabeza"><h2 class="titulo-serif">Historial del contacto</h2>' +
+                '<button type="button" class="v-icono-btn" data-cerrar aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>' +
+                '<div class="i-historial-cuerpo"><p class="v-nota" id="i-historial-de"></p><ul class="i-movs" id="i-historial-lista"></ul><div class="i-paginador" id="i-historial-pag"></div></div>';
+            document.body.appendChild(v);
+            v.addEventListener('click', function (e) { if (e.target === v || e.target.closest('[data-cerrar]')) v.close(); });
+        }
+        document.getElementById('i-historial-de').textContent = titulo;
+        async function cargar(n) {
+            var lista = document.getElementById('i-historial-lista');
+            lista.innerHTML = '<li class="i-mov-vacio"><i class="fa-solid fa-spinner fa-spin"></i> Cargando…</li>';
+            try {
+                var r = await api('/contactos/' + id + '/movimientos?pagina=' + n + '&por_pagina=10');
+                lista.innerHTML = r.data.length ? r.data.map(function (m) { return filaMovimiento(m, true); }).join('')
+                    : '<li class="i-mov-vacio"><i class="fa-regular fa-clock"></i> Todavía no hay movimientos de este contacto.</li>';
+                paginador(document.getElementById('i-historial-pag'), r.meta, cargar);
+            } catch (err) {
+                lista.innerHTML = '<li class="i-mov-vacio">' + esc(err.message) + '</li>';
+            }
+        }
+        if (!v.open) v.showModal();
+        cargar(1);
+    }
+
     window.PanelExtra = {
-        filtrosQuery: filtrosQuery, prepararFiltros: prepararFiltros, montarCampana: montarCampana, paginador: paginador, pdfVentas: pdfVentas };
+        filaMovimiento: filaMovimiento, historialContacto: historialContacto, filtrosQuery: filtrosQuery, prepararFiltros: prepararFiltros, montarCampana: montarCampana, paginador: paginador, pdfVentas: pdfVentas };
 })();

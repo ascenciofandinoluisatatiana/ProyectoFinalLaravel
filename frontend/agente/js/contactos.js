@@ -20,6 +20,7 @@
         if (nueva) pagina = nueva;
         var q = ['pagina=' + pagina, 'por_pagina=12'];
         if (estadoFiltro) q.push('estado=' + estadoFiltro);
+        q = q.concat(window.PanelExtra ? window.PanelExtra.filtrosQuery($('d-filtros')) : []);
         var r = await I.api('/contactos?' + q.join('&'));
         if (!r.data.length && pagina > 1) return cargar(pagina - 1);
         contactos = r.data;
@@ -69,6 +70,7 @@
                 '<div class="i-fila-acciones">' +
                     '<select data-cambiar="estado" data-id="' + c.id + '" aria-label="Estado del contacto">' + estados + '</select>' +
                     '<button type="button" class="v-btn v-btn-suave v-btn-mini" data-visita="' + c.id + '"><i class="fa-solid fa-calendar-plus"></i>Programar visita</button>' +
+                    '<button type="button" class="v-btn v-btn-suave v-btn-mini" data-historial="' + c.id + '"><i class="fa-solid fa-clock-rotate-left"></i>Historial</button>' +
                 '</div>' +
             '</div>';
         }).join('');
@@ -100,6 +102,12 @@
     }
 
     $('d-contactos').addEventListener('click', function (e) {
+        var h = e.target.closest('[data-historial]');
+        if (h && window.PanelExtra) {
+            var ch = contactos.filter(function (c) { return c.id === Number(h.getAttribute('data-historial')); })[0];
+            window.PanelExtra.historialContacto(I.api, ch.id, ch.nombre + ' · ' + ch.propiedad.titulo);
+            return;
+        }
         var b = e.target.closest('[data-visita]');
         if (!b) return;
         var id = Number(b.getAttribute('data-visita'));
@@ -133,6 +141,7 @@
 
     (async function () {
         if (!await I.iniciar('contactos')) return;
+        if (window.PanelExtra) window.PanelExtra.prepararFiltros($('d-filtros'), function () { cargar(1).catch(function (err) { I.toast(err.message); }); });
         try {
             await cargar();
             $('d-cargando').hidden = true;

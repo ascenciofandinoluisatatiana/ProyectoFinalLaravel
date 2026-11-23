@@ -38,8 +38,13 @@
                 </section>
                 <section class="v-tarjeta">
                     <div class="v-tarjeta-cabeza"><h2>Inmuebles</h2><small id="d-total"></small></div>
-                    <div class="v-propiedades" id="d-propiedades"></div>
-                    <div class="i-paginador" id="d-paginador"></div>
+                    <form class="i-filtros-compactos" id="d-filtros" novalidate role="search" aria-label="Filtros">
+                        <label class="i-fc-buscar"><i class="fa-solid fa-magnifying-glass"></i><span class="v-oculto">Buscar</span><input name="q" type="search" placeholder="Barrio, ciudad o dirección" maxlength="100"></label>
+                        <label class="i-fc"><span>Operación</span><select name="operacion"><option value="">Todas</option><option value="venta">Venta</option><option value="arriendo">Arriendo</option></select></label>
+                        <label class="i-fc"><span>Estado</span><select name="estado"><option value="">Todos</option><option value="publicada">Publicada</option><option value="pausada">Pausada</option><option value="vendida">Vendida</option><option value="arrendada">Arrendada</option><option value="borrador">Borrador</option></select></label>
+                        <button type="button" class="i-icono-mini" data-limpiar title="Limpiar filtros" aria-label="Limpiar filtros"><i class="fa-solid fa-eraser"></i></button>
+                    </form>
+                    <div class="i-secciones" id="d-propiedades"></div>
                 </section>
             </div>
         </main>

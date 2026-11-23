@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Agente;
 
 use App\Http\Controllers\Api\V1\Concerns\ManejaVisitas;
+use App\Http\Controllers\Api\V1\Concerns\FiltrosListado;
 use App\Http\Controllers\Api\V1\Concerns\Paginacion;
 use App\Http\Controllers\Controller;
 use App\Models\Lead;
@@ -20,6 +21,7 @@ class PanelController extends Controller
 {
     use ManejaVisitas;
     use Paginacion;
+    use FiltrosListado;
 
     /** Propiedades asignadas al agente dentro de SU inmobiliaria. */
     private function misPropiedades(Request $request)
@@ -89,7 +91,16 @@ class PanelController extends Controller
                 'visitas' => (int) $p->visitas_count,
             ];
 
-        return response()->json($this->listado(
-            $this->misPropiedades($request)->withCount(['leads', 'visitas'])->latest()->latest('id'), $request, $formato));
+        // AG3: filtros opcionales (operación, estado, texto). El agente no cambia el estado: solo lo ve.
+        $consulta = $this->misPropiedades($request)->withCount(['leads', 'visitas']);
+        if (in_array($request->query('operacion'), ['venta', 'arriendo'], true)) {
+            $consulta->where('operacion', $request->query('operacion'));
+        }
+        if (in_array($request->query('estado'), ['publicada', 'borrador', 'pausada', 'vendida', 'arrendada'], true)) {
+            $consulta->where('estado', $request->query('estado'));
+        }
+        $this->filtrarTexto($consulta, $request, ['barrio', 'ciudad', 'direccion']);
+
+        return response()->json($this->listado($consulta->latest()->latest('id'), $request, $formato));
     }
 }

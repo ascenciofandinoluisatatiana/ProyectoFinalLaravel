@@ -39,7 +39,7 @@
             '</button>' +
             '<div class="i-campana-panel" role="dialog" aria-label="Notificaciones"' + (abierto ? '' : ' hidden') + '>' +
                 '<div class="i-campana-cabeza"><b>Notificaciones</b>' +
-                    (d.sin_leer ? '<button type="button" class="i-campana-leer">Marcar como leídas</button>' : '') + '</div>' +
+                    '<button type="button" class="i-campana-leer i-campana-todas"><i class="fa-solid fa-list"></i> Ver todas</button></div>' +
                 '<div class="i-campana-lista">' + (d.data.length
                     ? d.data.map(function (n) {
                         return '<a class="i-campana-item' + (n.nueva ? ' nueva' : '') + ' tono-' + esc(n.tono) + '" href="' + esc(n.url) + '">' +
@@ -72,20 +72,82 @@
 
         cont.addEventListener('click', async function (e) {
             if (e.target.closest('.i-campana-btn')) {
+                var abriendo = !cont.classList.contains('abierta');
                 cont.classList.toggle('abierta');
                 pintarCampana();
+                // IN11/AG6: al abrir la campana las notificaciones quedan leídas (se siguen viendo resaltadas esta vez)
+                if (abriendo && campana.datos && campana.datos.sin_leer) {
+                    try {
+                        await campana.api('/notificaciones/leidas', { metodo: 'POST' });
+                        campana.datos.sin_leer = 0;
+                        var num = cont.querySelector('.i-campana-num');
+                        if (num) num.remove();
+                    } catch (err) { /* se intenta la próxima vez */ }
+                }
                 return;
             }
-            if (e.target.closest('.i-campana-leer')) {
-                try {
-                    await campana.api('/notificaciones/leidas', { metodo: 'POST' });
-                    (campana.datos.data || []).forEach(function (n) { n.nueva = false; });
-                    campana.datos.sin_leer = 0;
-                    pintarCampana();
-                } catch (err) { /* nada */ }
+            if (e.target.closest('.i-campana-todas')) {
+                cont.classList.remove('abierta');
+                pintarCampana();
+                historialNotificaciones();
             }
         });
     }
+    /* ---------- "Ver todas": historial de notificaciones con filtros (B11) ---------- */
+    var TIPOS_NOTIF = [['contacto', 'Contactos'], ['visita', 'Visitas'], ['propiedad', 'Propiedades'], ['pago', 'Pagos'],
+        ['plan', 'Planes'], ['comision', 'Comisiones'], ['cierre', 'Cierres'], ['vencimiento', 'Vencimientos']];
+
+    function historialNotificaciones() {
+        var v = document.getElementById('i-notifs');
+        if (!v) {
+            v = document.createElement('dialog');
+            v.id = 'i-notifs';
+            v.className = 'v-ventana i-ventana-ancha';
+            v.innerHTML = '<div class="v-ventana-cabeza"><h2 class="titulo-serif">Notificaciones</h2>' +
+                '<button type="button" class="v-icono-btn" data-cerrar aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>' +
+                '<div class="i-historial-cuerpo">' +
+                    '<form class="i-filtros-compactos" id="i-notifs-filtros" novalidate role="search" aria-label="Filtrar notificaciones">' +
+                        '<label class="i-fc-buscar"><i class="fa-solid fa-magnifying-glass"></i><span class="v-oculto">Buscar</span><input name="q" type="search" placeholder="Buscar en las notificaciones" maxlength="100"></label>' +
+                        '<label class="i-fc"><span>Estado</span><select name="estado"><option value="">Todas</option><option value="sin_leer">Sin leer</option><option value="leidas">Leídas</option></select></label>' +
+                        '<label class="i-fc"><span>Tipo</span><select name="tipo"><option value="">Todos</option>' +
+                            TIPOS_NOTIF.map(function (t) { return '<option value="' + t[0] + '">' + t[1] + '</option>'; }).join('') + '</select></label>' +
+                        '<label class="i-fc"><span>Desde</span><input name="desde" type="date"></label>' +
+                        '<label class="i-fc"><span>Hasta</span><input name="hasta" type="date"></label>' +
+                        '<button type="button" class="i-icono-mini" data-limpiar title="Limpiar filtros" aria-label="Limpiar filtros"><i class="fa-solid fa-eraser"></i></button>' +
+                    '</form>' +
+                    '<p class="v-nota" id="i-notifs-resumen"></p>' +
+                    '<div class="i-campana-lista i-notifs-lista" id="i-notifs-lista"></div>' +
+                    '<div class="i-paginador" id="i-notifs-pag"></div>' +
+                '</div>';
+            document.body.appendChild(v);
+            v.addEventListener('click', function (e) { if (e.target === v || e.target.closest('[data-cerrar]')) v.close(); });
+            prepararFiltros(document.getElementById('i-notifs-filtros'), function () { cargarNotifs(1); });
+        }
+        if (!v.open) v.showModal();
+        cargarNotifs(1);
+    }
+
+    async function cargarNotifs(n) {
+        var lista = document.getElementById('i-notifs-lista');
+        lista.innerHTML = '<p class="i-campana-vacio"><i class="fa-solid fa-spinner fa-spin"></i>Cargando…</p>';
+        try {
+            var q = ['pagina=' + n, 'por_pagina=10'].concat(filtrosQuery(document.getElementById('i-notifs-filtros')));
+            var r = await campana.api('/notificaciones/historial?' + q.join('&'));
+            var t = r.resumen || {};
+            document.getElementById('i-notifs-resumen').innerHTML = '<i class="fa-regular fa-bell"></i> ' + (t.total || 0) + ' en total · ' +
+                (t.sin_leer || 0) + ' sin leer · ' + (t.semana || 0) + ' esta semana';
+            lista.innerHTML = r.data.length ? r.data.map(function (x) {
+                return '<a class="i-campana-item' + (x.leida ? '' : ' nueva') + ' tono-' + esc(x.tono) + '" href="' + esc(x.url) + '">' +
+                    '<span class="i-campana-icono"><i class="fa-solid ' + esc(x.icono) + '"></i></span>' +
+                    '<span class="i-campana-texto"><b>' + esc(x.titulo) + '</b><small>' + esc(x.detalle) + '</small>' +
+                    '<em>' + esc(fechaHora(x.fecha)) + ' · ' + (x.leida ? '<i class="fa-solid fa-check-double"></i> Leída' : '<i class="fa-solid fa-circle"></i> Sin leer') + '</em></span></a>';
+            }).join('') : '<p class="i-campana-vacio"><i class="fa-regular fa-bell-slash"></i>No hay notificaciones con esos filtros.</p>';
+            paginador(document.getElementById('i-notifs-pag'), r.meta, cargarNotifs);
+        } catch (err) {
+            lista.innerHTML = '<p class="i-campana-vacio">' + esc(err.message) + '</p>';
+        }
+    }
+
     // Cerrar al tocar fuera o con Escape
     document.addEventListener('click', function (e) {
         // e.target puede ya no estar en la página (la campana se vuelve a dibujar al abrirla)
@@ -513,5 +575,7 @@
     }
 
     window.PanelExtra = {
-        ventanaPlanes: ventanaPlanes, filaMovimiento: filaMovimiento, historialContacto: historialContacto, filtrosQuery: filtrosQuery, prepararFiltros: prepararFiltros, montarCampana: montarCampana, paginador: paginador, pdfVentas: pdfVentas };
+        ventanaPlanes: ventanaPlanes,
+        filaMovimiento: filaMovimiento, historialContacto: historialContacto, historialNotificaciones: historialNotificaciones,
+        filtrosQuery: filtrosQuery, prepararFiltros: prepararFiltros, montarCampana: montarCampana, paginador: paginador, pdfVentas: pdfVentas };
 })();

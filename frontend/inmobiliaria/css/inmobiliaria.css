@@ -696,6 +696,16 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
 body.vendedor.op-venta, body.vendedor.op-arriendo { --op-1: #7e22ce; --op-2: #9333ea; --op-texto: #7e22ce; --op-glow: rgba(126, 34, 206, 0.16); --op-sombra: rgba(126, 34, 206, 0.35); }
 [data-theme="dark"] body.vendedor.op-venta, [data-theme="dark"] body.vendedor.op-arriendo { --op-texto: #c997f6; --op-glow: rgba(147, 51, 234, 0.22); }
 
+/* ---------- IN11 / AG6: "Ver todas" las notificaciones ---------- */
+.i-campana-todas { display: inline-flex; align-items: center; gap: 6px; }
+dialog.v-ventana.i-ventana-ancha { width: min(860px, calc(100vw - 32px)); }
+.i-notifs-lista { margin-top: 10px; border: 1px solid var(--campo-borde); border-radius: 14px; max-height: 55vh; }
+.i-notifs-lista .i-campana-texto em i { font-size: 0.6rem; margin-right: 2px; }
+.i-notifs-lista .i-campana-texto em .fa-check-double { font-size: 0.7rem; }
+.v-ventana form.i-filtros-compactos { padding: 0; display: flex; gap: 8px; }
+.i-movs.i-movs-seccion { max-height: none; overflow: visible; margin: 10px 22px 0; }
+@media (max-width: 640px) { .i-movs.i-movs-seccion { margin: 10px 0 0; } }
+
 /* ---------- IN8: submenú de Suscripción ---------- */
 .i-nav-flecha { margin-left: auto; font-size: 0.7rem; opacity: 0.6; }
 .i-subnav { display: grid; gap: 2px; margin: 2px 0 6px 22px; padding-left: 10px; border-left: 2px solid var(--campo-borde); }

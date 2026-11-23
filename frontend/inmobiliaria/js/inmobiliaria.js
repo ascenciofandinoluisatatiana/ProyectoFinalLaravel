@@ -21,7 +21,15 @@
         { id: 'contactos', grupo: 'g_gestion', href: '/inmobiliaria/contactos.html', icono: 'fa-comments' },
         { id: 'visitas', grupo: 'g_gestion', href: '/inmobiliaria/visitas.html', icono: 'fa-calendar-check' },
         { id: 'ventas', grupo: 'g_gestion', href: '/inmobiliaria/ventas.html', icono: 'fa-file-invoice-dollar' },
-        { id: 'membresia', grupo: 'g_cuenta', href: '/inmobiliaria/membresia.html', icono: 'fa-credit-card' },
+        // IN8: "Suscripción" con submenú (cada opción lleva a su parte de la página)
+        { id: 'membresia', grupo: 'g_cuenta', href: '/inmobiliaria/membresia.html', icono: 'fa-credit-card', sub: [
+            { id: 'sub_vigente', href: '/inmobiliaria/membresia.html#d-vigente', icono: 'fa-star' },
+            { id: 'sub_planes', href: '/inmobiliaria/membresia.html#planes', icono: 'fa-crown' },
+            { id: 'sub_normal', href: '/inmobiliaria/membresia.html#normal', icono: 'fa-bullhorn' },
+            { id: 'sub_posicion', href: '/inmobiliaria/membresia.html#posicionamiento', icono: 'fa-arrow-up-wide-short' },
+            { id: 'sub_paquetes', href: '/inmobiliaria/membresia.html#paquetes', icono: 'fa-box-open' },
+            { id: 'sub_pagos', href: '/inmobiliaria/membresia.html#pagos', icono: 'fa-receipt' }
+        ] },
         { id: 'perfil', grupo: 'g_cuenta', href: '/inmobiliaria/perfil.html', icono: 'fa-building' }
     ];
 
@@ -254,11 +262,17 @@
                     "fr": "Ventes"
             },
             "membresia": {
-                    "es": "Membresía",
-                    "en": "Membership",
+                    "es": "Suscripción",
+                    "en": "Subscription",
                     "pt": "Assinatura",
                     "fr": "Abonnement"
             },
+            "sub_vigente": { "es": "Mi suscripción", "en": "My subscription", "pt": "Minha assinatura", "fr": "Mon abonnement" },
+            "sub_paquetes": { "es": "Paquetes", "en": "Bundles", "pt": "Pacotes", "fr": "Forfaits" },
+            "sub_planes": { "es": "Oro, Plata y Bronce", "en": "Gold, Silver and Bronze", "pt": "Ouro, Prata e Bronze", "fr": "Or, Argent et Bronze" },
+            "sub_normal": { "es": "Publicación normal", "en": "Standard listing", "pt": "Anúncio normal", "fr": "Annonce standard" },
+            "sub_posicion": { "es": "Posicionamiento", "en": "Boost", "pt": "Posicionamento", "fr": "Mise en avant" },
+            "sub_pagos": { "es": "Historial de pagos", "en": "Payment history", "pt": "Histórico de pagamentos", "fr": "Historique des paiements" },
             "perfil": {
                     "es": "Empresa",
                     "en": "Company",
@@ -302,6 +316,8 @@
         pagina.appendChild(lateral);
         pagina.appendChild(principal);
         velo.addEventListener('click', function () { lateral.classList.remove('abierto'); velo.classList.remove('abierto'); });
+        // IN8: al tocar una opción del submenú (misma página) se cierra el menú en el celular
+        lateral.addEventListener('click', function (e) { if (e.target.closest('.i-subnav a')) { lateral.classList.remove('abierto'); velo.classList.remove('abierto'); } });
     }
 
     function barra(usuario, activo) {
@@ -316,8 +332,16 @@
         ['g_principal', 'g_gestion', 'g_cuenta'].forEach(function (g) {
             html += '<div class="i-grupo">' + esc(tx(g)) + '</div><nav class="i-nav">' +
                 SECCIONES.filter(function (s) { return s.grupo === g; }).map(function (s) {
-                    return '<a href="' + s.href + '"' + (s.id === activo ? ' class="activo" aria-current="page"' : '') +
-                        '><i class="fa-solid ' + s.icono + '"></i><span>' + esc(tx(s.id)) + '</span></a>';
+                    var enlace = '<a href="' + s.href + '"' + (s.id === activo ? ' class="activo" aria-current="page"' : '') +
+                        '><i class="fa-solid ' + s.icono + '"></i><span>' + esc(tx(s.id)) + '</span>' +
+                        (s.sub ? '<i class="fa-solid fa-chevron-' + (s.id === activo ? 'up' : 'down') + ' i-nav-flecha" aria-hidden="true"></i>' : '') + '</a>';
+                    // El submenú se muestra en su propia página
+                    if (s.sub && s.id === activo) {
+                        enlace += '<div class="i-subnav">' + s.sub.map(function (x) {
+                            return '<a href="' + x.href + '"><i class="fa-solid ' + x.icono + '"></i><span>' + esc(tx(x.id)) + '</span></a>';
+                        }).join('') + '</div>';
+                    }
+                    return enlace;
                 }).join('') + '</nav>';
         });
         html += '<div class="i-tarjeta-lateral"><b><i class="fa-solid fa-globe"></i> ' + esc(tx('portal')) + '</b>' +

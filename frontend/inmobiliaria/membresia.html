@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Membresía · Inmobiliaria · Umbral</title>
+    <title>Suscripción · Inmobiliaria · Umbral</title>
     <link rel="icon" type="image/png" href="/img/icono.png">
 
     <!-- Fuentes del diseño (las mismas del inicio y el login) -->
@@ -26,12 +26,12 @@
         <header class="v-topbar" id="v-topbar"></header>
 
         <main class="v-contenido">
-            <div class="i-estado-carga" id="d-cargando"><i class="fa-solid fa-spinner fa-spin"></i>Cargando membresía…</div>
+            <div class="i-estado-carga" id="d-cargando"><i class="fa-solid fa-spinner fa-spin"></i>Cargando suscripción…</div>
 
             <div id="d-panel" class="i-panel" hidden>
                 <section class="v-tarjeta v-hero">
                     <div>
-                        <p class="v-etiqueta"><i class="fa-solid fa-credit-card"></i> Membresía</p>
+                        <p class="v-etiqueta"><i class="fa-solid fa-credit-card"></i> Suscripción</p>
                         <h1 class="titulo-serif">Posicionamiento de tus propiedades</h1>
                         <p>La membresía se paga por publicación. Las destacadas salen primero en el portal según su plan;
                            las demás se siguen viendo, después.</p>
@@ -47,7 +47,7 @@
                 <div id="d-paquetes"></div>
 
                 <!-- Paquetes que ofrece UMBRAL: publicaciones destacadas con descuento, elegidas libremente -->
-                <section>
+                <section id="paquetes">
                     <h2 class="v-titulo-seccion" style="margin-bottom:14px">Paquetes disponibles</h2>
                     <div class="i-planes" id="d-ofertas"></div>
                     <p class="v-nota" style="margin-top:12px"><i class="fa-solid fa-circle-info"></i>
@@ -60,7 +60,7 @@
                     <div class="i-tabla-caja" id="d-destacadas"></div>
                 </section>
 
-                <section>
+                <section id="planes">
                     <h2 class="v-titulo-seccion" style="margin-bottom:14px">Planes por publicación</h2>
                     <div class="i-planes" id="d-planes"></div>
                     <p class="v-nota" style="margin-top:12px"><i class="fa-solid fa-circle-info"></i>

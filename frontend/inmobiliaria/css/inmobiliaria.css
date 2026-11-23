@@ -696,3 +696,9 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
 body.vendedor.op-venta, body.vendedor.op-arriendo { --op-1: #7e22ce; --op-2: #9333ea; --op-texto: #7e22ce; --op-glow: rgba(126, 34, 206, 0.16); --op-sombra: rgba(126, 34, 206, 0.35); }
 [data-theme="dark"] body.vendedor.op-venta, [data-theme="dark"] body.vendedor.op-arriendo { --op-texto: #c997f6; --op-glow: rgba(147, 51, 234, 0.22); }
 
+/* ---------- IN8: submenú de Suscripción ---------- */
+.i-nav-flecha { margin-left: auto; font-size: 0.7rem; opacity: 0.6; }
+.i-subnav { display: grid; gap: 2px; margin: 2px 0 6px 22px; padding-left: 10px; border-left: 2px solid var(--campo-borde); }
+.i-subnav a { padding: 7px 10px; font-size: 0.86rem; }
+.i-panel section[id], .i-panel .v-tarjeta[id] { scroll-margin-top: 90px; }
+

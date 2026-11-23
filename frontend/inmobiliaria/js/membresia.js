@@ -227,6 +227,9 @@
             await cargar();
             $('d-cargando').hidden = true;
             $('d-panel').hidden = false;
+            // IN8: si se llegó desde el submenú (#paquetes, #planes, #pagos…), ir a esa parte
+            var destino = location.hash && document.getElementById(location.hash.slice(1));
+            if (destino) destino.scrollIntoView({ block: 'start' });
         } catch (err) {
             $('d-cargando').innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>' + I.esc(err.message);
         }

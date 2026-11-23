@@ -116,8 +116,8 @@
         if (!window.Chart) { lienzo.parentNode.innerHTML = '<div class="v-vacio">No se pudo cargar la gráfica.</div>'; return; }
 
         var estilo = getComputedStyle(document.body);
-        var color = estilo.getPropertyValue('--op-1').trim() || '#5b3df0';
-        var texto = estilo.getPropertyValue('--texto-suave').trim() || '#5b6385';
+        var color = estilo.getPropertyValue('--op-1').trim() || '#7e22ce';
+        var texto = estilo.getPropertyValue('--texto-suave').trim() || '#7e22ce';
         var rejilla = estilo.getPropertyValue('--campo-borde').trim() || '#e3e1ee';
 
         if (grafica) grafica.destroy();

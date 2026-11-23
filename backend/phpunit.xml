@@ -32,5 +32,7 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <env name="DEEPSEEK_API_KEY" value="" force="true"/>
+        <env name="DEEPSEEK_CHATBOT_API_KEY" value="" force="true"/>
     </php>
 </phpunit>

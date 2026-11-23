@@ -341,7 +341,14 @@
 
         btn.addEventListener('click', function (e) {
             e.stopPropagation();
-            abrirAvisos(porId('i-avisos').hidden);
+
+            var abrir = porId('i-avisos').hidden;
+
+            abrirAvisos(abrir);
+
+            if (abrir) {
+                marcarLeidos();
+            }
         });
         porId('i-avisos-leer').addEventListener('click', function () {
             marcarLeidos();
@@ -362,7 +369,7 @@
             var ruta = e.composedPath ? e.composedPath() : [];
             var dentro = ruta.some(function (n) { return n.classList && n.classList.contains('i-avisos-caja'); });
             if (!dentro) abrirAvisos(false);
-        });        document.addEventListener('keydown', function (e) {
+        }); document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 var panel = porId('i-avisos');
                 if (panel && !panel.hidden) { abrirAvisos(false); porId('i-avisos-btn').focus(); }

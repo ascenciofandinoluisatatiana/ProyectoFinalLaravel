@@ -521,7 +521,7 @@
         $('d-form-error').hidden = true;
         alerta('f-galeria-alerta', $('f-galeria-agregar'), '');
         alerta('f-foto-alerta', $('f-foto-quitar'), '');
-        $('d-form-titulo').textContent = p ? 'Editar inmueble' : 'Registrar inmueble';
+        $('d-form-titulo').textContent = p ? 'Editar publicación' : 'Registrar inmueble';
         $('f-estado-caja').hidden = !!p;   // el estado se cambia desde la tarjeta
         form.agente_id.innerHTML = I.opcionesAgentes(agentes, p && p.agente ? p.agente.id : null);
 

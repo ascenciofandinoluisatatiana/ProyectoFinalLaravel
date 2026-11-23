@@ -635,6 +635,13 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
 .i-app .i-b.estado, .i-app .i-b.estado.publicada, .i-app .i-b.estado.pausada, .i-app .i-b.estado.borrador,
 .i-app .i-b.estado.vendida, .i-app .i-b.estado.arrendada { background: rgba(20, 8, 38, 0.72); color: #fff; }
 
+/* IN5 · Formulario de propiedad con más aire entre campos y secciones */
+#d-form-campos { display: grid; gap: 22px; }
+#d-form-campos .v-form-rejilla { gap: 16px 18px; }
+#d-form-campos > .v-campo, #d-form-campos > fieldset { padding-top: 18px; border-top: 1px solid var(--campo-borde); }
+#d-form-campos .v-campo label, #d-form-campos legend { margin-bottom: 6px; }
+#d-form-campos .v-form-pie { padding-top: 6px; }
+
 /* IN4 · Filtros compactos de los listados (contactos, visitas) */
 .i-filtros-compactos { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 22px 4px; }
 .i-filtros-compactos .i-fc, .i-filtros-compactos .i-fc-buscar {

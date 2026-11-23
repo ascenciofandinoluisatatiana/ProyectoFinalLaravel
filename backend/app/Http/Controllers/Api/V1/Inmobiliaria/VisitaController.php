@@ -17,7 +17,7 @@ class VisitaController extends BaseInmobiliariaController
 {
     use ManejaVisitas;
 
-    /** GET /visitas?periodo=proximas|pasadas|todas&estado= */
+    /** GET /visitas?periodo=proximas|pasadas|todas&estado=&agente_id=&desde=&hasta=&q= */
     public function index(Request $request): JsonResponse
     {
         $consulta = Visita::with(['propiedad:id,tipo,barrio,ciudad,direccion', 'agente:id,name'])
@@ -34,6 +34,13 @@ class VisitaController extends BaseInmobiliariaController
         if (in_array($request->query('estado'), Visita::ESTADOS, true)) {
             $consulta->where('estado', $request->query('estado'));
         }
+        if ($request->query('agente_id') === 'sin') {
+            $consulta->whereNull('agente_id');
+        } elseif ($request->filled('agente_id')) {
+            $consulta->where('agente_id', (int) $request->query('agente_id'));
+        }
+        $this->filtrarFechas($consulta, $request, 'fecha');
+        $this->filtrarTexto($consulta, $request, ['nombre', 'contacto', 'nota', 'propiedad.barrio', 'propiedad.ciudad']);
 
         return response()->json($this->listado($consulta->orderBy('id'), $request, fn (Visita $v) => $this->formatoVisita($v)));
     }

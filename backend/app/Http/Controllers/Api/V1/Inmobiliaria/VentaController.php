@@ -27,12 +27,14 @@ class VentaController extends BaseInmobiliariaController
             'hasta' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:desde'],
             'operacion' => ['nullable', 'in:venta,arriendo'],
             'agente_id' => ['nullable'],
+            'q' => ['nullable', 'string', 'max:100'],
         ], [
             'hasta.after_or_equal' => 'La fecha final debe ser igual o posterior a la inicial.',
         ]);
         $inmobiliaria = $this->inmobiliaria($request);
 
-        $filtrada = fn () => $this->filtro(Propiedad::query()->where('user_id', $inmobiliaria->id), $datos);
+        $filtrada = fn () => $this->filtrarTexto(
+            $this->filtro(Propiedad::query()->where('user_id', $inmobiliaria->id), $datos), $request, ['barrio', 'ciudad', 'direccion', 'tipo']);
 
         // Comisión (no anulada) de cada cierre de la página
         $comisiones = [];

@@ -270,5 +270,44 @@
         doc.save(opciones.archivo || 'reporte-ventas.pdf');
     }
 
-    window.PanelExtra = { montarCampana: montarCampana, paginador: paginador, pdfVentas: pdfVentas };
+    /* =================== Filtros compactos (IN4, AG4) ===================
+       form: <form class="i-filtros-compactos"> con campos de nombre q, desde, hasta, estado, agente_id...
+       alCambiar(): se llama al cambiar un filtro (el texto espera a que dejen de escribir). */
+    function filtrosQuery(form) {
+        var q = [];
+        if (!form) return q;
+        Array.prototype.forEach.call(form.elements, function (c) {
+            if (!c.name || c.disabled) return;
+            var v = String(c.value || '').trim();
+            if (v) q.push(c.name + '=' + encodeURIComponent(v));
+        });
+        return q;
+    }
+
+    function prepararFiltros(form, alCambiar) {
+        if (!form) return;
+        var espera;
+        function avisar() {
+            var desde = form.elements.desde, hasta = form.elements.hasta;
+            if (desde && hasta && desde.value && hasta.value && hasta.value < desde.value) {
+                hasta.setCustomValidity('La fecha final debe ser igual o posterior a la inicial.');
+                hasta.reportValidity();
+                return;
+            }
+            if (hasta) hasta.setCustomValidity('');
+            alCambiar();
+        }
+        form.addEventListener('submit', function (e) { e.preventDefault(); avisar(); });
+        form.addEventListener('change', function (e) { if (e.target.type !== 'search') avisar(); });
+        form.addEventListener('input', function (e) {
+            if (e.target.type !== 'search') return;
+            clearTimeout(espera);
+            espera = setTimeout(avisar, 400);
+        });
+        var limpiar = form.querySelector('[data-limpiar]');
+        if (limpiar) limpiar.addEventListener('click', function () { form.reset(); avisar(); });
+    }
+
+    window.PanelExtra = {
+        filtrosQuery: filtrosQuery, prepararFiltros: prepararFiltros, montarCampana: montarCampana, paginador: paginador, pdfVentas: pdfVentas };
 })();

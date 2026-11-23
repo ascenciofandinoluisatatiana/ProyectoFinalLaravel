@@ -46,6 +46,14 @@
                         <button type="button" class="i-pestana" data-periodo="pasadas" aria-pressed="false">Pasadas</button>
                         <button type="button" class="i-pestana" data-periodo="todas" aria-pressed="false">Todas</button>
                     </div>
+                    <form class="i-filtros-compactos" id="d-filtros" novalidate role="search" aria-label="Filtros">
+                        <label class="i-fc-buscar"><i class="fa-solid fa-magnifying-glass"></i><span class="v-oculto">Buscar</span><input name="q" type="search" placeholder="Nombre, teléfono o barrio" maxlength="100"></label>
+                        <label class="i-fc"><span>Desde</span><input name="desde" type="date"></label>
+                        <label class="i-fc"><span>Hasta</span><input name="hasta" type="date"></label>
+                        <label class="i-fc"><span>Estado</span><select name="estado"><option value="">Todos</option><option value="pendiente">Pendiente</option><option value="confirmada">Confirmada</option><option value="realizada">Realizada</option><option value="cancelada">Cancelada</option></select></label>
+                        <label class="i-fc"><span>Agente</span><select id="filtro-agente" name="agente_id"></select></label>
+                        <button type="button" class="i-icono-mini" data-limpiar title="Limpiar filtros" aria-label="Limpiar filtros"><i class="fa-solid fa-eraser"></i></button>
+                    </form>
                     <div class="v-lista" id="d-visitas"></div>
                     <div class="i-paginador" id="d-paginador"></div>
                 </section>

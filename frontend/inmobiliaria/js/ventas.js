@@ -13,7 +13,7 @@
     function $(id) { return document.getElementById(id); }
 
     function filtros() {
-        var f = { desde: $('f-desde').value, hasta: $('f-hasta').value, operacion: $('f-operacion').value };
+        var f = { q: $('f-q').value.trim(), desde: $('f-desde').value, hasta: $('f-hasta').value, operacion: $('f-operacion').value };
         if ($('f-agente').value) f.agente_id = $('f-agente').value;
         return f;
     }
@@ -92,6 +92,11 @@
     // Cambiar un filtro vuelve a la página 1
     $('d-filtros').addEventListener('change', function () { cargar(1).catch(function (err) { P.toast(err.message); }); });
     $('d-filtros').addEventListener('submit', function (e) { e.preventDefault(); });
+    var esperaTexto;
+    $('f-q').addEventListener('input', function () {
+        clearTimeout(esperaTexto);
+        esperaTexto = setTimeout(function () { cargar(1).catch(function (err) { P.toast(err.message); }); }, 400);
+    });
     $('d-limpiar').addEventListener('click', function () {
         $('d-filtros').reset();
         cargar(1).catch(function (err) { P.toast(err.message); });

@@ -13,7 +13,7 @@ use Illuminate\Validation\Rule;
  */
 class ContactoController extends BaseInmobiliariaController
 {
-    /** GET /contactos?estado=&agente_id= */
+    /** GET /contactos?estado=&agente_id=&desde=&hasta=&q= */
     public function index(Request $request): JsonResponse
     {
         $consulta = Lead::with(['propiedad:id,tipo,barrio,ciudad,operacion,agente_id', 'agente:id,name'])
@@ -28,6 +28,8 @@ class ContactoController extends BaseInmobiliariaController
         } elseif ($request->filled('agente_id')) {
             $consulta->where('agente_id', (int) $request->query('agente_id'));
         }
+        $this->filtrarFechas($consulta, $request, 'created_at');
+        $this->filtrarTexto($consulta, $request, ['nombre', 'contacto', 'mensaje', 'propiedad.barrio', 'propiedad.ciudad']);
 
         $listado = $this->listado($consulta->latest()->latest('id'), $request, fn (Lead $l) => $this->formato($l));
 

@@ -20,7 +20,7 @@
         if (nueva) pagina = nueva;
         var q = ['pagina=' + pagina, 'por_pagina=12'];
         if (estadoFiltro) q.push('estado=' + estadoFiltro);
-        if ($('filtro-agente').value) q.push('agente_id=' + encodeURIComponent($('filtro-agente').value));
+        q = q.concat(window.PanelExtra ? window.PanelExtra.filtrosQuery($('d-filtros')) : []);
         var r = await I.api('/contactos?' + q.join('&'));
         if (!r.data.length && pagina > 1) return cargar(pagina - 1);
         contactos = r.data;
@@ -83,7 +83,6 @@
         estadoFiltro = b.getAttribute('data-estado');
         cargar(1).catch(function (err) { I.toast(err.message); });
     });
-    $('filtro-agente').addEventListener('change', function () { cargar(1).catch(function (err) { I.toast(err.message); }); });
 
     $('d-contactos').addEventListener('change', async function (e) {
         var s = e.target.closest('[data-cambiar]');
@@ -143,6 +142,7 @@
 
     (async function () {
         if (!await I.iniciar('contactos')) return;
+        if (window.PanelExtra) window.PanelExtra.prepararFiltros($('d-filtros'), function () { cargar(1).catch(function (err) { I.toast(err.message); }); });
         try {
             agentes = (await I.api('/agentes')).data;
             $('filtro-agente').innerHTML = '<option value="">Todos</option><option value="sin">Sin agente</option>' +

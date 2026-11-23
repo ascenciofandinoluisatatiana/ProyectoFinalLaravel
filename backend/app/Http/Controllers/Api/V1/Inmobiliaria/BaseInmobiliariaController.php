@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Inmobiliaria;
 
+use App\Http\Controllers\Api\V1\Concerns\FiltrosListado;
 use App\Http\Controllers\Api\V1\Concerns\Paginacion;
 use App\Http\Controllers\Controller;
 use App\Models\Lead;
@@ -20,6 +21,7 @@ use Illuminate\Support\Carbon;
 abstract class BaseInmobiliariaController extends Controller
 {
     use Paginacion;
+    use FiltrosListado;
 
     protected function inmobiliaria(Request $request): User
     {

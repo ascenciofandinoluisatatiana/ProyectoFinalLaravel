@@ -18,7 +18,8 @@
     // nueva: número de página (al cambiar de periodo se vuelve a la 1)
     async function cargar(nueva) {
         if (nueva) pagina = nueva;
-        var r = await I.api('/visitas?periodo=' + periodo + '&pagina=' + pagina + '&por_pagina=12');
+        var extra = window.PanelExtra ? window.PanelExtra.filtrosQuery($('d-filtros')) : [];
+        var r = await I.api('/visitas?periodo=' + periodo + '&pagina=' + pagina + '&por_pagina=12' + (extra.length ? '&' + extra.join('&') : ''));
         if (!r.data.length && pagina > 1) return cargar(pagina - 1);
         visitas = r.data;
         pintar();
@@ -59,6 +60,7 @@
             '</div>';
         }).join('');
     }
+
 
     $('d-periodos').addEventListener('click', function (e) {
         var b = e.target.closest('[data-periodo]');
@@ -165,10 +167,13 @@
 
     (async function () {
         if (!await I.iniciar('visitas')) return;
+        if (window.PanelExtra) window.PanelExtra.prepararFiltros($('d-filtros'), function () { cargar(1).catch(function (err) { I.toast(err.message); }); });
         try {
             var res = await Promise.all([I.api('/agentes'), I.api('/propiedades')]);
             agentes = res[0].data;
             propiedades = res[1].data;
+            $('filtro-agente').innerHTML = '<option value="">Todos</option><option value="sin">Sin agente</option>' +
+                agentes.map(function (a) { return '<option value="' + a.id + '">' + I.esc(a.nombre) + '</option>'; }).join('');
             await cargar();
             $('d-cargando').hidden = true;
             $('d-panel').hidden = false;

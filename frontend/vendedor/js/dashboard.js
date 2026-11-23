@@ -17,16 +17,6 @@
     var datos = { propiedades: [], contactos: [], visitas: [], planes: [], ofertas: [], paquetes: [] };
     var grafica = null;
 
-    /* Publicaciones gratis: propiedades guardadas en borrador a la espera de pago (borde rojo) */
-    (function () {
-        if (document.getElementById('estilo-espera-pago')) return;
-        var st = document.createElement('style');
-        st.id = 'estilo-espera-pago';
-        st.textContent = '.v-prop.v-espera{border:2px solid #9333ea !important;box-shadow:0 0 0 3px rgba(147, 51, 234,.15)}' +
-            '.v-estado.espera{background:#9333ea !important;color:#fff !important}';
-        document.head.appendChild(st);
-    })();
-
     V.barra(usuario, clave);
 
     function $(id) { return document.getElementById(id); }
@@ -136,6 +126,23 @@
 
     /* ---------- Inmuebles ---------- */
     var ESTADOS = { publicada: 'Publicada', borrador: 'Borrador', pausada: 'Pausada', vendida: 'Vendida', arrendada: 'Arrendada' };
+    // Cada estado se muestra con ícono y texto (nunca solo con color)
+    var ICONO_ESTADO = { publicada: 'fa-circle-check', espera: 'fa-circle-xmark', pausada: 'fa-circle-pause', vendida: 'fa-handshake', arrendada: 'fa-handshake', borrador: 'fa-file-pen' };
+
+    // Secciones de la lista, en este orden. Si una sección está vacía, no se muestra.
+    var SECCIONES = [
+        { id: 'publicadas', icono: 'fa-circle-check', titulo: 'Publicadas' },
+        { id: 'espera', icono: 'fa-circle-xmark', titulo: 'En espera de pago' },
+        { id: 'pausadas', icono: 'fa-circle-pause', titulo: 'Canceladas / pausadas' },
+        { id: 'cerradas', icono: 'fa-handshake', titulo: OP.cierre === 'vendida' ? 'Vendidas' : 'Arrendadas' },
+        { id: 'borradores', icono: 'fa-file-pen', titulo: 'Borradores' }
+    ];
+    function seccionDe(p) {
+        if (p.estado === 'publicada') return 'publicadas';
+        if (p.estado === 'borrador') return p.en_espera_pago ? 'espera' : 'borradores';
+        if (p.estado === 'pausada') return 'pausadas';
+        return 'cerradas';   // vendida o arrendada
+    }
 
     // Iconos propios (SVG): se ven siempre, sin depender de ninguna fuente
     var SVG_EDITAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
@@ -170,10 +177,11 @@
             ? '<a class="v-enlace" href="https://www.google.com/maps?q=' + Number(p.lat) + ',' + Number(p.lng) + '" target="_blank" rel="noopener">Ver mapa</a>'
             : '';
 
-        return '<article class="v-prop' + (espera ? ' v-espera' : '') + '">' +
+        return '<article class="v-prop">' +
             '<div class="v-prop-foto"><i class="fa-solid fa-house"></i>' +
             (p.imagen ? '<img src="' + V.esc(p.imagen) + '" alt="" loading="lazy">' : '') +
-            '<span class="v-estado ' + (espera ? 'espera' : V.esc(p.estado)) + '">' + (espera ? 'En espera de pago' : V.esc(ESTADOS[p.estado] || p.estado)) + '</span>' +
+            '<span class="v-estado ' + (espera ? 'espera' : V.esc(p.estado)) + '"><i class="fa-solid ' + (ICONO_ESTADO[espera ? 'espera' : p.estado] || 'fa-circle') + '"></i> ' +
+            (espera ? 'En espera de pago' : V.esc(ESTADOS[p.estado] || p.estado)) + '</span>' +
             (posicionado(p) ? '<span class="v-posicionado" title="Vence el ' + V.esc(fechaLarga(p.membresia.fecha_fin)) + '"><i class="fa-solid fa-crown"></i> ' + V.esc(p.membresia.nombre_plan) + ' · ' + Number(p.membresia.dias_restantes) + ' d</span>' : '') + herramientas +
             '<span class="v-prop-nfotos" title="Fotos del inmueble"><i class="fa-solid fa-camera"></i> ' + ((p.imagen ? 1 : 0) + (p.fotos ? p.fotos.length : 0)) + '</span></div>' +
             '<div class="v-prop-cuerpo">' +
@@ -194,7 +202,12 @@
         $('d-total').textContent = props.length + (props.length === 1 ? ' inmueble' : ' inmuebles');
 
         $('d-propiedades').innerHTML = props.length
-            ? props.map(tarjeta).join('')
+            ? SECCIONES.map(function (s) {
+                var lista = props.filter(function (p) { return seccionDe(p) === s.id; });
+                if (!lista.length) return '';
+                return '<div class="v-prop-grupo"><i class="fa-solid ' + s.icono + '"></i><span>' + V.esc(s.titulo) + '</span><small>' + lista.length + '</small></div>' +
+                    lista.map(tarjeta).join('');
+            }).join('')
             : '<div class="v-vacio v-vacio-grande"><i class="fa-solid fa-house-circle-exclamation"></i>' + V.esc(OP.vacio) + '.<br>Usa “Registrar inmueble” para empezar.</div>';
 
         // Si una foto no carga, se queda el fondo con el icono

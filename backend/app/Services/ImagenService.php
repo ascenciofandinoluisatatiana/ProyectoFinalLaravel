@@ -75,6 +75,14 @@ class ImagenService
         } elseif ($peso > self::MAX_BYTES) {
             $this->fallar($campo, 'La foto no puede superar 4 MB.');
         }
+                // Solo fotos de inmuebles: la IA revisa que la imagen muestre una casa, apartamento, finca, local, lote u oficina
+        if ($categoria === 'propiedades') {
+            $revision = DeepSeekFotoService::revisar((string) file_get_contents($origen), $mime);
+            if ($revision['disponible'] && $revision['es_inmueble'] === false) {
+                $this->fallar($campo, 'Esta foto no parece de un inmueble' . ($revision['motivo'] !== '' ? ' (' . $revision['motivo'] . ')' : '') . '. Sube fotos reales de la propiedad: fachada, interior, jardín o terreno.');
+            }
+        }
+
 
         $clave = sprintf('%s/%s/%s/%s.%s', $categoria, now()->format('Y'), now()->format('m'), (string) Str::uuid(), $extension);
 

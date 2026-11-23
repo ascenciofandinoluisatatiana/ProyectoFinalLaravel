@@ -184,6 +184,12 @@ body.vendedor::after  { width: 360px; height: 360px; bottom: -140px; left: -100p
 
 /* ---------- Inmuebles ---------- */
 .v-propiedades { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 18px; padding: 16px 24px 24px; }
+/* VE2: la lista se divide en secciones por estado; cada título ocupa toda la fila de la rejilla */
+.v-prop-grupo { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; padding: 8px 2px 0; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--texto); }
+.v-prop-grupo:first-child { padding-top: 0; }
+.v-prop-grupo i { color: var(--op-texto); }
+.v-prop-grupo::after { content: ''; order: 2; flex: 1; height: 1px; background: var(--campo-borde); }
+.v-prop-grupo small { order: 3; min-width: 22px; padding: 1px 8px; border-radius: 999px; text-align: center; font-size: 0.72rem; font-weight: 800; color: var(--op-texto); background: var(--campo); border: 1px solid var(--campo-borde); }
 .v-prop { display: flex; flex-direction: column; overflow: hidden; border-radius: 20px; background: var(--campo); border: 1px solid var(--campo-borde); transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s; }
 .v-prop:hover { transform: translateY(-4px); border-color: var(--op-1); box-shadow: 0 18px 40px var(--op-sombra); }
 .v-prop-foto { position: relative; aspect-ratio: 16 / 9; background: linear-gradient(135deg, var(--op-1), var(--op-2)); display: grid; place-items: center; color: rgba(255, 255, 255, 0.8); font-size: 2.2rem; }
@@ -192,6 +198,8 @@ body.vendedor::after  { width: 360px; height: 360px; bottom: -140px; left: -100p
 .v-estado.publicada { background: rgba(126, 34, 206, 0.9); }
 .v-estado.borrador { background: rgba(212, 176, 98, 0.95); color: #140826; }
 .v-estado.pausada { background: rgba(77, 69, 96, 0.92); }
+.v-estado i { margin-right: 5px; }
+.v-estado.espera { background: rgba(20, 8, 38, 0.9); }
 .v-prop-cuerpo { padding: 16px 18px 12px; display: grid; gap: 4px; }
 .v-prop-precio { font-size: 1.25rem; font-weight: 800; color: var(--op-texto); }
 .v-prop-precio small { font-size: 0.75rem; font-weight: 600; color: var(--texto-suave); }

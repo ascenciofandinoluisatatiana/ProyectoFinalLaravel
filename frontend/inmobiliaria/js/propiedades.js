@@ -98,14 +98,20 @@
         if (p.estado === 'pausada') botones += boton('estado:publicada', 'fa-play', 'Reanudar', 'principal');
         if (cerrada) botones += boton('estado:publicada', 'fa-rotate-left', 'Volver a publicar', 'principal');
         if (!cerrada) botones += boton('editar', 'fa-pen', 'Editar');
-        if (!cerrada && !espera && !(d && d.en_paquete)) botones += boton('destacar', d ? 'fa-rotate' : 'fa-star', d ? 'Renovar' : 'Destacar', 'oro');
+        if (!cerrada && !espera && !(d && d.en_paquete)) botones += boton('destacar', d ? 'fa-rotate' : 'fa-star', d ? 'Renovar' : 'Planes', 'oro');
         botones += boton('eliminar', 'fa-trash', '', 'peligro');
 
         // Línea corta de la membresía de esta publicación
         var destacado = d
             ? '<div class="i-pdestacado activo"><i class="fa-solid ' + (d.en_paquete ? 'fa-layer-group' : 'fa-star') + '"></i>' +
                 (d.en_paquete ? 'En tu paquete' : 'Plan ' + I.esc(d.nombre_plan.toLowerCase())) + ' · hasta el ' + I.esc(I.fechaLarga(d.fecha_fin)) + '</div>'
-            : (cerrada ? '' : '<div class="i-pdestacado" title="Sale en el portal después de las destacadas"><i class="fa-regular fa-star"></i>Sin destacar</div>');
+            : (cerrada ? '' : p.pos
+                ? '<div class="i-pdestacado activo"><i class="fa-solid fa-arrow-up-wide-short"></i>Posicionada · hasta el ' + I.esc(fechaIso(p.posicionada_hasta)) + '</div>'
+                : '<div class="i-pdestacado" title="Sale en el portal después de las destacadas"><i class="fa-regular fa-star"></i>Sin destacar</div>');
+        // Publicación normal por tiempo (B3): hasta cuándo se ve
+        if (p.estado === 'publicada' && p.publicada_hasta) {
+            destacado += '<div class="i-pdestacado"><i class="fa-regular fa-calendar"></i>Publicada hasta el ' + I.esc(fechaIso(p.publicada_hasta)) + '</div>';
+        }
 
         // Lo que le falta a la ficha para verse completa en el portal
         var falta = [];
@@ -191,7 +197,7 @@
 
         try {
             if (accion === 'editar') { abrirForm(p); return; }
-            if (accion === 'destacar') { abrirDestacar(p); return; }
+            if (accion === 'destacar') { abrirPlanes(p, p.estado === 'borrador' ? 'normal' : 'destacar'); return; }
             if (accion === 'eliminar') {
                 if (!window.confirm('¿Eliminar este inmueble? También se borran sus contactos y visitas.')) return;
                 var r1 = await I.api('/propiedades/' + id, { metodo: 'DELETE' });
@@ -663,49 +669,15 @@
 
     I.prepararVentana(ventana);
 
-    /* ---------- Destacar una publicación (membresía por publicación) ---------- */
-    var ventanaDestacar = $('d-destacar');
-    var destacando = null;
-    I.prepararVentana(ventanaDestacar);
+    /* ---------- IN10: planes de la publicación (destacar, publicación normal y posicionar) ---------- */
+    var planesPub = { normal: [], posicionamiento: [] };
+    var pagoSimulado = false;
+    function fechaIso(iso) { return new Date(iso).toLocaleDateString('es-CO', { timeZone: 'America/Bogota', day: 'numeric', month: 'long', year: 'numeric' }); }
 
-    function abrirDestacar(p) {
-        destacando = p;
-        $('d-destacar-titulo').textContent = (I.TIPOS[p.tipo] || p.tipo) + ' en ' + p.barrio;
-        $('d-destacar-actual').textContent = p.destacado
-            ? 'Ya está destacada con el plan ' + p.destacado.nombre_plan.toLowerCase() + ' hasta el ' + I.fechaLarga(p.destacado.fecha_fin) +
-              '. Si renuevas, el nuevo plan empieza cuando termine el actual: no pierdes días.'
-            : 'Mientras más alto el plan, más arriba aparece en el portal. Sin plan, se sigue viendo después de las destacadas.';
-        // De mayor a menor precio: el más caro va más arriba en el portal
-        $('d-destacar-planes').innerHTML = planes.slice().sort(function (a, b) { return b.precio - a.precio; }).map(function (pl, i) {
-            return '<button type="button" class="i-plan-opcion" data-plan="' + I.esc(pl.plan) + '">' +
-                '<span class="i-plan-puesto">' + (i + 1) + '°</span>' +
-                '<span><b>' + I.esc(pl.nombre) + '</b><small>' + Number(pl.dias) + ' días · ' + ['primeros lugares del portal', 'segundo grupo de destacadas', 'tercer grupo, antes de las no destacadas'][i] + '</small></span>' +
-                '<b class="i-plan-precio">' + I.cop(pl.precio) + '</b></button>';
-        }).join('');
-        ventanaDestacar.showModal();
+    function abrirPlanes(p, tipo) {
+        if (!window.PanelExtra) return;
+        window.PanelExtra.ventanaPlanes({ api: I.api, toast: I.toast, propiedades: [p], planes: planes, pub: planesPub, tipo: tipo, simulado: pagoSimulado, alTerminar: cargarPropiedades });
     }
-
-    $('d-destacar-planes').addEventListener('click', async function (e) {
-        var b = e.target.closest('[data-plan]');
-        if (!b || !destacando) return;
-        var botones = this.querySelectorAll('button');
-        botones.forEach(function (x) { x.disabled = true; });
-        try {
-            var r = await I.api('/propiedades/' + destacando.id + '/destacar', { metodo: 'POST', datos: { plan: b.getAttribute('data-plan') } });
-            if (r.checkout_url) {                 // Wompi: a pagar
-                I.toast(r.message);
-                window.location.href = r.checkout_url;
-                return;
-            }
-            ventanaDestacar.close();              // simulado: ya quedó destacada
-            I.toast(r.message);
-            await cargarPropiedades();
-        } catch (err) {
-            I.toast(err.message);
-        } finally {
-            botones.forEach(function (x) { x.disabled = false; });
-        }
-    });
 
     /* ---------- Arranque ---------- */
     async function iniciar() {
@@ -718,6 +690,9 @@
             agentes = res[0].data;
             ubicaciones = res[1].data || [];
             pintarFiltroAgentes();
+            // Planes nuevos (B1): si falla, solo se ofrece destacar
+            I.api('/planes-publicacion').then(function (r) { planesPub = r; }).catch(function () {});
+            I.api('/membresia').then(function (r) { pagoSimulado = !!r.simulado; }).catch(function () {});
             await cargarPropiedades();
             $('d-cargando').hidden = true;
             $('d-panel').hidden = false;

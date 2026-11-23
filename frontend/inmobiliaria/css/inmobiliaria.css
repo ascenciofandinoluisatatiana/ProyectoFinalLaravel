@@ -702,3 +702,9 @@ body.vendedor.op-venta, body.vendedor.op-arriendo { --op-1: #7e22ce; --op-2: #93
 .i-subnav a { padding: 7px 10px; font-size: 0.86rem; }
 .i-panel section[id], .i-panel .v-tarjeta[id] { scroll-margin-top: 90px; }
 
+/* ---------- IN10: ventana para comprar planes ---------- */
+#i-comprar [hidden] { display: none !important; }
+#i-comprar .i-pestanas { padding: 0; margin: 12px 0 8px; }
+#i-comprar .i-destacar-de { margin: 0; }
+#i-comprar .i-plan-opcion[disabled] { opacity: 0.55; cursor: not-allowed; }
+.i-plan .v-btn { justify-self: start; }

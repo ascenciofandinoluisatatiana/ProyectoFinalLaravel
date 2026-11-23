@@ -358,6 +358,160 @@
         cargar(1);
     }
 
+    /* =================== IN8 / IN10: comprar planes de una publicación (B1 a B3) ===================
+       3 tipos: destacar (oro/plata/bronce, POST /propiedades/{id}/destacar {plan}),
+       publicación normal por tiempo (POST /propiedades/{id}/publicar-normal {plan_id}) y
+       posicionamiento (POST /propiedades/{id}/posicionar {plan_id}). En modo simulado se aprueba al instante;
+       con Wompi la API devuelve checkout_url y se lleva a pagar.
+       op: { api, propiedades, planes (destacar), pub ({normal, posicionamiento}), tipo, alTerminar } */
+    var compra = null;
+    var TIPOS_INMUEBLE = { apartamento: 'Apartamento', casa: 'Casa', finca: 'Finca', local: 'Local', lote: 'Lote', oficina: 'Oficina' };
+    var PESTANAS_PLAN = [
+        { id: 'destacar', icono: 'fa-crown', texto: 'Destacar' },
+        { id: 'normal', icono: 'fa-bullhorn', texto: 'Publicación normal' },
+        { id: 'posicionar', icono: 'fa-arrow-up-wide-short', texto: 'Posicionar' }
+    ];
+
+    function tituloPropiedad(p) { return (TIPOS_INMUEBLE[p.tipo] || p.tipo) + ' en ' + p.barrio + ', ' + p.ciudad; }
+    function fechaDia(iso) { return new Date(iso).toLocaleDateString('es-CO', { timeZone: 'America/Bogota', day: 'numeric', month: 'long', year: 'numeric' }); }
+
+    // ¿Se puede comprar este tipo de plan para la propiedad? Devuelve '' si sí, o el motivo si no.
+    function motivoPlan(tipo, p) {
+        if (!p) return 'Elige una publicación.';
+        var cerrada = p.estado === 'vendida' || p.estado === 'arrendada';
+        var d = p.destacado;
+        if (tipo === 'destacar') {
+            if (cerrada) return 'Esta propiedad ya se cerró.';
+            if (d && d.en_paquete) return 'Esta publicación ya está en uno de tus paquetes.';
+            return '';
+        }
+        if (tipo === 'normal') {
+            if (p.estado === 'borrador') return '';
+            if (p.estado === 'publicada' && p.publicada_hasta) return '';
+            return 'La publicación normal por tiempo se compra para un borrador (o para renovar una normal que ya está publicada).';
+        }
+        if (p.estado !== 'publicada') return 'Solo se puede posicionar una propiedad publicada.';
+        if (d) return 'Ya está destacada con Oro, Plata o Bronce: sale antes que las posicionadas.';
+        return '';
+    }
+
+    function ventanaPlanes(op) {
+        compra = { op: op, tipo: op.tipo || 'destacar', prop: op.propiedades.length === 1 ? op.propiedades[0] : null };
+        var v = document.getElementById('i-comprar');
+        if (!v) {
+            v = document.createElement('dialog');
+            v.id = 'i-comprar';
+            v.className = 'v-ventana';
+            v.innerHTML = '<div class="v-ventana-cabeza"><h2 class="titulo-serif">Planes de publicación</h2>' +
+                '<button type="button" class="v-icono-btn" data-cerrar aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>' +
+                '<div class="i-historial-cuerpo">' +
+                    '<div class="v-campo" id="i-comprar-elegir"><label for="i-comprar-prop">Publicación</label><select id="i-comprar-prop"></select></div>' +
+                    '<p class="i-destacar-de" id="i-comprar-una"><i class="fa-solid fa-house"></i> <b id="i-comprar-titulo"></b></p>' +
+                    '<div class="i-pestanas" id="i-comprar-pestanas" role="group" aria-label="Tipo de plan"></div>' +
+                    '<p class="v-nota" id="i-comprar-nota"></p>' +
+                    '<div class="i-planes-opciones" id="i-comprar-opciones"></div>' +
+                    '<p class="v-nota" id="i-comprar-pago"></p>' +
+                '</div>';
+            document.body.appendChild(v);
+            v.addEventListener('click', function (e) { if (e.target === v || e.target.closest('[data-cerrar]')) v.close(); });
+            document.getElementById('i-comprar-prop').addEventListener('change', function () {
+                var id = Number(this.value);
+                compra.prop = compra.op.propiedades.filter(function (x) { return x.id === id; })[0] || null;
+                pintarCompra();
+            });
+            document.getElementById('i-comprar-pestanas').addEventListener('click', function (e) {
+                var b = e.target.closest('[data-tipo]');
+                if (!b) return;
+                compra.tipo = b.getAttribute('data-tipo');
+                pintarCompra();
+            });
+            document.getElementById('i-comprar-opciones').addEventListener('click', comprarPlan);
+        }
+        var varias = op.propiedades.length !== 1;
+        document.getElementById('i-comprar-elegir').hidden = !varias;
+        document.getElementById('i-comprar-una').hidden = varias;
+        if (varias) {
+            document.getElementById('i-comprar-prop').innerHTML = '<option value="">Elige una publicación…</option>' +
+                op.propiedades.map(function (p) {
+                    return '<option value="' + p.id + '">' + esc(tituloPropiedad(p)) + ' · ' + esc(ESTADOS_PROP[p.estado] || p.estado) + '</option>';
+                }).join('');
+        } else {
+            document.getElementById('i-comprar-titulo').textContent = tituloPropiedad(op.propiedades[0]);
+        }
+        document.getElementById('i-comprar-pago').innerHTML = '<i class="fa-solid fa-lock"></i> ' + (op.simulado
+            ? 'Modo pruebas: el pago es simulado y el plan se activa al instante.'
+            : 'El pago se hace con PSE, tarjeta o Nequi. El plan se activa apenas el pago queda aprobado.');
+        pintarCompra();
+        if (!v.open) v.showModal();
+    }
+    var ESTADOS_PROP = { publicada: 'Publicada', borrador: 'Borrador', pausada: 'Pausada', vendida: 'Vendida', arrendada: 'Arrendada' };
+
+    function pintarCompra() {
+        var p = compra.prop, op = compra.op;
+        document.getElementById('i-comprar-pestanas').innerHTML = PESTANAS_PLAN.map(function (t) {
+            return '<button type="button" class="i-pestana" data-tipo="' + t.id + '" aria-pressed="' + (t.id === compra.tipo) + '">' +
+                '<i class="fa-solid ' + t.icono + '"></i> ' + t.texto + '</button>';
+        }).join('');
+        var motivo = motivoPlan(compra.tipo, p);
+        var nota = document.getElementById('i-comprar-nota');
+        var opciones = [];
+        if (compra.tipo === 'destacar') {
+            nota.innerHTML = (p && p.destacado
+                ? 'Ya está destacada con el plan ' + esc(p.destacado.nombre_plan.toLowerCase()) + ' hasta el ' + esc(fechaDia(p.destacado.fecha_fin)) + '. Si renuevas, el nuevo plan empieza cuando termine el actual.'
+                : 'Oro, Plata o Bronce: la publicación sale de primeras en el portal. Mientras más alto el plan, más arriba.');
+            opciones = (op.planes || []).slice().sort(function (a, b) { return b.precio - a.precio; }).map(function (pl, i) {
+                return { valor: pl.plan, puesto: (i + 1) + '°', nombre: pl.nombre, detalle: Number(pl.dias) + ' días · ' + ['primeros lugares del portal', 'segundo grupo de destacadas', 'tercer grupo de destacadas'][i], precio: pl.precio };
+            });
+        } else if (compra.tipo === 'normal') {
+            nota.innerHTML = p && p.publicada_hasta && p.estado === 'publicada'
+                ? 'Publicada hasta el ' + esc(fechaDia(p.publicada_hasta)) + '. Si renuevas, los días se suman al final.'
+                : 'La publicación queda visible en el portal los días que elijas. Al vencer vuelve a borrador.';
+            opciones = ((op.pub && op.pub.normal) || []).map(function (pl) {
+                return { valor: pl.id, puesto: '<i class="fa-solid fa-bullhorn"></i>', nombre: pl.dias + ' días', detalle: 'Visible en el portal ' + pl.dias + ' días', precio: pl.precio };
+            });
+        } else {
+            nota.innerHTML = p && p.pos
+                ? 'Posicionada hasta el ' + esc(fechaDia(p.posicionada_hasta)) + '. Si renuevas, los días se suman al final.'
+                : 'Tu publicación normal sale de primeras en “Ver más propiedades” y en el carrusel de Inicio, después de las destacadas.';
+            opciones = ((op.pub && op.pub.posicionamiento) || []).map(function (pl) {
+                return { valor: pl.id, puesto: '<i class="fa-solid fa-arrow-up-wide-short"></i>', nombre: pl.dias + ' días', detalle: 'De primeras entre las normales ' + pl.dias + ' días', precio: pl.precio };
+            });
+        }
+        if (motivo) nota.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + esc(motivo);
+        document.getElementById('i-comprar-opciones').innerHTML = opciones.length
+            ? opciones.map(function (o) {
+                return '<button type="button" class="i-plan-opcion" data-valor="' + esc(o.valor) + '"' + (motivo ? ' disabled' : '') + '>' +
+                    '<span class="i-plan-puesto">' + o.puesto + '</span>' +
+                    '<span><b>' + esc(o.nombre) + '</b><small>' + esc(o.detalle) + '</small></span>' +
+                    '<b class="i-plan-precio">' + pesos(o.precio) + '</b></button>';
+            }).join('')
+            : '<p class="v-nota"><i class="fa-solid fa-circle-info"></i> El administrador todavía no ha creado planes de este tipo.</p>';
+    }
+
+    async function comprarPlan(e) {
+        var b = e.target.closest('[data-valor]');
+        if (!b || b.disabled || !compra.prop) return;
+        var api = compra.op.api, id = compra.prop.id, valor = b.getAttribute('data-valor');
+        var botones = this.querySelectorAll('button');
+        botones.forEach(function (x) { x.disabled = true; });
+        try {
+            var r = compra.tipo === 'destacar'
+                ? await api('/propiedades/' + id + '/destacar', { metodo: 'POST', datos: { plan: valor } })
+                : await api('/propiedades/' + id + (compra.tipo === 'normal' ? '/publicar-normal' : '/posicionar'), { metodo: 'POST', datos: { plan_id: Number(valor) } });
+            if (r.checkout_url) {                 // Wompi: a pagar
+                if (compra.op.toast) compra.op.toast(r.message);
+                window.location.href = r.checkout_url;
+                return;
+            }
+            document.getElementById('i-comprar').close();
+            if (compra.op.toast) compra.op.toast(r.message);
+            if (compra.op.alTerminar) await compra.op.alTerminar();
+        } catch (err) {
+            if (compra.op.toast) compra.op.toast(err.message);
+            pintarCompra();
+        }
+    }
+
     window.PanelExtra = {
-        filaMovimiento: filaMovimiento, historialContacto: historialContacto, filtrosQuery: filtrosQuery, prepararFiltros: prepararFiltros, montarCampana: montarCampana, paginador: paginador, pdfVentas: pdfVentas };
+        ventanaPlanes: ventanaPlanes, filaMovimiento: filaMovimiento, historialContacto: historialContacto, filtrosQuery: filtrosQuery, prepararFiltros: prepararFiltros, montarCampana: montarCampana, paginador: paginador, pdfVentas: pdfVentas };
 })();

@@ -77,6 +77,18 @@
             : '<div class="v-vacio"><i class="fa-solid fa-layer-group"></i>Por ahora no hay paquetes disponibles.</div>';
     }
 
+    // IN10: comprar un plan eligiendo la publicación (mismos pagos que en Propiedades)
+    document.querySelector('.v-contenido').addEventListener('click', async function (e) {
+        var b = e.target.closest('[data-comprar-plan]');
+        if (!b || !window.PanelExtra) return;
+        try {
+            var props = (await I.api('/propiedades')).data;
+            if (!props.length) { I.toast('Primero registra una propiedad.'); return; }
+            window.PanelExtra.ventanaPlanes({ api: I.api, toast: I.toast, propiedades: props, planes: datos.planes, pub: planesPub,
+                tipo: b.getAttribute('data-comprar-plan'), simulado: datos.simulado, alTerminar: cargar });
+        } catch (err) { I.toast(err.message); }
+    });
+
     document.querySelector('.v-contenido').addEventListener('click', async function (e) {
         var b = e.target.closest('button');
         if (!b) return;
@@ -132,16 +144,32 @@
             : '<div class="v-vacio"><i class="fa-solid fa-star"></i>Aún no has destacado publicaciones. Hazlo desde ' +
               '<a href="/inmobiliaria/propiedades.html">Propiedades</a> con el botón “Destacar”.</div>';
 
-        // Planes: solo informativos; se compran desde cada publicación. Del más caro (más arriba) al más barato.
+        // Planes Oro, Plata y Bronce, del más caro (más arriba) al más barato. IN10: se compran aquí o desde cada publicación.
+        var pago = datos.simulado ? 'Pago simulado (modo pruebas)' : 'Pago con PSE, tarjeta o Nequi';
+        function botonComprar(tipo) {
+            return '<button type="button" class="v-btn v-btn-principal v-btn-mini" data-comprar-plan="' + tipo + '"><i class="fa-solid fa-cart-shopping"></i>Comprar</button>';
+        }
         var orden = datos.planes.slice().sort(function (a, b) { return b.precio - a.precio; });
         $('d-planes').innerHTML = orden.map(function (p, i) {
             return '<article class="v-tarjeta i-plan">' +
                 '<p class="v-etiqueta">' + I.esc(p.nombre) + ' · ' + (i + 1) + '° lugar</p>' +
                 '<b class="i-precio">' + I.cop(p.precio) + '</b>' +
-                '<ul><li>' + Number(p.dias) + ' días destacada</li><li>Por cada publicación</li><li>' +
-                    (datos.simulado ? 'Pago simulado (modo pruebas)' : 'Pago con PSE, tarjeta o Nequi') + '</li></ul>' +
+                '<ul><li>' + Number(p.dias) + ' días destacada</li><li>Por cada publicación</li><li>' + pago + '</li></ul>' +
+                botonComprar('destacar') +
             '</article>';
         }).join('');
+        function tarjetasPub(lista, tipo, texto) {
+            return lista.length ? lista.map(function (p) {
+                return '<article class="v-tarjeta i-plan">' +
+                    '<p class="v-etiqueta">' + Number(p.dias) + ' días</p>' +
+                    '<b class="i-precio">' + I.cop(p.precio) + '</b>' +
+                    '<ul><li>' + texto + ' ' + Number(p.dias) + ' días</li><li>Por cada publicación</li><li>' + pago + '</li></ul>' +
+                    botonComprar(tipo) +
+                '</article>';
+            }).join('') : '<div class="v-vacio"><i class="fa-solid fa-circle-info"></i>El administrador todavía no ha creado planes de este tipo.</div>';
+        }
+        $('d-planes-normal').innerHTML = tarjetasPub(planesPub.normal || [], 'normal', 'Visible en el portal');
+        $('d-planes-pos').innerHTML = tarjetasPub(planesPub.posicionamiento || [], 'posicionar', 'De primeras entre las normales');
 
         $('d-modo-pago').textContent = datos.simulado
             ? 'El servidor no tiene llaves de Wompi: el pago es simulado y la publicación se destaca al instante.'
@@ -160,8 +188,12 @@
             : '<div class="v-vacio"><i class="fa-solid fa-receipt"></i>Todavía no has contratado membresías.</div>';
     }
 
+    var planesPub = { normal: [], posicionamiento: [] };
+
     async function cargar() {
-        datos = await I.api('/membresia');
+        var res = await Promise.all([I.api('/membresia'), I.api('/planes-publicacion').catch(function () { return planesPub; })]);
+        datos = res[0];
+        planesPub = res[1];
         pintar();
         await cargarPagos();
     }

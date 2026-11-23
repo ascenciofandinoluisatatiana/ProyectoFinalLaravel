@@ -62,6 +62,18 @@ class InmobiliariaGestionTest extends TestCase
         ], $extra);
     }
 
+    /**
+     * Foto JPG real y pequeña (2 x 2 px). ImagenService revisa el contenido del archivo
+     * (tipo real y getimagesize), así que un archivo falso vacío ya no sirve.
+     * No necesita la extensión GD, a diferencia de UploadedFile::fake()->image().
+     */
+    private function foto(string $nombre): UploadedFile
+    {
+        return UploadedFile::fake()->createWithContent($nombre, base64_decode(self::JPG));
+    }
+
+    private const JPG = '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wAARCAACAAIDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDCooor6g9I/9k=';
+
     private function propiedadDe(User $duenio, array $extra = []): Propiedad
     {
         return Propiedad::create(array_merge($this->datosPropiedad(['direccion' => 'Cl ' . uniqid()]), ['user_id' => $duenio->id, 'estado' => 'publicada'], $extra));
@@ -69,11 +81,11 @@ class InmobiliariaGestionTest extends TestCase
 
     public function test_crea_edita_cambia_estado_y_elimina_una_propiedad(): void
     {
-        Storage::fake('public');
+        Storage::fake('imagenes');
         $agente = $this->usuario('agente', ['inmobiliaria_id' => $this->inmo->id]);
 
         $r = $this->actingAs($this->inmo)->post('/api/v1/inmobiliaria/propiedades',
-            $this->datosPropiedad(['agente_id' => $agente->id, 'imagen' => UploadedFile::fake()->create('casa.jpg', 120, 'image/jpeg')]),
+            $this->datosPropiedad(['agente_id' => $agente->id, 'imagen' => $this->foto('casa.jpg')]),
             ['Accept' => 'application/json'])
             ->assertCreated()
             ->assertJsonPath('data.agente.id', $agente->id)
@@ -93,10 +105,10 @@ class InmobiliariaGestionTest extends TestCase
 
     public function test_ficha_completa_y_galeria_llegan_al_portal_del_invitado(): void
     {
-        Storage::fake('public');
+        Storage::fake('imagenes');
 
         $r = $this->actingAs($this->inmo)->post('/api/v1/inmobiliaria/propiedades', $this->datosPropiedad([
-            'imagen' => UploadedFile::fake()->create('principal.jpg', 120, 'image/jpeg'),
+            'imagen' => $this->foto('principal.jpg'),
             'descripcion' => '  Apartamento con vista a la montaña.  ',
             'pisos' => 1,
             'antiguedad' => 5,
@@ -108,9 +120,9 @@ class InmobiliariaGestionTest extends TestCase
         $id = $r->json('data.id');
 
         // Galería: de a una foto, con tope
-        $foto = $this->post("/api/v1/inmobiliaria/propiedades/{$id}/fotos", ['foto' => UploadedFile::fake()->create('sala.jpg', 120, 'image/jpeg')], ['Accept' => 'application/json'])
+        $foto = $this->post("/api/v1/inmobiliaria/propiedades/{$id}/fotos", ['foto' => $this->foto('sala.jpg')], ['Accept' => 'application/json'])
             ->assertCreated()->json('data');
-        $this->post("/api/v1/inmobiliaria/propiedades/{$id}/fotos", ['foto' => UploadedFile::fake()->create('cocina.jpg', 120, 'image/jpeg')], ['Accept' => 'application/json'])
+        $this->post("/api/v1/inmobiliaria/propiedades/{$id}/fotos", ['foto' => $this->foto('cocina.jpg')], ['Accept' => 'application/json'])
             ->assertCreated();
         $this->post("/api/v1/inmobiliaria/propiedades/{$id}/fotos", ['foto' => UploadedFile::fake()->create('doc.pdf', 10, 'application/pdf')], ['Accept' => 'application/json'])
             ->assertStatus(422);
@@ -127,7 +139,7 @@ class InmobiliariaGestionTest extends TestCase
 
         // Quitar una foto borra el archivo; al editar se pueden vaciar los campos opcionales
         $this->deleteJson("/api/v1/inmobiliaria/propiedades/{$id}/fotos/{$foto['id']}")->assertOk();
-        Storage::disk('public')->assertMissing(str_replace('/storage/', '', $foto['url']));
+        Storage::disk('imagenes')->assertMissing(str_replace('/storage/', '', $foto['url']));
         $this->post("/api/v1/inmobiliaria/propiedades/{$id}", $this->datosPropiedad(['caracteristicas' => '', 'pisos' => '']), ['Accept' => 'application/json'])
             ->assertOk()->assertJsonPath('data.caracteristicas', [])->assertJsonPath('data.pisos', null)
             ->assertJsonPath('data.descripcion', 'Apartamento con vista a la montaña.') // lo que no se envía no se toca

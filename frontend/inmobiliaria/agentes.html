@@ -109,6 +109,27 @@
         </form>
     </dialog>
 
+    <!-- Ventana: restablecer la contraseña de un agente (IN6) -->
+    <dialog class="v-ventana" id="d-clave">
+        <div class="v-ventana-cabeza">
+            <h2 class="titulo-serif">Restablecer contraseña</h2>
+            <button type="button" class="v-icono-btn" data-cerrar aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="d-clave-form" novalidate>
+            <p class="v-nota" id="d-clave-quien"></p>
+            <div class="v-form-rejilla">
+                <div class="v-campo"><label for="k-clave">Nueva contraseña</label><input id="k-clave" name="password" type="password" minlength="8" autocomplete="new-password" required></div>
+                <div class="v-campo"><label for="k-clave2">Confirmar contraseña</label><input id="k-clave2" name="password_confirmation" type="password" minlength="8" autocomplete="new-password" required></div>
+            </div>
+            <p class="v-nota">Mínimo 8 caracteres. El agente no puede cambiar sus datos ni recuperar la contraseña por correo: compártele la nueva.</p>
+            <p class="v-nota i-error" id="d-clave-error" hidden></p>
+            <div class="v-form-pie">
+                <button type="button" class="v-btn v-btn-suave" data-cerrar>Cancelar</button>
+                <button type="submit" class="v-btn v-btn-principal"><i class="fa-solid fa-key"></i> Restablecer</button>
+            </div>
+        </form>
+    </dialog>
+
     <script src="/inmobiliaria/js/inmobiliaria.js"></script>
     <script src="/inmobiliaria/js/agentes.js"></script>
 </body>

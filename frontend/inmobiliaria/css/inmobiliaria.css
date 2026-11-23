@@ -621,6 +621,7 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
 [data-theme="dark"] .i-app .k-2 { --k: #a855f7; }
 [data-theme="dark"] .i-app .k-3 { --k: #d8b4fe; }
 [data-theme="dark"] .i-app .k-4 { --k: #9333ea; }
+
 /* =========================================================
    IN3 · Propiedades agrupadas por estado (ícono + texto, tarjetas sin color)
    ========================================================= */
@@ -641,6 +642,14 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
 #d-form-campos > .v-campo, #d-form-campos > fieldset { padding-top: 18px; border-top: 1px solid var(--campo-borde); }
 #d-form-campos .v-campo label, #d-form-campos legend { margin-bottom: 6px; }
 #d-form-campos .v-form-pie { padding-top: 6px; }
+
+/* IN6 · Acciones del agente con ícono (editar, contraseña, activar/desactivar) */
+.i-acciones-icono { display: flex; gap: 6px; flex-wrap: nowrap; }
+.i-icono-mini {
+    width: 36px; height: 36px; flex: none; display: grid; place-items: center; border-radius: 10px; cursor: pointer;
+    border: 1px solid var(--campo-borde); background: var(--campo); color: var(--op-texto); font-size: 0.85rem;
+}
+.i-icono-mini:hover { background: var(--neutro-fondo); }
 
 /* IN4 · Filtros compactos de los listados (contactos, visitas) */
 .i-filtros-compactos { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 22px 4px; }

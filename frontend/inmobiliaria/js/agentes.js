@@ -118,11 +118,12 @@
                     '<td class="num">' + Number(a.visitas) + '</td>' +
                     '<td class="num">' + Number(a.cierres || 0) + '</td>' +
                     '<td class="num">' + (a.comision_pendiente ? '<b>' + I.cop(a.comision_pendiente) + '</b>' : '—') + '</td>' +
-                    '<td><span class="v-insignia ' + I.esc(a.estado) + '">' + (activo ? 'Activo' : 'Inactivo') + '</span></td>' +
-                    '<td><div class="v-chips" style="margin:0;flex-wrap:nowrap">' +
-                        '<button type="button" class="v-btn v-btn-suave v-btn-mini" data-accion="editar" data-id="' + a.id + '"><i class="fa-solid fa-pen"></i>Editar</button>' +
-                        '<button type="button" class="v-btn v-btn-suave v-btn-mini" data-accion="' + (activo ? 'inactivo' : 'activo') + '" data-id="' + a.id + '">' +
-                            '<i class="fa-solid ' + (activo ? 'fa-user-slash' : 'fa-user-check') + '"></i>' + (activo ? 'Desactivar' : 'Activar') + '</button>' +
+                    '<td><span class="v-insignia ' + I.esc(a.estado) + '"><i class="fa-solid ' + (activo ? 'fa-circle-check' : 'fa-circle-xmark') + '"></i> ' + (activo ? 'Activo' : 'Inactivo') + '</span></td>' +
+                    '<td><div class="i-acciones-icono">' +
+                        '<button type="button" class="i-icono-mini" data-accion="editar" data-id="' + a.id + '" title="Editar datos" aria-label="Editar datos de ' + I.esc(a.nombre) + '"><i class="fa-solid fa-pen"></i></button>' +
+                        '<button type="button" class="i-icono-mini" data-accion="clave" data-id="' + a.id + '" title="Restablecer contraseña" aria-label="Restablecer contraseña de ' + I.esc(a.nombre) + '"><i class="fa-solid fa-key"></i></button>' +
+                        '<button type="button" class="i-icono-mini" data-accion="' + (activo ? 'inactivo' : 'activo') + '" data-id="' + a.id + '" title="' + (activo ? 'Desactivar' : 'Activar') + '" aria-label="' + (activo ? 'Desactivar' : 'Activar') + ' a ' + I.esc(a.nombre) + '">' +
+                            '<i class="fa-solid ' + (activo ? 'fa-user-slash' : 'fa-user-check') + '"></i></button>' +
                     '</div></td>' +
                 '</tr>';
             }).join('') +
@@ -144,6 +145,15 @@
             $('e-correo').value = a.email;
             $('d-editar-error').hidden = true;
             $('d-editar').showModal();
+            return;
+        }
+
+        if (accion === 'clave') {
+            editando = a;
+            $('d-clave-form').reset();
+            $('d-clave-quien').textContent = a.nombre + ' · ' + a.email;
+            $('d-clave-error').hidden = true;
+            $('d-clave').showModal();
             return;
         }
 
@@ -191,6 +201,18 @@
         } catch (err) { error.textContent = err.message; error.hidden = false; }
     });
 
+    $('d-clave-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var error = $('d-clave-error');
+        error.hidden = true;
+        try {
+            var r = await I.api('/agentes/' + editando.id + '/clave', { metodo: 'POST', datos: datosDe(this) });
+            $('d-clave').close();
+            I.toast(r.message);
+        } catch (err) { error.textContent = err.message; error.hidden = false; }
+    });
+
+    I.prepararVentana($('d-clave'));
     I.prepararVentana($('d-alta'));
     I.prepararVentana($('d-editar'));
 

@@ -43,6 +43,15 @@ class RecuperarClaveController extends Controller
         // para que la respuesta no delate qué correos están registrados.
         $solicitud = Str::random(40);
 
+        // AG5: la contraseña del agente la administra su inmobiliaria; no se envía enlace
+        if ($usuario && $usuario->tieneRol('agente')) {
+            return response()->json([
+                'message'   => 'Tu contraseña la administra tu inmobiliaria. Pídele que te asigne una nueva desde su panel.',
+                'codigo'    => 'agente',
+                'solicitud' => $solicitud,
+            ]);
+        }
+
         if ($usuario && self::puedeRecuperar($usuario)) {
             self::enviarEnlace($usuario, $request, 'recuperacion_solicitada');
             self::guardarSolicitud($usuario->id, $solicitud);

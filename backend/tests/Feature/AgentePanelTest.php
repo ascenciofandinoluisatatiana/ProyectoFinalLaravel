@@ -97,12 +97,20 @@ class AgentePanelTest extends TestCase
         $this->getJson('/api/v1/agente/visitas')->assertOk()->assertJsonCount(1, 'data');
     }
 
-    public function test_perfil_telefono_y_clave(): void
+    public function test_cuenta_de_solo_lectura_y_cambio_de_clave(): void
     {
-        $this->actingAs($this->agente)->putJson('/api/v1/agente/perfil', ['telefono' => '3001234567'])
-            ->assertOk()->assertJsonPath('usuario.telefono', '3001234567');
+        $telefono = $this->agente->telefono;
+        // AG5: el agente no edita sus datos, solo su contraseña
+        $this->actingAs($this->agente)->putJson('/api/v1/agente/perfil', ['telefono' => '3001234567'])->assertForbidden();
+        $this->assertSame($telefono, $this->agente->fresh()->telefono);
         $this->postJson('/api/v1/agente/perfil/clave', ['actual' => 'Umbral2026*', 'password' => 'NuevaClave9', 'password_confirmation' => 'NuevaClave9'])
             ->assertOk();
+    }
+
+    public function test_recuperar_clave_del_agente_lo_manda_a_su_inmobiliaria(): void
+    {
+        $this->postJson('/api/v1/recuperar-clave', ['email' => $this->agente->email])
+            ->assertOk()->assertJsonPath('codigo', 'agente');
     }
 
     public function test_contacto_del_portal_llega_al_agente_de_la_propiedad(): void

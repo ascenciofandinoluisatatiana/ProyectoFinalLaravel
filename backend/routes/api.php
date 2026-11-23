@@ -214,6 +214,7 @@ Route::prefix('v1/inmobiliaria')->middleware('web')->group(function () {
         Route::post('agentes', [InmobiliariaAgenteController::class, 'store']);
         Route::put('agentes/{id}', [InmobiliariaAgenteController::class, 'update'])->whereNumber('id');
         Route::patch('agentes/{id}/estado', [InmobiliariaAgenteController::class, 'estado'])->whereNumber('id');
+        Route::post('agentes/{id}/clave', [InmobiliariaAgenteController::class, 'clave'])->whereNumber('id');
 
         // Contactos (leads) y visitas
         Route::get('contactos', [InmobiliariaContactoController::class, 'index']);

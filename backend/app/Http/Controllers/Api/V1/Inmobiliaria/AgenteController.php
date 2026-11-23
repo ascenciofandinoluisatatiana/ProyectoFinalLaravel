@@ -10,6 +10,7 @@ use App\Models\Visita;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 
 /**
@@ -92,6 +93,30 @@ class AgenteController extends BaseInmobiliariaController
         $agente->update($datos);
 
         return response()->json(['message' => 'Datos del agente actualizados.', 'data' => $this->formato($agente)]);
+    }
+
+    /**
+     * POST /agentes/{id}/clave  { password, password_confirmation } (IN6)
+     * El agente no puede cambiar sus datos ni recuperar la contraseña por correo:
+     * su inmobiliaria le asigna una nueva.
+     */
+    public function clave(Request $request, $id): JsonResponse
+    {
+        $agente = $this->agentePropio($request, $id);
+        $datos = $request->validate([
+            'password' => ['required', 'confirmed', Password::min(8)],
+        ], [
+            'password.confirmed' => 'Las contraseñas no coinciden.',
+        ]);
+
+        $agente->forceFill([
+            'password' => $datos['password'],
+            'remember_token' => Str::random(60),
+            'intentos_fallidos' => 0,
+            'bloqueado_hasta' => null,
+        ])->save();
+
+        return response()->json(['message' => 'Contraseña de ' . $agente->name . ' restablecida. Compártela con el agente.']);
     }
 
     /** PATCH /agentes/{id}/estado  { estado: activo | inactivo } */

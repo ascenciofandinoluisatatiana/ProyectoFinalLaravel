@@ -9,16 +9,15 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
-/** Perfil del agente: su teléfono y su contraseña. El resto lo cambia la inmobiliaria. */
+/** Cuenta del agente (AG5): solo cambia su contraseña. Sus datos los edita la inmobiliaria. */
 class PerfilController extends Controller
 {
-    /** PUT /api/v1/agente/perfil  { telefono } */
+    /** PUT /api/v1/agente/perfil — la cuenta del agente es de solo lectura (AG5) */
     public function update(Request $request): JsonResponse
     {
-        $datos = $request->validate(['telefono' => ['required', 'string', 'max:20']]);
-        $request->user()->update($datos);
-
-        return response()->json(['message' => 'Teléfono actualizado.', 'usuario' => SesionController::datos($request->user()->fresh())]);
+        return response()->json([
+            'message' => 'Tus datos los actualiza tu inmobiliaria. Pídele el cambio desde su panel.',
+        ], 403);
     }
 
     /** POST /api/v1/agente/perfil/clave  { actual, password, password_confirmation } */

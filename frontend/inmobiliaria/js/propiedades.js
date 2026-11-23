@@ -466,16 +466,31 @@
     // Busca la dirección escrita con la API del portal (/api/v1/public/geocodificar, la misma del vendedor).
     // Si no encuentra el número exacto, la API prueba con la calle, el barrio o el municipio
     // y responde "aproximado": se avisa para que el usuario ajuste el pin.
-    $('f-buscar').addEventListener('click', async function () {
-        if (!mapa) return;
-        if (!form.ciudad.value) { I.toast('Elige al menos el municipio para buscar.'); return; }
-        var consulta = [form.direccion.value, form.barrio.value, form.ciudad.value, form.departamento.value, 'Colombia']
-            .map(function (t) { return String(t).trim(); }).filter(Boolean).join(', ');
+    // IN13: cuando hay municipio y dirección, el mapa va solo a la dirección escrita.
+    // Busca al dejar de escribir (1 segundo) o al salir del campo; nunca con cada tecla (la API permite 30 por minuto).
+    var ultimaConsulta = '';
+    var esperaDireccion;
+    var buscando = false;
 
-        var boton = this;
+    function consultaDireccion() {
+        return [form.direccion.value, form.barrio.value, form.ciudad.value, form.departamento.value, 'Colombia']
+            .map(function (t) { return String(t).trim(); }).filter(Boolean).join(', ');
+    }
+
+    async function buscarDireccion(automatico) {
+        if (!mapa) return;
+        if (!form.ciudad.value) { if (!automatico) I.toast('Elige al menos el municipio para buscar.'); return; }
+        if (automatico && form.direccion.value.trim().length < 5) return;
+        var consulta = consultaDireccion();
+        if (automatico && (consulta === ultimaConsulta || buscando)) return;
+        ultimaConsulta = consulta;
+
+        var boton = $('f-buscar');
         var texto = boton.innerHTML;
+        buscando = true;
         boton.disabled = true;
         boton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Buscando…';
+        $('f-coords').textContent = 'Buscando la dirección en el mapa…';
         try {
             var r = await fetch('/api/v1/public/geocodificar?q=' + encodeURIComponent(consulta), {
                 headers: { 'Accept': 'application/json' }, credentials: 'same-origin'
@@ -490,15 +505,27 @@
                     ? 'Ubicación aproximada: no encontramos la dirección exacta. Arrastra el pin hasta el inmueble.'
                     : 'Dirección encontrada. Revisa que el pin quede sobre el inmueble.');
             } else {
+                $('f-coords').textContent = 'No encontramos esa dirección. Haz clic en el mapa para marcar dónde está el inmueble.';
                 I.toast('No encontramos esa dirección. Marca el punto directamente en el mapa.');
             }
         } catch (err) {
+            $('f-coords').textContent = 'Haz clic en el mapa para marcar dónde está el inmueble. Puedes arrastrar el pin para ajustarlo.';
             I.toast(err.message);
         } finally {
+            buscando = false;
             boton.disabled = false;
             boton.innerHTML = texto;
         }
+    }
+
+    // El botón queda como respaldo (busca aunque la dirección no haya cambiado)
+    $('f-buscar').addEventListener('click', function () { buscarDireccion(false); });
+    form.direccion.addEventListener('input', function () {
+        clearTimeout(esperaDireccion);
+        esperaDireccion = setTimeout(function () { buscarDireccion(true); }, 1000);
     });
+    form.direccion.addEventListener('blur', function () { clearTimeout(esperaDireccion); buscarDireccion(true); });
+    form.ciudad.addEventListener('change', function () { if (form.direccion.value.trim()) buscarDireccion(true); });
 
     $('f-gps').addEventListener('click', function () {
         if (!mapa) return;
@@ -540,6 +567,8 @@
         pintarGaleria();
         $('f-descripcion-cuenta').textContent = form.descripcion.value.length;
 
+        // Al editar, la dirección guardada no se vuelve a buscar: solo si la persona la cambia
+        ultimaConsulta = p ? consultaDireccion() : '';
         ventana.showModal();
         iniciarMapa(p ? p.lat : null, p ? p.lng : null);
         prepararCaptcha(!p);

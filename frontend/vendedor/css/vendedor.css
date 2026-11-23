@@ -371,3 +371,13 @@ dialog.v-ventana::backdrop { background: rgba(6, 10, 30, 0.55); -webkit-backdrop
     .i-avisos-caja { position: static; }
     .i-avisos { left: 12px; right: 12px; width: auto; top: calc(100% + 8px); max-height: calc(100vh - 120px); max-height: calc(100dvh - 120px); }
 }
+
+
+/* Distintivo "Posicionada" (plan nuevo): morado oscuro con borde y flecha. El dorado es solo de Oro/Plata/Bronce */
+.v-pos { position: absolute; bottom: 12px; left: 12px; max-width: calc(100% - 96px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 4px 11px; border-radius: 999px; font-size: 0.72rem; font-weight: 800; background: #4c1d95; color: #ede9fe; border: 1px solid #a78bfa; }
+.v-pos i { margin-right: 4px; }
+[data-theme="light"] .v-pos { background: #ede9fe; color: #5b21b6; border-color: #7c3aed; }
+
+/* Dos caminos de "Pagar y publicar" */
+.v-caminos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 8px; }
+@media (max-width: 520px) { .v-caminos { grid-template-columns: minmax(0, 1fr); } }

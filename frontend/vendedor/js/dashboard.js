@@ -60,6 +60,9 @@
     function titulo(p) { return p ? (V.TIPOS[p.tipo] || p.tipo) + ' en ' + p.barrio : 'Inmueble eliminado'; }
     // Membresía por publicación: cada inmueble trae en p.membresia la suya vigente (o null)
     function posicionado(p) { return !!(p && p.membresia); }
+    // Posicionada (plan nuevo): vigente mientras posicionada_hasta sea futura
+    function posicionadaVigente(p) { return !!(p && p.posicionada_hasta && new Date(p.posicionada_hasta).getTime() > Date.now()); }
+    function diasPara(iso) { return Math.max(0, Math.ceil((new Date(iso).getTime() - Date.now()) / 86400000)); }
     function fechaLarga(iso) { return new Date(iso + 'T00:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' }); }
     /* ---------- Cabecera ---------- */
     $('d-icono').classList.add(OP.icono);
@@ -172,7 +175,7 @@
         if (p.estado === 'publicada') botones += boton('pausar', 'fa-pause', 'Pausar') + boton('cerrar', 'fa-handshake', OP.cierreAccion);
         if (p.estado === 'pausada') botones += boton('reanudar', 'fa-play', 'Reanudar');
         // Membresía de ESTE inmueble: lo sube a las zonas posicionadas mientras esté vigente
-        if (!cerrado && !espera) botones += boton('posicionar', 'fa-crown', posicionado(p) ? 'Renovar posición' : 'Posicionar');
+        if (p.estado === 'publicada' && !posicionado(p)) botones += boton('posicionar', 'fa-arrow-up', posicionadaVigente(p) ? 'Renovar posición' : 'Posicionar');
 
         var herramientas = '<div class="v-prop-herramientas">' +
             (cerrado ? '' : iconoCirc('editar', SVG_EDITAR, 'Editar inmueble')) +
@@ -187,7 +190,7 @@
             (p.imagen ? '<img src="' + V.esc(p.imagen) + '" alt="" loading="lazy">' : '') +
             '<span class="v-estado ' + (espera ? 'espera' : V.esc(p.estado)) + '"><i class="fa-solid ' + (ICONO_ESTADO[espera ? 'espera' : p.estado] || 'fa-circle') + '"></i> ' +
             (espera ? 'En espera de pago' : V.esc(ESTADOS[p.estado] || p.estado)) + '</span>' +
-            (posicionado(p) ? '<span class="v-posicionado" title="Vence el ' + V.esc(fechaLarga(p.membresia.fecha_fin)) + '"><i class="fa-solid fa-crown"></i> ' + V.esc(p.membresia.nombre_plan) + ' · ' + Number(p.membresia.dias_restantes) + ' d</span>' : '') + herramientas +
+            (posicionado(p) ? '<span class="v-posicionado" title="Vence el ' + V.esc(fechaLarga(p.membresia.fecha_fin)) + '"><i class="fa-solid fa-crown"></i> ' + V.esc(p.membresia.nombre_plan) + ' · ' + Number(p.membresia.dias_restantes) + ' d</span>' : '') + (!posicionado(p) && posicionadaVigente(p) ? '<span class="v-pos" title="Posicionada hasta el ' + V.esc(new Date(p.posicionada_hasta).toLocaleDateString('es-CO')) + '"><i class="fa-solid fa-arrow-up"></i> Posicionada · ' + diasPara(p.posicionada_hasta) + ' d</span>' : '') + herramientas +
             '<span class="v-prop-nfotos" title="Fotos del inmueble"><i class="fa-solid fa-camera"></i> ' + ((p.imagen ? 1 : 0) + (p.fotos ? p.fotos.length : 0)) + '</span></div>' +
             '<div class="v-prop-cuerpo">' +
             '<div class="v-prop-precio">' + V.cop(p.precio) + '<small>' + OP.sufijoPrecio + '</small></div>' +
@@ -818,54 +821,100 @@
         }
     });
 
-    /* ---------- Ventana: planes de membresía ---------- */
+    /* ---------- Ventana: pagar y publicar / posicionar ---------- */
     var ventanaPlanes = $('d-planes');
     var inmuebleAPosicionar = null;
     V.prepararVentana(ventanaPlanes);
 
     var ofertaElegida = null;
+    var modoPlan = 'pos';          // 'pagar' (Pagar y publicar) o 'pos' (Posicionar)
+    var caminoPlan = 'normal';     // 'normal' (por tiempo) o 'medalla' (Oro/Plata/Bronce)
+    var planesNuevos = { normal: [], posicionamiento: [] };
+    var planNuevoElegido = null;
+
+    function tipoNuevo() { return modoPlan === 'pos' ? 'posicionamiento' : 'normal'; }
 
     function pintarPlanes() {
-        var lista = datos.ofertas;
-        var boton = $('d-planes-form').querySelector('[type="submit"]');
-        if (!lista.length) {
-            $('d-planes-lista').innerHTML = '<p class="v-nota" style="grid-column:1/-1">No hay paquetes disponibles por ahora. Vuelve a intentarlo más tarde.</p>';
-            if (boton) boton.disabled = true;
-            return;
+        var boton = $('d-planes-pagar');
+        var medalla = modoPlan === 'pagar' && caminoPlan === 'medalla';
+        $('d-planes-caminos').hidden = modoPlan !== 'pagar';
+        Array.prototype.forEach.call($('d-planes-caminos').querySelectorAll('[data-camino]'), function (b) {
+            b.setAttribute('aria-pressed', String(b.getAttribute('data-camino') === caminoPlan));
+        });
+        $('d-planes-titulo').textContent = modoPlan === 'pos' ? 'Posiciona tu inmueble' : 'Pagar y publicar';
+        $('d-planes-ayuda').textContent = medalla
+            ? 'Tu inmueble aparece destacado arriba, en la zona del paquete (Oro, Plata o Bronce), mientras dure. Elige el paquete:'
+            : (modoPlan === 'pos'
+                ? 'Tu inmueble publicado sale de primeras en "Ver más propiedades" durante los días que elijas.'
+                : 'Tu inmueble queda visible durante los días que elijas; al vencer vuelve a borrador.');
+        var html, vacio;
+        if (medalla) {
+            var lista = datos.ofertas;
+            vacio = !lista.length;
+            if (!vacio && !lista.some(function (o) { return o.id === ofertaElegida; })) ofertaElegida = lista[0].id;
+            html = lista.map(function (o) {
+                return '<button type="button" class="v-plan" data-oferta="' + o.id + '" aria-pressed="' + (o.id === ofertaElegida) + '">' +
+                    V.esc(o.nombre) + '<small>Zona ' + V.esc(o.nombre_zona) + ' · ' + o.dias + ' días</small>' +
+                    '<small>' + o.propiedades + (o.propiedades === 1 ? ' propiedad' : ' propiedades') + '</small>' +
+                    '<small style="color:var(--texto);font-weight:800">' + V.cop(o.precio) + '</small></button>';
+            }).join('');
+        } else {
+            var nuevos = planesNuevos[tipoNuevo()] || [];
+            vacio = !nuevos.length;
+            if (!vacio && !nuevos.some(function (n) { return n.id === planNuevoElegido; })) planNuevoElegido = nuevos[0].id;
+            html = nuevos.map(function (n) {
+                return '<button type="button" class="v-plan" data-plan="' + n.id + '" aria-pressed="' + (n.id === planNuevoElegido) + '">' +
+                    '<i class="fa-solid fa-calendar-days"></i> ' + n.dias + ' días' +
+                    '<small style="color:var(--texto);font-weight:800">' + V.cop(n.precio) + '</small></button>';
+            }).join('');
         }
-        if (boton) boton.disabled = false;
-        if (!lista.some(function (o) { return o.id === ofertaElegida; })) ofertaElegida = lista[0].id;
-        $('d-planes-lista').innerHTML = lista.map(function (o) {
-            return '<button type="button" class="v-plan" data-oferta="' + o.id + '" aria-pressed="' + (o.id === ofertaElegida) + '">' +
-                V.esc(o.nombre) + '<small>Zona ' + V.esc(o.nombre_zona) + ' · ' + o.dias + ' días</small>' +
-                '<small>' + o.propiedades + (o.propiedades === 1 ? ' propiedad' : ' propiedades') + '</small>' +
-                '<small style="color:var(--texto);font-weight:800">' + V.cop(o.precio) + '</small></button>';
-        }).join('');
+        $('d-planes-lista').innerHTML = vacio
+            ? '<p class="v-nota" style="grid-column:1/-1">No hay planes disponibles por ahora. Vuelve a intentarlo más tarde.</p>'
+            : html;
+        if (boton) boton.disabled = vacio;
     }
 
     $('d-planes-lista').addEventListener('click', function (e) {
-        var b = e.target.closest('[data-oferta]');
-        if (!b) return;
-        ofertaElegida = Number(b.getAttribute('data-oferta'));
+        var o = e.target.closest('[data-oferta]');
+        var n = e.target.closest('[data-plan]');
+        if (o) ofertaElegida = Number(o.getAttribute('data-oferta'));
+        else if (n) planNuevoElegido = Number(n.getAttribute('data-plan'));
+        else return;
+        pintarPlanes();
+    });
+
+    $('d-planes-caminos').addEventListener('click', function (e) {
+        var c = e.target.closest('[data-camino]');
+        if (!c) return;
+        caminoPlan = c.getAttribute('data-camino');
         pintarPlanes();
     });
 
     $('d-planes-form').addEventListener('submit', async function (e) {
         e.preventDefault();
-        if (!inmuebleAPosicionar || !ofertaElegida) return;
-        var boton = this.querySelector('[type="submit"]');
+        if (!inmuebleAPosicionar) return;
+        var medalla = modoPlan === 'pagar' && caminoPlan === 'medalla';
+        if (medalla ? !ofertaElegida : !planNuevoElegido) return;
+        var boton = $('d-planes-pagar');
         if (boton) boton.disabled = true;
         try {
-            var r = await V.api('/membresia', { metodo: 'POST', datos: { oferta_id: ofertaElegida, propiedad_id: inmuebleAPosicionar.id } });
-            // Con Wompi la API devuelve a dónde ir a pagar (el paquete se activa al aprobarse el pago)
+            var r;
+            if (medalla) {
+                r = await V.api('/membresia', { metodo: 'POST', datos: { oferta_id: ofertaElegida, propiedad_id: inmuebleAPosicionar.id } });
+            } else {
+                var ruta = '/propiedades/' + inmuebleAPosicionar.id + (modoPlan === 'pos' ? '/posicionar' : '/publicar-normal');
+                r = await V.api(ruta, { metodo: 'POST', datos: { plan_id: planNuevoElegido } });
+            }
+            // Con Wompi la API devuelve a dónde ir a pagar (se activa al aprobarse el pago)
             if (r.checkout_url) { V.toast(r.message); window.location.href = r.checkout_url; return; }
             ventanaPlanes.close();
-            V.toast(r.message || 'Inmueble posicionado.');
+            V.toast(r.message || 'Listo.');
             await cargar();
         } catch (err) {
+            // Si el plan ya no está activo, la API explica por qué: se muestra tal cual
             if (err.message !== 'Sin acceso') V.toast(err.message);
         } finally {
-            if (boton) boton.disabled = !datos.ofertas.length;
+            if (boton) boton.disabled = false;
         }
     });
 
@@ -893,9 +942,15 @@
         }
     });
 
-    function abrirPlanes(p) {
+    async function abrirPlanes(p, modo) {
         inmuebleAPosicionar = p;
-        $('d-planes-inmueble').textContent = titulo(p) + (posicionado(p) ? ' · posicionado hasta el ' + fechaLarga(p.membresia.fecha_fin) : '');
+        modoPlan = modo;
+        caminoPlan = 'normal';
+        $('d-planes-inmueble').textContent = titulo(p) +
+            (posicionado(p) ? ' · posicionado hasta el ' + fechaLarga(p.membresia.fecha_fin)
+                : (posicionadaVigente(p) ? ' · posicionada hasta el ' + new Date(p.posicionada_hasta).toLocaleDateString('es-CO') : ''));
+        try { planesNuevos = await V.api('/planes-publicacion'); }
+        catch (err) { planesNuevos = { normal: [], posicionamiento: [] }; if (err.message !== 'Sin acceso') V.toast(err.message); }
         pintarPlanes();
         ventanaPlanes.showModal();
     }
@@ -916,7 +971,8 @@
         var id = Number(b.getAttribute('data-id'));
         var p = inmueble(id);
 
-        if ((accion === 'posicionar' || accion === 'pagarpublicar') && p) return abrirPlanes(p);
+        if (accion === 'posicionar' && p) return abrirPlanes(p, 'pos');
+        if (accion === 'pagarpublicar' && p) return abrirPlanes(p, 'pagar');
         if (accion === 'editar' && p) return abrirForm(p);
         
         if (accion === 'eliminar' && !window.confirm('¿Eliminar este inmueble? También se quitarán sus contactos y visitas.')) return;

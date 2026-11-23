@@ -19,15 +19,6 @@
     var catalogo = {};        // características: { clave: 'Texto' }
     var planes = [];          // planes para destacar una publicación (precio del administrador)
 
-    /* Publicaciones gratis: propiedades guardadas en borrador a la espera de pago (borde rojo) */
-    (function () {
-        if (document.getElementById('estilo-espera-pago')) return;
-        var st = document.createElement('style');
-        st.id = 'estilo-espera-pago';
-        st.textContent = '.i-pcard.espera-pago{border:2px solid #ef4444 !important;box-shadow:0 0 0 3px rgba(239,68,68,.15)}' +
-            '.i-b.estado.espera{background:#ef4444 !important;color:#fff !important}';
-        document.head.appendChild(st);
-    })();
     var captchaClave = null;  // clave de sitio de Cloudflare Turnstile (null = sin captcha)
     var captchaWidget = null, captchaToken = '';
     var maxFotos = 9;
@@ -43,17 +34,13 @@
         if ($('filtro-estado').value) p.push('estado=' + encodeURIComponent($('filtro-estado').value));
         if ($('filtro-agente').value) p.push('agente_id=' + encodeURIComponent($('filtro-agente').value));
         if ($('filtro-texto').value.trim()) p.push('q=' + encodeURIComponent($('filtro-texto').value.trim()));
-        p.push('pagina=' + pagina, 'por_pagina=12');
-        return '?' + p.join('&');
+        return p.length ? '?' + p.join('&') : '';
     }
 
-    var pagina = 1;
     var totalPropiedades = 0;
-    // nueva: número de página (al cambiar un filtro se vuelve a la 1)
-    async function cargarPropiedades(nueva) {
-        if (nueva) pagina = nueva;
+    // Se traen todas las del filtro para agruparlas por secciones (IN3)
+    async function cargarPropiedades() {
         var r = await I.api('/propiedades' + filtros());
-        if (!r.data.length && pagina > 1) return cargarPropiedades(pagina - 1);
         propiedades = r.data;
         totalPropiedades = r.meta ? r.meta.total : r.data.length;
         if (r.caracteristicas) catalogo = r.caracteristicas;
@@ -61,10 +48,33 @@
         if (r.planes) planes = r.planes;
         captchaClave = r.captcha_site_key || null;
         pintar();
-        if (window.PanelExtra) window.PanelExtra.paginador($('d-paginador'), r.meta, function (n) {
-            cargarPropiedades(n).then(function () { $('d-propiedades').scrollIntoView({ behavior: 'smooth', block: 'start' }); })
-                .catch(function (err) { I.toast(err.message); });
-        });
+    }
+
+    /* ---------- Secciones por estado (IN3): ícono y texto, sin colores en la tarjeta ---------- */
+    var SECCIONES = [
+        { id: 'publicadas', titulo: 'Publicadas', icono: 'fa-circle-check', vacio: '' },
+        { id: 'espera', titulo: 'En espera de pago', icono: 'fa-circle-xmark' },
+        { id: 'pausadas', titulo: 'Canceladas / pausadas', icono: 'fa-circle-pause' },
+        { id: 'cerradas', titulo: 'Vendidas / arrendadas', icono: 'fa-handshake' },
+        { id: 'borradores', titulo: 'Borradores', icono: 'fa-file-pen' }
+    ];
+    var POR_SECCION = 8;            // tarjetas visibles antes de "Ver todas"
+    var abiertas = {};              // secciones con "Ver todas" abierto
+
+    function seccionDe(p) {
+        if (p.estado === 'publicada') return 'publicadas';
+        if (p.estado === 'borrador') return p.en_espera_pago ? 'espera' : 'borradores';
+        if (p.estado === 'pausada') return 'pausadas';
+        return 'cerradas';
+    }
+
+    // Estado con ícono y texto (nunca solo color)
+    function estadoTexto(p) {
+        var espera = p.estado === 'borrador' && !!p.en_espera_pago;
+        var iconos = { publicada: 'fa-circle-check', pausada: 'fa-circle-pause', vendida: 'fa-handshake', arrendada: 'fa-key', borrador: 'fa-file-pen' };
+        return espera
+            ? { icono: 'fa-circle-xmark', texto: 'En espera de pago' }
+            : { icono: iconos[p.estado] || 'fa-circle', texto: I.ESTADOS_PROPIEDAD[p.estado] || p.estado };
     }
 
     /* ---------- Tarjetas (mismo diseño de las tarjetas del portal del invitado) ---------- */
@@ -109,11 +119,12 @@
         var renta = p.operacion === 'arriendo';
         var agente = p.agente ? p.agente.nombre : '';
 
-        return '<article class="i-pcard' + (d ? ' destacada' : '') + (espera ? ' espera-pago' : '') + '">' +
+        var est = estadoTexto(p);
+        return '<article class="i-pcard' + (d ? ' destacada' : '') + '">' +
             '<div class="i-pimg"><i class="fa-solid fa-house"></i>' + I.foto(p.imagen) +
                 '<div class="i-pbadges">' +
                     '<span class="i-b ' + (renta ? 'arriendo' : 'venta') + '">' + (renta ? 'Arriendo' : 'Venta') + '</span>' +
-                    '<span class="i-b estado ' + (espera ? 'espera' : I.esc(p.estado)) + '">' + (espera ? 'En espera de pago' : I.esc(I.ESTADOS_PROPIEDAD[p.estado] || p.estado)) + '</span>' +
+                    '<span class="i-b estado"><i class="fa-solid ' + est.icono + '"></i>' + I.esc(est.texto) + '</span>' +
                     (p.verificada ? '<span class="i-b verificada"><i class="fa-solid fa-circle-check"></i>Verificada</span>' : '') +
                 '</div>' +
                 (d ? '<span class="i-pcorona" title="Destacada"><i class="fa-solid fa-crown"></i>' + I.esc(d.en_paquete ? 'Paquete' : d.nombre_plan) + '</span>' : '') +
@@ -141,9 +152,26 @@
 
     function pintar() {
         $('d-total').textContent = totalPropiedades + (totalPropiedades === 1 ? ' inmueble' : ' inmuebles');
-        $('d-propiedades').innerHTML = propiedades.length
-            ? propiedades.map(tarjeta).join('')
-            : '<div class="v-vacio v-vacio-grande"><i class="fa-solid fa-house-circle-exclamation"></i>No hay inmuebles con estos filtros.<br>Usa “Registrar inmueble” para empezar.</div>';
+        if (!propiedades.length) {
+            $('d-propiedades').innerHTML = '<div class="v-vacio v-vacio-grande"><i class="fa-solid fa-house-circle-exclamation"></i>No hay inmuebles con estos filtros.<br>Usa “Registrar inmueble” para empezar.</div>';
+            return;
+        }
+        var grupos = {};
+        propiedades.forEach(function (p) { (grupos[seccionDe(p)] = grupos[seccionDe(p)] || []).push(p); });
+        // Una sección vacía no se muestra
+        $('d-propiedades').innerHTML = SECCIONES.filter(function (s) { return grupos[s.id]; }).map(function (s) {
+            var lista = grupos[s.id];
+            var visibles = abiertas[s.id] ? lista : lista.slice(0, POR_SECCION);
+            return '<section class="i-seccion" aria-labelledby="sec-' + s.id + '">' +
+                '<h3 class="i-seccion-titulo" id="sec-' + s.id + '"><i class="fa-solid ' + s.icono + '"></i>' + I.esc(s.titulo) +
+                    '<span class="i-seccion-cantidad">' + lista.length + '</span></h3>' +
+                '<div class="v-propiedades">' + visibles.map(tarjeta).join('') + '</div>' +
+                (lista.length > POR_SECCION
+                    ? '<button type="button" class="v-btn v-btn-suave v-btn-mini i-seccion-mas" data-seccion="' + s.id + '">' +
+                        (abiertas[s.id] ? '<i class="fa-solid fa-chevron-up"></i> Ver menos' : '<i class="fa-solid fa-chevron-down"></i> Ver todas (' + lista.length + ')') + '</button>'
+                    : '') +
+            '</section>';
+        }).join('');
     }
 
     function pintarFiltroAgentes() {
@@ -153,6 +181,8 @@
 
     /* ---------- Acciones de las tarjetas ---------- */
     $('d-propiedades').addEventListener('click', async function (e) {
+        var mas = e.target.closest('[data-seccion]');
+        if (mas) { abiertas[mas.getAttribute('data-seccion')] = !abiertas[mas.getAttribute('data-seccion')]; pintar(); return; }
         var b = e.target.closest('[data-accion]');
         if (!b) return;
         var id = Number(b.getAttribute('data-id'));
@@ -187,12 +217,12 @@
     });
 
     ['filtro-operacion', 'filtro-estado', 'filtro-agente'].forEach(function (id) {
-        $(id).addEventListener('change', function () { cargarPropiedades(1).catch(function (e) { I.toast(e.message); }); });
+        $(id).addEventListener('change', function () { cargarPropiedades().catch(function (e) { I.toast(e.message); }); });
     });
     var espera;
     $('filtro-texto').addEventListener('input', function () {
         clearTimeout(espera);
-        espera = setTimeout(function () { cargarPropiedades(1).catch(function (e) { I.toast(e.message); }); }, 350);
+        espera = setTimeout(function () { cargarPropiedades().catch(function (e) { I.toast(e.message); }); }, 350);
     });
 
     /* ---------- Formulario: listas ---------- */

@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -94,6 +95,32 @@ class VendedorPublicacionTest extends TestCase
         $this->assertContains($arriendo->json('data.id'), $this->idsPublicos());
         $this->assertSame([$venta->json('data.id')], $this->idsPublicos(['operacion' => 'venta']));
         $this->assertSame([$arriendo->json('data.id')], $this->idsPublicos(['operacion' => 'arriendo']));
+    }
+
+    /** VE9: "Registrar inmueble" pide captcha cuando está activo (igual que IN9 en la inmobiliaria). */
+    public function test_registrar_inmueble_pide_captcha_cuando_esta_activo(): void
+    {
+        config(['services.turnstile.site_key' => 'sitio', 'services.turnstile.secret_key' => 'secreto']);
+        $this->actingAs($this->vendedor);
+
+        $this->getJson('/api/v1/vendedor/propiedades')->assertJsonPath('captcha_site_key', 'sitio');
+
+        // Sin token
+        $this->postJson('/api/v1/vendedor/propiedades', $this->datosPropiedad())
+            ->assertStatus(422)->assertJsonValidationErrors('captcha');
+
+        // Cloudflare responde según el token que llegó (y dice en qué dominio se resolvió)
+        Http::fake(['challenges.cloudflare.com/*' => fn ($pedido) => Http::response(match ($pedido['response']) {
+            'bueno' => ['success' => true, 'hostname' => 'localhost'],
+            'otro-sitio' => ['success' => true, 'hostname' => 'pagina-ajena.com'],
+            'usado' => ['success' => false, 'error-codes' => ['timeout-or-duplicate']],
+            default => ['success' => false, 'error-codes' => ['invalid-input-response']],
+        })]);
+        $this->postJson('/api/v1/vendedor/propiedades', $this->datosPropiedad() + ['captcha' => 'malo'])->assertStatus(422);
+        $this->postJson('/api/v1/vendedor/propiedades', $this->datosPropiedad() + ['captcha' => 'usado'])->assertStatus(422)
+            ->assertJsonPath('errors.captcha.0', 'El captcha venció o ya se usó. Vuelve a marcarlo.');
+        $this->postJson('/api/v1/vendedor/propiedades', $this->datosPropiedad() + ['captcha' => 'otro-sitio'])->assertStatus(422);
+        $this->postJson('/api/v1/vendedor/propiedades', $this->datosPropiedad() + ['captcha' => 'bueno'])->assertCreated();
     }
 
     public function test_sin_membresia_se_publica_igual_en_la_zona_normal(): void

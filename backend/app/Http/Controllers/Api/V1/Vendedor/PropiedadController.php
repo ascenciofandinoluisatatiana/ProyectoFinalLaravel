@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Vendedor;
 
 use App\Http\Controllers\Api\V1\Inmobiliaria\PropiedadController as BasePropiedadController;
+use App\Services\CaptchaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -26,6 +27,18 @@ class PropiedadController extends BasePropiedadController
     public const MIN_FOTOS_TOTAL = 5;
 
     public const MAX_FOTOS_TOTAL = 15;
+
+    /**
+     * POST /propiedades: captcha anti-bots. El de la inmobiliaria solo se pide en sus propias rutas
+     * (/api/v1/inmobiliaria/*), así que el vendedor lo valida aquí. La clave pública de la casilla
+     * (captcha_site_key) ya viaja en el listado porque index() usa parent::index().
+     */
+    public function store(Request $request): JsonResponse
+    {
+        app(CaptchaService::class)->validar($request);
+
+        return parent::store($request);
+    }
 
         public function index(Request $request): JsonResponse
     {

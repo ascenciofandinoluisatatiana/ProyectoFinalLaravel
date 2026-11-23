@@ -21,6 +21,10 @@
 
     function $(id) { return document.getElementById(id); }
 
+    // Captcha (Cloudflare Turnstile): la clave pública llega con el listado de propiedades (null = sin captcha)
+    var captchaClave = null;
+    var captchaWidget = null, captchaToken = '';
+
     /* ---------- Carga desde la API ---------- */
     async function cargar() {
         try {
@@ -37,6 +41,7 @@
             datos.planes = r[3].planes || [];
             datos.ofertas = r[3].ofertas || [];
             datos.paquetes = r[3].paquetes || [];
+            captchaClave = r[0].captcha_site_key || null;
         } catch (e) {
             if (e.message !== 'Sin acceso') V.toast(e.message || 'No se pudieron cargar tus datos.');
         }
@@ -642,6 +647,40 @@
         );
     });
 
+    /* ---------- Captcha (Cloudflare Turnstile) solo al registrar un inmueble nuevo ---------- */
+    function cargarScriptCaptcha() {
+        return new Promise(function (ok, falla) {
+            if (window.turnstile) return ok();
+            var s = document.createElement('script');
+            s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+            s.async = true;
+            s.onload = function () { ok(); };
+            s.onerror = function () { falla(new Error('No se pudo cargar el captcha. Revisa tu conexión.')); };
+            document.head.appendChild(s);
+        });
+    }
+
+    async function prepararCaptcha(nuevo) {
+        var caja = $('f-captcha');
+        captchaToken = '';
+        caja.hidden = !(nuevo && captchaClave);
+        if (caja.hidden) return;
+        try {
+            await cargarScriptCaptcha();
+            if (captchaWidget !== null) { window.turnstile.reset(captchaWidget); return; }
+            captchaWidget = window.turnstile.render('#f-captcha-widget', {
+                sitekey: captchaClave,
+                language: 'es',
+                theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light',
+                callback: function (token) { captchaToken = token; },
+                'expired-callback': function () { captchaToken = ''; },
+                'error-callback': function () { captchaToken = ''; }
+            });
+        } catch (err) {
+            $('f-captcha-widget').textContent = err.message;
+        }
+    }
+
     function abrirForm(p) {
         form.reset();
         form.id.value = p ? p.id : '';
@@ -660,6 +699,7 @@
         $('f-descripcion-cuenta').textContent = form.descripcion.value.length;
         iniciarFotos(p);
         ventanaForm.showModal();
+        prepararCaptcha(!p);
         if (!ubicaciones.length) V.toast('La lista de departamentos está vacía: hay que cargar los municipios en la base de datos.');
         iniciarMapa(p ? p.lat : null, p ? p.lng : null);
     }
@@ -714,6 +754,12 @@
         else if (quitarPrincipal && !portadaGuardada) fd.append('quitar_imagen', '1');
         // Un inmueble nuevo se crea como borrador y se publica al final, cuando ya subieron todas las fotos
         if (!existente) fd.append('estado', 'borrador');
+        // Captcha: solo al registrar un inmueble nuevo (cada código sirve una sola vez)
+        if (!existente && captchaClave) {
+            if (!captchaToken) { V.toast('Confirma que no eres un robot (casilla del captcha).'); return; }
+            fd.delete('cf-turnstile-response');
+            fd.append('captcha', captchaToken);
+        }
 
         var boton = form.querySelector('[type="submit"]');
         var textoBoton = boton ? boton.innerHTML : '';
@@ -767,6 +813,8 @@
             if (err.message !== 'Sin acceso') V.toast(err.message);
         } finally {
             if (boton) { boton.disabled = false; boton.innerHTML = textoBoton; }
+            // El código del captcha ya se usó: se pide uno nuevo
+            if (!existente && captchaWidget !== null && window.turnstile) { window.turnstile.reset(captchaWidget); captchaToken = ''; }
         }
     });
 

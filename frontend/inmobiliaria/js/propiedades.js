@@ -605,6 +605,7 @@
             if (captchaWidget !== null) { window.turnstile.reset(captchaWidget); return; }
             captchaWidget = window.turnstile.render('#f-captcha-widget', {
                 sitekey: captchaClave,
+                size: 'flexible',   // se ajusta al ancho disponible; el CSS lo limita y lo centra en pantallas grandes
                 language: 'es',
                 theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light',
                 callback: function (token) { captchaToken = token; },

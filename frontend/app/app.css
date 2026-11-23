@@ -1,0 +1,109 @@
+/* UMBRAL · app instalada (PWA). Mismas medidas y colores que la app APK (Umbral/App.tsx). */
+:root {
+  --fondo: #140826; --texto: #F5F5F7; --secundario: #C9C3D8; --boton: #1B1B20; --borde: #E3C985; --tarjeta: #141418;
+  --sel-fondo: #2A2414; --capa: rgba(9, 9, 11, .38); --oro: #E3C985; --oro-texto: #14110A;
+  --serif: Georgia, 'Noto Serif', 'Times New Roman', serif; --sans: system-ui, -apple-system, Roboto, 'Segoe UI', Arial, sans-serif;
+}
+:root[data-theme="light"] {
+  --fondo: #F8F7FF; --texto: #1B1035; --secundario: #6B5F8A; --boton: #FFFFFF; --borde: #C9B2FF; --tarjeta: #FFFFFF;
+  --sel-fondo: #F0E9FF; --capa: rgba(255, 255, 255, .10);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body { font-family: var(--sans); background: var(--fondo); color: var(--texto); min-height: 100dvh; }
+[hidden] { display: none !important; }
+button { font-family: inherit; cursor: pointer; }
+svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.pantalla { min-height: 100dvh; animation: entra .26s cubic-bezier(.22, .61, .36, 1) both; }
+@keyframes entra { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+/* ---------- 1 · Inicio ---------- */
+#p-inicio { background: var(--fondo) url('/img/hero-noche.webp') center / cover no-repeat; display: flex; }
+:root[data-theme="light"] #p-inicio { background-image: url('/img/hero-dia.webp'); }
+.capa { flex: 1; display: flex; flex-direction: column; justify-content: space-between; background: var(--capa);
+  padding: calc(env(safe-area-inset-top) + 20px) calc(env(safe-area-inset-right) + 25px) calc(env(safe-area-inset-bottom) + 25px) calc(env(safe-area-inset-left) + 25px); }
+.encabezado { display: flex; justify-content: space-between; align-items: center; }
+.marca { display: flex; align-items: center; gap: 9px; }
+.marca img { width: 34px; height: 34px; object-fit: contain; }
+.logo { font-size: 19px; font-weight: 700; letter-spacing: 4px; color: var(--texto); }
+.eslogan { font-size: 11px; font-style: italic; margin-top: 5px; color: var(--secundario); }
+.contenido { margin: 25px 0 auto; padding-top: 60px; }
+h1 { font-family: var(--serif); font-size: 35px; line-height: 43px; font-weight: 400; color: var(--texto); }
+h1 em { color: var(--oro); font-style: italic; }
+.descripcion-panel { display: inline-block; max-width: 350px; margin-top: 17px; padding: 13px 16px; border-radius: 18px;
+  background: rgba(9, 9, 11, .72); border: 1px solid rgba(255, 255, 255, .24); box-shadow: 0 5px 12px rgba(22, 11, 43, .28); }
+.descripcion-panel p { font-size: 15px; line-height: 23px; font-weight: 700; color: #fff; max-width: 330px; text-shadow: 0 0 3px rgba(0, 0, 0, .45); }
+.pie { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.boton-continuar { width: 100%; min-height: 56px; padding: 0 15px; border-radius: 22px; background: var(--boton); border: 1px solid var(--borde);
+  color: var(--texto); font-size: 14px; font-weight: 600; box-shadow: 0 3px 8px rgba(0, 0, 0, .3); }
+
+/* botón de tema (luna / sol) */
+.boton-modo, .boton-volver { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; flex: none; cursor: pointer;
+  color: var(--oro); background: rgba(20, 10, 38, .62); border: 1px solid rgba(227, 201, 133, .30);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.boton-modo:active, .boton-volver:active { transform: scale(.94); }
+.boton-modo svg, .boton-volver svg { width: 22px; height: 22px; }
+:root[data-theme="dark"] .i-sol, :root[data-theme="light"] .i-luna { display: none; }
+:root[data-theme="light"] .boton-modo, :root[data-theme="light"] .boton-volver { color: #8125eb; background: rgba(255, 255, 255, .78); border-color: rgba(129, 37, 235, .28); }
+[dir="rtl"] .boton-volver svg { transform: scaleX(-1); }
+
+/* ---------- 2 · Idioma y 3 · Acceso (fondo liso) ---------- */
+.pantalla-lisa { background: var(--fondo); }
+.columna { width: 100%; margin: 0 auto; min-height: 100dvh; display: flex; flex-direction: column;
+  padding: calc(env(safe-area-inset-top) + 12px) clamp(22px, 5vw, 64px) 0; }
+.encabezado-idioma { display: flex; justify-content: space-between; align-items: center; }
+.contenido-idioma { padding: 24px 0 calc(env(safe-area-inset-bottom) + 36px); }
+.logo-marco { width: 100px; height: 100px; border-radius: 32px; margin: 0 auto 13px; display: grid; place-items: center;
+  background: rgba(227, 201, 133, .23); border: 1px solid rgba(227, 201, 133, .42); }
+.logo-marco img { width: 72px; height: 72px; object-fit: contain; }
+.etiqueta { color: var(--oro); text-align: center; font-size: 10px; letter-spacing: 2px; font-weight: 800; margin-bottom: 13px; }
+h2 { font-family: var(--serif); font-size: 30px; font-weight: 600; text-align: center; color: var(--texto); }
+.descripcion-idioma { text-align: center; font-size: 14px; line-height: 21px; margin: 9px 0 25px; color: var(--secundario); }
+.lista-idiomas { display: flex; flex-direction: column; gap: 12px; }
+.tarjeta-idioma { min-height: 76px; border-radius: 20px; padding: 0 16px; display: flex; align-items: center; gap: 14px; text-align: start; width: 100%;
+  background: var(--tarjeta); border: 1px solid var(--borde); color: var(--texto); box-shadow: 0 4px 9px rgba(227, 201, 133, .10); }
+.tarjeta-idioma.sel { background: var(--sel-fondo); border: 2px solid var(--oro); }
+.bandera { font-size: 28px; }
+.textos-idioma { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.nombre-idioma { font-size: 16px; font-weight: 600; }
+.detalle-idioma { font-size: 12px; color: var(--secundario); }
+.marca-sel { font-size: 21px; color: var(--oro); }
+.boton-confirmar { width: 100%; margin-top: 24px; min-height: 56px; padding: 0 15px; border: 0; border-radius: 18px; background: var(--oro); color: var(--oro-texto);
+  font-size: 15px; font-weight: 700; box-shadow: 0 5px 10px rgba(227, 201, 133, .24); }
+
+/* ---------- 3 · Cómo continuar ---------- */
+.contenido-acceso { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 18px 0 calc(env(safe-area-inset-bottom) + 30px); }
+.acceso-logo { width: 92px; height: 92px; align-self: center; margin-bottom: 14px; border-radius: 30px; background: rgba(255, 255, 255, .78);
+  border: 1px solid rgba(227, 201, 133, .28); box-shadow: 0 5px 12px rgba(227, 201, 133, .18); object-fit: contain; }
+.acceso-titulo { font-family: var(--serif); font-size: 32px; line-height: 40px; font-weight: 700; letter-spacing: .2px; text-shadow: 0 3px 12px rgba(227, 201, 133, .18); }
+.acceso-descripcion { font-size: 14px; line-height: 22px; text-align: center; margin: 10px 0 25px; padding: 0 8px; color: var(--secundario); }
+.tarjeta-acceso { display: block; text-decoration: none; color: var(--texto); border: 1px solid var(--borde); border-radius: 23px; padding: 18px; margin-bottom: 15px;
+  background: var(--tarjeta); box-shadow: 0 5px 12px rgba(227, 201, 133, .16); cursor: pointer; }
+.tarjeta-acceso:active { transform: scale(.985); }
+.fila-icono { display: flex; align-items: flex-start; gap: 13px; }
+.icono-fondo { width: 48px; height: 48px; border-radius: 16px; display: grid; place-items: center; flex: none; color: var(--oro);
+  background: rgba(227, 201, 133, .16); border: 1px solid rgba(227, 201, 133, .20); }
+.textos-tarjeta { flex: 1; display: flex; flex-direction: column; gap: 7px; }
+.textos-tarjeta strong { font-size: 17px; font-weight: 700; }
+.textos-tarjeta small { font-size: 13px; line-height: 19px; color: var(--secundario); }
+.accion-fila { display: flex; align-items: center; justify-content: space-between; margin-top: 15px; padding-top: 13px; border-top: 1px solid rgba(227, 201, 133, .22); }
+.accion { color: var(--oro); font-size: 14px; font-weight: 700; }
+.flecha-acc { display: none; }
+.acceso-nota { font-size: 12px; line-height: 19px; text-align: center; margin-top: 9px; color: var(--secundario); }
+:root[data-theme="light"] .acceso-titulo, :root[data-theme="light"] .accion, :root[data-theme="light"] .marca-sel, :root[data-theme="light"] .etiqueta { color: var(--texto); }
+:root[data-theme="light"] .accion, :root[data-theme="light"] .etiqueta, :root[data-theme="light"] .marca-sel { color: #8a6a1d; }
+[dir="rtl"] h1, [dir="rtl"] .descripcion-panel p { text-align: right; }
+[dir="rtl"] .descripcion-panel { float: none; margin-inline-start: auto; display: block; width: fit-content; }
+
+/* ---------- computador: misma pantalla, más amplia ---------- */
+@media (min-width: 800px) {
+  .capa { padding: 32px 64px 48px; }
+  .logo { font-size: 22px; } .marca img { width: 42px; height: 42px; }
+  .contenido { padding-top: 0; margin: auto 0; max-width: 680px; }
+  h1 { font-size: 60px; line-height: 70px; }
+  .descripcion-panel { max-width: 460px; } .descripcion-panel p { font-size: 17px; line-height: 26px; max-width: none; }
+}
+@media (prefers-reduced-motion: reduce) { .pantalla { animation: none; } .tarjeta-acceso:active { transform: none; } }
+/* modo día: el dorado se oscurece un poco para que se lea sobre el cielo y el fondo claro */
+:root[data-theme="light"] h1 em { color: #8A5A00; }
+:root[data-theme="light"] .icono-fondo { color: #8a6a1d; }

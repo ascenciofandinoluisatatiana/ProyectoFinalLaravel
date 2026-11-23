@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Umbral · El paso hacia un nuevo hogar</title>
     <link rel="icon" type="image/png" href="img/icono.png">
+    <link rel="manifest" href="/manifest.webmanifest">
 
     <!-- Fuentes del diseño -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,7 +24,9 @@
     <link rel="stylesheet" href="css/menu-responsivo.css?v=1">
 
     <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
-    <script src="/assets/inline/tema-inicio.js"></script>
+    <link rel="stylesheet" href="/invitado/css/movil-app.css?v=4">
+    <link rel="stylesheet" href="css/modo-app.css?v=1">
+    <script src="js/modo-app.js"></script>
     <style>
         /* Alertas de los campos del registro */
         .campo-error { margin: 6px 4px 0; font-size: .8rem; font-weight: 600; line-height: 1.35; color: #d92d20; }
@@ -614,5 +617,6 @@
     <script src="js/animaciones.js"></script>
 <script src="js/auth-param.js"></script>
     <script src="js/subir.js?v=1"></script>
+    <script src="js/pwa.js"></script>
 </body>
 </html>

@@ -1,3 +1,5 @@
+/* IN1/AG1: misma fuente del panel de administración (Plus Jakarta Sans) */
+:root { --fuente-serif: 'Plus Jakarta Sans', system-ui, sans-serif; --fuente-sans: 'Plus Jakarta Sans', system-ui, sans-serif; }
 /* =========================================================
    UMBRAL — Panel de la inmobiliaria
    Se apoya en /vendedor/css/vendedor.css (mismo diseño del vendedor).

@@ -79,7 +79,8 @@ class VendedorPublicacionTest extends TestCase
         if (! function_exists('imagecreatetruecolor')) {
             $this->markTestSkipped('Esta prueba crea una imagen y necesita la extensión GD de PHP.');
         }
-        Storage::fake('public');
+        Storage::fake('imagenes');
+        $this->vendedor->forceFill(['publicaciones_gratis' => 2])->save();
 
         $venta = $this->actingAs($this->vendedor)
             ->post('/api/v1/vendedor/propiedades', $this->datosPropiedad(['imagen' => UploadedFile::fake()->image('casa.jpg')]), ['Accept' => 'application/json'])

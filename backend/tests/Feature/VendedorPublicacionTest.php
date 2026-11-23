@@ -25,6 +25,11 @@ class VendedorPublicacionTest extends TestCase
     {
         parent::setUp();
 
+        // En GitHub el .env sale de .env.example y trae claves de prueba: el captcha quedaría activo
+        // y las pruebas que crean inmuebles recibirían error 422. Aquí se apaga; la prueba del captcha
+        // lo enciende por su cuenta.
+        config(['services.turnstile.site_key' => null, 'services.turnstile.secret_key' => null]);
+
         $dep = DB::table('departamentos')->insertGetId(['codigo_dane' => '73', 'nombre' => 'Tolima', 'activo' => true]);
         DB::table('municipios')->insert(['departamento_id' => $dep, 'codigo_dane' => '73001', 'nombre' => 'Ibagué', 'activo' => true]);
 

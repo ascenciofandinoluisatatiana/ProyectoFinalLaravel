@@ -174,9 +174,34 @@ class CaptchaComisionesPaqueteTest extends TestCase
         // Sin token
         $this->postJson('/api/v1/inmobiliaria/propiedades', $datos)->assertStatus(422)->assertJsonValidationErrors('captcha');
 
-        // Cloudflare responde según el token que llegó
-        Http::fake(['challenges.cloudflare.com/*' => fn ($pedido) => Http::response(['success' => $pedido['response'] === 'bueno'])]);
+        // Cloudflare responde según el token que llegó (y dice en qué dominio se resolvió)
+        Http::fake(['challenges.cloudflare.com/*' => fn ($pedido) => Http::response(match ($pedido['response']) {
+            'bueno' => ['success' => true, 'hostname' => 'localhost'],
+            'otro-sitio' => ['success' => true, 'hostname' => 'pagina-ajena.com'],
+            'usado' => ['success' => false, 'error-codes' => ['timeout-or-duplicate']],
+            default => ['success' => false, 'error-codes' => ['invalid-input-response']],
+        })]);
         $this->postJson('/api/v1/inmobiliaria/propiedades', $datos + ['captcha' => 'malo'])->assertStatus(422);
+        $this->postJson('/api/v1/inmobiliaria/propiedades', $datos + ['captcha' => 'usado'])->assertStatus(422)
+            ->assertJsonPath('errors.captcha.0', 'El captcha venció o ya se usó. Vuelve a marcarlo.');
+        // IN9: un token resuelto en otra página no sirve
+        $this->postJson('/api/v1/inmobiliaria/propiedades', $datos + ['captcha' => 'otro-sitio'])->assertStatus(422);
         $this->postJson('/api/v1/inmobiliaria/propiedades', $datos + ['captcha' => 'bueno'])->assertCreated();
+    }
+
+    public function test_claves_de_prueba_de_cloudflare_se_reconocen(): void
+    {
+        $captcha = app(\App\Services\CaptchaService::class);
+
+        config(['services.turnstile.site_key' => '1x00000000000000000000AA', 'services.turnstile.secret_key' => '1x0000000000000000000000000000000AA']);
+        $this->assertTrue($captcha->activo());
+        $this->assertTrue($captcha->clavesDePrueba());
+
+        config(['services.turnstile.site_key' => '0x4AAAAAAAreal', 'services.turnstile.secret_key' => '0x4AAAAAAAsecreta']);
+        $this->assertFalse($captcha->clavesDePrueba());
+
+        config(['services.turnstile.site_key' => null, 'services.turnstile.secret_key' => null]);
+        $this->assertFalse($captcha->activo());
+        $this->assertNull($captcha->claveSitio());
     }
 }

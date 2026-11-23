@@ -138,6 +138,12 @@
 .i-icono:hover { background: var(--neutro-fondo); }
 #i-menu { display: none; }
 .i-idioma { height: 44px; padding: 0 10px; border-radius: 12px; border: 1px solid var(--campo-borde); background: var(--campo); color: var(--texto); font: inherit; font-weight: 700; cursor: pointer; }
+/* Idioma: dos botones (ES / EN), como el botón de tema */
+.i-idiomas { display: inline-flex; align-items: center; gap: 2px; height: 44px; padding: 3px; border-radius: 12px; border: 1px solid var(--campo-borde); background: var(--campo); }
+.i-idiomas button { height: 100%; padding: 0 12px; border: 0; border-radius: 9px; background: transparent; color: var(--texto); font: inherit; font-size: 0.82rem; font-weight: 800; cursor: pointer; }
+.i-idiomas button:hover { background: var(--neutro-fondo, rgba(128, 128, 128, 0.15)); }
+.i-idiomas button[aria-pressed="true"] { background: var(--op-1, #8728c2); color: #fff; }
+.i-idiomas button:focus-visible { outline: 2px solid var(--op-1, #8728c2); outline-offset: 1px; }
 .i-usuario { display: flex; align-items: center; gap: 10px; padding: 5px 14px 5px 5px; border-radius: 14px; border: 1px solid var(--campo-borde); background: var(--campo); min-width: 0; }
 .i-usuario b { display: block; font-size: 0.85rem; line-height: 1.2; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .i-usuario small { display: block; font-size: 0.72rem; color: var(--op-texto); max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -530,6 +536,8 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
     .i-idioma { width: 64px; padding: 0 6px; }
     .i-barra .i-icono, .i-salir { width: 40px; height: 40px; }
     .i-idioma { height: 40px; }
+    .i-idiomas { height: 40px; }
+    .i-idiomas button { padding: 0 9px; }
 }
 
 /* Mis ganancias (agente) */

@@ -28,49 +28,27 @@
         <header class="v-topbar" id="v-topbar"></header>
 
         <main class="v-contenido">
-            <!-- Bienvenida -->
             <section class="v-tarjeta v-hero">
                 <div>
-                    <p class="v-etiqueta"><i class="fa-solid fa-user-check"></i> Perfil de vendedor</p>
-                    <h1 class="titulo-serif">Hola, <span id="p-nombre"></span></h1>
-                    <p>Desde aquí administras todo lo que publicas en Umbral. Elige qué quieres hacer hoy y entra a tu panel.</p>
-                    <div class="v-chips">
-                        <span class="v-chip"><i class="fa-solid fa-location-dot"></i> Colombia</span>
-                        <span class="v-chip"><i class="fa-solid fa-user"></i> Cuenta persona</span>
-                        <span class="v-chip"><i class="fa-solid fa-envelope"></i> <span id="p-correo-chip"></span></span>
-                    </div>
-                    <div style="margin-top:18px">
+                    <p class="v-etiqueta"><i class="fa-solid fa-user"></i> Mi cuenta</p>
+                    <h1 class="titulo-serif">Mi perfil</h1>
+                    <p>Aquí ves los datos de tu cuenta y puedes actualizarlos o cambiar tu contraseña.</p>
+
+                <div class="v-chips" style="margin-top:0">
+                    <a class="v-btn v-btn-suave" href="/vendedor/inicio.html"><i class="fa-solid fa-arrow-left"></i> Inicio</a>
+                </div>
+
+                    
+                    <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
                         <button type="button" class="v-btn v-btn-suave" id="p-editar-abrir"><i class="fa-solid fa-pen"></i> Editar perfil</button>
+                        <button type="button" class="v-btn v-btn-suave" id="p-clave-abrir"><i class="fa-solid fa-key"></i> Cambiar contraseña</button>
                     </div>
+                    
                 </div>
             </section>
 
-            <!-- Las dos opciones: cada una lleva a su propio dashboard -->
-            <div>
-                <h2 class="titulo-serif v-titulo-seccion">¿Qué quieres hacer hoy?</h2>
-                <p class="v-subtitulo">Cada opción tiene su propio panel con inmuebles, contactos y visitas.</p>
-            </div>
-
-            <section class="v-opciones" aria-label="Opciones del vendedor">
-                <a class="v-opcion op-venta" href="/vendedor/vender.html">
-                    <span class="v-opcion-icono"><i class="fa-solid fa-house-circle-check"></i></span>
-                    <h3 class="titulo-serif">Vender</h3>
-                    <p>Publica tu inmueble, recibe ofertas de compradores reales y cierra la venta con acompañamiento.</p>
-                    <div class="v-opcion-datos" id="p-datos-venta"></div>
-                    <span class="v-opcion-cta">Ir al panel de ventas <i class="fa-solid fa-arrow-right"></i></span>
-                </a>
-
-                <a class="v-opcion op-arriendo" href="/vendedor/arrendar.html">
-                    <span class="v-opcion-icono"><i class="fa-solid fa-key"></i></span>
-                    <h3 class="titulo-serif">Arrendar</h3>
-                    <p>Encuentra inquilinos, coordina visitas y administra tus arriendos desde un solo lugar.</p>
-                    <div class="v-opcion-datos" id="p-datos-arriendo"></div>
-                    <span class="v-opcion-cta">Ir al panel de arriendos <i class="fa-solid fa-arrow-right"></i></span>
-                </a>
-            </section>
-
-            <!-- Cuenta y capacidades -->
-            <section class="v-dos-col">
+            <!-- Datos de la cuenta -->
+            <section>
                 <article class="v-tarjeta">
                     <div class="v-tarjeta-cabeza"><h2>Tu cuenta</h2></div>
                     <div class="v-tarjeta-cuerpo v-datos">
@@ -81,23 +59,11 @@
                         <div class="v-dato"><i class="fa-solid fa-location-dot"></i><div><small>País de residencia</small><b>Colombia</b></div></div>
                     </div>
                 </article>
-
-                <article class="v-tarjeta">
-                    <div class="v-tarjeta-cabeza"><h2>Lo que puedes hacer como vendedor</h2></div>
-                    <div class="v-tarjeta-cuerpo v-capacidades">
-                        <div class="v-capacidad"><i class="fa-solid fa-house"></i><div><b>Registrar inmuebles</b><span>Carga los datos de cada propiedad.</span></div></div>
-                        <div class="v-capacidad"><i class="fa-solid fa-credit-card"></i><div><b>Contratar membresía</b><span>Semanal, quincenal o mensual.</span></div></div>
-                        <div class="v-capacidad"><i class="fa-solid fa-bullhorn"></i><div><b>Publicar</b><span>Tus inmuebles visibles en el portal.</span></div></div>
-                        <div class="v-capacidad"><i class="fa-solid fa-comments"></i><div><b>Gestionar contactos</b><span>Responde a cada interesado.</span></div></div>
-                        <div class="v-capacidad"><i class="fa-solid fa-calendar-check"></i><div><b>Gestionar visitas</b><span>Confirma y organiza tu agenda.</span></div></div>
-                        <div class="v-capacidad"><i class="fa-solid fa-handshake"></i><div><b>Cerrar ventas y arriendos</b><span>Lleva el control de cada negocio.</span></div></div>
-                    </div>
-                </article>
             </section>
         </main>
     </div>
 
-    <!-- Ventana: editar datos del perfil -->
+    <!-- Ventana: editar datos del perfil y cambiar contraseña (igual que antes) -->
     <dialog class="v-ventana" id="p-editar">
         <div class="v-ventana-cabeza">
             <h2 class="titulo-serif">Editar perfil</h2>
@@ -116,7 +82,7 @@
             </div>
         </form>
 
-                <hr style="border:0;border-top:1px solid rgba(128,128,128,.25);margin:22px 0 18px">
+        <hr style="border:0;border-top:1px solid rgba(128,128,128,.25);margin:22px 0 18px">
         <form id="p-clave-form" novalidate>
             <h3 class="titulo-serif" style="font-size:1.15rem;margin:0 0 12px">Cambiar contraseña</h3>
             <div class="v-form-rejilla">

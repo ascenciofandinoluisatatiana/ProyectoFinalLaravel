@@ -248,3 +248,4 @@ body.vendedor .v-rejilla .v-grafica canvas { position: absolute; inset: 0; }
 .v-visita .v-btn-mini { padding: 6px 10px; }
 .v-btn-peligro:hover { color: var(--peligro); border-color: var(--peligro); }
 .v-tarjeta-cabeza .v-btn-mini { white-space: nowrap; }
+

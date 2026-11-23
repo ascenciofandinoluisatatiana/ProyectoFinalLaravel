@@ -1,8 +1,8 @@
 /* =========================================================
-   UMBRAL — Perfil del vendedor (persona)
+   UMBRAL — Mi perfil del vendedor (persona)
    Muestra los datos de la cuenta, permite EDITARLOS (nombre y
-   teléfono) y las dos opciones (Vender / Arrendar) con un
-   resumen de cada una.
+   teléfono) y cambiar la contraseña. El resumen de Vender y
+   Arrendar está en Inicio (inicio.js).
    ========================================================= */
 (function () {
     'use strict';
@@ -21,10 +21,8 @@
     }
 
     function pintarCuenta() {
-        poner('p-nombre', usuario.nombre);
         poner('p-nombre-dato', usuario.nombre);
         poner('p-correo', usuario.email);
-        poner('p-correo-chip', usuario.email);
         poner('p-telefono', usuario.telefono || 'Sin registrar');
     }
     pintarCuenta();
@@ -32,6 +30,7 @@
     /* ---------- Editar perfil ---------- */
     var ventana = document.getElementById('p-editar');
     var form = document.getElementById('p-editar-form');
+    var formClave = document.getElementById('p-clave-form');
     V.prepararVentana(ventana);
 
     // Guarda el usuario actualizado donde lo dejó el login (localStorage o sessionStorage)
@@ -48,13 +47,18 @@
         });
     }
 
-    document.getElementById('p-editar-abrir').addEventListener('click', function () {
+    // Abre la ventana con los datos actuales; los campos de contraseña empiezan vacíos
+    function abrirVentana(campo) {
         form.nombre.value = usuario.nombre || '';
         form.telefono.value = usuario.telefono || '';
         document.getElementById('e-correo').value = usuario.email || '';
+        formClave.reset();
         ventana.showModal();
-        form.nombre.focus();
-    });
+        campo.focus();
+    }
+
+    document.getElementById('p-editar-abrir').addEventListener('click', function () { abrirVentana(form.nombre); });
+    document.getElementById('p-clave-abrir').addEventListener('click', function () { abrirVentana(formClave.actual); });
 
     form.addEventListener('submit', async function (e) {
         e.preventDefault();
@@ -82,12 +86,7 @@
         }
     });
 
-        /* ---------- Cambiar contraseña ---------- */
-    var formClave = document.getElementById('p-clave-form');
-
-    // Cada vez que se abre la ventana, los campos de contraseña empiezan vacíos
-    document.getElementById('p-editar-abrir').addEventListener('click', function () { formClave.reset(); });
-
+    /* ---------- Cambiar contraseña ---------- */
     formClave.addEventListener('submit', async function (e) {
         e.preventDefault();
         var actual = formClave.actual.value, nueva = formClave.nueva.value, repetir = formClave.repetir.value;
@@ -114,29 +113,6 @@
         }
     });
 
-    /* ---------- Resumen de cada operación (desde la API) ---------- */
-    function dato(valor, texto) { return '<div><b>' + valor + '</b><span>' + texto + '</span></div>'; }
-
-    function pintarResumen(id, publicados, contactos, visitas) {
-        document.getElementById(id).innerHTML =
-            dato(publicados, 'Publicados') + dato(contactos, 'Contactos') + dato(visitas, 'Visitas próximas');
-    }
-
-    function resumen(operacion, datos) {
-        var props = datos.propiedades.filter(function (p) { return p.operacion === operacion; });
-        var ids = props.map(function (p) { return p.id; });
-        var publicados = props.filter(function (p) { return p.estado === 'publicada'; }).length;
-        var contactos = datos.contactos.filter(function (c) { return c.propiedad && ids.indexOf(c.propiedad.id) !== -1; }).length;
-        var visitas = datos.visitas.filter(function (v) {
-            return v.propiedad && ids.indexOf(v.propiedad.id) !== -1 &&
-                (v.estado === 'pendiente' || v.estado === 'confirmada') && new Date(v.fecha) > new Date();
-        }).length;
-        return [publicados, contactos, visitas];
-    }
-
-    // Mientras llega la respuesta se muestran ceros
-    ['venta', 'arriendo'].forEach(function (op) { pintarResumen('p-datos-' + op, 0, 0, 0); });
-
     // Trae también el teléfono guardado en el servidor (el login antiguo no lo guardaba en el navegador)
     V.api('/yo').then(function (r) {
         if (r.usuario && r.usuario.telefono !== usuario.telefono) {
@@ -145,16 +121,4 @@
             pintarCuenta();
         }
     }).catch(function () {});
-
-    Promise.all([V.api('/propiedades'), V.api('/contactos'), V.api('/visitas?periodo=proximas')])
-        .then(function (r) {
-            var datos = { propiedades: r[0].data || [], contactos: r[1].data || [], visitas: r[2].data || [] };
-            ['venta', 'arriendo'].forEach(function (op) {
-                var x = resumen(op, datos);
-                pintarResumen('p-datos-' + op, x[0], x[1], x[2]);
-            });
-        })
-        .catch(function (e) {
-            if (e.message !== 'Sin acceso') V.toast(e.message || 'No se pudo cargar el resumen.');
-        });
 })();

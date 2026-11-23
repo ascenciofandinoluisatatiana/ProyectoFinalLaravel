@@ -122,6 +122,7 @@
         rol: { es: 'Panel del vendedor', en: 'Seller panel', pt: 'Painel do vendedor', fr: 'Espace vendeur' },
         g_principal: { es: 'Principal', en: 'Main', pt: 'Principal', fr: 'Principal' },
         g_operaciones: { es: 'Mis operaciones', en: 'My operations', pt: 'Minhas operações', fr: 'Mes opérations' },
+        inicio: { es: 'Inicio', en: 'Home', pt: 'Início', fr: 'Accueil' },
         perfil: { es: 'Mi perfil', en: 'My profile', pt: 'Meu perfil', fr: 'Mon profil' },
         venta: { es: 'Vender', en: 'Sell', pt: 'Vender', fr: 'Vendre' },
         arriendo: { es: 'Arrendar', en: 'Rent out', pt: 'Alugar', fr: 'Louer' },
@@ -153,6 +154,7 @@
 
     // Secciones del panel, agrupadas como en el menú de la inmobiliaria
     var SECCIONES = [
+        { id: 'inicio', grupo: 'g_principal', href: '/vendedor/inicio.html', icono: 'fa-house' },
         { id: 'perfil', grupo: 'g_principal', href: '/vendedor/perfil.html', icono: 'fa-user' },
         { id: 'contactos', grupo: 'g_principal', href: '/vendedor/contactos.html', icono: 'fa-comments' },
         { id: 'historial', grupo: 'g_principal', href: '/vendedor/historial.html', icono: 'fa-clock-rotate-left' },
@@ -201,7 +203,7 @@
         var actual = SECCIONES.filter(function (s) { return s.id === activo; })[0];
 
         // Menú lateral agrupado
-        var html = '<a class="i-marca" href="/vendedor/perfil.html"><span class="i-logo-marca"><img src="/img/icono.png" alt=""></span>' +
+        var html = '<a class="i-marca" href="/vendedor/incio.html"><span class="i-logo-marca"><img src="/img/icono.png" alt=""></span>' +
             '<span><b>UMBRAL</b><small>' + esc(tx('rol')) + '</small></span></a>';
         ['g_principal', 'g_operaciones'].forEach(function (g) {
             html += '<div class="i-grupo">' + esc(tx(g)) + '</div><nav class="i-nav">' +

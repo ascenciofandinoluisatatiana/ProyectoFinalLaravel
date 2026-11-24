@@ -741,3 +741,7 @@ dialog.v-ventana.i-ventana-ancha { width: min(860px, calc(100vw - 32px)); }
 
 /* Inglés: la página se oculta un instante mientras se traduce (idioma-en.js) */
 .i-traduciendo body { visibility: hidden; }
+
+/* IN14: distintivo "Posicionada" en la foto de la tarjeta (morado oscuro con borde, como .b-pos del Invitado; el dorado es solo de Oro/Plata/Bronce) */
+.i-pcorona.i-ppos { background: #4c1d95; color: #ede9fe; border: 1px solid #a78bfa; }
+[data-theme="light"] .i-pcorona.i-ppos { background: #ede9fe; color: #5b21b6; border-color: #7c3aed; }

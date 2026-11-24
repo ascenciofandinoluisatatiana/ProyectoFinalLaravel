@@ -45,7 +45,7 @@
   .btn-filtros-movil {
     display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
     margin: 4px 0 10px; padding: 11px 14px; border-radius: 14px; cursor: pointer;
-    background: var(--card); color: var(--primary2, #a855f7); border: 1px solid var(--border);
+    background: var(--card); color: var(--primary, #7e22ce); border: 1px solid var(--border);
     font: 700 14px/1 inherit; font-family: inherit;
   }
   .btn-filtros-movil[aria-expanded="true"] { border-color: var(--primary2, #a855f7); }

@@ -582,7 +582,56 @@
         }
     }
 
+    /* =================== Errores del servidor en español ===================
+       Laravel está en inglés (APP_LOCALE=en) y sus mensajes por defecto llegan así:
+       "The email has already been taken." Con el panel en español se pasan aquí. */
+    var CAMPOS = {
+        name: 'nombre', email: 'correo', password: 'contraseña', 'password confirmation': 'confirmación de la contraseña', actual: 'contraseña actual',
+        telefono: 'teléfono', 'tipo documento': 'tipo de documento', 'numero documento': 'número de documento', estado: 'estado', 'agente id': 'agente',
+        'propiedad id': 'propiedad', 'lead id': 'contacto', 'plan id': 'plan', 'paquete id': 'paquete', 'oferta id': 'paquete', plan: 'plan', fecha: 'fecha',
+        nombre: 'nombre', contacto: 'contacto', nota: 'nota', tipo: 'tipo de inmueble', operacion: 'operación', precio: 'precio', departamento: 'departamento',
+        ciudad: 'municipio', barrio: 'barrio', direccion: 'dirección', lat: 'ubicación', lng: 'ubicación', habitaciones: 'habitaciones', banos: 'baños',
+        parqueaderos: 'parqueaderos', area: 'área', estrato: 'estrato', pisos: 'pisos', antiguedad: 'antigüedad', descripcion: 'descripción', imagen: 'foto principal',
+        foto: 'foto', fotos: 'fotos', logo: 'logo', 'razon social': 'razón social', 'representante legal': 'representante legal', desde: 'fecha inicial',
+        hasta: 'fecha final', q: 'búsqueda', captcha: 'captcha', caracteristicas: 'características'
+    };
+    var FRASES_ERROR = [
+        [/^The (.+?) field is required\.$/, 'El campo $1 es obligatorio.'],
+        [/^The (.+?) has already been taken\.$/, 'Ese $1 ya está registrado.'],
+        [/^The (.+?) field must be a valid email address\.$/, 'Escribe un correo válido.'],
+        [/^The (.+?) field must be at least (\d+) characters\.$/, 'El campo $1 debe tener al menos $2 caracteres.'],
+        [/^The (.+?) field must not be greater than (\d+) characters\.$/, 'El campo $1 no puede tener más de $2 caracteres.'],
+        [/^The (.+?) field must not be greater than (\d+) kilobytes\.$/, 'El archivo de $1 es demasiado pesado.'],
+        [/^The (.+?) field must not be greater than (\d+)\.$/, 'El campo $1 no puede ser mayor que $2.'],
+        [/^The (.+?) field must be at least (\d+)\.$/, 'El campo $1 debe ser al menos $2.'],
+        [/^The (.+?) field must be between (\d+) and (\d+)\.$/, 'El campo $1 debe estar entre $2 y $3.'],
+        [/^The (.+?) field confirmation does not match\.$/, 'Las contraseñas no coinciden.'],
+        [/^The selected (.+?) is invalid\.$/, 'El valor elegido en $1 no es válido.'],
+        [/^The (.+?) field must be (a number|an integer|numeric)\.$/, 'El campo $1 debe ser un número.'],
+        [/^The (.+?) field must be a valid date\.$/, 'El campo $1 debe ser una fecha válida.'],
+        [/^The (.+?) field must match the format .+\.$/, 'El campo $1 no tiene el formato correcto.'],
+        [/^The (.+?) field must be a date (after|after or equal to|before|before or equal to) .+\.$/, 'Revisa la $1.'],
+        [/^The (.+?) field must be an image\.$/, 'El campo $1 debe ser una imagen.'],
+        [/^The (.+?) field must be a file of type: (.+)\.$/, 'El campo $1 debe ser un archivo $2.'],
+        [/^The (.+?) failed to upload\.$/, 'No se pudo subir el archivo de $1.'],
+        [/^Too Many Attempts\.$/, 'Hiciste demasiados intentos. Espera un momento y vuelve a intentar.'],
+        [/^Server Error$/, 'Error del servidor. Intenta de nuevo en unos minutos.'],
+        [/^No query results for model .*$/, 'No encontramos ese registro.'],
+        [/^Unauthenticated\.$/, 'Tu sesión expiró. Vuelve a iniciar sesión.'],
+        [/^This action is unauthorized\.$/, 'No tienes permiso para hacer esto.'],
+        [/^The given data was invalid\.$/, 'Revisa los datos del formulario.']
+    ];
+    function mensajeError(texto) {
+        if (!texto || window.UmbralIdioma) return texto;   // en inglés se deja como llega
+        for (var i = 0; i < FRASES_ERROR.length; i++) {
+            var m = String(texto).match(FRASES_ERROR[i][0]);
+            if (m) return FRASES_ERROR[i][1].replace(/\$(\d)/g, function (_, n) { var v = m[n] || ''; return n === '1' ? (CAMPOS[v] || v) : v; });
+        }
+        return texto;
+    }
+
     window.PanelExtra = {
+        mensajeError: mensajeError,
         ventanaPlanes: ventanaPlanes,
         filaMovimiento: filaMovimiento, historialContacto: historialContacto, historialNotificaciones: historialNotificaciones,
         filtrosQuery: filtrosQuery, prepararFiltros: prepararFiltros, montarCampana: montarCampana, paginador: paginador, pdfVentas: pdfVentas };

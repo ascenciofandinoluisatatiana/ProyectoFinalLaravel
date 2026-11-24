@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="/invitado/css/detalle-extra.css">
   <link rel="stylesheet" href="/invitado/css/filtros-flotantes.css">
   <link rel="stylesheet" href="/invitado/css/contacto-rapido.css">
-  <link rel="stylesheet" href="/invitado/css/movil-app.css?v=4">
+  <link rel="stylesheet" href="/invitado/css/movil-app.css?v=5">
 </head>
 
 <body>
@@ -37,13 +37,13 @@
         <div class="marca-txt"><strong>UMBRAL</strong><em data-i18n="tagline"></em></div>
       </div>
       <div class="nav-label" data-i18n="nav_main"></div>
-      <nav class="nav">
+      <nav class="nav" aria-label="Principal" data-i18n-aria="nav_main">
         <a class="active" data-nav="all"><i class="fa-solid fa-compass"></i><span data-i18n="nav_explore"></span></a>
         <a data-nav="map"><i class="fa-solid fa-map-location-dot"></i><span data-i18n="nav_map"></span></a>
         <a data-nav="favs"><i class="fa-solid fa-heart"></i><span data-i18n="nav_favs"></span></a>
       </nav>
       <div class="nav-label" data-i18n="nav_tools"></div>
-      <nav class="nav">
+      <nav class="nav" aria-label="Herramientas" data-i18n-aria="nav_tools">
         <a data-nav="calc"><i class="fa-solid fa-calculator"></i><span data-i18n="nav_calc"></span></a>
         <a data-nav="sellers"><i class="fa-solid fa-address-card"></i><span data-i18n="nav_sellers"></span></a>
         <a href="#" id="descargarApp"><i class="fa-solid fa-mobile-screen-button"></i><span data-i18n="nav_app"></span></a>
@@ -74,10 +74,11 @@
           <div class="avatar">IN</div>
           <div><b data-i18n="guest"></b><small data-i18n="guest_role"></small></div>
         </div>
-        <a class="btn btn-ghost btn-sm" href="/index.html?auth=login" style="white-space:nowrap"><i
-            class="fa-solid fa-right-to-bracket"></i><span data-i18n="login"></span></a>
-        <a class="btn btn-ghost btn-sm" id="exitBtn" href="/index.html" style="white-space:nowrap;color:var(--primary2)"><i
-            class="fa-solid fa-arrow-right-from-bracket"></i><span data-i18n="exit"></span></a>
+        <a class="btn btn-ghost btn-sm" href="/index.html?auth=login" style="white-space:nowrap" aria-label="Iniciar sesión"
+          title="Iniciar sesión" data-i18n-aria="login"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i><span data-i18n="login"></span></a>
+        <a class="btn btn-ghost btn-sm" id="exitBtn" href="/index.html" style="white-space:nowrap;color:var(--primary)"
+          aria-label="Salir" title="Salir" data-i18n-aria="exit"><i class="fa-solid fa-arrow-right-from-bracket"
+            aria-hidden="true"></i><span data-i18n="exit"></span></a>
       </header>
 
       <main class="content">
@@ -114,14 +115,14 @@
 
         <section class="panel" id="filters">
           <div class="grid-f">
-            <div class="field"><label data-i18n="f_type"></label><select id="fType"></select></div>
-            <div class="field"><label data-i18n="f_dept"></label><select id="fDept"></select></div>
-            <div class="field"><label data-i18n="f_city"></label><select id="fCity"></select></div>
-            <div class="field"><label data-i18n="f_barrio"></label><input id="fBarrio" list="dlBarrios" type="text" maxlength="60" autocomplete="off" data-i18n-ph="f_barrio_ph"><datalist id="dlBarrios"></datalist></div>
-            <div class="field"><label data-i18n="f_max"></label><input id="fMax" type="number" min="0"
+            <div class="field"><label for="fType" data-i18n="f_type"></label><select id="fType"></select></div>
+            <div class="field"><label for="fDept" data-i18n="f_dept"></label><select id="fDept"></select></div>
+            <div class="field"><label for="fCity" data-i18n="f_city"></label><select id="fCity"></select></div>
+            <div class="field"><label for="fBarrio" data-i18n="f_barrio"></label><input id="fBarrio" list="dlBarrios" type="text" maxlength="60" autocomplete="off" data-i18n-ph="f_barrio_ph"><datalist id="dlBarrios"></datalist></div>
+            <div class="field"><label for="fMax" data-i18n="f_max"></label><input id="fMax" type="number" min="0"
                 placeholder="COP"></div>
-            <div class="field"><label data-i18n="f_beds"></label><select id="fBeds"></select></div>
-            <div class="field"><label data-i18n="f_sort"></label><select id="fSort"></select></div>
+            <div class="field"><label for="fBeds" data-i18n="f_beds"></label><select id="fBeds"></select></div>
+            <div class="field"><label for="fSort" data-i18n="f_sort"></label><select id="fSort"></select></div>
           </div>
         </section>
 
@@ -198,7 +199,7 @@
       </div>
     </div>
   </div>
-  <div class="toast" id="toast"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <script src="/js/config.js"></script>

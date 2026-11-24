@@ -33,7 +33,7 @@
                     <div>
                         <p class="v-etiqueta"><i class="fa-solid fa-user"></i> Mi cuenta</p>
                         <h1 class="titulo-serif" id="d-nombre">Mi cuenta</h1>
-                        <p>Tu nombre y documento los administra tu inmobiliaria. Aquí puedes cambiar tu teléfono y tu contraseña.</p>
+                        <p>Tus datos los administra tu inmobiliaria. Aquí solo puedes cambiar tu contraseña.</p>
                     </div>
                 </section>
 
@@ -42,18 +42,17 @@
 
                 <div class="v-rejilla">
                     <section class="v-tarjeta">
-                        <div class="v-tarjeta-cabeza"><h2>Editar teléfono</h2></div>
-                        <form id="d-datos" class="v-tarjeta-cuerpo" style="display:grid;gap:14px" novalidate>
+                        <div class="v-tarjeta-cabeza"><h2>Mis datos</h2></div>
+                        <div class="v-tarjeta-cuerpo" style="display:grid;gap:14px">
                             <div class="v-form-rejilla">
                                 <div class="v-campo ancho"><label for="p-nombre">Nombre</label><input id="p-nombre" type="text" readonly></div>
                                 <div class="v-campo"><label for="p-correo">Correo</label><input id="p-correo" type="email" readonly></div>
                                 <div class="v-campo"><label for="p-documento">Documento</label><input id="p-documento" type="text" readonly></div>
                                 <div class="v-campo"><label for="p-inmobiliaria">Inmobiliaria</label><input id="p-inmobiliaria" type="text" readonly></div>
-                                <div class="v-campo"><label for="p-telefono">Teléfono</label><input id="p-telefono" name="telefono" type="tel" maxlength="20" required></div>
+                                <div class="v-campo"><label for="p-telefono">Teléfono</label><input id="p-telefono" type="tel" readonly></div>
                             </div>
-                            <p class="v-nota i-error" id="d-datos-error" hidden></p>
-                            <div class="v-form-pie"><button type="submit" class="v-btn v-btn-principal"><i class="fa-solid fa-check"></i> Guardar teléfono</button></div>
-                        </form>
+                            <p class="v-nota"><i class="fa-solid fa-circle-info"></i> ¿Algún dato está mal? Pídele a tu inmobiliaria que lo corrija desde su panel.</p>
+                        </div>
                     </section>
 
                     <section class="v-tarjeta">

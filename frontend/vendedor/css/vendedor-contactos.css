@@ -133,3 +133,7 @@
 /* ---------- Modo noche ---------- */
 [data-theme="dark"] .panel-violeta .c-fila.estado-nuevo .c-avatar { color: #fbf5ff; background: linear-gradient(135deg, #7415ad, #9a38d8); }
 [data-theme="dark"] .panel-violeta .c-fila:hover { background: rgba(201, 151, 246, 0.07); }
+
+/* Dentro de Vender/Arrendar la operación es fija */
+#c-operacion[hidden] { display: none !important; }
+#d-pestanas { margin: 0 0 14px; }

@@ -10,8 +10,7 @@
     <!-- Fuentes del diseño (las mismas del inicio y el login) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
 
     <!-- Colores claro/oscuro del proyecto + iconos (los entrega Laravel en /assets) -->
@@ -23,6 +22,7 @@
     <link rel="stylesheet" href="/vendedor/css/vendedor.css">
     <link rel="stylesheet" href="/inmobiliaria/css/inmobiliaria.css">
     <link rel="stylesheet" href="/css/panel-violeta.css">
+    <link rel="stylesheet" href="/vendedor/css/vendedor-contactos.css">
     <link rel="stylesheet" href="/vendedor/css/vendedor-responsivo.css">
     <link rel="stylesheet" href="/vendedor/css/vendedor-tarjetas.css">
 
@@ -43,7 +43,8 @@
                     <p id="d-desc"></p>
                 </div>
                 <div class="v-chips" style="margin-top:0">
-                    <a class="v-btn v-btn-suave" href="/vendedor/inicio.html"><i class="fa-solid fa-arrow-left"></i> Inicio</a>
+                    <a class="v-btn v-btn-suave" href="/vendedor/inicio.html"><i class="fa-solid fa-arrow-left"></i>
+                        Inicio</a>
                     <button type="button" class="v-btn v-btn-principal" id="d-registrar"><i
                             class="fa-solid fa-plus"></i> Registrar inmueble</button>
                 </div>
@@ -57,34 +58,100 @@
             <!-- Cifras -->
             <section class="v-kpis" id="d-kpis"></section>
 
-            <!-- Inmuebles -->
-            <section class="v-tarjeta">
-                <div class="v-tarjeta-cabeza">
-                    <h2>Mis inmuebles</h2>
-                    <small id="d-total"></small>
-                </div>
-                <div class="v-propiedades" id="d-propiedades"></div>
-            </section>
+            <!-- Pestañas: Inmuebles | Contactos -->
+            <div class="i-pestanas" id="d-pestanas" role="group" aria-label="Secciones de la página">
+                <button type="button" class="i-pestana" data-panel="inmuebles" aria-pressed="true"><i
+                        class="fa-solid fa-house"></i> Inmuebles</button>
+                <button type="button" class="i-pestana" data-panel="contactos" aria-pressed="false"><i
+                        class="fa-solid fa-comments"></i> Contactos</button>
+            </div>
 
-            <!-- Visitas y gráfica -->
-            <div class="v-rejilla">
+            <div id="d-panel-inmuebles">
+
+                <!-- Inmuebles -->
                 <section class="v-tarjeta">
                     <div class="v-tarjeta-cabeza">
-                        <h2>Próximas visitas</h2>
-                        <button type="button" class="v-btn v-btn-suave v-btn-mini" id="d-visita-nueva"><i
-                                class="fa-solid fa-calendar-plus"></i> Programar visita</button>
+                        <h2>Mis inmuebles</h2>
+                        <small id="d-total"></small>
                     </div>
-                    <div class="v-lista" id="d-visitas"></div>
+                    <div class="v-propiedades" id="d-propiedades"></div>
                 </section>
-                <section class="v-tarjeta">
+
+                <!-- Visitas y gráfica -->
+                <div class="v-rejilla">
+                    <section class="v-tarjeta">
+                        <div class="v-tarjeta-cabeza">
+                            <h2>Próximas visitas</h2>
+                            <button type="button" class="v-btn v-btn-suave v-btn-mini" id="d-visita-nueva"><i
+                                    class="fa-solid fa-calendar-plus"></i> Programar visita</button>
+                        </div>
+                        <div class="v-lista" id="d-visitas"></div>
+                    </section>
+                    <section class="v-tarjeta">
+                        <div class="v-tarjeta-cabeza">
+                            <h2>Contactos de los últimos 7 días</h2>
+                        </div>
+                        <div class="v-tarjeta-cuerpo">
+                            <div class="v-grafica"><canvas id="d-grafica" aria-label="Contactos por día"></canvas></div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- Contactos de esta operación -->
+            <div id="d-panel-contactos" hidden>
+                <section class="v-kpis" id="c-kpis" aria-label="Resumen de contactos"></section>
+
+                <section class="v-tarjeta c-panel" aria-labelledby="c-titulo">
                     <div class="v-tarjeta-cabeza">
-                        <h2>Contactos de los últimos 7 días</h2>
+                        <h2 id="c-titulo">Lista de contactos</h2>
+                        <small id="c-resumen" aria-live="polite"></small>
                     </div>
-                    <div class="v-tarjeta-cuerpo">
-                        <div class="v-grafica"><canvas id="d-grafica" aria-label="Contactos por día"></canvas></div>
+
+                    <div class="i-pestanas c-pestanas" id="c-pestanas" role="group" aria-label="Filtrar por estado">
+                    </div>
+
+                    <div class="c-filtros" id="c-filtros">
+                        <label class="c-buscar">
+                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                            <input type="search" id="c-buscar" placeholder="Buscar contacto o mensaje"
+                                autocomplete="off" aria-label="Buscar contactos">
+                        </label>
+                        <select id="c-operacion" aria-label="Operación" hidden>
+                            <option value="todas">Venta y arriendo</option>
+                            <option value="venta">Solo venta</option>
+                            <option value="arriendo">Solo arriendo</option>
+                        </select>
+                        <select id="c-inmueble" aria-label="Inmueble"></select>
+                        <select id="c-periodo" aria-label="Período">
+                            <option value="todo">Todo el tiempo</option>
+                            <option value="hoy">Hoy</option>
+                            <option value="7">Últimos 7 días</option>
+                            <option value="30">Últimos 30 días</option>
+                        </select>
+                        <select id="c-orden" aria-label="Ordenar por">
+                            <option value="recientes">Más recientes primero</option>
+                            <option value="antiguos">Más antiguos primero</option>
+                            <option value="nombre">Nombre (A–Z)</option>
+                            <option value="inmueble">Por inmueble</option>
+                        </select>
+                        <button type="button" class="v-btn v-btn-suave v-btn-mini c-limpiar" id="c-limpiar" hidden><i
+                                class="fa-solid fa-filter-circle-xmark"></i> Limpiar filtros</button>
+                    </div>
+
+                    <div class="c-encabezado" id="c-encabezado" aria-hidden="true" hidden>
+                        <span></span><span>Contacto</span><span>Mensaje</span><span>Inmueble</span><span>Recibido</span><span>Estado</span><span>Acciones</span>
+                    </div>
+
+                    <div class="i-estado-carga" id="c-carga"><i class="fa-solid fa-spinner fa-spin"></i>Cargando tus
+                        contactos…</div>
+                    <div class="c-lista" id="c-lista" hidden></div>
+                    <div class="c-mas" id="c-mas" hidden>
+                        <button type="button" class="v-btn v-btn-suave" id="c-mas-btn"></button>
                     </div>
                 </section>
             </div>
+
         </main>
     </div>
 
@@ -132,7 +199,8 @@
                 <label for="f-fotos">Fotos del inmueble <small id="f-fotos-cuenta"></small></label>
                 <div class="v-carrusel" id="f-carrusel" hidden></div>
                 <div class="v-fotos" id="f-fotos-lista"></div>
-                <input class="v-oculto" id="f-fotos" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple>
+                <input class="v-oculto" id="f-fotos" type="file" accept="image/jpeg,image/png,image/webp,image/gif"
+                    multiple>
                 <div class="v-ubic-acciones">
                     <label class="v-btn v-btn-suave v-btn-mini" for="f-fotos" id="f-fotos-agregar"><i
                             class="fa-solid fa-images"></i> Agregar fotos o GIF</label>
@@ -178,15 +246,19 @@
         <form id="d-planes-form" novalidate>
             <p class="v-nota"><b id="d-planes-inmueble"></b></p>
             <div class="v-caminos" id="d-planes-caminos" hidden>
-                <button type="button" class="v-plan" data-camino="normal" aria-pressed="true"><i class="fa-solid fa-calendar-days"></i> Normal por tiempo<small>7, 15 o 30 días</small></button>
-                <button type="button" class="v-plan" data-camino="medalla" aria-pressed="false"><i class="fa-solid fa-crown"></i> Oro, Plata o Bronce<small>Propiedad destacada</small></button>
+                <button type="button" class="v-plan" data-camino="normal" aria-pressed="true"><i
+                        class="fa-solid fa-calendar-days"></i> Normal por tiempo<small>7, 15 o 30 días</small></button>
+                <button type="button" class="v-plan" data-camino="medalla" aria-pressed="false"><i
+                        class="fa-solid fa-crown"></i> Oro, Plata o Bronce<small>Propiedad destacada</small></button>
             </div>
             <p class="v-nota" id="d-planes-ayuda"></p>
             <div class="v-planes" id="d-planes-lista"></div>
-            <p class="v-nota"><i class="fa-solid fa-circle-info"></i> Modo de prueba: el pago es simulado y no se cobra dinero.</p>
+            <p class="v-nota"><i class="fa-solid fa-circle-info"></i> Modo de prueba: el pago es simulado y no se cobra
+                dinero.</p>
             <div class="v-form-pie">
                 <button type="button" class="v-btn v-btn-suave" data-cerrar>Cancelar</button>
-                <button type="submit" class="v-btn v-btn-principal" id="d-planes-pagar"><i class="fa-solid fa-credit-card"></i> Pagar</button>
+                <button type="submit" class="v-btn v-btn-principal" id="d-planes-pagar"><i
+                        class="fa-solid fa-credit-card"></i> Pagar</button>
             </div>
         </form>
     </dialog>
@@ -197,6 +269,7 @@
     <script src="/vendedor/js/vendedor.js"></script>
     <script src="/vendedor/js/visitas.js"></script>
     <script src="/vendedor/js/dashboard.js"></script>
+    <script src="/vendedor/js/contactos.js"></script>
 </body>
 
 </html>

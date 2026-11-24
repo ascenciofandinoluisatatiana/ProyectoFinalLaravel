@@ -253,6 +253,13 @@
         await cargarScript(AUTOTABLE);
         var jsPDF = window.jspdf.jsPDF;
         var doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'letter', compress: true });
+        // En inglés, todo lo que se escribe en el PDF pasa por el traductor
+        var T = window.UmbralIdioma ? window.UmbralIdioma.t : function (x) { return x; };
+        var escribir = doc.text.bind(doc);
+        doc.text = function (texto) {
+            var args = Array.prototype.slice.call(arguments, 1);
+            return escribir.apply(null, [Array.isArray(texto) ? texto.map(T) : T(texto)].concat(args));
+        };
         var ancho = doc.internal.pageSize.getWidth();
         var morado = [126, 34, 206];
         var empresa = r.empresa || {};
@@ -314,8 +321,9 @@
 
         doc.autoTable({
             startY: 58,
-            head: [columnas],
-            body: filas.length ? filas : [[{ content: 'No hay cierres en este periodo.', colSpan: columnas.length, styles: { halign: 'center' } }]],
+            head: [columnas.map(T)],
+            body: filas.length ? filas.map(function (f) { return f.map(function (c) { return typeof c === 'string' ? T(c) : c; }); })
+                : [[{ content: T('No hay cierres en este periodo.'), colSpan: columnas.length, styles: { halign: 'center' } }]],
             styles: { font: 'helvetica', fontSize: 8.5, cellPadding: 2.2, textColor: [26, 16, 38] },
             headStyles: { fillColor: morado, textColor: 255, fontStyle: 'bold' },
             alternateRowStyles: { fillColor: [250, 247, 255] },

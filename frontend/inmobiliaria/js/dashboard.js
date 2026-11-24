@@ -124,7 +124,7 @@
         grafica = new window.Chart(lienzo, {
             type: 'line',
             data: {
-                labels: datos.contactos_7_dias.map(function (d) { return d.etiqueta; }),
+                labels: datos.contactos_7_dias.map(function (d) { return window.UmbralIdioma ? window.UmbralIdioma.t(d.etiqueta) : d.etiqueta; }),
                 datasets: [{
                     data: datos.contactos_7_dias.map(function (d) { return d.total; }),
                     borderColor: color, backgroundColor: color + '26', fill: true, tension: 0.35,

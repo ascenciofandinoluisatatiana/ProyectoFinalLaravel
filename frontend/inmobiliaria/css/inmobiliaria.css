@@ -738,3 +738,6 @@ dialog.v-ventana.i-ventana-ancha { width: min(860px, calc(100vw - 32px)); }
     .i-lateral { width: min(270px, 86vw); }
     .i-campana-panel { top: 66px; left: 12px; right: 12px; }
 }
+
+/* Inglés: la página se oculta un instante mientras se traduce (idioma-en.js) */
+.i-traduciendo body { visibility: hidden; }

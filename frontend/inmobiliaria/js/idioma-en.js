@@ -1,0 +1,495 @@
+/* =========================================================
+   UMBRAL — Inglés para los paneles de Inmobiliaria y Agente
+   Solo se carga cuando el idioma elegido es "en" (botones ES / EN).
+   Traduce todo lo que se ve en la página: textos, botones, ventanas, avisos,
+   placeholders, títulos y confirmaciones, también lo que se dibuja después.
+   Los datos que escribe la gente (nombres, direcciones, mensajes) no se tocan.
+   ========================================================= */
+(function () {
+    'use strict';
+
+    var DICT = {
+        /* ---------- Menú, barra y comunes ---------- */
+        'Menú': 'Menu', 'Idioma': 'Language', 'Cambiar tema': 'Change theme', 'Salir': 'Log out', 'Cerrar': 'Close',
+        'Principal': 'Main', 'Gestión comercial': 'Sales', 'Mi trabajo': 'My work', 'Cuenta': 'Account',
+        'Panel de la inmobiliaria': 'Real estate agency panel', 'Panel del agente': 'Agent panel',
+        'Portal público': 'Public portal', 'Mira cómo ven los visitantes tus propiedades.': 'See how visitors see your properties.',
+        'Ver el portal': 'View portal', 'Notificaciones': 'Notifications', 'Ver todas': 'View all', 'Ver todos': 'View all',
+        'Ver menos': 'Show less', 'Ver mapa': 'View map', 'Ver agenda': 'View schedule',
+        'No tienes notificaciones.': 'You have no notifications.', 'Buscar': 'Search', 'Filtros': 'Filters',
+        'Limpiar': 'Clear', 'Limpiar filtros': 'Clear filters', 'Desde': 'From', 'Hasta': 'To', 'Estado': 'Status',
+        'Tipo': 'Type', 'Todos': 'All', 'Todas': 'All', 'Todo': 'All', 'Sobre': 'About', 'Resultado': 'Result',
+        'Guardar': 'Save', 'Guardar cambios': 'Save changes', 'Cancelar': 'Cancel', 'Editar': 'Edit', 'Eliminar': 'Delete',
+        'Agregar': 'Add', 'Confirmar': 'Confirm', 'Restablecer': 'Reset', 'Comprar': 'Buy', 'Opcional': 'Optional',
+        'Correcto': 'Success', 'Error': 'Error', 'Historial': 'History', 'Periodo': 'Period', 'Valor': 'Amount',
+        'Referencia': 'Reference', 'Plan': 'Plan', 'Planes': 'Plans', 'Rol': 'Role', 'Total': 'Total', 'Meta': 'Goal',
+        'Sin acceso': 'No access', 'Tu sesión expiró. Recarga la página.': 'Your session expired. Reload the page.',
+        'No se pudo completar la acción.': 'The action could not be completed.',
+        'Paginación': 'Pagination', 'Página anterior': 'Previous page', 'Página siguiente': 'Next page',
+        'justo ahora': 'just now', 'ayer': 'yesterday', 'Leída': 'Read', 'Sin leer': 'Unread', 'Leídas': 'Read',
+        'Filtrar notificaciones': 'Filter notifications', 'Buscar en las notificaciones': 'Search notifications',
+        'No hay notificaciones con esos filtros.': 'No notifications match these filters.',
+        'Contactos': 'Contacts', 'Visitas': 'Visits', 'Propiedades': 'Properties', 'Pagos': 'Payments', 'Cierres': 'Closings',
+        'Comisiones': 'Commissions', 'Vencimientos': 'Expirations', 'Vencimiento': 'Expiration',
+        'La fecha final debe ser igual o posterior a la inicial.': 'The end date must be the same as or after the start date.',
+        'Revisa las fechas del filtro.': 'Check the filter dates.',
+        'Cargando…': 'Loading…', 'Cargando el panel…': 'Loading the panel…', 'Cargando tu panel…': 'Loading your panel…',
+        'Cargando agentes…': 'Loading agents…', 'Cargando contactos…': 'Loading contacts…', 'Cargando datos de la empresa…': 'Loading company details…',
+        'Cargando propiedades…': 'Loading properties…', 'Cargando suscripción…': 'Loading subscription…', 'Cargando tu cuenta…': 'Loading your account…',
+        'Cargando tus ventas…': 'Loading your sales…', 'Cargando ventas…': 'Loading sales…', 'Cargando visitas…': 'Loading visits…',
+        'Sin mensaje': 'No message', 'Sin registrar': 'Not registered', 'No aplica': 'N/A', 'Exportar PDF': 'Export PDF',
+        'Reporte descargado.': 'Report downloaded.', 'No se pudo cargar el generador de PDF.': 'The PDF generator could not be loaded.',
+        'No se pudo cargar el generador de PDF. Revisa tu conexión a internet.': 'The PDF generator could not be loaded. Check your internet connection.',
+        'Fecha': 'Date', 'Fecha y hora': 'Date and time', 'Fecha y hora (hora de Colombia)': 'Date and time (Colombia time)',
+        'Nombre': 'Name', 'Nombre completo': 'Full name', 'Teléfono': 'Phone', 'Correo': 'Email', 'Documento': 'ID document',
+        'Teléfono o correo': 'Phone or email', 'Tipo de documento': 'ID type', 'Número de documento': 'ID number',
+        'Cédula de ciudadanía': 'Citizenship ID card', 'Propiedad': 'Property', 'Publicación': 'Listing', 'Agente': 'Agent',
+        'Agentes': 'Agents', 'Inmobiliaria': 'Real estate agency', 'Inmueble': 'Property', 'Inmuebles': 'Properties',
+        'Operación': 'Operation', 'Venta': 'Sale', 'Arriendo': 'Rent', 'Ventas': 'Sales', 'Arriendos': 'Rentals',
+        'Venta y arriendo': 'Sale and rent', 'Solo ventas': 'Sales only', 'Solo arriendos': 'Rentals only', 'Ventas y arriendos': 'Sales and rentals',
+        'Sin agente': 'No agent', 'Sin agente asignado': 'No agent assigned', 'Todos los agentes': 'All agents',
+        'Filtrar por agente': 'Filter by agent', 'Filtrar por estado': 'Filter by status', 'Filtrar movimientos': 'Filter activity',
+        'Filtros de propiedades': 'Property filters',
+        'UMBRAL · El paso hacia un nuevo hogar': 'UMBRAL · The step toward a new home',
+
+        /* ---------- Títulos de pestaña ---------- */
+        'Resumen · Inmobiliaria · Umbral': 'Overview · Agency · Umbral', 'Propiedades · Inmobiliaria · Umbral': 'Properties · Agency · Umbral',
+        'Agentes · Inmobiliaria · Umbral': 'Agents · Agency · Umbral', 'Contactos · Inmobiliaria · Umbral': 'Contacts · Agency · Umbral',
+        'Visitas · Inmobiliaria · Umbral': 'Visits · Agency · Umbral', 'Ventas · Inmobiliaria · Umbral': 'Sales · Agency · Umbral',
+        'Suscripción · Inmobiliaria · Umbral': 'Subscription · Agency · Umbral', 'Empresa · Inmobiliaria · Umbral': 'Company · Agency · Umbral',
+        'Inmobiliaria · Umbral': 'Agency · Umbral',
+        'Mi día · Agente · Umbral': 'My day · Agent · Umbral', 'Mis propiedades · Agente · Umbral': 'My properties · Agent · Umbral',
+        'Mis contactos · Agente · Umbral': 'My contacts · Agent · Umbral', 'Mi agenda · Agente · Umbral': 'My schedule · Agent · Umbral',
+        'Mis ventas · Agente · Umbral': 'My sales · Agent · Umbral', 'Mi cuenta · Agente · Umbral': 'My account · Agent · Umbral',
+
+        /* ---------- Resumen (inmobiliaria) ---------- */
+        'Resumen': 'Overview', 'Empresa': 'Company', 'Suscripción': 'Subscription',
+        'Así van tus propiedades, tus agentes y las personas interesadas.': 'How your properties, agents and interested people are doing.',
+        'Propiedades publicadas': 'Published properties', 'Agentes activos': 'Active agents', 'Contactos recibidos': 'Contacts received',
+        'Visitas programadas': 'Scheduled visits', 'Rendimiento por agente': 'Performance by agent', 'Contactos de los últimos 7 días': 'Contacts in the last 7 days',
+        'Contactos recientes': 'Recent contacts', 'Próximas visitas': 'Upcoming visits', 'Contactos por día': 'Contacts per day',
+        'Aún no tienes agentes en tu equipo.': 'You have no agents on your team yet.', 'Todavía no has recibido contactos.': 'You have not received any contacts yet.',
+        'No hay visitas programadas.': 'There are no scheduled visits.', 'No se pudo cargar la gráfica.': 'The chart could not be loaded.',
+        'Ninguna publicación destacada': 'No featured listings', 'Tus propiedades se ven en el portal, pero después de las destacadas.': 'Your properties show on the portal, but after the featured ones.',
+        'Destácalas desde': 'Feature them from', 'Destácalas desde Propiedades.': 'Feature them from Properties.',
+        'Membresía mensual de la cuenta activa': 'Monthly account membership active', 'Membresía quincenal de la cuenta activa': 'Biweekly account membership active',
+        'Membresía semanal de la cuenta activa': 'Weekly account membership active',
+        'Salen primero en el portal mientras su plan esté vigente.': 'They show first on the portal while their plan is active.',
+
+        /* ---------- Propiedades ---------- */
+        'Inmuebles de la inmobiliaria': 'The agency’s properties', 'Registra tus inmuebles, publícalos y asigna cada uno a un agente.': 'Register your properties, publish them and assign each one to an agent.',
+        'Registrar inmueble': 'Register property', 'Editar publicación': 'Edit listing', 'Barrio, ciudad o dirección': 'Neighborhood, city or address',
+        'Publicadas': 'Published', 'En espera de pago': 'Awaiting payment', 'Canceladas / pausadas': 'Canceled / paused', 'Vendidas / arrendadas': 'Sold / rented',
+        'Borradores': 'Drafts', 'Publicada': 'Published', 'Borrador': 'Draft', 'Pausada': 'Paused', 'Vendida': 'Sold', 'Arrendada': 'Rented',
+        'Verificada': 'Verified', 'Publicar': 'Publish', 'Pausar': 'Pause', 'Reanudar': 'Resume', 'Volver a publicar': 'Publish again',
+        'Pagar y publicar': 'Pay and publish', 'Renovar': 'Renew', 'Destacar': 'Feature', 'Posicionar': 'Boost', 'Destacada': 'Featured',
+        'Sin destacar': 'Not featured', 'Sale en el portal después de las destacadas': 'Shows on the portal after the featured ones',
+        'En tu paquete': 'In your package', 'Paquete': 'Package', 'Paquetes': 'Packages', 'Agente responsable': 'Agent in charge',
+        'No hay inmuebles con estos filtros. Usa “Registrar inmueble” para empezar.': 'No properties match these filters. Use “Register property” to start.',
+        'No hay inmuebles con estos filtros.': 'No properties match these filters.', 'Usa “Registrar inmueble” para empezar.': 'Use “Register property” to start.',
+        '¿Eliminar este inmueble? También se borran sus contactos y visitas.': 'Delete this property? Its contacts and visits will also be deleted.',
+        'foto principal': 'main photo', 'descripción': 'description', 'características': 'features',
+        'Tipo de inmueble': 'Property type', 'Apartamento': 'Apartment', 'Casa': 'House', 'Finca': 'Farm', 'Local': 'Retail space', 'Lote': 'Lot', 'Oficina': 'Office',
+        'Precio (COP)': 'Price (COP)', 'Canon mensual (COP)': 'Monthly rent (COP)', '/ mes': '/ month', 'Departamento': 'Department (state)',
+        'Municipio': 'Municipality', 'Barrio': 'Neighborhood', 'Dirección': 'Address', 'Elige el departamento': 'Choose the department',
+        'Elige el municipio': 'Choose the municipality', 'Primero el departamento': 'Department first', 'Habitaciones': 'Bedrooms', 'Baños': 'Bathrooms',
+        'Parqueaderos': 'Parking spaces', 'Área (m²)': 'Area (m²)', 'Área': 'Area', 'Estrato': 'Socioeconomic stratum', 'Pisos o niveles': 'Floors or levels',
+        'Antigüedad (años)': 'Age (years)', 'Descripción': 'Description', 'Características y servicios': 'Features and amenities',
+        'Cuenta lo que hace especial al inmueble: distribución, acabados, vista, cercanía a transporte, colegios o comercio.': 'Tell what makes the property special: layout, finishes, view, nearby transport, schools or shops.',
+        'Acepta mascotas': 'Pets allowed', 'Amoblado': 'Furnished', 'Ascensor': 'Elevator', 'Balcón': 'Balcony', 'Chimenea': 'Fireplace', 'Depósito': 'Storage room',
+        'Gas natural': 'Natural gas', 'Gimnasio': 'Gym', 'Internet / fibra óptica': 'Internet / fiber optic', 'Jardín o patio': 'Garden or patio',
+        'Parque infantil': 'Playground', 'Piscina': 'Swimming pool', 'Portería / vigilancia 24 h': 'Doorman / 24 h security', 'Salón comunal': 'Community room',
+        'Terraza': 'Terrace', 'Zona BBQ': 'BBQ area', 'Foto principal': 'Main photo', 'Es la que aparece en la tarjeta del portal.': 'It is the one shown on the portal card.',
+        'Haz clic para subir una foto': 'Click to upload a photo', 'JPG, PNG o WebP · máximo 4 MB': 'JPG, PNG or WebP · max 4 MB', 'Vista previa de la foto': 'Photo preview',
+        'Quitar foto': 'Remove photo', 'Más fotos': 'More photos', 'Agregar fotos o GIF': 'Add photos or GIFs',
+        'Las fotos se reducen automáticamente antes de subirlas. Los GIF (máximo 8 MB) se suben sin cambios.': 'Photos are resized automatically before uploading. GIFs (max 8 MB) are uploaded unchanged.',
+        'Ubicación en el mapa': 'Location on the map', 'Buscar la dirección': 'Find the address', 'Usar mi ubicación': 'Use my location',
+        'Haz clic en el mapa para marcar dónde está el inmueble. Puedes arrastrar el pin para ajustarlo.': 'Click on the map to mark where the property is. You can drag the pin to adjust it.',
+        'No se pudo cargar el mapa. Revisa tu conexión a internet.': 'The map could not be loaded. Check your internet connection.',
+        'Buscando la dirección en el mapa…': 'Finding the address on the map…', 'Elige al menos el municipio para buscar.': 'Choose at least the municipality to search.',
+        'Hiciste muchas búsquedas seguidas. Espera un minuto o marca el punto en el mapa.': 'You made many searches in a row. Wait a minute or mark the point on the map.',
+        'No se pudo buscar la dirección. Marca el punto en el mapa.': 'The address could not be searched. Mark the point on the map.',
+        'Ubicación aproximada: no encontramos la dirección exacta. Arrastra el pin hasta el inmueble.': 'Approximate location: we could not find the exact address. Drag the pin to the property.',
+        'Dirección encontrada. Revisa que el pin quede sobre el inmueble.': 'Address found. Check that the pin is on the property.',
+        'No encontramos esa dirección. Haz clic en el mapa para marcar dónde está el inmueble.': 'We could not find that address. Click on the map to mark where the property is.',
+        'No encontramos esa dirección. Marca el punto directamente en el mapa.': 'We could not find that address. Mark the point directly on the map.',
+        'Tu navegador no permite obtener la ubicación.': 'Your browser does not allow getting your location.',
+        'No pudimos obtener tu ubicación. Marca el punto en el mapa.': 'We could not get your location. Mark the point on the map.',
+        'Marca la ubicación del inmueble en el mapa.': 'Mark the property location on the map.', 'Marca la ubicación en el mapa.': 'Mark the location on the map.',
+        'Verificación': 'Verification', 'No se pudo cargar el captcha. Revisa tu conexión.': 'The captcha could not be loaded. Check your connection.',
+        'Confirma que no eres un robot (casilla del captcha).': 'Confirm you are not a robot (captcha box).', 'Confirma que no eres un robot.': 'Confirm you are not a robot.',
+        'El captcha no es válido. Vuelve a marcarlo.': 'The captcha is not valid. Check it again.', 'El captcha venció o ya se usó. Vuelve a marcarlo.': 'The captcha expired or was already used. Check it again.',
+        'No pudimos verificar el captcha. Intenta de nuevo.': 'We could not verify the captcha. Try again.',
+        'Subiendo fotos…': 'Uploading photos…', 'No se pudo leer la imagen.': 'The image could not be read.',
+        'La foto principal no puede ser un GIF. Agrégalo en “Más fotos”.': 'The main photo cannot be a GIF. Add it under “More photos”.',
+        'Guardar inmueble': 'Save property', 'Guardar como borrador': 'Save as draft', 'Publicar de una vez': 'Publish now', 'Al guardar': 'When saving',
+        'Agente asignado': 'Assigned agent', 'Propiedad registrada.': 'Property registered.', 'Propiedad actualizada.': 'Property updated.',
+        'Propiedad eliminada.': 'Property deleted.', 'Propiedad sin agente.': 'Property without agent.', 'Foto agregada.': 'Photo added.', 'Foto eliminada.': 'Photo deleted.',
+        'Estado actualizado.': 'Status updated.', 'La foto no puede superar 4 MB.': 'The photo cannot exceed 4 MB.', 'El archivo no puede superar 8 MB.': 'The file cannot exceed 8 MB.',
+        'Elige una foto.': 'Choose a photo.', 'Elige un municipio válido del departamento.': 'Choose a valid municipality in the department.',
+        'El número de pisos debe ser al menos 1.': 'The number of floors must be at least 1.',
+        'Solo una propiedad en arriendo se puede marcar como arrendada.': 'Only a rental property can be marked as rented.',
+        'Solo una propiedad en venta se puede marcar como vendida.': 'Only a property for sale can be marked as sold.',
+        'Tu propiedad se guardó como borrador. Para publicarla y posicionarla debes contratar un plan.': 'Your property was saved as a draft. To publish and boost it you must buy a plan.',
+        'Posicionada': 'Boosted', 'Programadas': 'Scheduled',
+
+        /* ---------- Planes y pagos ---------- */
+        'Planes de publicación': 'Listing plans', 'Publicación normal': 'Standard listing', 'Publicación normal por tiempo': 'Standard listing for a period',
+        'Posicionamiento': 'Boost', 'Posicionamiento de tus propiedades': 'Boosting your properties', 'Elige una publicación…': 'Choose a listing…',
+        'Elige una publicación.': 'Choose a listing.', 'Tipo de plan': 'Plan type',
+        'Oro, Plata o Bronce: la publicación sale de primeras en el portal. Mientras más alto el plan, más arriba.': 'Gold, Silver or Bronze: the listing shows first on the portal. The higher the plan, the higher it appears.',
+        'La publicación queda visible en el portal los días que elijas. Al vencer vuelve a borrador.': 'The listing stays visible on the portal for the days you choose. When it expires it goes back to draft.',
+        'Tu publicación normal sale de primeras en “Ver más propiedades” y en el carrusel de Inicio, después de las destacadas.': 'Your standard listing shows first in “See more properties” and in the Home carousel, after the featured ones.',
+        'Una publicación normal sale de primeras en “Ver más propiedades” y en el carrusel de Inicio, después de las destacadas.': 'A standard listing shows first in “See more properties” and in the Home carousel, after the featured ones.',
+        'La publicación normal por tiempo se compra para un borrador (o para renovar una normal que ya está publicada).': 'A standard listing for a period is bought for a draft (or to renew a standard listing that is already published).',
+        'La publicación se ve en el portal los días que elijas y al vencer vuelve a borrador. Sirve para publicar un borrador o renovar una normal.': 'The listing shows on the portal for the days you choose and goes back to draft when it expires. Use it to publish a draft or renew a standard listing.',
+        'Esta propiedad ya se cerró.': 'This property is already closed.', 'Esta publicación ya está en uno de tus paquetes.': 'This listing is already in one of your packages.',
+        'Solo se puede posicionar una propiedad publicada.': 'Only a published property can be boosted.',
+        'Ya está destacada con Oro, Plata o Bronce: sale antes que las posicionadas.': 'It is already featured with Gold, Silver or Bronze: it shows before boosted listings.',
+        'El pago se hace con PSE, tarjeta o Nequi. El plan se activa apenas el pago queda aprobado.': 'Payment is made with PSE, card or Nequi. The plan activates as soon as the payment is approved.',
+        'Modo pruebas: el pago es simulado y el plan se activa al instante.': 'Test mode: payment is simulated and the plan activates instantly.',
+        'El administrador todavía no ha creado planes de este tipo.': 'The administrator has not created plans of this type yet.',
+        'primeros lugares del portal': 'top spots on the portal', 'segundo grupo de destacadas': 'second group of featured listings', 'tercer grupo de destacadas': 'third group of featured listings',
+        'Elige un plan.': 'Choose a plan.', 'Ese plan ya no está disponible.': 'That plan is no longer available.',
+        'Solo se puede publicar una propiedad que esté en borrador.': 'Only a property in draft can be published.',
+        'Esta propiedad ya está posicionada con Oro, Plata o Bronce.': 'This property is already featured with Gold, Silver or Bronze.',
+        'Esta propiedad ya está cerrada; no se puede destacar.': 'This property is already closed; it cannot be featured.',
+        'Te llevamos a Wompi para hacer el pago.': 'We are taking you to Wompi to pay.', 'Por cada publicación': 'Per listing',
+        'Pago simulado (modo pruebas)': 'Simulated payment (test mode)', 'Pago con PSE, tarjeta o Nequi': 'Payment with PSE, card or Nequi',
+        'Oro': 'Gold', 'Plata': 'Silver', 'Bronce': 'Bronze', 'Mensual': 'Monthly', 'Quincenal': 'Biweekly', 'Semanal': 'Weekly',
+        'plan mensual': 'monthly plan', 'plan quincenal': 'biweekly plan', 'plan semanal': 'weekly plan',
+        'Plan mensual': 'Monthly plan', 'Plan quincenal': 'Biweekly plan', 'Plan semanal': 'Weekly plan',
+
+        /* ---------- Suscripción ---------- */
+        'Mi suscripción': 'My subscription', 'Oro, Plata y Bronce': 'Gold, Silver and Bronze', 'Paquetes disponibles': 'Available packages',
+        'Comprar paquete': 'Buy package', 'Destacar una publicación': 'Feature a listing', 'Publicaciones destacadas hoy': 'Listings featured today',
+        'Planes por publicación': 'Per-listing plans', 'Historial de pagos': 'Payment history', 'Historial de membresías': 'Membership history',
+        'La membresía se paga por publicación. Las destacadas salen primero en el portal según su plan; las demás se siguen viendo, después.': 'Membership is paid per listing. Featured listings show first on the portal according to their plan; the rest still show, afterwards.',
+        'Eliges libremente cuáles publicaciones destacar y puedes cambiarlas mientras el paquete esté vigente. Cada una sale en el portal según el plan del paquete. Puedes tener varios paquetes a la vez.': 'You freely choose which listings to feature and you can change them while the package is active. Each one shows on the portal according to the package plan. You can have several packages at once.',
+        'Orden en el portal: primero el plan más alto, luego los siguientes y al final las publicaciones sin plan. Si renuevas antes de que venza, el nuevo periodo empieza cuando termina el actual: no pierdes días.': 'Order on the portal: first the highest plan, then the next ones and finally the listings without a plan. If you renew before it expires, the new period starts when the current one ends: you do not lose days.',
+        'El servidor no tiene llaves de Wompi: el pago es simulado y la publicación se destaca al instante.': 'The server has no Wompi keys: payment is simulated and the listing is featured instantly.',
+        'El pago se hace en Wompi con PSE, tarjeta o Nequi. La publicación se destaca cuando el pago queda aprobado.': 'Payment is made on Wompi with PSE, card or Nequi. The listing is featured when the payment is approved.',
+        'Aún no has destacado publicaciones. Hazlo desde': 'You have not featured any listings yet. Do it from', 'con el botón “Destacar”.': 'with the “Feature” button.',
+        'Todavía no has contratado membresías.': 'You have not bought any memberships yet.', 'Toda la cuenta': 'Whole account', 'En paquete': 'In package',
+        'Todavía no has elegido publicaciones.': 'You have not chosen any listings yet.', 'No hay más publicaciones disponibles': 'No more listings available',
+        'Agregar al paquete': 'Add to package', 'Por ahora no hay paquetes disponibles.': 'There are no packages available right now.',
+        'Primero registra una propiedad.': 'Register a property first.', 'Publicación para agregar': 'Listing to add',
+        'Aprobado': 'Approved', 'Pendiente': 'Pending', 'Rechazado': 'Rejected', 'Anulado': 'Voided', 'Medio': 'Method', 'Vence': 'Expires', 'Días': 'Days',
+        'No hay pagos con estos filtros.': 'No payments match these filters.', 'Elige el paquete.': 'Choose the package.', 'Elige un paquete.': 'Choose a package.',
+        'Ese paquete no está vigente.': 'That package is not active.', 'Ese paquete ya no está disponible.': 'That package is no longer available.',
+        'Esta publicación ya está en un paquete vigente.': 'This listing is already in an active package.', 'Las que elijas': 'The ones you choose',
+
+        /* ---------- Agentes ---------- */
+        'Agentes y equipo': 'Agents and team', 'Tu equipo de agentes': 'Your agent team', 'Agregar agente': 'Add agent', 'Editar agente': 'Edit agent',
+        'Da de alta a tus agentes, sigue sus resultados y paga sus comisiones (4 % de cada venta o arriendo que cierran).': 'Add your agents, follow their results and pay their commissions (4% of each sale or rental they close).',
+        'Al desactivar un agente, sus propiedades quedan sin agente para que las asignes a otro. Su historial de contactos y visitas se conserva.': 'When you deactivate an agent, their properties are left without an agent so you can assign them to another. Their contact and visit history is kept.',
+        'Correo (será su usuario)': 'Email (will be their username)', 'Contraseña inicial': 'Initial password', 'Confirmar contraseña': 'Confirm password',
+        'Entrégale al agente su correo y esta contraseña para que inicie sesión.': 'Give the agent their email and this password so they can log in.',
+        'Restablecer contraseña': 'Reset password', 'Nueva contraseña': 'New password',
+        'Mínimo 8 caracteres. El agente no puede cambiar sus datos ni recuperar la contraseña por correo: compártele la nueva.': 'At least 8 characters. The agent cannot change their details or recover the password by email: share the new one with them.',
+        'Activo': 'Active', 'Inactivo': 'Inactive', 'Activa': 'Active', 'Activar': 'Activate', 'Desactivar': 'Deactivate', 'Pagada': 'Paid', 'Anulada': 'Voided',
+        'Por pagar': 'To pay', 'Pagadas': 'Paid', 'Comisión por pagar': 'Commission to pay', 'Comisiones por pagar': 'Commissions to pay', 'Comisiones pagadas': 'Commissions paid',
+        'Movimientos de tus agentes': 'Your agents’ activity', 'Buscar en los movimientos': 'Search activity', 'No hay movimientos con esos filtros.': 'No activity matches these filters.',
+        'Aún no tienes agentes. Usa “Agregar agente” para armar tu equipo.': 'You have no agents yet. Use “Add agent” to build your team.',
+        '¿Confirmas que ya le pagaste esta comisión al agente?': 'Do you confirm you already paid this commission to the agent?',
+        'No hay comisiones con este filtro. Se generan al marcar una propiedad con agente como vendida o arrendada.': 'No commissions match this filter. They are created when a property with an agent is marked as sold or rented.',
+        'Para los agentes (4 %)': 'For agents (4%)', 'Agente agregado al equipo.': 'Agent added to the team.', 'Datos del agente actualizados.': 'Agent details updated.',
+        'Valor base': 'Base amount', 'Comisión': 'Commission', 'Cierre': 'Closing', '· pago en el portal': '· paid on the portal', 'pago en el portal': 'paid on the portal',
+        'Las contraseñas no coinciden.': 'The passwords do not match.',
+
+        /* ---------- Contactos y visitas ---------- */
+        'Personas interesadas': 'Interested people', 'Personas interesadas en tus propiedades': 'People interested in your properties',
+        'Mensajes que dejaron los visitantes en tus propiedades. Asígnalos a un agente y haz seguimiento.': 'Messages visitors left on your properties. Assign them to an agent and follow up.',
+        'Nuevo': 'New', 'En seguimiento': 'Following up', 'Cerrado': 'Closed', 'Descartado': 'Discarded', 'Estado del contacto': 'Contact status',
+        'Programar visita': 'Schedule visit', 'Programar': 'Schedule', 'Historial del contacto': 'Contact history',
+        'Todavía no hay movimientos de este contacto.': 'There is no activity for this contact yet.', 'No hay contactos con este filtro.': 'No contacts match this filter.',
+        'Nombre, teléfono, mensaje o barrio': 'Name, phone, message or neighborhood', 'Nombre, teléfono o barrio': 'Name, phone or neighborhood',
+        'Agenda de visitas': 'Visit schedule', 'Nueva visita': 'New visit', 'Próximas': 'Upcoming', 'Pasadas': 'Past', 'Confirmada': 'Confirmed',
+        'Realizada': 'Done', 'Cancelada': 'Canceled', 'Reprogramar': 'Reschedule', 'Reprogramar visita': 'Reschedule visit', 'Nueva fecha y hora': 'New date and time',
+        'La visita queda pendiente de confirmar otra vez.': 'The visit will need to be confirmed again.', 'Agente que atiende': 'Attending agent', 'Agente que la atiende': 'Agent attending it',
+        'Nombre de quien visita': 'Visitor’s name', 'Nota (opcional)': 'Note (optional)', 'No hay visitas en este periodo.': 'There are no visits in this period.',
+        'Confirma, reprograma o cancela las visitas a tus propiedades. Las horas están en hora de Colombia.': 'Confirm, reschedule or cancel visits to your properties. Times are in Colombia time.',
+        'Confirma, reprograma o cancela tus visitas. Las horas están en hora de Colombia.': 'Confirm, reschedule or cancel your visits. Times are in Colombia time.',
+        'pendientes y confirmadas': 'pending and confirmed', 'Contacto actualizado.': 'Contact updated.', 'Visita actualizada.': 'Visit updated.', 'Visita programada.': 'Visit scheduled.',
+        'Aún no tienes propiedades asignadas.': 'You have no assigned properties yet.',
+
+        /* ---------- Ventas ---------- */
+        'Reporte': 'Report', 'Inmueble o barrio': 'Property or neighborhood', 'En el periodo elegido': 'In the chosen period', 'Según los filtros de abajo': 'According to the filters below',
+        'Todos los cierres de tu inmobiliaria con su comisión. Filtra por fechas y descarga el reporte en PDF.': 'All your agency’s closings with their commission. Filter by dates and download the PDF report.',
+        'No hay ventas ni arriendos con estos filtros. Aparecen al marcar una propiedad como vendida o arrendada.': 'No sales or rentals match these filters. They appear when a property is marked as sold or rented.',
+        'Pago en línea en el portal': 'Online payment on the portal', 'Reporte de ventas y arriendos': 'Sales and rentals report', 'Comisiones pagadas por la inmobiliaria': 'Commissions paid by the agency',
+        'De cada venta o canon de arriendo': 'Of each sale or monthly rent', 'Me deben': 'Owed to me', 'Ya me pagaron': 'Already paid to me', 'Total ganado': 'Total earned',
+        'Mis ganancias': 'My earnings', 'Mi comisión': 'My commission', 'Mis comisiones': 'My commissions', 'Mis cierres': 'My closings', 'Por cobrar': 'To collect',
+        'Pagado': 'Paid', 'Aún no tienes ventas ni arriendos en este periodo.': 'You have no sales or rentals in this period yet.',
+        'Aún no tienes cierres. Cuando tu inmobiliaria marque como vendida o arrendada una propiedad que tienes a cargo, aparece aquí con tu comisión.': 'You have no closings yet. When your agency marks a property in your charge as sold or rented, it appears here with your commission.',
+        'Los inmuebles que vendiste o arrendaste y la comisión que te corresponde (4 %). Descarga el reporte en PDF.': 'The properties you sold or rented and the commission you earn (4%). Download the PDF report.',
+        'Mis ventas y comisiones': 'My sales and commissions', 'Estado comisión': 'Commission status', '(pago en línea)': '(online payment)',
+        'No hay cierres en este periodo.': 'There are no closings in this period.', 'Periodo: todos los cierres': 'Period: all closings',
+
+        /* ---------- Empresa / perfil ---------- */
+        'Datos de la empresa': 'Company details', 'Información legal y de contacto de la inmobiliaria.': 'Legal and contact information of the agency.',
+        'Razón social': 'Company name', 'NIT': 'Tax ID (NIT)', 'Representante legal': 'Legal representative', 'Correo de la cuenta': 'Account email',
+        'Cuenta verificada': 'Verified account', 'En UMBRAL desde': 'On UMBRAL since', 'Cambiar logo': 'Change logo', 'Editar datos': 'Edit details',
+        'El NIT y el correo no se pueden cambiar aquí porque fueron verificados. Si hay un error, escríbele al administrador.': 'The tax ID and email cannot be changed here because they were verified. If there is a mistake, write to the administrator.',
+        'Cambiar contraseña': 'Change password', 'Contraseña actual': 'Current password', 'Confirmar nueva contraseña': 'Confirm new password',
+        'Actualizar contraseña': 'Update password', 'Mínimo 8 caracteres.': 'At least 8 characters.', 'Logo de la empresa': 'Company logo',
+        'El logo no puede superar 4 MB.': 'The logo cannot exceed 4 MB.', 'Datos de la empresa actualizados.': 'Company details updated.',
+        'Escribe la razón social.': 'Enter the company name.', 'Escribe el nombre del representante legal.': 'Enter the legal representative’s name.',
+        'Contraseña actualizada.': 'Password updated.', 'La contraseña actual no es correcta.': 'The current password is incorrect.',
+        'Las contraseñas nuevas no coinciden.': 'The new passwords do not match.',
+
+        /* ---------- Agente ---------- */
+        'Mi día': 'My day', 'Mis propiedades': 'My properties', 'Mis contactos': 'My contacts', 'Mi agenda': 'My schedule', 'Mis ventas': 'My sales', 'Mi cuenta': 'My account',
+        'Hola, Agente': 'Hello, Agent', 'Visitas hoy': 'Visits today', 'Contactos nuevos': 'New contacts', 'No tienes visitas programadas.': 'You have no scheduled visits.',
+        'No tienes contactos nuevos.': 'You have no new contacts.', 'Propiedades a tu cargo': 'Properties in your charge',
+        'Las asigna tu inmobiliaria. Si algún dato está mal, pídele que lo corrija.': 'Your agency assigns them. If any detail is wrong, ask them to fix it.',
+        'No hay propiedades con estos filtros.': 'No properties match these filters.', 'Tu inmobiliaria aún no te ha asignado propiedades.': 'Your agency has not assigned you properties yet.',
+        'Personas que tu inmobiliaria te asignó. Llámalas, agenda la visita y actualiza su estado.': 'People your agency assigned to you. Call them, schedule the visit and update their status.',
+        'Mis datos': 'My details', 'Agente inmobiliario': 'Real estate agent', 'Editar teléfono': 'Edit phone', 'Guardar teléfono': 'Save phone',
+        'Tu nombre y documento los administra tu inmobiliaria. Aquí puedes cambiar tu teléfono y tu contraseña.': 'Your agency manages your name and ID. Here you can change your phone and password.',
+        'Tu nombre y documento los administra tu inmobiliaria. Aquí solo puedes cambiar tu contraseña.': 'Your agency manages your name and ID. Here you can only change your password.',
+        'Mínimo 8 caracteres. Te recomendamos cambiar la contraseña que te entregó la inmobiliaria.': 'At least 8 characters. We recommend changing the password your agency gave you.',
+        'Tus datos los actualiza tu inmobiliaria. Pídele el cambio desde su panel.': 'Your agency updates your details. Ask them to change it from their panel.',
+        'Agenda': 'Schedule',
+
+        /* ---------- Notificaciones (títulos fijos) ---------- */
+        'Se te asignó una propiedad': 'A property was assigned to you', 'Pago aprobado': 'Payment approved', 'Pago rechazado': 'Payment rejected',
+        'Pago no completado': 'Payment not completed', 'Publicación activa': 'Listing active', 'Posicionamiento activo': 'Boost active',
+        'La publicación venció': 'The listing expired', 'El posicionamiento terminó': 'The boost ended', 'Notificaciones marcadas como leídas.': 'Notifications marked as read.',
+        'La propiedad fue publicada': 'The property was published', 'La propiedad fue pausada': 'The property was paused', 'La propiedad pasó a borrador': 'The property went back to draft',
+        'La propiedad fue marcada como vendida': 'The property was marked as sold', 'La propiedad fue marcada como arrendada': 'The property was marked as rented',
+        'Sesión cerrada.': 'Logged out.', 'Sesión iniciada.': 'Logged in.',
+
+        /* ---------- Textos del formulario y avisos largos ---------- */
+        '0 = nuevo': '0 = new', '/ 3000 caracteres': '/ 3000 characters',
+        'Cuenta lo que hace especial al inmueble: distribución, acabados, vista, cercanía a transporte, colegios o comercio…': 'Tell what makes the property special: layout, finishes, view, nearby transport, schools or shops…',
+        'Las fotos se reducen automáticamente antes de subirlas. Los GIF (máximo 8 MB) se suben sin reducir, para que se sigan moviendo.': 'Photos are resized automatically before uploading. GIFs (max 8 MB) are uploaded without resizing, so they keep moving.',
+        'El NIT y el correo no se pueden cambiar aquí porque fueron verificados. Si hay un error, escribe a soporte.': 'The tax ID and email cannot be changed here because they were verified. If there is a mistake, write to support.',
+        'Aún no tienes cierres. Cuando tu inmobiliaria marque como vendida o arrendada una propiedad a tu cargo, aquí verás tu comisión.': 'You have no closings yet. When your agency marks a property in your charge as sold or rented, you will see your commission here.'
+    };
+
+    /* Pedazos que acompañan a un número: "4 agentes", "7 en total"... */
+    var CONTEOS = {
+        'resultado': 'result', 'resultados': 'results', 'agente': 'agent', 'agentes': 'agents', 'inmueble': 'property', 'inmuebles': 'properties',
+        'membresía': 'membership', 'membresías': 'memberships', 'visita': 'visit', 'visitas': 'visits', 'pago': 'payment', 'pagos': 'payments',
+        'en total': 'total', 'con error': 'with errors', 'sin agente': 'without agent', 'en el equipo': 'on the team', 'nuevos': 'new', 'nuevo': 'new',
+        'sin asignar': 'unassigned', 'en venta': 'for sale', 'en arriendo': 'for rent', 'activos': 'active', 'activo': 'active', 'a tu cargo': 'in your charge',
+        'programadas en total': 'scheduled in total', 'asignados en total': 'assigned in total', 'sin leer': 'unread', 'esta semana': 'this week',
+        'publicación destacada': 'featured listing', 'publicaciones destacadas': 'featured listings', 'inmueble vendido': 'property sold', 'inmuebles vendidos': 'properties sold',
+        'inmueble arrendado': 'property rented', 'inmuebles arrendados': 'properties rented', 'cierre con comisión': 'closing with commission', 'cierres con comisión': 'closings with commission',
+        'días': 'days', 'día': 'day', 'publicación': 'listing', 'publicaciones': 'listings', 'cierres': 'closings', 'cierre': 'closing', 'contactos': 'contacts'
+    };
+
+    var MESES_CORTOS = { ene: 'Jan', feb: 'Feb', mar: 'Mar', abr: 'Apr', may: 'May', jun: 'Jun', jul: 'Jul', ago: 'Aug', sept: 'Sep', sep: 'Sep', oct: 'Oct', nov: 'Nov', dic: 'Dec' };
+    var MESES = { enero: 'January', febrero: 'February', marzo: 'March', abril: 'April', mayo: 'May', junio: 'June', julio: 'July', agosto: 'August', septiembre: 'September', octubre: 'October', noviembre: 'November', diciembre: 'December' };
+    var DIAS = { lun: 'Mon', mar: 'Tue', 'mié': 'Wed', jue: 'Thu', vie: 'Fri', 'sáb': 'Sat', dom: 'Sun' };
+    var ESTADOS = { 'en seguimiento': 'following up', 'nuevo': 'new', 'cerrado': 'closed', 'descartado': 'discarded', 'pendiente': 'pending', 'confirmada': 'confirmed',
+        'realizada': 'done', 'cancelada': 'canceled', 'publicada': 'published', 'pausada': 'paused', 'borrador': 'draft', 'vendida': 'sold', 'arrendada': 'rented',
+        'activo': 'active', 'inactivo': 'inactive', 'pagada': 'paid' };
+    var ENTIDADES = { 'la propiedad': 'the property', 'el contacto': 'the contact', 'la visita': 'the visit', 'el agente': 'the agent', 'la membresía': 'the membership',
+        'la venta': 'the sale', 'el pago': 'the payment', 'la comisión': 'the commission', 'el perfil': 'the profile', 'el panel': 'the panel' };
+    var TIPOS = { apartamento: 'Apartment', casa: 'House', finca: 'Farm', local: 'Retail space', lote: 'Lot', oficina: 'Office' };
+
+    function conteo(n, frase) {
+        var en = CONTEOS[frase];
+        if (!en) return null;
+        if (n === '1') en = en.replace(/^(properties)\b/, 'property').replace(/^results$/, 'result');
+        return n + ' ' + en;
+    }
+
+    function fecha(s) { return enLinea(s); }
+
+    // Cada regla: [expresión, función que recibe el resultado del match]
+    var REGLAS = [
+        [/^(\d+) (.+)$/, function (m) { return conteo(m[1], m[2]); }],
+        [/^Mostrando (\d+)[–-](\d+) de (\d+)$/, function (m) { return 'Showing ' + m[1] + '–' + m[2] + ' of ' + m[3]; }],
+        [/^\((\d+) de (\d+)\)$/, function (m) { return '(' + m[1] + ' of ' + m[2] + ')'; }],
+        [/^(\d+) de (\d+) publicaciones destacadas$/, function (m) { return m[1] + ' of ' + m[2] + ' listings featured'; }],
+        [/^(\d+) de (\d+) cupos usados\. Quita una publicación para liberar su cupo\.$/, function (m) { return m[1] + ' of ' + m[2] + ' slots used. Remove a listing to free its slot.'; }],
+        [/^(\d+) ?% de descuento$/, function (m) { return m[1] + '% off'; }],
+        [/^(\d+) ?% pagado$/, function (m) { return m[1] + '% paid'; }],
+        [/^(\d+) ?% pendiente$/, function (m) { return m[1] + '% pending'; }],
+        [/^(\d+) ?% de cada venta o canon de arriendo$/, function (m) { return m[1] + '% of each sale or monthly rent'; }],
+        [/^(\d+) días destacada$/, function (m) { return 'Featured for ' + m[1] + ' days'; }],
+        [/^(\d+) días de vigencia$/, function (m) { return 'Valid for ' + m[1] + ' days'; }],
+        [/^Visible en el portal (\d+) días$/, function (m) { return 'Visible on the portal for ' + m[1] + ' days'; }],
+        [/^De primeras entre las normales (\d+) días$/, function (m) { return 'First among standard listings for ' + m[1] + ' days'; }],
+        [/^(\d+)° lugar$/, function (m) { return ['', '1st', '2nd', '3rd'][m[1]] ? ['', '1st', '2nd', '3rd'][m[1]] + ' place' : m[1] + 'th place'; }],
+        [/^Ver todas \((\d+)\)$/, function (m) { return 'View all (' + m[1] + ')'; }],
+        [/^Notificaciones \((\d+) nuevas?\)$/, function (m) { return 'Notifications (' + m[1] + ' new)'; }],
+        // Solo el saludo del panel ("Hola, Nombre"); un mensaje de un cliente que empiece con "Hola," no se toca
+        [/^Hola, ([A-ZÁÉÍÓÚÑ][^¿?.!,:]{0,60})$/, function (m) { return 'Hello, ' + m[1]; }],
+        [/^Agente de (.+)\. Tus visitas, tus contactos nuevos y las propiedades que tienes a cargo\.$/, function (m) { return 'Agent at ' + m[1] + '. Your visits, your new contacts and the properties in your charge.'; }],
+        [/^Agente: (.+)$/, function (m) { return 'Agent: ' + m[1]; }],
+        [/^(.+) \(inactivo\)$/, function (m) { return m[1] + ' (inactive)'; }],
+        [/^Editar datos de (.+)$/, function (m) { return 'Edit details of ' + m[1]; }],
+        [/^Restablecer contraseña de (.+)$/, function (m) { return 'Reset password for ' + m[1]; }],
+        [/^Activar a (.+)$/, function (m) { return 'Activate ' + m[1]; }],
+        [/^Desactivar a (.+)$/, function (m) { return 'Deactivate ' + m[1]; }],
+        [/^¿Desactivar a (.+)\? Sus propiedades quedarán sin agente\.$/, function (m) { return 'Deactivate ' + m[1] + '? Their properties will be left without an agent.'; }],
+        [/^¿Cancelar la visita de (.+)\?$/, function (m) { return 'Cancel the visit of ' + m[1] + '?'; }],
+        [/^Contraseña de (.+) restablecida\. Compártela con el agente\.$/, function (m) { return 'Password for ' + m[1] + ' reset. Share it with the agent.'; }],
+        [/^Propiedad asignada a (.+)\.$/, function (m) { return 'Property assigned to ' + m[1] + '.'; }],
+        [/^Estado actualizado\. Comisión de (.+): (\$ ?[\d.]+) \((\d+) %\)\.$/, function (m) { return 'Status updated. Commission for ' + m[1] + ': ' + m[2] + ' (' + m[3] + '%).'; }],
+        [/^(Apartamento|Casa|Finca|Local|Lote|Oficina) en ([^·]+)$/i, function (m) { return TIPOS[m[1].toLowerCase()] + ' in ' + m[2]; }],
+        [/^(Nuevo contacto|Contacto asignado|Nueva visita|Visita asignada|Visita próxima|Visita pendiente|Visita confirmada|Visita realizada|Visita cancelada|Venta cerrada|Arriendo cerrado|Pago aprobado|Publicación por vencer|Posicionamiento por vencer): (.+)$/, function (m) {
+            var t = { 'Nuevo contacto': 'New contact', 'Contacto asignado': 'Contact assigned', 'Nueva visita': 'New visit', 'Visita asignada': 'Visit assigned',
+                'Visita próxima': 'Upcoming visit', 'Visita pendiente': 'Visit pending', 'Visita confirmada': 'Visit confirmed', 'Visita realizada': 'Visit done',
+                'Visita cancelada': 'Visit canceled', 'Venta cerrada': 'Sale closed', 'Arriendo cerrado': 'Rental closed', 'Pago aprobado': 'Payment approved',
+                'Publicación por vencer': 'Listing about to expire', 'Posicionamiento por vencer': 'Boost about to expire' }[m[1]];
+            return t + ': ' + traducirTexto(m[2]);
+        }],
+        [/^Comisión de (.+): (\$ ?[\d.]+)$/, function (m) { return 'Commission for ' + m[1] + ': ' + m[2]; }],
+        [/^Ganaste una comisión de (.+)$/, function (m) { return 'You earned a commission of ' + m[1]; }],
+        [/^Te pagaron la comisión de (.+)$/, function (m) { return 'Your commission of ' + m[1] + ' was paid'; }],
+        [/^hasta el (.+)$/, function (m) { return 'until ' + fecha(m[1]); }],
+        [/^vence el (.+)$/, function (m) { return 'expires ' + fecha(m[1]); }],
+        [/^Le quedan (\d+) días?$/, function (m) { return m[1] + ' day' + (m[1] === '1' ? '' : 's') + ' left'; }],
+        [/^Aprobado: (.+)$/, function (m) { return 'Approved: ' + m[1]; }],
+        [/^Falta: (.+)$/, function (m) { return 'Missing: ' + lista(m[1]); }],
+        [/^Para que el invitado la vea completa, falta: (.+)$/, function (m) { return 'For guests to see it complete, it still needs: ' + lista(m[1]); }],
+        [/^Tu paquete (.+)$/, function (m) { return 'Your ' + traducirTexto(m[1]) + ' package'; }],
+        [/^Posicionada · hasta el (.+)$/, function (m) { return 'Boosted · until ' + fecha(m[1]); }],
+        [/^Posicionada hasta el (.+?)\. Si renuevas, los días se suman al final\.$/, function (m) { return 'Boosted until ' + fecha(m[1]) + '. If you renew, the days are added at the end.'; }],
+        [/^Publicada hasta el (.+?)\. Si renuevas, los días se suman al final\.$/, function (m) { return 'Published until ' + fecha(m[1]) + '. If you renew, the days are added at the end.'; }],
+        [/^Publicada hasta el (.+)$/, function (m) { return 'Published until ' + fecha(m[1]); }],
+        [/^Ya está destacada con el plan (.+) hasta el (.+?)\. Si renuevas, el nuevo plan empieza cuando termine el actual\.$/, function (m) { return 'It is already featured with the ' + traducirTexto(m[1]) + ' plan until ' + fecha(m[2]) + '. If you renew, the new plan starts when the current one ends.'; }],
+        [/^Plan (mensual|quincenal|semanal)$/i, function (m) { return { mensual: 'Monthly', quincenal: 'Biweekly', semanal: 'Weekly' }[m[1].toLowerCase()] + ' plan'; }],
+        [/^(mensual|quincenal|semanal)$/, function (m) { return { mensual: 'monthly', quincenal: 'biweekly', semanal: 'weekly' }[m[1]]; }],
+        [/^Membresía (mensual|quincenal|semanal) de la cuenta activa$/, function (m) { return { mensual: 'Monthly', quincenal: 'Biweekly', semanal: 'Weekly' }[m[1]] + ' account membership active'; }],
+        [/^Vence el (.+?)\. Desde ahora la membresía se compra por publicación en Propiedades\.$/, function (m) { return 'Expires ' + fecha(m[1]) + '. From now on, membership is bought per listing in Properties.'; }],
+        [/^Aparecen primero en el portal\. La próxima vence el (.+?)\.?$/, function (m) { return 'They show first on the portal. The next one expires ' + fecha(m[1]) + '.'; }],
+        [/^Salen primero en el portal mientras su plan esté vigente\.(.*)$/, function (m) { return 'They show first on the portal while their plan is active.' + (m[1] ? ' ' + traducirTexto(m[1].trim()) : ''); }],
+        [/^También tienes una membresía de toda la cuenta \(plan (.+)\) hasta el (.+?)\. Al vencer, ya no se renueva: ahora es por publicación\.$/, function (m) { return 'You also have a whole-account membership (' + traducirTexto(m[1]) + ' plan) until ' + fecha(m[2]) + '. When it expires it is not renewed: it is now per listing.'; }],
+        [/^¿Comprar el paquete (.+) \((\d+) días\) por (.+)\?([\s\S]*)$/, function (m) { return 'Buy the ' + traducirTexto(m[1]) + ' package (' + m[2] + ' days) for ' + m[3] + '?' + m[4].replace('(Pago simulado: el servidor no tiene llaves de Wompi)', '(Simulated payment: the server has no Wompi keys)').replace('Te llevaremos a Wompi para pagar.', 'We will take you to Wompi to pay.'); }],
+        [/^(.+?)(: membresía renovada|: destacada) hasta el (.+) \(pago simulado\)\.$/, function (m) { return traducirTexto(m[1]) + (m[2] === ': destacada' ? ': featured' : ': membership renewed') + ' until ' + m[3] + ' (simulated payment).'; }],
+        [/^(Propiedad publicada|Publicación renovada|Propiedad posicionada|Posicionamiento renovado) hasta el (.+) \(pago simulado\)\.$/, function (m) {
+            return { 'Propiedad publicada': 'Property published', 'Publicación renovada': 'Listing renewed', 'Propiedad posicionada': 'Property boosted', 'Posicionamiento renovado': 'Boost renewed' }[m[1]] + ' until ' + m[2] + ' (simulated payment).';
+        }],
+        [/^Paquete (.+) activo hasta el (.+)$/, function (m) { return traducirTexto(m[1]) + ' package active until ' + m[2]; }],
+        [/^(.+) agregada al paquete (.+) \((\d+) de (\d+)\)\.$/, function (m) { return traducirTexto(m[1]) + ' added to the ' + traducirTexto(m[2]) + ' package (' + m[3] + ' of ' + m[4] + ').'; }],
+        [/^(.+) salió del paquete\. Tienes un cupo libre\.$/, function (m) { return traducirTexto(m[1]) + ' left the package. You have a free slot.'; }],
+        [/^Ya usaste los (\d+) cupos de este paquete\. Quita una publicación para poner otra\.$/, function (m) { return 'You already used the ' + m[1] + ' slots of this package. Remove a listing to add another.'; }],
+        [/^Ubicación marcada: (.+?)\. Puedes arrastrar el pin para ajustarlo\.$/, function (m) { return 'Location marked: ' + m[1] + '. You can drag the pin to adjust it.'; }],
+        [/^Solo caben (\d+) foto\(s\) más\. Se tomaron las primeras\.$/, function (m) { return 'Only ' + m[1] + ' more photo(s) fit. The first ones were taken.'; }],
+        [/^(\d+) foto\(s\) no se pudieron guardar; inténtalo de nuevo desde Editar\.$/, function (m) { return m[1] + ' photo(s) could not be saved; try again from Edit.'; }],
+        [/^No se pueden agregar GIF de más de 8 MB\. “(.+)” (.*)$/, function (m) { return 'GIFs larger than 8 MB cannot be added. “' + m[1] + '” ' + m[2]; }],
+        [/^No se pudo procesar “(.+)”\.?(.*)$/, function (m) { return 'Could not process “' + m[1] + '”.' + m[2]; }],
+        [/^“(.+)” es demasiado pesada\. Prueba con otra foto\.$/, function (m) { return '“' + m[1] + '” is too large. Try another photo.'; }],
+        [/^Periodo: (.+) a (.+)$/, function (m) { return 'Period: ' + (m[1] === 'el inicio' ? 'the beginning' : fecha(m[1])) + ' to ' + (m[2] === 'hoy' ? 'today' : fecha(m[2])); }],
+        [/^Generado el (.+)$/, function (m) { return 'Generated on ' + fecha(m[1]); }],
+        [/^Página (\d+)$/, function (m) { return 'Page ' + m[1]; }],
+        [/^(Creó|Editó|Eliminó|Publicó|Pausó|Pasó a borrador|Marcó como vendida|Marcó como arrendada|Activó al|Desactivó al) ?(la propiedad|el contacto|la visita|el agente|agente|la membresía|la venta|el pago|la comisión|el perfil)?( #\d+)?$/, function (m) {
+            var verbo = { 'Creó': 'Created', 'Editó': 'Edited', 'Eliminó': 'Deleted', 'Publicó': 'Published', 'Pausó': 'Paused', 'Pasó a borrador': 'Moved to draft',
+                'Marcó como vendida': 'Marked as sold', 'Marcó como arrendada': 'Marked as rented', 'Activó al': 'Activated', 'Desactivó al': 'Deactivated' }[m[1]];
+            var ent = m[2] === 'agente' ? 'the agent' : (ENTIDADES[m[2]] || m[2] || '');
+            return verbo + (ent ? ' ' + ent : '') + (m[3] || '');
+        }],
+        [/^Cambió el estado (del|de la) (contacto|visita|propiedad|agente|comisión)( #\d+)? a (.+)$/, function (m) {
+            var ent = { contacto: 'contact', visita: 'visit', propiedad: 'property', agente: 'agent', 'comisión': 'commission' }[m[2]];
+            return 'Changed the status of the ' + ent + (m[3] || '') + ' to ' + (ESTADOS[m[4]] || m[4]);
+        }],
+        [/^Error al (crear|editar|eliminar) (.+?)( #\d+)? \((\d+)\)$/, function (m) {
+            return 'Error trying to ' + { crear: 'create', editar: 'edit', eliminar: 'delete' }[m[1]] + ' ' + (ENTIDADES[m[2]] || m[2]) + (m[3] || '') + ' (' + m[4] + ')';
+        }],
+        [/^(Dom|Lun|Mar|Mié|Jue|Vie|Sáb) (\d+)$/, function (m) { return { Dom: 'Sun', Lun: 'Mon', Mar: 'Tue', 'Mié': 'Wed', Jue: 'Thu', Vie: 'Fri', 'Sáb': 'Sat' }[m[1]] + ' ' + m[2]; }],
+        [/^hace (\d+) (min|h|días?)$/, function (m) { return m[1] + ' ' + (m[2].indexOf('d') === 0 ? (m[1] === '1' ? 'day' : 'days') : m[2]) + ' ago'; }]
+    ];
+
+    function lista(s) {
+        return s.split(/,\s*/).map(function (x) { return DICT[x] || x; }).join(', ');
+    }
+
+    // Fechas, horas y tiempos relativos que van dentro de una frase
+    function enLinea(s) {
+        return s
+            .replace(/\b(\d{1,2}) de (enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre) de (\d{4})/g, function (_, d, m, a) { return MESES[m] + ' ' + d + ', ' + a; })
+            .replace(/\b(\d{1,2}) de (ene|feb|mar|abr|may|jun|jul|ago|sept|sep|oct|nov|dic)\.? de (\d{4})/g, function (_, d, m, a) { return MESES_CORTOS[m] + ' ' + d + ', ' + a; })
+            .replace(/\b(\d{1,2}) de (enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)\b/g, function (_, d, m) { return MESES[m] + ' ' + d; })
+            .replace(/\b(\d{1,2}) de (ene|feb|mar|abr|may|jun|jul|ago|sept|sep|oct|nov|dic)\b\.?/g, function (_, d, m) { return MESES_CORTOS[m] + ' ' + d; })
+            .replace(/(^|[\s(])(lun|mar|mié|jue|vie|sáb|dom)\.?, /g, function (_, a, d) { return a + DIAS[d] + ', '; })
+            .replace(/\s?a\.\s?m\./g, ' AM').replace(/\s?p\.\s?m\./g, ' PM')
+            .replace(/\bhace (\d+) min\b/g, '$1 min ago').replace(/\bhace (\d+) h\b/g, '$1 h ago')
+            .replace(/\bhace 1 día\b/g, '1 day ago').replace(/\bhace (\d+) días\b/g, '$1 days ago')
+            .replace(/(^|\s)ayer(?=$|\s|·)/g, '$1yesterday').replace(/\bjusto ahora\b/g, 'just now')
+            .replace(/\b(\d+) visitas\b/g, '$1 visits').replace(/\b1 visita\b/g, '1 visit')
+            .replace(/(^|\s)(\d+) días(?=$|\s|\))/g, '$1$2 days').replace(/(^|\s)1 día(?=$|\s|\))/g, '$11 day');
+    }
+
+    function unSegmento(s) {
+        if (!s) return s;
+        if (DICT.hasOwnProperty(s)) return DICT[s];
+        for (var i = 0; i < REGLAS.length; i++) {
+            var m = s.match(REGLAS[i][0]);
+            if (m) { var r = REGLAS[i][1](m); if (r) return r; }
+        }
+        return s;
+    }
+
+    // Traduce un texto completo: primero entero; si no, por partes separadas con "·"
+    function traducirTexto(texto) {
+        if (texto == null) return texto;
+        var s = String(texto);
+        if (!/[A-Za-zÁÉÍÓÚáéíóúñÑ¿]{2}/.test(s)) return s;
+        var ini = s.match(/^\s*/)[0], fin = s.match(/\s*$/)[0];
+        var cuerpo = s.trim().replace(/\s+/g, ' ');
+        var r = unSegmento(cuerpo);
+        if (r === cuerpo && cuerpo.indexOf('·') !== -1) {
+            r = cuerpo.split(/(\s*·\s*)/).map(function (p) { return /·/.test(p) ? p : unSegmento(p.trim()); }).join('');
+        }
+        r = enLinea(r);
+        return r === cuerpo ? s : ini + r + fin;
+    }
+
+    /* ---------- Aplicar a la página ---------- */
+    var ATRIBUTOS = ['placeholder', 'title', 'aria-label', 'alt'];
+    var hecho = new WeakMap();
+
+    function traducirNodo(n) {
+        if (n.nodeType === 3) {
+            var p = n.parentNode;
+            if (!p || p.nodeName === 'SCRIPT' || p.nodeName === 'STYLE' || p.nodeName === 'TEXTAREA') return;
+            if (hecho.get(n) === n.nodeValue) return;
+            var nuevo = traducirTexto(n.nodeValue);
+            if (nuevo !== n.nodeValue) n.nodeValue = nuevo;
+            hecho.set(n, n.nodeValue);
+            return;
+        }
+        if (n.nodeType !== 1 || n.nodeName === 'SCRIPT' || n.nodeName === 'STYLE') return;
+        ATRIBUTOS.forEach(function (a) {
+            var v = n.getAttribute(a);
+            if (v) { var t = traducirTexto(v); if (t !== v) n.setAttribute(a, t); }
+        });
+        if (n.nodeName === 'INPUT' && (n.type === 'button' || n.type === 'submit') && n.value) n.value = traducirTexto(n.value);
+        for (var c = n.firstChild; c; c = c.nextSibling) traducirNodo(c);
+    }
+
+    function iniciar() {
+        traducirNodo(document.body);
+        document.title = traducirTexto(document.title);
+        new MutationObserver(function (cambios) {
+            cambios.forEach(function (c) {
+                if (c.type === 'characterData') traducirNodo(c.target);
+                else if (c.type === 'attributes') {
+                    var v = c.target.getAttribute(c.attributeName);
+                    if (v) { var t = traducirTexto(v); if (t !== v) c.target.setAttribute(c.attributeName, t); }
+                } else c.addedNodes.forEach(traducirNodo);
+            });
+        }).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATRIBUTOS });
+        new MutationObserver(function () {
+            var t = traducirTexto(document.title);
+            if (t !== document.title) document.title = t;
+        }).observe(document.querySelector('title') || document.head, { childList: true, characterData: true, subtree: true });
+        document.documentElement.classList.remove('i-traduciendo');
+    }
+
+    // confirm y alert también en inglés
+    var confirmar = window.confirm, avisar = window.alert;
+    window.confirm = function (t) { return confirmar.call(window, traducirTexto(t)); };
+    window.alert = function (t) { return avisar.call(window, traducirTexto(t)); };
+
+    window.UmbralIdioma = { activo: true, t: traducirTexto };
+
+    if (document.body) iniciar();
+    else document.addEventListener('DOMContentLoaded', iniciar);
+})();

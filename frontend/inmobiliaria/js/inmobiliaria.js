@@ -268,7 +268,7 @@
                     "fr": "Abonnement"
             },
             "sub_vigente": { "es": "Mi suscripción", "en": "My subscription", "pt": "Minha assinatura", "fr": "Mon abonnement" },
-            "sub_paquetes": { "es": "Paquetes", "en": "Bundles", "pt": "Pacotes", "fr": "Forfaits" },
+            "sub_paquetes": { "es": "Paquetes", "en": "Packages", "pt": "Pacotes", "fr": "Forfaits" },
             "sub_planes": { "es": "Oro, Plata y Bronce", "en": "Gold, Silver and Bronze", "pt": "Ouro, Prata e Bronze", "fr": "Or, Argent et Bronze" },
             "sub_normal": { "es": "Publicación normal", "en": "Standard listing", "pt": "Anúncio normal", "fr": "Annonce standard" },
             "sub_posicion": { "es": "Posicionamiento", "en": "Boost", "pt": "Posicionamento", "fr": "Mise en avant" },
@@ -289,6 +289,15 @@
     var idioma = 'es';
     try { idioma = localStorage.getItem('umbral_lang') || 'es'; } catch (e) {}
     if (!IDIOMAS[idioma]) idioma = 'es';
+    // Inglés: se carga el traductor de la página (idioma-en.js) y se oculta un instante para no ver el español
+    if (idioma === 'en' && !window.UmbralIdioma) {
+        document.documentElement.classList.add('i-traduciendo');
+        document.documentElement.lang = 'en';
+        var traductor = document.createElement('script');
+        traductor.src = '/inmobiliaria/js/idioma-en.js';
+        document.head.appendChild(traductor);
+        setTimeout(function () { document.documentElement.classList.remove('i-traduciendo'); }, 2500);
+    }
     function tx(clave) { return (TEXTOS[clave] || {})[idioma] || (TEXTOS[clave] || {}).es || clave; }
 
     /* ---------- Estructura: menú lateral + barra superior ----------
@@ -373,7 +382,7 @@
             idioma = this.getAttribute('data-idioma');
             try { localStorage.setItem('umbral_lang', idioma); } catch (e) {}
             document.documentElement.lang = idioma;
-            barra(usuarioActual, seccionActual);
+            window.location.reload();
             });
         });
         document.getElementById('i-menu').addEventListener('click', function () {

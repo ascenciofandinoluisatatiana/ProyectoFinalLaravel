@@ -34,8 +34,7 @@ class NotificacionController extends Controller
     {
         $filtros = $request->validate([
             'estado' => ['nullable', Rule::in(['todas', 'sin_leer', 'leidas'])],
-            'tipo' => ['nullable', Rule::in(['contacto', 'visita', 'vencimiento'])],
-            'desde' => ['nullable', 'date_format:Y-m-d'],
+            'tipo' => ['nullable', Rule::in(['contacto', 'visita', 'pago', 'plan', 'vencimiento'])],            'desde' => ['nullable', 'date_format:Y-m-d'],
             'hasta' => ['nullable', 'date_format:Y-m-d'],
             'q' => ['nullable', 'string', 'max:100'],
             'pagina' => ['nullable', 'integer', 'min:1'],

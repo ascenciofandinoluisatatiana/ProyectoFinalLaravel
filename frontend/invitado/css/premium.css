@@ -497,7 +497,6 @@
     [data-theme="dark"] .hero {
       background:
         linear-gradient(110deg, rgba(13, 10, 18, .92) 0%, rgba(42, 10, 74, .82) 55%, rgba(76, 5, 128, .72) 100%),
-        url(/img/hero.jpg) center/cover no-repeat,
         linear-gradient(120deg, #0d0a12 0%, #2a0a4a 55%, #4c0580 100%);
       box-shadow: 0 18px 50px rgba(0, 0, 0, .5)
     }
@@ -648,7 +647,6 @@
     [data-theme="light"] .hero {
       background:
         linear-gradient(110deg, rgba(46, 16, 101, .9) 0%, rgba(107, 33, 168, .78) 55%, rgba(147, 51, 234, .62) 100%),
-        url(/img/hero.jpg) center/cover no-repeat,
         linear-gradient(120deg, #2e1065 0%, #6b21a8 55%, #9333ea 100%);
       box-shadow: 0 18px 50px rgba(88, 28, 135, .3)
     }

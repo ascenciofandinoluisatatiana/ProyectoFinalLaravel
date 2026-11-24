@@ -64,7 +64,7 @@ Route::prefix('v1')->group(function () {
 
     // Consulta pública del estado de una cuenta (para la pantalla de espera).
     // Solo devuelve el estado (pendiente/activo/inactivo), nunca datos sensibles.
-    Route::get('/estado-cuenta', [AuthController::class, 'estadoCuenta'])->middleware('throttle:60,1');
+    Route::get('/estado-cuenta', [AuthController::class, 'estadoCuenta'])->middleware('throttle:30,1');
 
     // Recuperar contraseña por correo (todos los roles)
     Route::post('/recuperar-clave', [RecuperarClaveController::class, 'solicitar'])->middleware('throttle:5,1');

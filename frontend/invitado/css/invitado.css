@@ -1111,7 +1111,6 @@
       padding: 44px 44px 34px;
       background:
         linear-gradient(110deg, rgba(40, 16, 100, .88) 0%, rgba(76, 40, 190, .66) 55%, rgba(20, 60, 140, .5) 100%),
-        url(/img/hero.jpg) center/cover no-repeat,
         linear-gradient(120deg, #4c1d95 0%, #7e22ce 55%, #9333ea 100%);
       box-shadow: 0 18px 50px rgba(60, 30, 160, .28)
     }

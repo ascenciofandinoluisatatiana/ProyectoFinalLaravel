@@ -100,6 +100,27 @@ portal-inmobiliario/
     └── .env.example                   # Variables propias de Laravel
 ```
 
+## Tareas programadas en el servidor (producción)
+
+En la VPS, las tareas automáticas las ejecuta el **cron del sistema** (no un contenedor).
+Los archivos viven en `/etc/cron.d/` del servidor; aquí en `servidor/cron/` hay una copia para
+poder reponerlos si alguna vez se reconstruye la VPS.
+
+| Archivo | Cuándo (hora de Colombia) | Qué hace |
+|---|---|---|
+| `umbral-programador` | cada minuto | Ejecuta `schedule:run` (entre otras, `propiedades:vencer-planes` cada hora) |
+| `umbral-avisos` | todos los días 8:00 a.m. | `membresias:avisar-vencimiento` (avisos de membresías por vencer) |
+| `umbral-respaldo` | todos los días 6:00 p.m. | Respaldo de la base de datos (`respaldo.sh`) |
+
+Para reponerlos en un servidor nuevo:
+
+```bash
+sudo cp servidor/cron/umbral-* /etc/cron.d/
+sudo chmod 644 /etc/cron.d/umbral-*
+```
+
+Para comprobar que quedaron: `docker exec umbral_backend php artisan schedule:list`
+
 ## Notas para cuando el equipo crezca
 
 - El código de Laravel vive en `backend/` y se monta en el contenedor: puedes

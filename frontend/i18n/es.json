@@ -169,7 +169,7 @@
   "msg.credenciales": "Correo o contraseña incorrectos.",
   "msg.sin_acceso": "Esta cuenta no puede iniciar sesión aquí.",
   "msg.sin_rol": "Tu cuenta no tiene acceso al portal.",
-  "msg.conexion": "No se pudo conectar con el servidor. Revisa que Docker esté encendido.",
+  "msg.conexion": "No se pudo conectar con el servidor. Revisa tu conexión a internet e inténtalo de nuevo.",
   "msg.generico": "No fue posible iniciar sesión.",
   "msg.intento": "Contraseña incorrecta. Intento {n} de {max}.",
   "msg.correo_no_registrado": "Este correo no está registrado.",

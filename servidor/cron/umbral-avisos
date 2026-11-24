@@ -1,0 +1,2 @@
+# Avisos de vencimiento de membresias y paquetes (14:00 hora del servidor = 8:00 a.m. Colombia)
+0 14 * * * root /usr/bin/docker exec umbral_backend php artisan membresias:avisar-vencimiento >> /var/log/umbral-avisos.log 2>&1

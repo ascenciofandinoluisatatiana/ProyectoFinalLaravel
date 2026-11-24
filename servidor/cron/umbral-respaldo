@@ -1,0 +1,2 @@
+# Respaldo diario de la base de Umbral (00:00 hora del servidor = 6 p.m. Colombia)
+0 0 * * * root /opt/apps/umbral/respaldos/respaldo.sh

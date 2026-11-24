@@ -169,7 +169,7 @@
   "msg.credenciales": "E-mail ou senha incorretos.",
   "msg.sin_acceso": "Esta conta não pode entrar por aqui.",
   "msg.sin_rol": "Sua conta não tem acesso ao portal.",
-  "msg.conexion": "Não foi possível conectar ao servidor. Verifique se o Docker está ligado.",
+  "msg.conexion": "Não foi possível conectar ao servidor. Verifique sua conexão com a internet e tente novamente.",
   "msg.generico": "Não foi possível entrar.",
   "msg.intento": "Senha incorreta. Tentativa {n} de {max}.",
   "msg.correo_no_registrado": "Este e-mail não está cadastrado.",

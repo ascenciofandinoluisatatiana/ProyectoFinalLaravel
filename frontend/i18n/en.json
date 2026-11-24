@@ -169,7 +169,7 @@
   "msg.credenciales": "Incorrect email or password.",
   "msg.sin_acceso": "This account cannot sign in here.",
   "msg.sin_rol": "Your account does not have access to the portal.",
-  "msg.conexion": "Could not connect to the server. Check that Docker is running.",
+  "msg.conexion": "Could not connect to the server. Check your internet connection and try again.",
   "msg.generico": "Sign in was not possible.",
   "msg.intento": "Incorrect password. Attempt {n} of {max}.",
   "msg.correo_no_registrado": "This email is not registered.",

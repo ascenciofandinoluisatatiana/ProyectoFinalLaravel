@@ -617,6 +617,8 @@
   color: #6b21a8;
   background: rgba(126, 34, 206, .15);
 }
+/* IV7 · sobre fondo oscuro el morado oscuro no se leía (contraste 2:1) */
+[data-theme="dark"] .ft-ver { color: #e9d5ff; background: rgba(168, 85, 247, .28); }
 
 .ft-c .btn { width: 100%; justify-content: center; margin-top: auto; }
 

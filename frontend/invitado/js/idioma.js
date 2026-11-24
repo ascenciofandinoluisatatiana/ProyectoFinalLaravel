@@ -3,6 +3,9 @@
       document.documentElement.lang = lang;
       $$('[data-i18n]').forEach(e => e.textContent = t(e.dataset.i18n));
       $$('[data-i18n-ph]').forEach(e => e.placeholder = t(e.dataset.i18nPh));
+      /* IV7 · nombre accesible de los enlaces e iconos que en celular quedan sin texto visible */
+      $$('[data-i18n-aria]').forEach(e => { const n = t(e.dataset.i18nAria); e.setAttribute('aria-label', n); if (e.tagName === 'A') e.title = n; });
+      const fp = $('#filters'); if (fp) fp.setAttribute('aria-label', t('f_btn'));
       $('#lang').value = lang;
       $('#langPill').textContent = LANG_NAMES[lang];
       buildFilters(); updateBanner(); renderSellers(); render();

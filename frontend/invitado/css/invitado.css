@@ -1074,9 +1074,18 @@
         place-items: center
       }
 
-      .user-chip div,
-      .topbar h1 {
+      .user-chip div {
         display: none
+      }
+
+      /* IV7 · el título sigue disponible para lectores de pantalla aunque no se vea en celular */
+      .topbar h1 {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap
       }
 
       .content {
@@ -1403,7 +1412,12 @@
       }
 
       .topbar h1 {
-        display: none
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap
       }
 
       .topbar .btn-sm {
@@ -1515,7 +1529,7 @@
       font-weight: 500;
       font-size: .95rem;
       line-height: 1.15;
-      color: var(--primary2)
+      color: var(--primary)
     }
 
     @media(max-width:600px) {

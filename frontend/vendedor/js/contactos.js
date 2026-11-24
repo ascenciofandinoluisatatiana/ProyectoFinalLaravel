@@ -10,7 +10,10 @@
     var usuario = V.guardia();
     if (!usuario) return;
 
-    V.barra(usuario, 'contactos');
+    // Dentro de Vender / Arrendar la operación viene fija (<body data-operacion>): solo salen los de esa operación
+    var FIJA = document.body.getAttribute('data-operacion');
+    if (FIJA !== 'venta' && FIJA !== 'arriendo') FIJA = null;
+    if (!FIJA) V.barra(usuario, 'contactos');
 
     var ESTADOS = { nuevo: 'Nuevo', en_seguimiento: 'En seguimiento', cerrado: 'Cerrado', descartado: 'Descartado' };
     var ORDEN_ESTADOS = ['nuevo', 'en_seguimiento', 'cerrado', 'descartado'];
@@ -23,8 +26,7 @@
 
     var contactos = [];
     var visibles = POR_PAGINA;
-    var f = { estado: 'todos', operacion: 'todas', inmueble: 'todos', periodo: 'todo', orden: 'recientes', q: '' };
-
+    var f = { estado: 'todos', operacion: FIJA || 'todas', inmueble: 'todos', periodo: 'todo', orden: 'recientes', q: '' };
     function $(id) { return document.getElementById(id); }
 
     /* ---------- Utilidades ---------- */
@@ -57,7 +59,7 @@
     }
 
     function hayFiltros() {
-        return f.estado !== 'todos' || f.operacion !== 'todas' || f.inmueble !== 'todos' || f.periodo !== 'todo' || f.q !== '';
+        return f.estado !== 'todos' || f.operacion !== (FIJA || 'todas') || f.inmueble !== 'todos' || f.periodo !== 'todo' || f.q !== '';
     }
 
     function ordenar(lista) {
@@ -217,6 +219,7 @@
     /* ---------- Dirección (los filtros viajan en la URL) ---------- */
     function leerUrl() {
         var p = new URLSearchParams(window.location.search);
+        if (FIJA) return;
         if (ESTADOS[p.get('estado')]) f.estado = p.get('estado');
         if (OPERACIONES[p.get('operacion')]) f.operacion = p.get('operacion');
         if (p.get('inmueble') && /^\d+$/.test(p.get('inmueble'))) f.inmueble = p.get('inmueble');
@@ -227,6 +230,7 @@
 
     function sincronizarUrl() {
         var p = new URLSearchParams();
+        if (FIJA) return;
         if (f.estado !== 'todos') p.set('estado', f.estado);
         if (f.operacion !== 'todas') p.set('operacion', f.operacion);
         if (f.inmueble !== 'todos') p.set('inmueble', f.inmueble);
@@ -248,8 +252,7 @@
     async function cargar(silencioso) {
         try {
             var r = await V.api('/contactos');
-            contactos = r.data || [];
-            $('c-carga').hidden = true;
+            contactos = (r.data || []).filter(function (x) { return !FIJA || operacionDe(x) === FIJA; }); $('c-carga').hidden = true;
             $('c-lista').hidden = false;
             pintar();
             document.dispatchEvent(new CustomEvent('umbral:datos'));
@@ -275,12 +278,25 @@
     });
 
     function limpiar() {
-        f = { estado: 'todos', operacion: 'todas', inmueble: 'todos', periodo: 'todo', orden: f.orden, q: '' };
-        volcarFiltros();
+        f = { estado: 'todos', operacion: FIJA || 'todas', inmueble: 'todos', periodo: 'todo', orden: f.orden, q: '' }; volcarFiltros();
         reiniciarPagina();
         pintar();
     }
     $('c-limpiar').addEventListener('click', limpiar);
+    // Pestañas de la página: Inmuebles | Contactos
+    var pestanasPanel = document.getElementById('d-pestanas');
+    if (FIJA && pestanasPanel) {
+        pestanasPanel.addEventListener('click', function (e) {
+            var b = e.target.closest('[data-panel]');
+            if (!b) return;
+            var panel = b.getAttribute('data-panel');
+            document.getElementById('d-panel-inmuebles').hidden = panel !== 'inmuebles';
+            document.getElementById('d-panel-contactos').hidden = panel !== 'contactos';
+            Array.prototype.forEach.call(pestanasPanel.querySelectorAll('[data-panel]'), function (x) {
+                x.setAttribute('aria-pressed', String(x === b));
+            });
+        });
+    }
 
     $('c-pestanas').addEventListener('click', function (e) {
         var b = e.target.closest('[data-estado]');

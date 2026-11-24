@@ -54,7 +54,7 @@ class VendedorPublicacionTest extends TestCase
     {
         Membresia::create([
             'user_id' => $u->id, 'propiedad_id' => $propiedadId, 'plan' => $plan, 'precio' => 59900, 'estado' => 'activa',
-            'fecha_inicio' => now()->toDateString(), 'fecha_fin' => now()->addMonth()->toDateString(),
+            'fecha_inicio' => now('America/Bogota')->toDateString(), 'fecha_fin' => now('America/Bogota')->addMonth()->toDateString(),
         ]);
     }
 
@@ -175,7 +175,7 @@ class VendedorPublicacionTest extends TestCase
             ->assertCreated()->json('data.id');
         Membresia::create([
             'user_id' => $this->vendedor->id, 'propiedad_id' => $id, 'plan' => 'semanal', 'precio' => 19900, 'estado' => 'activa',
-            'fecha_inicio' => now()->subDays(20)->toDateString(), 'fecha_fin' => now()->subDays(13)->toDateString(),
+            'fecha_inicio' => now('America/Bogota')->subDays(20)->toDateString(), 'fecha_fin' => now('America/Bogota')->subDays(13)->toDateString(),
         ]);
 
         $publico = collect($this->getJson('/api/v1/public/propiedades')->assertOk()->json('data'))->firstWhere('id', $id);

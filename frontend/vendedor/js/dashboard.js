@@ -108,8 +108,8 @@
                 }).join('') + '</ul>' : '') +
                 (quedan > 0 ? (libres.length
                     ? '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><select data-sel-pq="' + q.id + '" style="flex:1;min-width:180px;padding:10px;border-radius:12px;border:1px solid var(--campo-borde);background:var(--campo);color:var(--texto)">' +
-                        libres.map(function (p) { return '<option value="' + p.id + '">' + V.esc(titulo(p)) + '</option>'; }).join('') + '</select>' +
-                        '<button type="button" class="v-btn v-btn-principal" data-agregar-pq="' + q.id + '">Usar un cupo (' + quedan + ' libre' + (quedan === 1 ? '' : 's') + ')</button></div>'
+                    libres.map(function (p) { return '<option value="' + p.id + '">' + V.esc(titulo(p)) + '</option>'; }).join('') + '</select>' +
+                    '<button type="button" class="v-btn v-btn-principal" data-agregar-pq="' + q.id + '">Usar un cupo (' + quedan + ' libre' + (quedan === 1 ? '' : 's') + ')</button></div>'
                     : '<small style="display:block;margin-top:8px;color:var(--texto-suave)">Te quedan ' + quedan + (quedan === 1 ? ' cupo' : ' cupos') + '. Publica otro inmueble para usarlo.</small>') : '') +
                 '</div>';
         }).join('') + '</div>';
@@ -619,14 +619,22 @@
         }, 80);
     }
 
-    // Busca la dirección escrita llamando a NUESTRA API (/api/v1/public/geocodificar) y pone el pin ahí
-    $('f-buscar').addEventListener('click', function () {
+    // Busca la dirección escrita llamando a NUESTRA API (/api/v1/public/geocodificar) y pone el pin ahí.
+    // Se llama sola cuando la persona deja de escribir (~1 s) o sale del campo; el botón queda como respaldo.
+    var buscandoDir = false, buscarOtraVez = false, esperaDir = null, ultimaConsulta = '', valorAlEnfocar = '';
+
+    function buscarDireccion(manual) {
         if (!mapa) return;
+        if (!form.ciudad.value.trim()) { if (manual) V.toast('Escribe al menos la ciudad para buscar.'); return; }
+        if (!manual && !form.direccion.value.trim()) return;   // en automático hace falta ciudad y dirección
+
         var consulta = [form.direccion.value, form.barrio.value, form.ciudad.value, form.departamento.value, 'Colombia']
             .map(function (t) { return t.trim(); }).filter(Boolean).join(', ');
-        if (!form.ciudad.value.trim()) { V.toast('Escribe al menos la ciudad para buscar.'); return; }
+        if (!manual && consulta === ultimaConsulta && pin) return;   // misma búsqueda: no se repite (límite 30 por minuto)
+        if (buscandoDir) { buscarOtraVez = true; return; }
 
-        var boton = this; boton.disabled = true;
+        buscandoDir = true; ultimaConsulta = consulta;
+        var boton = $('f-buscar'); boton.disabled = true;
         fetch('/api/v1/public/geocodificar?q=' + encodeURIComponent(consulta), { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
             .then(function (r) { if (!r.ok) throw new Error('api'); return r.json(); })
             .then(function (res) {
@@ -636,9 +644,30 @@
                 }
                 else { V.toast('No encontramos esa dirección. Marca el punto directamente en el mapa.'); }
             })
-            .catch(function () { V.toast('No se pudo buscar la dirección. Marca el punto en el mapa.'); })
-            .then(function () { boton.disabled = false; });
+            .catch(function () { ultimaConsulta = ''; V.toast('No se pudo buscar la dirección. Marca el punto en el mapa.'); })
+            .then(function () {
+                buscandoDir = false; boton.disabled = false;
+                if (buscarOtraVez) { buscarOtraVez = false; buscarDireccion(false); }
+            });
+    }
+
+    // En automático solo se busca si la dirección cambió desde que se entró al campo (o si aún no hay pin):
+    // así, al editar un inmueble, entrar y salir del campo no mueve el pin guardado.
+    function buscarAuto() {
+        var ahora = form.direccion.value + '|' + form.barrio.value;
+        if (pin && ahora === valorAlEnfocar) return;
+        buscarDireccion(false);
+    }
+
+    ['direccion', 'barrio'].forEach(function (campo) {
+        var el = form[campo];
+        el.addEventListener('focus', function () { valorAlEnfocar = form.direccion.value + '|' + form.barrio.value; });
+        el.addEventListener('input', function () { clearTimeout(esperaDir); esperaDir = setTimeout(buscarAuto, 1000); });
+        el.addEventListener('blur', function () { clearTimeout(esperaDir); buscarAuto(); });
     });
+    form.ciudad.addEventListener('change', function () { clearTimeout(esperaDir); buscarDireccion(false); });
+
+    $('f-buscar').addEventListener('click', function () { buscarDireccion(true); });
 
     $('f-gps').addEventListener('click', function () {
         if (!mapa) return;
@@ -811,7 +840,8 @@
             } else if (existente) {
                 V.toast('Inmueble actualizado.');
             } else {
-                V.toast(avisoEspera ? avisoEspera : publicado ? 'Inmueble publicado. Usa “Posicionar” si quieres destacarlo.' : 'Guardado como borrador. Publícalo desde su tarjeta.');            }
+                V.toast(avisoEspera ? avisoEspera : publicado ? 'Inmueble publicado. Usa “Posicionar” si quieres destacarlo.' : 'Guardado como borrador. Publícalo desde su tarjeta.');
+            }
             await cargar();
         } catch (err) {
             if (err.message !== 'Sin acceso') V.toast(err.message);
@@ -967,6 +997,7 @@
     document.addEventListener('click', async function (e) {
         var b = e.target.closest('[data-accion]');
         if (!b) return;
+        if (b.closest('#d-panel-contactos')) return;   // lo maneja contactos.js
 
         var accion = b.getAttribute('data-accion');
         var id = Number(b.getAttribute('data-id'));
@@ -975,7 +1006,7 @@
         if (accion === 'posicionar' && p) return abrirPlanes(p, 'pos');
         if (accion === 'pagarpublicar' && p) return abrirPlanes(p, 'pagar');
         if (accion === 'editar' && p) return abrirForm(p);
-        
+
         if (accion === 'eliminar' && !window.confirm('¿Eliminar este inmueble? También se quitarán sus contactos y visitas.')) return;
 
         b.disabled = true;
@@ -999,7 +1030,7 @@
     });
 
 
-        /* ---------- Visitas: programar a mano y refrescar cuando algo cambia ---------- */
+    /* ---------- Visitas: programar a mano y refrescar cuando algo cambia ---------- */
     $('d-visita-nueva').addEventListener('click', function () {
         var opciones = misInmuebles().filter(function (p) { return p.estado !== OP.cierre; })
             .map(function (p) { return { id: p.id, titulo: titulo(p) + ' · ' + V.cop(p.precio) }; });

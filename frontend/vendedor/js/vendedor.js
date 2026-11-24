@@ -135,7 +135,6 @@
         av_alertas: { es: 'Alertas', en: 'Alerts', pt: 'Alertas', fr: 'Alertes' },
         av_leer: { es: 'Marcar todo como leído', en: 'Mark all as read', pt: 'Marcar tudo como lido', fr: 'Tout marquer comme lu' },
         av_vacio: { es: 'Estás al día: no hay avisos por ahora.', en: 'You are all caught up: nothing new.', pt: 'Você está em dia: nada novo.', fr: 'Vous êtes à jour : rien de nouveau.' },
-        av_ver: { es: 'Ver todos los contactos', en: 'View all contacts', pt: 'Ver todos os contatos', fr: 'Voir tous les contacts' },
         av_ver: { es: 'Ver todo el historial', en: 'View full history', pt: 'Ver todo o histórico', fr: 'Voir tout l’historique' },
         av_contacto: { es: '{n} se interesó en tu inmueble', en: '{n} is interested in your property', pt: '{n} se interessou pelo seu imóvel', fr: '{n} s’intéresse à votre bien' },
         av_visita_pend: { es: 'Visita por confirmar', en: 'Visit to confirm', pt: 'Visita por confirmar', fr: 'Visite à confirmer' },
@@ -203,7 +202,7 @@
         var actual = SECCIONES.filter(function (s) { return s.id === activo; })[0];
 
         // Menú lateral agrupado
-        var html = '<a class="i-marca" href="/vendedor/incio.html"><span class="i-logo-marca"><img src="/img/icono.png" alt=""></span>' +
+        var html = '<a class="i-marca" href="/vendedor/inicio.html"><span class="i-logo-marca"><img src="/img/icono.png" alt=""></span>' +
             '<span><b>UMBRAL</b><small>' + esc(tx('rol')) + '</small></span></a>';
         ['g_principal', 'g_operaciones'].forEach(function (g) {
             html += '<div class="i-grupo">' + esc(tx(g)) + '</div><nav class="i-nav">' +
@@ -222,7 +221,8 @@
         cont.className = 'i-barra';
         cont.innerHTML =
             '<button type="button" class="i-icono" id="i-menu" aria-label="' + esc(tx('menu')) + '"><i class="fa-solid fa-bars"></i></button>' +
-            '<h1 class="i-titulo">' + esc(actual ? tx(actual.id) : '') + '</h1>' +
+            '<h1 class="i-titulo">' + (actual ? '<i class="fa-solid ' + actual.icono + ' i-titulo-icono" aria-hidden="true"></i>' : '') +
+            '<span class="i-titulo-texto">' + esc(actual ? tx(actual.id) : '') + '</span></h1>' +
             '<div class="i-idiomas" id="i-idioma" role="group" aria-label="' + esc(tx('idioma')) + '">' +
             Object.keys(IDIOMAS).map(function (k) { return '<button type="button" data-idioma="' + k + '" aria-pressed="' + (k === idioma ? 'true' : 'false') + '">' + k.toUpperCase() + '</button>'; }).join('') +
             '</div>' + htmlCampana() +
@@ -237,10 +237,10 @@
         });
         document.querySelectorAll('#i-idioma button').forEach(function (b) {
             b.addEventListener('click', function () {
-            idioma = this.getAttribute('data-idioma');
-            try { localStorage.setItem('umbral_lang', idioma); } catch (e) { }
-            document.documentElement.lang = idioma;
-            barra(usuarioActual, seccionActual);
+                idioma = this.getAttribute('data-idioma');
+                try { localStorage.setItem('umbral_lang', idioma); } catch (e) { }
+                document.documentElement.lang = idioma;
+                barra(usuarioActual, seccionActual);
             });
         });
         document.getElementById('i-menu').addEventListener('click', function () {
@@ -299,7 +299,8 @@
         if (!btn) return;
         function sinLeer(a) { return a.nueva; }
 
-        var pendientes = avisos.lista.filter(sinLeer).length;
+        // Mientras la campana está abierta ya se marcaron como leídas: el contador queda en 0
+        var pendientes = avisos.leyendo ? 0 : avisos.lista.filter(sinLeer).length;
         var num = porId('i-avisos-num');
         num.textContent = pendientes > 9 ? '9+' : String(pendientes);
         num.hidden = !pendientes;
@@ -333,8 +334,27 @@
     function abrirAvisos(abrir) {
         var panel = porId('i-avisos'), btn = porId('i-avisos-btn');
         if (!panel || !btn) return;
+        var estabaAbierta = !panel.hidden;
         panel.hidden = !abrir;
         btn.setAttribute('aria-expanded', abrir ? 'true' : 'false');
+
+        if (abrir && !estabaAbierta) {
+            // Al abrir: se marcan como leídas en el servidor y el contador queda en 0
+            // (los puntos de "nueva" se ven hasta que se cierre la campana)
+            var hayNuevas = avisos.lista.some(function (a) { return a.nueva; });
+            avisos.leyendo = true;
+            pintarAvisos();
+            if (hayNuevas) {
+                api('/notificaciones/leidas', { metodo: 'POST' }).catch(function () {
+                    avisos.leyendo = false;   // si falló, el contador vuelve a mostrarse
+                    pintarAvisos();
+                });
+            }
+        } else if (!abrir && estabaAbierta) {
+            avisos.leyendo = false;
+            avisos.lista.forEach(function (a) { a.nueva = false; });
+            pintarAvisos();
+        }
     }
 
     function montarAvisos() {

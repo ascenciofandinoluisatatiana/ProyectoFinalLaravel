@@ -244,3 +244,26 @@ dialog.v-ventana {
     .v-ventana form { padding-bottom: 14px; }
     .v-mapa { height: 200px; }
 }
+/* ---------- VE10: ajustes de 320 px ---------- */
+/* Pestañas Inmuebles | Contactos (Vender y Arrendar): alineadas con el contenido y de ancho completo en celular */
+#d-pestanas { padding: 0; }
+@media (max-width: 520px) {
+    #d-pestanas .i-pestana { flex: 1 1 0; justify-content: center; }
+}
+
+/* Filtros de contactos: en el celular más pequeño, una sola columna */
+@media (max-width: 339px) {
+    .c-filtros { grid-template-columns: minmax(0, 1fr); }
+    .c-estado { min-width: 0; width: 100%; }
+}
+
+/* Camino de pago (normal / Oro-Plata-Bronce): el texto largo baja de línea sin salirse */
+.v-caminos .v-plan { min-width: 0; overflow-wrap: anywhere; }
+
+/* ---------- Barra superior en celulares angostos: ícono en vez del título cortado ---------- */
+.i-titulo-icono { display: none; }
+@media (max-width: 400px) {
+    .i-barra .i-titulo { display: flex; align-items: center; flex: 1 1 0; min-width: 0; margin: 0; }
+    .i-barra .i-titulo-texto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .i-barra .i-titulo-icono { display: inline-block; font-size: 1.25rem; color: var(--op-texto); }
+}

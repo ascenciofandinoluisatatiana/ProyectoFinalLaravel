@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Throwable;
+use App\Jobs\CopiarImagenAlBucket;
 
 /**
  * Fotos de propiedades y de perfil en el Object Storage (disco "imagenes").
@@ -89,8 +90,7 @@ class ImagenService
         $flujo = null;
         try {
             $flujo = fopen($origen, 'rb');
-            $guardado = Storage::disk(self::DISCO)->put($clave, $flujo);
-            if ($guardado === false) {
+            $guardado = Storage::disk('public')->put($clave, $flujo);            if ($guardado === false) {
                 throw new \RuntimeException('El almacenamiento no confirmó el guardado.');
             }
         } catch (Throwable $e) {
@@ -101,6 +101,9 @@ class ImagenService
                 fclose($flujo);
             }
         }
+
+        // S9: la copia al bucket se hace en segundo plano; la foto ya se ve desde el disco local
+        CopiarImagenAlBucket::dispatch($clave);
 
         return [
             'ruta' => $clave,

@@ -134,6 +134,7 @@
                     (p.verificada ? '<span class="i-b verificada"><i class="fa-solid fa-circle-check"></i>Verificada</span>' : '') +
                 '</div>' +
                 (d ? '<span class="i-pcorona" title="Destacada"><i class="fa-solid fa-crown"></i>' + I.esc(d.en_paquete ? 'Paquete' : d.nombre_plan) + '</span>' : '') +
+                (!d && p.pos ? '<span class="i-pcorona i-ppos" title="Posicionada hasta el ' + I.esc(fechaIso(p.posicionada_hasta)) + '"><i class="fa-solid fa-arrow-up"></i>Posicionada</span>' : '') +
             '</div>' +
             '<div class="i-pbody">' +
                 '<div class="i-pprecio">' + I.cop(p.precio) + (renta ? '<small> / mes</small>' : '') + '</div>' +

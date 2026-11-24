@@ -1,6 +1,6 @@
 /* =========================================================
-   UMBRAL — Cuenta del agente: teléfono y contraseña
-   API: /api/v1/agente/yo, PUT /perfil, POST /perfil/clave
+   UMBRAL — Cuenta del agente: datos de solo lectura y cambio de contraseña (AG5)
+   API: /api/v1/agente/yo, POST /perfil/clave
    ========================================================= */
 (function () {
     'use strict';
@@ -30,17 +30,6 @@
         return '<article class="v-tarjeta i-dato"><i class="fa-solid ' + icono + '"></i><div><small>' + A.esc(titulo) + '</small>' +
             (valor ? '<b>' + A.esc(valor) + '</b>' : '<b class="vacio">Sin registrar</b>') + '</div></article>';
     }
-
-    $('d-datos').addEventListener('submit', async function (e) {
-        e.preventDefault();
-        var error = $('d-datos-error');
-        error.hidden = true;
-        try {
-            var r = await A.api('/perfil', { metodo: 'PUT', datos: { telefono: $('p-telefono').value.trim() } });
-            pintar(r.usuario);
-            A.toast(r.message);
-        } catch (err) { error.textContent = err.message; error.hidden = false; }
-    });
 
     $('d-clave').addEventListener('submit', async function (e) {
         e.preventDefault();

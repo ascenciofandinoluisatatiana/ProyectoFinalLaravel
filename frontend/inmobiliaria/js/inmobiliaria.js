@@ -132,10 +132,11 @@
 
         var json = await respuesta.json().catch(function () { return {}; });
         if (!respuesta.ok) {
-            // 422: se muestra el primer error de validación (en español, lo arma Laravel)
+            // 422: se muestra el primer error de validación (los mensajes en inglés de Laravel se pasan al español)
             var errores = json.errors ? Object.keys(json.errors).map(function (k) { return json.errors[k][0]; }) : [];
             if (respuesta.status === 419) errores = ['Tu sesión expiró. Recarga la página.'];
-            throw new Error(errores[0] || json.message || 'No se pudo completar la acción.');
+            var mensaje = errores[0] || json.message || 'No se pudo completar la acción.';
+            throw new Error(window.PanelExtra && window.PanelExtra.mensajeError ? window.PanelExtra.mensajeError(mensaje) : mensaje);
         }
         return json;
     }

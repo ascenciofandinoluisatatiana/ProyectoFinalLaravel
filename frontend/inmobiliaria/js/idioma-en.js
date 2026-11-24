@@ -251,6 +251,8 @@
         'Mínimo 8 caracteres. Te recomendamos cambiar la contraseña que te entregó la inmobiliaria.': 'At least 8 characters. We recommend changing the password your agency gave you.',
         'Tus datos los actualiza tu inmobiliaria. Pídele el cambio desde su panel.': 'Your agency updates your details. Ask them to change it from their panel.',
         'Agenda': 'Schedule',
+        'Tus datos los administra tu inmobiliaria. Aquí solo puedes cambiar tu contraseña.': 'Your agency manages your details. Here you can only change your password.',
+        '¿Algún dato está mal? Pídele a tu inmobiliaria que lo corrija desde su panel.': 'Is any detail wrong? Ask your agency to fix it from their panel.',
 
         /* ---------- Notificaciones (títulos fijos) ---------- */
         'Se te asignó una propiedad': 'A property was assigned to you', 'Pago aprobado': 'Payment approved', 'Pago rechazado': 'Payment rejected',
@@ -265,7 +267,26 @@
         'Cuenta lo que hace especial al inmueble: distribución, acabados, vista, cercanía a transporte, colegios o comercio…': 'Tell what makes the property special: layout, finishes, view, nearby transport, schools or shops…',
         'Las fotos se reducen automáticamente antes de subirlas. Los GIF (máximo 8 MB) se suben sin reducir, para que se sigan moviendo.': 'Photos are resized automatically before uploading. GIFs (max 8 MB) are uploaded without resizing, so they keep moving.',
         'El NIT y el correo no se pueden cambiar aquí porque fueron verificados. Si hay un error, escribe a soporte.': 'The tax ID and email cannot be changed here because they were verified. If there is a mistake, write to support.',
-        'Aún no tienes cierres. Cuando tu inmobiliaria marque como vendida o arrendada una propiedad a tu cargo, aquí verás tu comisión.': 'You have no closings yet. When your agency marks a property in your charge as sold or rented, you will see your commission here.'
+        'Aún no tienes cierres. Cuando tu inmobiliaria marque como vendida o arrendada una propiedad a tu cargo, aquí verás tu comisión.': 'You have no closings yet. When your agency marks a property in your charge as sold or rented, you will see your commission here.',
+
+        /* ---------- Mensajes del servidor ---------- */
+        'Agente activado.': 'Agent activated.', 'Agente desactivado.': 'Agent deactivated.', 'Categoría de imagen no permitida.': 'Image category not allowed.',
+        'Comisión marcada como pagada.': 'Commission marked as paid.', 'Comisión marcada como pendiente.': 'Commission marked as pending.',
+        'Correo o contraseña incorrectos.': 'Incorrect email or password.', 'El GIF no puede superar 8 MB.': 'The GIF cannot exceed 8 MB.',
+        'El agente no pertenece a tu inmobiliaria o está inactivo.': 'The agent does not belong to your agency or is inactive.',
+        'El almacenamiento no confirmó el guardado.': 'The storage did not confirm the save.',
+        'El archivo debe ser una imagen JPG, PNG, WebP o un GIF válido.': 'The file must be a valid JPG, PNG, WebP image or GIF.',
+        'El archivo está vacío.': 'The file is empty.', 'Esa publicación no está en ningún paquete.': 'That listing is not in any package.',
+        'Escribe el nombre de quien visita.': 'Enter the visitor’s name.', 'Escribe el teléfono o correo de quien visita.': 'Enter the visitor’s phone or email.',
+        'Esta cuenta no tiene acceso al panel de la inmobiliaria.': 'This account has no access to the agency panel.',
+        'Hay una característica que no es válida.': 'One of the features is not valid.', 'La contraseña debe tener al menos 8 caracteres.': 'The password must be at least 8 characters.',
+        'La foto debe ser una imagen JPG, PNG o WebP válida.': 'The photo must be a valid JPG, PNG or WebP image.',
+        'La nueva contraseña debe ser distinta a la actual.': 'The new password must be different from the current one.',
+        'La ubicación debe estar en Colombia.': 'The location must be in Colombia.',
+        'No pudimos guardar la foto en este momento. Intenta de nuevo en unos minutos.': 'We could not save the photo right now. Try again in a few minutes.',
+        'No se pudo recibir el archivo. Intenta de nuevo.': 'The file could not be received. Try again.',
+        'Tu cuenta está inactiva o pendiente de verificación.': 'Your account is inactive or pending verification.',
+        'Ya existe una cuenta con ese correo.': 'An account with that email already exists.', 'Ya existe una cuenta con ese documento.': 'An account with that ID already exists.'
     };
 
     /* Pedazos que acompañan a un número: "4 agentes", "7 en total"... */
@@ -329,6 +350,7 @@
         [/^¿Desactivar a (.+)\? Sus propiedades quedarán sin agente\.$/, function (m) { return 'Deactivate ' + m[1] + '? Their properties will be left without an agent.'; }],
         [/^¿Cancelar la visita de (.+)\?$/, function (m) { return 'Cancel the visit of ' + m[1] + '?'; }],
         [/^Contraseña de (.+) restablecida\. Compártela con el agente\.$/, function (m) { return 'Password for ' + m[1] + ' reset. Share it with the agent.'; }],
+        [/^Agente desactivado; (\d+) propiedad\(es\) quedaron sin agente\.$/, function (m) { return 'Agent deactivated; ' + m[1] + ' property(ies) were left without an agent.'; }],
         [/^Propiedad asignada a (.+)\.$/, function (m) { return 'Property assigned to ' + m[1] + '.'; }],
         [/^Estado actualizado\. Comisión de (.+): (\$ ?[\d.]+) \((\d+) %\)\.$/, function (m) { return 'Status updated. Commission for ' + m[1] + ': ' + m[2] + ' (' + m[3] + '%).'; }],
         [/^(Apartamento|Casa|Finca|Local|Lote|Oficina) en ([^·]+)$/i, function (m) { return TIPOS[m[1].toLowerCase()] + ' in ' + m[2]; }],
@@ -352,6 +374,7 @@
         [/^Posicionada · hasta el (.+)$/, function (m) { return 'Boosted · until ' + fecha(m[1]); }],
         [/^Posicionada hasta el (.+?)\. Si renuevas, los días se suman al final\.$/, function (m) { return 'Boosted until ' + fecha(m[1]) + '. If you renew, the days are added at the end.'; }],
         [/^Publicada hasta el (.+?)\. Si renuevas, los días se suman al final\.$/, function (m) { return 'Published until ' + fecha(m[1]) + '. If you renew, the days are added at the end.'; }],
+        [/^Posicionada hasta el ([^.]+)$/, function (m) { return 'Boosted until ' + fecha(m[1]); }],
         [/^Publicada hasta el (.+)$/, function (m) { return 'Published until ' + fecha(m[1]); }],
         [/^Ya está destacada con el plan (.+) hasta el (.+?)\. Si renuevas, el nuevo plan empieza cuando termine el actual\.$/, function (m) { return 'It is already featured with the ' + traducirTexto(m[1]) + ' plan until ' + fecha(m[2]) + '. If you renew, the new plan starts when the current one ends.'; }],
         [/^Plan (mensual|quincenal|semanal)$/i, function (m) { return { mensual: 'Monthly', quincenal: 'Biweekly', semanal: 'Weekly' }[m[1].toLowerCase()] + ' plan'; }],

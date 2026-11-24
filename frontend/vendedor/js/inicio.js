@@ -19,8 +19,7 @@
     }
 
     poner('p-nombre', usuario.nombre);
-    poner('p-correo-chip', usuario.email);
-
+    poner('p-correo-chip', (usuario.email || '').replace('@', '\u200B@'));
     /* ---------- Resumen de cada operación (desde la API) ---------- */
     function dato(valor, texto) { return '<div><b>' + valor + '</b><span>' + texto + '</span></div>'; }
 

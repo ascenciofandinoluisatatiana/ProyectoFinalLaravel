@@ -22,8 +22,7 @@
 
     function pintarCuenta() {
         poner('p-nombre-dato', usuario.nombre);
-        poner('p-correo', usuario.email);
-        poner('p-telefono', usuario.telefono || 'Sin registrar');
+        poner('p-correo', (usuario.email || '').replace('@', '\u200B@'));        poner('p-telefono', usuario.telefono || 'Sin registrar');
     }
     pintarCuenta();
 

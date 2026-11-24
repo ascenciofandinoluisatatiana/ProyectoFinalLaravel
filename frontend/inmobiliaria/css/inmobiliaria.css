@@ -726,3 +726,15 @@ dialog.v-ventana.i-ventana-ancha { width: min(860px, calc(100vw - 32px)); }
 #i-comprar .i-destacar-de { margin: 0; }
 #i-comprar .i-plan-opcion[disabled] { opacity: 0.55; cursor: not-allowed; }
 .i-plan .v-btn { justify-self: start; }
+
+/* ---------- IN12 / AG7: barra superior y menú en celular (Inmobiliaria y Agente) ---------- */
+.i-salir, .i-idiomas { flex: none; }
+@media (max-width: 400px) {
+    .i-barra { gap: 6px; padding: 12px; }
+    .i-titulo { display: none; }
+    .i-idiomas { margin-right: auto; height: 36px; }
+    .i-idiomas button { padding: 0 8px; }
+    .i-barra .i-icono, .i-salir { width: 36px; height: 36px; }
+    .i-lateral { width: min(270px, 86vw); }
+    .i-campana-panel { top: 66px; left: 12px; right: 12px; }
+}

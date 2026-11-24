@@ -148,7 +148,7 @@
     /* ---------- Idioma del panel ----------
        Misma preferencia que la página del invitado (clave "umbral_lang").
        Por ahora se traducen el menú y la barra; el contenido sigue en español. */
-    var IDIOMAS = { es: 'Español', en: 'English', pt: 'Português', fr: 'Français' };
+    var IDIOMAS = { es: 'Español', en: 'English' };   // los paneles solo tienen español e inglés
     var TEXTOS = {
             "menu": {
                     "es": "Menú",
@@ -318,9 +318,9 @@
         cont.innerHTML =
             '<button type="button" class="i-icono" id="i-menu" aria-label="' + esc(tx('menu')) + '"><i class="fa-solid fa-bars"></i></button>' +
             '<h1 class="i-titulo">' + esc(actual ? tx(actual.id) : '') + '</h1>' +
-            '<select class="i-idioma" id="i-idioma" aria-label="' + esc(tx('idioma')) + '">' +
-                Object.keys(IDIOMAS).map(function (k) { return '<option value="' + k + '"' + (k === idioma ? ' selected' : '') + '>' + IDIOMAS[k] + '</option>'; }).join('') +
-            '</select>' +
+            '<div class="i-idiomas" id="i-idioma" role="group" aria-label="' + esc(tx('idioma')) + '">' +
+            Object.keys(IDIOMAS).map(function (k) { return '<button type="button" data-idioma="' + k + '" aria-pressed="' + (k === idioma ? 'true' : 'false') + '">' + k.toUpperCase() + '</button>'; }).join('') +
+            '</div>' +
             '<div class="i-campana" id="i-campana"></div>' +
             '<button type="button" class="i-icono" id="i-tema" aria-label="' + esc(tx('tema')) + '" title="' + esc(tx('tema')) + '">' +
                 '<i class="fa-solid ' + (tema === 'dark' ? 'fa-sun' : 'fa-moon') + '"></i></button>' +
@@ -331,11 +331,13 @@
         document.getElementById('i-tema').addEventListener('click', function () {
             aplicarTema(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
         });
-        document.getElementById('i-idioma').addEventListener('change', function () {
-            idioma = this.value;
+        document.querySelectorAll('#i-idioma button').forEach(function (b) {
+            b.addEventListener('click', function () {
+            idioma = this.getAttribute('data-idioma');
             try { localStorage.setItem('umbral_lang', idioma); } catch (e) {}
             document.documentElement.lang = idioma;
             barra(usuarioActual, seccionActual);
+            });
         });
         document.getElementById('i-menu').addEventListener('click', function () {
             document.getElementById('i-lateral').classList.toggle('abierto');

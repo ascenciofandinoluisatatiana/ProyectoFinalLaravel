@@ -1,0 +1,105 @@
+/* =====================================================================
+   UMBRAL · invitado · CELULAR Y TABLET
+   Propiedades de a 2 por fila (en tablet y pantallas más grandes se van acomodando),
+   bloques de arriba más compactos y filtros plegados.
+   Se carga al final: no cambia nada del computador (más de 1100 px).
+   ===================================================================== */
+
+@media (max-width: 1100px) {
+  /* --- Propiedades: tarjetas verticales, varias por fila --- */
+  .cards, .rest-grid, .prem-wrap .prem-track {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr));
+    gap: 12px;
+  }
+  .cards > :not(.pcard) { grid-column: 1 / -1; }   /* bloque premium, títulos y avisos ocupan todo el ancho */
+
+  .pcard { flex-direction: column; min-height: 0; border-radius: 16px; }
+  .pcard .pimg { flex: none; width: 100%; min-width: 0; height: 128px; min-height: 0; font-size: 34px; }
+  .pcard .pbody { padding: 10px 11px 12px; gap: 5px; }
+  .pcard .price { font-size: 13px; line-height: 1.2; letter-spacing: -.2px; }
+  .pcard .price small { font-size: 10px; }
+  .pcard .ptitle { font-size: 13px; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .pcard .loc { font-size: 11px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+  .pcard .specs { gap: 8px; font-size: 11px; flex-wrap: wrap; }
+  .pcard .pfoot { gap: 6px; }
+  .pcard .mini-seller { display: none; }              /* el vendedor se ve al abrir "Detalles" */
+  .pcard .pactions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .pcard .pactions .btn { padding: 7px 4px; font-size: 11.5px; gap: 4px; justify-content: center; }
+  .pcard .badges { top: 7px; left: 7px; gap: 4px; }
+  .pcard .badges .b, .pcard .ver-pill, .pcard .tier-chip, .pcard .rank { font-size: 9.5px; padding: 3px 7px; }
+  .pcard .fav, .pcard .cmp { width: 30px; height: 30px; }
+}
+
+@media (max-width: 700px) {
+  .content { padding-left: 12px; padding-right: 12px; }
+  .cards, .rest-grid, .prem-wrap .prem-track { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+
+  /* --- Bloques de arriba más compactos --- */
+  .stats { gap: 8px; }
+  .stat { padding: 10px; }
+  .stat b { font-size: 20px; }
+  .stat span { font-size: 11px; }
+
+  /* Filtros plegados: un botón "Filtros" los abre y los cierra */
+  #filters.flt-plegado, #filters.flt-plegado.flt-fixed { display: none !important; }
+  .btn-filtros-movil {
+    display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+    margin: 4px 0 10px; padding: 11px 14px; border-radius: 14px; cursor: pointer;
+    background: var(--card); color: var(--primary2, #a855f7); border: 1px solid var(--border);
+    font: 700 14px/1 inherit; font-family: inherit;
+  }
+  .btn-filtros-movil[aria-expanded="true"] { border-color: var(--primary2, #a855f7); }
+}
+@media (min-width: 701px) { .btn-filtros-movil { display: none; } }
+
+/* Pantallas muy angostas: sigue siendo de a 2 */
+@media (max-width: 360px) {
+  .cards, .rest-grid, .prem-wrap .prem-track { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .pcard .pimg { height: 104px; }
+}
+
+/* =====================================================================
+   Celular: tarjetas más bajas y con letra pequeña (también las destacadas con medalla #1, ORO, Verificada).
+   Se usa !important porque las tarjetas destacadas traen sus propios tamaños grandes.
+   ===================================================================== */
+@media (max-width: 700px) {
+  .pcard .pimg { height: 100px !important; min-height: 0 !important; font-size: 28px !important; }
+  .pcard .pbody, .pcard.has-rank .pbody { padding: 8px 9px 10px !important; gap: 4px !important; }
+  .pcard .price, .pcard.is-prem .price { font-size: 14px !important; line-height: 1.15 !important; }
+  .pcard .price small { font-size: 9px !important; }
+  .pcard .ptitle { font-size: 12px !important; line-height: 1.25 !important; }
+  .pcard .loc { font-size: 10px !important; }
+  .pcard .specs { font-size: 10px !important; gap: 6px !important; padding: 2px 0 !important; }
+  .pcard .specs i { font-size: 9px !important; }
+
+  /* medalla, etiqueta de nivel y sellos sobre la foto: pequeños y sin amontonarse */
+  .pcard .rank { width: 26px !important; height: 26px !important; font-size: 10.5px !important; left: 7px !important; bottom: 7px !important; border-width: 2px !important; }
+  .pcard .tier-chip { display: none !important; }
+  .pcard .pimg .ver-pill { font-size: 0 !important; padding: 5px !important; right: 7px !important; bottom: 7px !important; gap: 0 !important; }
+  .pcard .pimg .ver-pill i { font-size: 11px !important; }
+  .pcard .badges { top: 7px !important; left: 7px !important; gap: 3px !important; }
+  .pcard .badges .b { font-size: 9px !important; padding: 3px 7px !important; letter-spacing: 0 !important; }
+  .pcard .badges .b-prem { font-size: 0 !important; padding: 4px 6px !important; }
+  .pcard .badges .b-prem i { font-size: 10px !important; }
+  .pcard .fav, .pcard .cmp { width: 26px !important; height: 26px !important; font-size: 11px !important; right: 7px !important; }
+  .pcard .fav { top: 7px !important; }
+  .pcard .cmp { top: 38px !important; }
+
+  /* pie: compartir pequeño y botones compactos */
+  /* compartir: botón pequeño sobre la foto, abajo a la derecha (no gasta una fila entera) */
+  .pcard .pbody { position: relative !important; }
+  .pcard .pfoot { position: absolute !important; top: -33px; right: 36px; margin: 0 !important; padding: 0 !important; z-index: 4; }
+  /* el bloque de destacadas ocupaba demasiado margen a los lados */
+  .prem-wrap { padding: 12px 8px 14px !important; }
+  .prem-wrap .prem-track { padding: 6px 0 10px !important; }
+  .cards { padding-left: 0 !important; padding-right: 0 !important; }
+  .pcard .sh-toggle, .pcard .pshare > button:first-child { width: 26px !important; height: 26px !important; font-size: 11px !important; }
+  .pcard .pactions { gap: 5px !important; }
+  .pcard .pactions .btn, .pcard .pactions .btn-sm { padding: 6px 4px !important; font-size: 10.5px !important; min-height: 0 !important; line-height: 1.1 !important;
+    border-radius: 10px !important; gap: 4px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .pcard .pactions .btn i { font-size: 10px !important; }
+}
+/* pantallas muy angostas (hasta 420 px): los dos botones uno encima del otro para que no se corten */
+@media (max-width: 420px) {
+  .pcard .pactions { grid-template-columns: 1fr !important; }
+}

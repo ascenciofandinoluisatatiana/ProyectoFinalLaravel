@@ -1,7 +1,9 @@
     /* ============ ESTADO ============ */
-    let lang = localStorage.getItem('umbral_lang');
+    // El idioma se comparte con el Inicio (clave 'umbral-idioma'); si no, la clave vieja, el navegador y por último español
+    let lang = null;
+    try { lang = localStorage.getItem('umbral-idioma') || localStorage.getItem('umbral_lang'); } catch (_) { }
     if (!LANGS.includes(lang)) { // GeoIP real: lo resuelve el backend (mapeo país–idioma); aquí se usa el navegador
-      const nav = (navigator.language || 'es').slice(0, 2); lang = LANGS.includes(nav) ? nav : 'en';
+      const nav = (navigator.language || 'es').slice(0, 2); lang = LANGS.includes(nav) ? nav : 'es';
     }
     let LOADING = true; setTimeout(() => { if (LOADING) { LOADING = false; try { render() } catch (_) { } } }, 6000);
     const S = { op: 'all', type: '', dept: '', city: '', barrio: '', max: '', beds: '', q: '', sort: 'rel', view: 'cards', favOnly: false, seller: null, showAll: false };

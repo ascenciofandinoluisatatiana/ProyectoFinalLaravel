@@ -59,7 +59,7 @@
     $('#fSort').onchange = e => { S.sort = e.target.value; render() };
     $('#fMax').oninput = e => { S.max = e.target.value; render() };
     $('#q').oninput = e => { S.q = e.target.value; render() };
-    $('#lang').onchange = e => { lang = e.target.value; try { localStorage.setItem('umbral_lang', lang) } catch (_) { } applyI18n() };
+    $('#lang').onchange = e => { lang = e.target.value; try { localStorage.setItem('umbral-idioma', lang) } catch (_) { } applyI18n() };
     ['cPrice', 'cDown', 'cRate', 'cYears'].forEach(i => $('#' + i).oninput = calc);
 
     /* tema claro / oscuro */
@@ -68,12 +68,20 @@
       raiz.classList.add('sin-transiciones');   // todo cambia en el mismo instante, sin desvanecerse
       raiz.dataset.theme = th;
       $('#themeBtn').innerHTML = `<i class="fa-solid ${th === 'dark' ? 'fa-sun' : 'fa-moon'}"></i>`;
-      try { localStorage.setItem('umbral_theme', th) } catch (_) { }
       void raiz.offsetWidth;                    // aplica el cambio ya, antes de volver a encender las transiciones
       requestAnimationFrame(function () { requestAnimationFrame(function () { raiz.classList.remove('sin-transiciones'); }); });
     }
-    $('#themeBtn').onclick = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
-    setTheme(localStorage.getItem('umbral_theme') || 'dark');
+    // El tema se comparte con el Inicio y los paneles: todos usan la clave 'umbral-tema'.
+    // Solo se guarda cuando la persona toca el botón (al abrir la página no se guarda nada).
+    $('#themeBtn').onclick = () => {
+      const nuevo = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      setTheme(nuevo);
+      try { localStorage.setItem('umbral-tema', nuevo) } catch (_) { }
+    };
+    // Si nunca eligió: oscuro (el predeterminado). Se respeta la clave vieja 'umbral_theme' si la tenía.
+    var temaGuardado = null;
+    try { temaGuardado = localStorage.getItem('umbral-tema') || localStorage.getItem('umbral_theme') } catch (_) { }
+    setTheme(temaGuardado === 'light' ? 'light' : 'dark');
     $('#menuBtn').setAttribute('aria-expanded', String(!document.documentElement.classList.contains('sb-hidden')));
 
     applyI18n();

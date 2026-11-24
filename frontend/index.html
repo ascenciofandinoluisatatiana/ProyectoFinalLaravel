@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Umbral · El paso hacia un nuevo hogar</title>
     <link rel="icon" type="image/png" href="img/icono.png">
+    <link rel="manifest" href="/manifest.webmanifest">
 
     <!-- Fuentes del diseño -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,7 +24,8 @@
     <link rel="stylesheet" href="css/menu-responsivo.css?v=1">
 
     <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
-    <script src="/assets/inline/tema-inicio.js"></script>
+    <link rel="stylesheet" href="css/modo-app.css?v=3">
+    <script src="js/modo-app.js"></script>
     <style>
         /* Alertas de los campos del registro */
         .campo-error { margin: 6px 4px 0; font-size: .8rem; font-weight: 600; line-height: 1.35; color: #d92d20; }
@@ -341,7 +343,7 @@
                     <span class="pais" data-i18n="app.etiqueta">APLICACIÓN MÓVIL</span>
                     <h2 class="titulo-serif" data-i18n="app.titulo">Descarga el aplicativo de Umbral</h2>
                     <p data-i18n="app.sub">Lleva tu búsqueda de hogar en el bolsillo: explora propiedades verificadas, guarda tus favoritas y consulta en cualquier momento desde tu celular Android.</p>
-                    <a href="descargas/umbral.apk" download="Umbral.apk" class="btn-principal btn-ancho-auto" id="descargar-app-seccion">
+                    <a href="#descargar" class="btn-principal btn-ancho-auto" id="descargar-app-seccion">
                         <span data-i18n="hero.app">Descargar app</span> <span aria-hidden="true">↓</span>
                     </a>
                     <small class="app-nota" data-i18n="app.nota">Disponible para Android (APK)</small>
@@ -614,5 +616,7 @@
     <script src="js/animaciones.js"></script>
 <script src="js/auth-param.js"></script>
     <script src="js/subir.js?v=1"></script>
+    <script src="js/pwa.js"></script>
+    <script src="js/instalar-app.js"></script>
 </body>
 </html>

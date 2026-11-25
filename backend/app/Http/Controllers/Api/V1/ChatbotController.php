@@ -21,7 +21,7 @@ class ChatbotController extends Controller
             'mensajes.*.rol'   => 'required|in:user,assistant',
             'mensajes.*.texto' => 'required|string|max:600',
             'mensajes.*.buscar' => 'nullable|array',
-            'idioma'           => 'nullable|in:es,en,pt,fr',
+            'idioma'           => 'nullable|in:es,en,pt,fr,ar,de,it,zh,ja,ko,ru,hi',
             // lo que hay HOY en el portal (lo manda la página con las propiedades que ya cargó)
             'ciudades'         => 'nullable|array|max:80',
             'ciudades.*'       => 'string|max:60',

@@ -28,7 +28,7 @@ class DeepSeekChatService
 
     /**
      * @param  array<int, array{rol: string, texto: string, buscar?: array|null}>  $mensajes  Conversación; el último debe ser del visitante
-     * @param  string  $idioma  es | en | pt | fr
+     * @param  string  $idioma  es | en | pt | fr | ar | de | it | zh | ja | ko | ru | hi
      * @param  array{ciudades?: string[], tipos?: string[]}  $catalogo  Ciudades y tipos que hay HOY en el portal (para que el asistente no invente)
      */
     public static function responder(array $mensajes, string $idioma = 'es', array $catalogo = []): array
@@ -204,7 +204,7 @@ class DeepSeekChatService
 
     private static function instrucciones(string $idioma, array $catalogo = []): string
     {
-        $nombres = ['es' => 'español', 'en' => 'inglés', 'pt' => 'portugués', 'fr' => 'francés'];
+        $nombres = ['es' => 'español', 'en' => 'inglés', 'pt' => 'portugués', 'fr' => 'francés', 'ar' => 'árabe', 'de' => 'alemán', 'it' => 'italiano', 'zh' => 'chino', 'ja' => 'japonés', 'ko' => 'coreano', 'ru' => 'ruso', 'hi' => 'hindi'];
         $idiomaNombre = $nombres[$idioma] ?? 'español';
 
         $lista = fn ($a) => implode(', ', array_slice(array_values(array_filter(array_map(
@@ -218,7 +218,7 @@ class DeepSeekChatService
 Eres "Umbra", el asistente virtual de UMBRAL, un portal inmobiliario de Colombia. Hablas con visitantes sin cuenta (invitados) que exploran propiedades para comprar o arrendar.
 
 REGLAS
-- Responde en el idioma del visitante; si no es claro, usa {$idiomaNombre}.
+- Responde SIEMPRE en el idioma del ÚLTIMO mensaje del visitante, aunque la página esté en otro idioma o los mensajes anteriores estén en otro. Si no es claro, usa {$idiomaNombre}. El JSON conserva las mismas claves en español ("respuesta", "buscar"); solo el texto de "respuesta" va en el idioma del visitante.
 - Sé amable, claro y breve: máximo 5 frases o una lista corta. Sin títulos ni tablas. Puedes usar **negrita** para lo importante.
 - FORMATO OBLIGATORIO: responde SIEMPRE un único objeto JSON válido, sin texto fuera del JSON, con esta forma exacta:
   {"respuesta": "texto para el visitante", "buscar": null}
@@ -252,7 +252,7 @@ Explorar y buscar
 - "Mis búsquedas": guarda los filtros que usas para repetirlos después. También hay "Vistos recientemente".
 - Comparador: se pueden comparar hasta 3 propiedades con el botón de comparar de la tarjeta.
 - Compartir: desde la tarjeta se envía por WhatsApp, Facebook, X o se copia el enlace.
-- El menú lateral se puede ocultar con el botón de las tres rayas. Idiomas: Español, English, Português y Français. Hay tema claro y oscuro (botón de la luna/sol arriba).
+- El menú lateral se puede ocultar con el botón de las tres rayas. Idiomas del Inicio y del Invitado: español, inglés, portugués, francés, árabe, alemán, italiano, chino, japonés, coreano, ruso y hindi (los paneles de gestión solo están en español e inglés). Hay tema claro y oscuro (botón de la luna/sol arriba).
 - Existe una app instalable (PWA): se instala gratis desde el navegador, en el celular o en el computador.
 
 Agendar visita

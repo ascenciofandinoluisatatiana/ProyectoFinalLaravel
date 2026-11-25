@@ -706,3 +706,13 @@ html td span[class*="rounded-full"], html td a[class*="rounded-full"] { white-sp
     html .tabla-mov .c-usuario { max-width: 15rem; }
     html .tabla-mov .c-detalle { min-width: 9rem; }
 }
+
+/* ---------- Idioma del panel: botones ES / EN (como el botón de tema) ---------- */
+.admin-idiomas { display: inline-flex; align-items: center; gap: 2px; height: 44px; padding: 3px; flex: none; border-radius: 12px; border: 1px solid var(--ad-borde); background: var(--ad-bg); }
+.admin-idiomas button { height: 100%; padding: 0 11px; border: 0; border-radius: 9px; background: transparent; color: var(--ad-text); font: inherit; font-size: 0.8rem; font-weight: 800; cursor: pointer; }
+.admin-idiomas button:hover { background: var(--ad-soft); }
+.admin-idiomas button[aria-pressed="true"] { background: var(--ad-primary); color: #fff; }
+.admin-idiomas button:focus-visible { outline: 2px solid var(--ad-primary); outline-offset: 1px; }
+@media (max-width: 420px) { .admin-idiomas { height: 38px; } .admin-idiomas button { padding: 0 8px; } }
+/* Celular: con los botones ES / EN la barra no alcanza; el título ya está grande en cada página */
+@media (max-width: 420px) { html .barra-titulo { display: none; } html .barra-sup .ml-auto { margin-left: auto; } }

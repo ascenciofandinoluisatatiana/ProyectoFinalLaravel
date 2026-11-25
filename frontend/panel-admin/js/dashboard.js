@@ -15,7 +15,7 @@
         var ahora = new Date();
         var h = ahora.getHours();
         document.getElementById('saludo-hora').textContent = h < 12 ? 'Buenos días' : (h < 19 ? 'Buenas tardes' : 'Buenas noches');
-        document.getElementById('reloj').textContent = ahora.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+        document.getElementById('reloj').textContent = ahora.toLocaleTimeString(window.UmbralIdioma ? 'en-US' : 'es-CO', { hour: '2-digit', minute: '2-digit' });
     }
 
     function pintarFecha() {
@@ -90,7 +90,7 @@
             ctx.fillText(total, x, y - 8);
             ctx.fillStyle = c.texto;
             ctx.font = '500 12px "Plus Jakarta Sans", system-ui, sans-serif';
-            ctx.fillText('cuentas', x, y + 16);
+            ctx.fillText(window.UmbralIdioma ? 'accounts' : 'cuentas', x, y + 16);
             ctx.restore();
         }
     };
@@ -108,7 +108,12 @@
         graficaLinea = new Chart(document.getElementById('grafica-registros'), {
             type: 'line',
             data: {
-                labels: registros.etiquetas,
+                labels: registros.etiquetas.map(function (e) {
+                    // En inglés: "Dic 25" → "Dec 25" (mes y año); los demás meses abreviados coinciden o se cambian aquí
+                    if (!window.UmbralIdioma) return e;
+                    var meses = { Ene: 'Jan', Abr: 'Apr', Ago: 'Aug', Dic: 'Dec', Sept: 'Sep' };
+                    return String(e).replace(/^(\S+)/, function (m) { return meses[m] || m; });
+                }),
                 datasets: [{
                     label: 'Nuevos usuarios',
                     data: registros.valores,
@@ -154,7 +159,7 @@
         graficaDona = new Chart(document.getElementById('grafica-roles'), {
             type: 'doughnut',
             data: {
-                labels: roles.map(function (r) { return r.rol; }),
+                labels: roles.map(function (r) { return window.UmbralIdioma ? window.UmbralIdioma.t(r.rol) : r.rol; }),
                 datasets: [{
                     data: roles.map(function (r) { return r.total; }),
                     backgroundColor: ['#9333ea', '#c084fc', '#10b981', '#f59e0b', '#3b82f6', '#e879f9'],

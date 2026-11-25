@@ -9,27 +9,27 @@
   'use strict';
 
   var TX = {
-    next: ['Siguientes pasos', 'Next steps', 'Próximos passos', 'Prochaines étapes'],
-    cuota: ['Cuota mensual estimada', 'Estimated monthly payment', 'Parcela mensal estimada', 'Mensualité estimée'],
-    ini: ['Cuota inicial', 'Down payment', 'Entrada', 'Apport'],
-    plazo: ['Plazo', 'Term', 'Prazo', 'Durée'],
-    anios: ['años', 'years', 'anos', 'ans'],
-    nota: ['Referencia con 12 % anual. El banco define la tasa, el plazo y los seguros reales.', 'Reference at 12% per year. Your bank sets the actual rate, term and insurance.', 'Referência com 12 % ao ano. O banco define a taxa, o prazo e os seguros reais.', 'Référence à 12 % par an. La banque fixe le taux, la durée et les assurances.'],
-    visita: ['Agendar visita', 'Schedule a visit', 'Agendar visita', 'Planifier une visite'],
-    umbra: ['Preguntar a Umbra', 'Ask Umbra', 'Perguntar à Umbra', 'Demander à Umbra'],
-    v_title: ['¿Cuándo quieres verlo?', 'When would you like to see it?', 'Quando você quer ver?', 'Quand souhaitez-vous le visiter ?'],
-    v_day: ['Día', 'Day', 'Dia', 'Jour'],
-    v_time: ['Hora', 'Time', 'Hora', 'Heure'],
-    v_name: ['Tu nombre', 'Your name', 'Seu nome', 'Votre nom'],
-    v_contact: ['Teléfono o correo', 'Phone or email', 'Telefone ou e-mail', 'Téléphone ou e-mail'],
-    v_note: ['Algo que quieras decir (opcional)', 'Anything you want to add (optional)', 'Algo que queira dizer (opcional)', 'Un mot à ajouter (facultatif)'],
-    v_send: ['Solicitar visita', 'Request visit', 'Solicitar visita', 'Demander la visite'],
-    v_hint: ['El vendedor te contactará para confirmar la hora. Horario: 7:00 a. m. a 7:00 p. m.', 'The seller will contact you to confirm. Hours: 7:00 am to 7:00 pm.', 'O vendedor entrará em contato para confirmar. Horário: 7h às 19h.', 'Le vendeur vous contactera pour confirmer. Horaires : 7h à 19h.'],
-    v_req: ['Completa tu nombre, contacto, día y hora.', 'Fill in your name, contact, day and time.', 'Preencha nome, contato, dia e hora.', 'Renseignez nom, contact, jour et heure.'],
-    v_ok: ['¡Solicitud enviada!', 'Request sent!', 'Solicitação enviada!', 'Demande envoyée !'],
-    v_ok2: ['Pediste visitar este inmueble el {c}. El vendedor te contactará para confirmar.', 'You asked to visit this property on {c}. The seller will contact you to confirm.', 'Você pediu para visitar este imóvel em {c}. O vendedor entrará em contato para confirmar.', 'Vous avez demandé à visiter ce bien le {c}. Le vendeur vous contactera pour confirmer.'],
-    v_err: ['No pudimos enviar la solicitud. Intenta de nuevo.', 'We couldn\'t send the request. Please try again.', 'Não foi possível enviar a solicitação. Tente novamente.', 'Impossible d\'envoyer la demande. Réessayez.'],
-    v_cancel: ['Cancelar', 'Cancel', 'Cancelar', 'Annuler']
+    next: ['Siguientes pasos', 'Next steps', 'Próximos passos', 'Prochaines étapes', 'الخطوات التالية', 'Nächste Schritte', 'Prossimi passi', '下一步', '次のステップ', '다음 단계', 'Следующие шаги', 'अगले कदम'],
+    cuota: ['Cuota mensual estimada', 'Estimated monthly payment', 'Parcela mensal estimada', 'Mensualité estimée', 'القسط الشهري التقديري', 'Geschätzte Monatsrate', 'Rata mensile stimata', '预计月供', '毎月の返済額（目安）', '예상 월 상환액', 'Примерный ежемесячный платёж', 'अनुमानित मासिक किस्त'],
+    ini: ['Cuota inicial', 'Down payment', 'Entrada', 'Apport', 'الدفعة الأولى', 'Anzahlung', 'Anticipo', '首付', '頭金', '계약금', 'Первый взнос', 'डाउन पेमेंट'],
+    plazo: ['Plazo', 'Term', 'Prazo', 'Durée', 'المدة', 'Laufzeit', 'Durata', '期限', '期間', '기간', 'Срок', 'अवधि'],
+    anios: ['años', 'years', 'anos', 'ans', 'سنوات', 'Jahre', 'anni', '年', '年', '년', 'лет', 'वर्ष'],
+    nota: ['Referencia con 12 % anual. El banco define la tasa, el plazo y los seguros reales.', 'Reference at 12% per year. Your bank sets the actual rate, term and insurance.', 'Referência com 12 % ao ano. O banco define a taxa, o prazo e os seguros reais.', 'Référence à 12 % par an. La banque fixe le taux, la durée et les assurances.', 'مرجع بفائدة 12% سنويًا. يحدد بنكك الفائدة والمدة والتأمين الفعلية.', 'Richtwert bei 12 % pro Jahr. Zins, Laufzeit und Versicherung legt deine Bank fest.', 'Indicativo al 12% annuo. Tasso, durata e assicurazioni li stabilisce la tua banca.', '按年利率 12% 估算。利率、期限和保险由你的银行确定。', '年利 12% での目安です。金利・期間・保険は銀行が決定します。', '연 12% 기준 참고치입니다. 이율, 기간, 보험은 은행에서 정합니다.', 'Ориентир при 12% годовых. Ставку, срок и страховки определяет ваш банк.', '12% वार्षिक दर पर अनुमान। ब्याज दर, अवधि और बीमा आपका बैंक तय करता है।'],
+    visita: ['Agendar visita', 'Schedule a visit', 'Agendar visita', 'Planifier une visite', 'حجز زيارة', 'Besichtigung planen', 'Prenota una visita', '预约看房', '内見を予約', '방문 예약', 'Записаться на просмотр', 'विज़िट बुक करें'],
+    umbra: ['Preguntar a Umbra', 'Ask Umbra', 'Perguntar à Umbra', 'Demander à Umbra', 'اسأل أومبرا', 'Frag Umbra', 'Chiedi a Umbra', '问问 Umbra', 'Umbra に聞く', 'Umbra에게 묻기', 'Спросить Umbra', 'Umbra से पूछें'],
+    v_title: ['¿Cuándo quieres verlo?', 'When would you like to see it?', 'Quando você quer ver?', 'Quand souhaitez-vous le visiter ?', 'متى تريد رؤيته؟', 'Wann möchtest du sie besichtigen?', 'Quando vuoi visitarlo?', '你想什么时候看房？', 'いつ内見しますか？', '언제 방문하시겠어요?', 'Когда хотите посмотреть?', 'आप कब देखना चाहेंगे?'],
+    v_day: ['Día', 'Day', 'Dia', 'Jour', 'اليوم', 'Tag', 'Giorno', '日期', '日付', '날짜', 'День', 'दिन'],
+    v_time: ['Hora', 'Time', 'Hora', 'Heure', 'الوقت', 'Uhrzeit', 'Ora', '时间', '時間', '시간', 'Время', 'समय'],
+    v_name: ['Tu nombre', 'Your name', 'Seu nome', 'Votre nom', 'اسمك', 'Dein Name', 'Il tuo nome', '你的姓名', 'お名前', '이름', 'Ваше имя', 'आपका नाम'],
+    v_contact: ['Teléfono o correo', 'Phone or email', 'Telefone ou e-mail', 'Téléphone ou e-mail', 'الهاتف أو البريد الإلكتروني', 'Telefon oder E-Mail', 'Telefono o e-mail', '电话或电子邮件', '電話番号またはメール', '전화 또는 이메일', 'Телефон или e-mail', 'फ़ोन या ईमेल'],
+    v_note: ['Algo que quieras decir (opcional)', 'Anything you want to add (optional)', 'Algo que queira dizer (opcional)', 'Un mot à ajouter (facultatif)', 'ما تريد إضافته (اختياري)', 'Möchtest du etwas ergänzen? (optional)', 'Vuoi aggiungere qualcosa? (facoltativo)', '还有什么要补充的吗？（可选）', '何か補足はありますか？（任意）', '추가할 내용이 있나요? (선택)', 'Хотите что-то добавить? (необязательно)', 'कुछ और जोड़ना चाहते हैं? (वैकल्पिक)'],
+    v_send: ['Solicitar visita', 'Request visit', 'Solicitar visita', 'Demander la visite', 'طلب زيارة', 'Besichtigung anfragen', 'Richiedi visita', '申请看房', '内見を申し込む', '방문 요청', 'Запросить просмотр', 'विज़िट का अनुरोध करें'],
+    v_hint: ['El vendedor te contactará para confirmar la hora. Horario: 7:00 a. m. a 7:00 p. m.', 'The seller will contact you to confirm. Hours: 7:00 am to 7:00 pm.', 'O vendedor entrará em contato para confirmar. Horário: 7h às 19h.', 'Le vendeur vous contactera pour confirmer. Horaires : 7h à 19h.', 'سيتواصل معك البائع للتأكيد. المواعيد: من 7:00 صباحًا حتى 7:00 مساءً.', 'Der Verkäufer meldet sich zur Bestätigung. Zeiten: 7:00 bis 19:00 Uhr.', 'Il venditore ti contatterà per confermare. Orari: dalle 7:00 alle 19:00.', '卖家会联系你确认。时间：7:00 至 19:00。', '確認のため売主から連絡があります。時間：7:00〜19:00。', '판매자가 확인을 위해 연락드립니다. 시간: 7:00~19:00.', 'Продавец свяжется с вами для подтверждения. Время: с 7:00 до 19:00.', 'पुष्टि के लिए विक्रेता आपसे संपर्क करेगा। समय: सुबह 7:00 से शाम 7:00 तक।'],
+    v_req: ['Completa tu nombre, contacto, día y hora.', 'Fill in your name, contact, day and time.', 'Preencha nome, contato, dia e hora.', 'Renseignez nom, contact, jour et heure.', 'املأ اسمك ووسيلة التواصل واليوم والوقت.', 'Fülle Name, Kontakt, Tag und Uhrzeit aus.', 'Compila nome, contatto, giorno e ora.', '请填写姓名、联系方式、日期和时间。', 'お名前、連絡先、日付、時間を入力してください。', '이름, 연락처, 날짜, 시간을 입력하세요.', 'Укажите имя, контакт, день и время.', 'नाम, संपर्क, दिन और समय भरें।'],
+    v_ok: ['¡Solicitud enviada!', 'Request sent!', 'Solicitação enviada!', 'Demande envoyée !', 'تم إرسال الطلب!', 'Anfrage gesendet!', 'Richiesta inviata!', '申请已发送！', '申し込みを送信しました！', '요청을 보냈습니다!', 'Запрос отправлен!', 'अनुरोध भेज दिया गया!'],
+    v_ok2: ['Pediste visitar este inmueble el {c}. El vendedor te contactará para confirmar.', 'You asked to visit this property on {c}. The seller will contact you to confirm.', 'Você pediu para visitar este imóvel em {c}. O vendedor entrará em contato para confirmar.', 'Vous avez demandé à visiter ce bien le {c}. Le vendeur vous contactera pour confirmer.', 'طلبت زيارة هذا العقار في {c}. سيتواصل معك البائع للتأكيد.', 'Du hast eine Besichtigung dieser Immobilie am {c} angefragt. Der Verkäufer meldet sich zur Bestätigung.', 'Hai richiesto di visitare questo immobile il {c}. Il venditore ti contatterà per confermare.', '你已申请于 {c} 参观这套房产。卖家会联系你确认。', '{c} にこの物件の内見を申し込みました。確認のため売主から連絡があります。', '{c}에 이 매물 방문을 요청했습니다. 판매자가 확인을 위해 연락드립니다.', 'Вы запросили просмотр этого объекта на {c}. Продавец свяжется с вами для подтверждения.', 'आपने {c} को इस संपत्ति को देखने का अनुरोध किया है। पुष्टि के लिए विक्रेता आपसे संपर्क करेगा।'],
+    v_err: ['No pudimos enviar la solicitud. Intenta de nuevo.', 'We couldn\'t send the request. Please try again.', 'Não foi possível enviar a solicitação. Tente novamente.', 'Impossible d\'envoyer la demande. Réessayez.', 'تعذّر إرسال الطلب. حاول مرة أخرى.', 'Die Anfrage konnte nicht gesendet werden. Versuche es erneut.', 'Impossibile inviare la richiesta. Riprova.', '无法发送申请，请重试。', '申し込みを送信できませんでした。もう一度お試しください。', '요청을 보내지 못했습니다. 다시 시도하세요.', 'Не удалось отправить запрос. Попробуйте снова.', 'अनुरोध भेजा नहीं जा सका। फिर से कोशिश करें।'],
+    v_cancel: ['Cancelar', 'Cancel', 'Cancelar', 'Annuler', 'إلغاء', 'Abbrechen', 'Annulla', '取消', 'キャンセル', '취소', 'Отмена', 'रद्द करें']
   };
   function I() { try { var i = LANGS.indexOf(lang); return i < 0 ? 0 : i; } catch (_) { return 0; } }
   function X(k, v) {

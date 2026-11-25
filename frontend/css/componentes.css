@@ -551,3 +551,6 @@
 .aviso-privacidad strong { display: block; margin-bottom: 4px; font-size: 0.85rem; color: inherit; }
 .aviso-privacidad p { margin: 0; }
 .fila-privacidad { margin-top: 12px; }
+
+/* 12 idiomas: el menú no pasa de la pantalla y se desplaza por dentro */
+#idioma-menu { max-height: min(70vh, 440px); overflow-y: auto; overscroll-behavior: contain; }

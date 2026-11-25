@@ -1,6 +1,7 @@
 /* =========================================================
-   UMBRAL — Inglés para los paneles de Inmobiliaria y Agente
-   Solo se carga cuando el idioma elegido es "en" (botones ES / EN).
+   UMBRAL — Diccionario de inglés de los paneles de Inmobiliaria y Agente
+   (también lo usa el Vendedor como base). Solo se carga cuando el idioma es "en" (botones ES / EN).
+   El motor que traduce la página está en /assets/traductor-en.js.
    Traduce todo lo que se ve en la página: textos, botones, ventanas, avisos,
    placeholders, títulos y confirmaciones, también lo que se dibuja después.
    Los datos que escribe la gente (nombres, direcciones, mensajes) no se tocan.
@@ -301,9 +302,6 @@
         'días': 'days', 'día': 'day', 'publicación': 'listing', 'publicaciones': 'listings', 'cierres': 'closings', 'cierre': 'closing', 'contactos': 'contacts'
     };
 
-    var MESES_CORTOS = { ene: 'Jan', feb: 'Feb', mar: 'Mar', abr: 'Apr', may: 'May', jun: 'Jun', jul: 'Jul', ago: 'Aug', sept: 'Sep', sep: 'Sep', oct: 'Oct', nov: 'Nov', dic: 'Dec' };
-    var MESES = { enero: 'January', febrero: 'February', marzo: 'March', abril: 'April', mayo: 'May', junio: 'June', julio: 'July', agosto: 'August', septiembre: 'September', octubre: 'October', noviembre: 'November', diciembre: 'December' };
-    var DIAS = { lun: 'Mon', mar: 'Tue', 'mié': 'Wed', jue: 'Thu', vie: 'Fri', 'sáb': 'Sat', dom: 'Sun' };
     var ESTADOS = { 'en seguimiento': 'following up', 'nuevo': 'new', 'cerrado': 'closed', 'descartado': 'discarded', 'pendiente': 'pending', 'confirmada': 'confirmed',
         'realizada': 'done', 'cancelada': 'canceled', 'publicada': 'published', 'pausada': 'paused', 'borrador': 'draft', 'vendida': 'sold', 'arrendada': 'rented',
         'activo': 'active', 'inactivo': 'inactive', 'pagada': 'paid' };
@@ -311,208 +309,109 @@
         'la venta': 'the sale', 'el pago': 'the payment', 'la comisión': 'the commission', 'el perfil': 'the profile', 'el panel': 'the panel' };
     var TIPOS = { apartamento: 'Apartment', casa: 'House', finca: 'Farm', local: 'Retail space', lote: 'Lot', oficina: 'Office' };
 
-    function conteo(n, frase) {
-        var en = CONTEOS[frase];
-        if (!en) return null;
-        if (n === '1') en = en.replace(/^(properties)\b/, 'property').replace(/^results$/, 'result');
-        return n + ' ' + en;
+
+    // Reglas para textos con números, nombres o fechas. h trae las ayudas del traductor común.
+    function reglas(h) {
+        var traducirTexto = h.t, fecha = h.fecha, lista = h.lista, conteo = h.conteo;
+        return [
+            [/^(\d+) (.+)$/, function (m) { return conteo(m[1], m[2]); }],
+            [/^Mostrando (\d+)[–-](\d+) de (\d+)$/, function (m) { return 'Showing ' + m[1] + '–' + m[2] + ' of ' + m[3]; }],
+            [/^\((\d+) de (\d+)\)$/, function (m) { return '(' + m[1] + ' of ' + m[2] + ')'; }],
+            [/^(\d+) de (\d+) publicaciones destacadas$/, function (m) { return m[1] + ' of ' + m[2] + ' listings featured'; }],
+            [/^(\d+) de (\d+) cupos usados\. Quita una publicación para liberar su cupo\.$/, function (m) { return m[1] + ' of ' + m[2] + ' slots used. Remove a listing to free its slot.'; }],
+            [/^(\d+) ?% de descuento$/, function (m) { return m[1] + '% off'; }],
+            [/^(\d+) ?% pagado$/, function (m) { return m[1] + '% paid'; }],
+            [/^(\d+) ?% pendiente$/, function (m) { return m[1] + '% pending'; }],
+            [/^(\d+) ?% de cada venta o canon de arriendo$/, function (m) { return m[1] + '% of each sale or monthly rent'; }],
+            [/^(\d+) días destacada$/, function (m) { return 'Featured for ' + m[1] + ' days'; }],
+            [/^(\d+) días de vigencia$/, function (m) { return 'Valid for ' + m[1] + ' days'; }],
+            [/^Visible en el portal (\d+) días$/, function (m) { return 'Visible on the portal for ' + m[1] + ' days'; }],
+            [/^De primeras entre las normales (\d+) días$/, function (m) { return 'First among standard listings for ' + m[1] + ' days'; }],
+            [/^(\d+)° lugar$/, function (m) { return ['', '1st', '2nd', '3rd'][m[1]] ? ['', '1st', '2nd', '3rd'][m[1]] + ' place' : m[1] + 'th place'; }],
+            [/^Ver todas \((\d+)\)$/, function (m) { return 'View all (' + m[1] + ')'; }],
+            [/^Notificaciones \((\d+) nuevas?\)$/, function (m) { return 'Notifications (' + m[1] + ' new)'; }],
+            // Solo el saludo del panel ("Hola, Nombre"); un mensaje de un cliente que empiece con "Hola," no se toca
+            [/^Hola, ([A-ZÁÉÍÓÚÑ][^¿?.!,:]{0,60})$/, function (m) { return 'Hello, ' + m[1]; }],
+            [/^Agente de (.+)\. Tus visitas, tus contactos nuevos y las propiedades que tienes a cargo\.$/, function (m) { return 'Agent at ' + m[1] + '. Your visits, your new contacts and the properties in your charge.'; }],
+            [/^Agente: (.+)$/, function (m) { return 'Agent: ' + m[1]; }],
+            [/^(.+) \(inactivo\)$/, function (m) { return m[1] + ' (inactive)'; }],
+            [/^Editar datos de (.+)$/, function (m) { return 'Edit details of ' + m[1]; }],
+            [/^Restablecer contraseña de (.+)$/, function (m) { return 'Reset password for ' + m[1]; }],
+            [/^Activar a (.+)$/, function (m) { return 'Activate ' + m[1]; }],
+            [/^Desactivar a (.+)$/, function (m) { return 'Deactivate ' + m[1]; }],
+            [/^¿Desactivar a (.+)\? Sus propiedades quedarán sin agente\.$/, function (m) { return 'Deactivate ' + m[1] + '? Their properties will be left without an agent.'; }],
+            [/^¿Cancelar la visita de (.+)\?$/, function (m) { return 'Cancel the visit of ' + m[1] + '?'; }],
+            [/^Contraseña de (.+) restablecida\. Compártela con el agente\.$/, function (m) { return 'Password for ' + m[1] + ' reset. Share it with the agent.'; }],
+            [/^Agente desactivado; (\d+) propiedad\(es\) quedaron sin agente\.$/, function (m) { return 'Agent deactivated; ' + m[1] + ' property(ies) were left without an agent.'; }],
+            [/^Propiedad asignada a (.+)\.$/, function (m) { return 'Property assigned to ' + m[1] + '.'; }],
+            [/^Estado actualizado\. Comisión de (.+): (\$ ?[\d.]+) \((\d+) %\)\.$/, function (m) { return 'Status updated. Commission for ' + m[1] + ': ' + m[2] + ' (' + m[3] + '%).'; }],
+            [/^(Apartamento|Casa|Finca|Local|Lote|Oficina) en ([^·]+)$/i, function (m) { return TIPOS[m[1].toLowerCase()] + ' in ' + m[2]; }],
+            [/^(Nuevo contacto|Contacto asignado|Nueva visita|Visita asignada|Visita próxima|Visita pendiente|Visita confirmada|Visita realizada|Visita cancelada|Venta cerrada|Arriendo cerrado|Pago aprobado|Publicación por vencer|Posicionamiento por vencer): (.+)$/, function (m) {
+                var t = { 'Nuevo contacto': 'New contact', 'Contacto asignado': 'Contact assigned', 'Nueva visita': 'New visit', 'Visita asignada': 'Visit assigned',
+                    'Visita próxima': 'Upcoming visit', 'Visita pendiente': 'Visit pending', 'Visita confirmada': 'Visit confirmed', 'Visita realizada': 'Visit done',
+                    'Visita cancelada': 'Visit canceled', 'Venta cerrada': 'Sale closed', 'Arriendo cerrado': 'Rental closed', 'Pago aprobado': 'Payment approved',
+                    'Publicación por vencer': 'Listing about to expire', 'Posicionamiento por vencer': 'Boost about to expire' }[m[1]];
+                return t + ': ' + traducirTexto(m[2]);
+            }],
+            [/^Comisión de (.+): (\$ ?[\d.]+)$/, function (m) { return 'Commission for ' + m[1] + ': ' + m[2]; }],
+            [/^Ganaste una comisión de (.+)$/, function (m) { return 'You earned a commission of ' + m[1]; }],
+            [/^Te pagaron la comisión de (.+)$/, function (m) { return 'Your commission of ' + m[1] + ' was paid'; }],
+            [/^hasta el (.+)$/, function (m) { return 'until ' + fecha(m[1]); }],
+            [/^vence el (.+)$/, function (m) { return 'expires ' + fecha(m[1]); }],
+            [/^Le quedan (\d+) días?$/, function (m) { return m[1] + ' day' + (m[1] === '1' ? '' : 's') + ' left'; }],
+            [/^Aprobado: (.+)$/, function (m) { return 'Approved: ' + m[1]; }],
+            [/^Falta: (.+)$/, function (m) { return 'Missing: ' + lista(m[1]); }],
+            [/^Para que el invitado la vea completa, falta: (.+)$/, function (m) { return 'For guests to see it complete, it still needs: ' + lista(m[1]); }],
+            [/^Tu paquete (.+)$/, function (m) { return 'Your ' + traducirTexto(m[1]) + ' package'; }],
+            [/^Posicionada · hasta el (.+)$/, function (m) { return 'Boosted · until ' + fecha(m[1]); }],
+            [/^Posicionada hasta el (.+?)\. Si renuevas, los días se suman al final\.$/, function (m) { return 'Boosted until ' + fecha(m[1]) + '. If you renew, the days are added at the end.'; }],
+            [/^Publicada hasta el (.+?)\. Si renuevas, los días se suman al final\.$/, function (m) { return 'Published until ' + fecha(m[1]) + '. If you renew, the days are added at the end.'; }],
+            [/^Posicionada hasta el ([^.]+)$/, function (m) { return 'Boosted until ' + fecha(m[1]); }],
+            [/^Publicada hasta el (.+)$/, function (m) { return 'Published until ' + fecha(m[1]); }],
+            [/^Ya está destacada con el plan (.+) hasta el (.+?)\. Si renuevas, el nuevo plan empieza cuando termine el actual\.$/, function (m) { return 'It is already featured with the ' + traducirTexto(m[1]) + ' plan until ' + fecha(m[2]) + '. If you renew, the new plan starts when the current one ends.'; }],
+            [/^Plan (mensual|quincenal|semanal)$/i, function (m) { return { mensual: 'Monthly', quincenal: 'Biweekly', semanal: 'Weekly' }[m[1].toLowerCase()] + ' plan'; }],
+            [/^(mensual|quincenal|semanal)$/, function (m) { return { mensual: 'monthly', quincenal: 'biweekly', semanal: 'weekly' }[m[1]]; }],
+            [/^Membresía (mensual|quincenal|semanal) de la cuenta activa$/, function (m) { return { mensual: 'Monthly', quincenal: 'Biweekly', semanal: 'Weekly' }[m[1]] + ' account membership active'; }],
+            [/^Vence el (.+?)\. Desde ahora la membresía se compra por publicación en Propiedades\.$/, function (m) { return 'Expires ' + fecha(m[1]) + '. From now on, membership is bought per listing in Properties.'; }],
+            [/^Aparecen primero en el portal\. La próxima vence el (.+?)\.?$/, function (m) { return 'They show first on the portal. The next one expires ' + fecha(m[1]) + '.'; }],
+            [/^Salen primero en el portal mientras su plan esté vigente\.(.*)$/, function (m) { return 'They show first on the portal while their plan is active.' + (m[1] ? ' ' + traducirTexto(m[1].trim()) : ''); }],
+            [/^También tienes una membresía de toda la cuenta \(plan (.+)\) hasta el (.+?)\. Al vencer, ya no se renueva: ahora es por publicación\.$/, function (m) { return 'You also have a whole-account membership (' + traducirTexto(m[1]) + ' plan) until ' + fecha(m[2]) + '. When it expires it is not renewed: it is now per listing.'; }],
+            [/^¿Comprar el paquete (.+) \((\d+) días\) por (.+)\?([\s\S]*)$/, function (m) { return 'Buy the ' + traducirTexto(m[1]) + ' package (' + m[2] + ' days) for ' + m[3] + '?' + m[4].replace('(Pago simulado: el servidor no tiene llaves de Wompi)', '(Simulated payment: the server has no Wompi keys)').replace('Te llevaremos a Wompi para pagar.', 'We will take you to Wompi to pay.'); }],
+            [/^(.+?)(: membresía renovada|: destacada) hasta el (.+) \(pago simulado\)\.$/, function (m) { return traducirTexto(m[1]) + (m[2] === ': destacada' ? ': featured' : ': membership renewed') + ' until ' + m[3] + ' (simulated payment).'; }],
+            [/^(Propiedad publicada|Publicación renovada|Propiedad posicionada|Posicionamiento renovado) hasta el (.+) \(pago simulado\)\.$/, function (m) {
+                return { 'Propiedad publicada': 'Property published', 'Publicación renovada': 'Listing renewed', 'Propiedad posicionada': 'Property boosted', 'Posicionamiento renovado': 'Boost renewed' }[m[1]] + ' until ' + m[2] + ' (simulated payment).';
+            }],
+            [/^Paquete (.+) activo hasta el (.+)$/, function (m) { return traducirTexto(m[1]) + ' package active until ' + m[2]; }],
+            [/^(.+) agregada al paquete (.+) \((\d+) de (\d+)\)\.$/, function (m) { return traducirTexto(m[1]) + ' added to the ' + traducirTexto(m[2]) + ' package (' + m[3] + ' of ' + m[4] + ').'; }],
+            [/^(.+) salió del paquete\. Tienes un cupo libre\.$/, function (m) { return traducirTexto(m[1]) + ' left the package. You have a free slot.'; }],
+            [/^Ya usaste los (\d+) cupos de este paquete\. Quita una publicación para poner otra\.$/, function (m) { return 'You already used the ' + m[1] + ' slots of this package. Remove a listing to add another.'; }],
+            [/^Ubicación marcada: (.+?)\. Puedes arrastrar el pin para ajustarlo\.$/, function (m) { return 'Location marked: ' + m[1] + '. You can drag the pin to adjust it.'; }],
+            [/^Solo caben (\d+) foto\(s\) más\. Se tomaron las primeras\.$/, function (m) { return 'Only ' + m[1] + ' more photo(s) fit. The first ones were taken.'; }],
+            [/^(\d+) foto\(s\) no se pudieron guardar; inténtalo de nuevo desde Editar\.$/, function (m) { return m[1] + ' photo(s) could not be saved; try again from Edit.'; }],
+            [/^No se pueden agregar GIF de más de 8 MB\. “(.+)” (.*)$/, function (m) { return 'GIFs larger than 8 MB cannot be added. “' + m[1] + '” ' + m[2]; }],
+            [/^No se pudo procesar “(.+)”\.?(.*)$/, function (m) { return 'Could not process “' + m[1] + '”.' + m[2]; }],
+            [/^“(.+)” es demasiado pesada\. Prueba con otra foto\.$/, function (m) { return '“' + m[1] + '” is too large. Try another photo.'; }],
+            [/^Periodo: (.+) a (.+)$/, function (m) { return 'Period: ' + (m[1] === 'el inicio' ? 'the beginning' : fecha(m[1])) + ' to ' + (m[2] === 'hoy' ? 'today' : fecha(m[2])); }],
+            [/^Generado el (.+)$/, function (m) { return 'Generated on ' + fecha(m[1]); }],
+            [/^Página (\d+)$/, function (m) { return 'Page ' + m[1]; }],
+            [/^(Creó|Editó|Eliminó|Publicó|Pausó|Pasó a borrador|Marcó como vendida|Marcó como arrendada|Activó al|Desactivó al) ?(la propiedad|el contacto|la visita|el agente|agente|la membresía|la venta|el pago|la comisión|el perfil)?( #\d+)?$/, function (m) {
+                var verbo = { 'Creó': 'Created', 'Editó': 'Edited', 'Eliminó': 'Deleted', 'Publicó': 'Published', 'Pausó': 'Paused', 'Pasó a borrador': 'Moved to draft',
+                    'Marcó como vendida': 'Marked as sold', 'Marcó como arrendada': 'Marked as rented', 'Activó al': 'Activated', 'Desactivó al': 'Deactivated' }[m[1]];
+                var ent = m[2] === 'agente' ? 'the agent' : (ENTIDADES[m[2]] || m[2] || '');
+                return verbo + (ent ? ' ' + ent : '') + (m[3] || '');
+            }],
+            [/^Cambió el estado (del|de la) (contacto|visita|propiedad|agente|comisión)( #\d+)? a (.+)$/, function (m) {
+                var ent = { contacto: 'contact', visita: 'visit', propiedad: 'property', agente: 'agent', 'comisión': 'commission' }[m[2]];
+                return 'Changed the status of the ' + ent + (m[3] || '') + ' to ' + (ESTADOS[m[4]] || m[4]);
+            }],
+            [/^Error al (crear|editar|eliminar) (.+?)( #\d+)? \((\d+)\)$/, function (m) {
+                return 'Error trying to ' + { crear: 'create', editar: 'edit', eliminar: 'delete' }[m[1]] + ' ' + (ENTIDADES[m[2]] || m[2]) + (m[3] || '') + ' (' + m[4] + ')';
+            }],
+            [/^(Dom|Lun|Mar|Mié|Jue|Vie|Sáb) (\d+)$/, function (m) { return { Dom: 'Sun', Lun: 'Mon', Mar: 'Tue', 'Mié': 'Wed', Jue: 'Thu', Vie: 'Fri', 'Sáb': 'Sat' }[m[1]] + ' ' + m[2]; }],
+            [/^hace (\d+) (min|h|días?)$/, function (m) { return m[1] + ' ' + (m[2].indexOf('d') === 0 ? (m[1] === '1' ? 'day' : 'days') : m[2]) + ' ago'; }]
+        ];
     }
 
-    function fecha(s) { return enLinea(s); }
-
-    // Cada regla: [expresión, función que recibe el resultado del match]
-    var REGLAS = [
-        [/^(\d+) (.+)$/, function (m) { return conteo(m[1], m[2]); }],
-        [/^Mostrando (\d+)[–-](\d+) de (\d+)$/, function (m) { return 'Showing ' + m[1] + '–' + m[2] + ' of ' + m[3]; }],
-        [/^\((\d+) de (\d+)\)$/, function (m) { return '(' + m[1] + ' of ' + m[2] + ')'; }],
-        [/^(\d+) de (\d+) publicaciones destacadas$/, function (m) { return m[1] + ' of ' + m[2] + ' listings featured'; }],
-        [/^(\d+) de (\d+) cupos usados\. Quita una publicación para liberar su cupo\.$/, function (m) { return m[1] + ' of ' + m[2] + ' slots used. Remove a listing to free its slot.'; }],
-        [/^(\d+) ?% de descuento$/, function (m) { return m[1] + '% off'; }],
-        [/^(\d+) ?% pagado$/, function (m) { return m[1] + '% paid'; }],
-        [/^(\d+) ?% pendiente$/, function (m) { return m[1] + '% pending'; }],
-        [/^(\d+) ?% de cada venta o canon de arriendo$/, function (m) { return m[1] + '% of each sale or monthly rent'; }],
-        [/^(\d+) días destacada$/, function (m) { return 'Featured for ' + m[1] + ' days'; }],
-        [/^(\d+) días de vigencia$/, function (m) { return 'Valid for ' + m[1] + ' days'; }],
-        [/^Visible en el portal (\d+) días$/, function (m) { return 'Visible on the portal for ' + m[1] + ' days'; }],
-        [/^De primeras entre las normales (\d+) días$/, function (m) { return 'First among standard listings for ' + m[1] + ' days'; }],
-        [/^(\d+)° lugar$/, function (m) { return ['', '1st', '2nd', '3rd'][m[1]] ? ['', '1st', '2nd', '3rd'][m[1]] + ' place' : m[1] + 'th place'; }],
-        [/^Ver todas \((\d+)\)$/, function (m) { return 'View all (' + m[1] + ')'; }],
-        [/^Notificaciones \((\d+) nuevas?\)$/, function (m) { return 'Notifications (' + m[1] + ' new)'; }],
-        // Solo el saludo del panel ("Hola, Nombre"); un mensaje de un cliente que empiece con "Hola," no se toca
-        [/^Hola, ([A-ZÁÉÍÓÚÑ][^¿?.!,:]{0,60})$/, function (m) { return 'Hello, ' + m[1]; }],
-        [/^Agente de (.+)\. Tus visitas, tus contactos nuevos y las propiedades que tienes a cargo\.$/, function (m) { return 'Agent at ' + m[1] + '. Your visits, your new contacts and the properties in your charge.'; }],
-        [/^Agente: (.+)$/, function (m) { return 'Agent: ' + m[1]; }],
-        [/^(.+) \(inactivo\)$/, function (m) { return m[1] + ' (inactive)'; }],
-        [/^Editar datos de (.+)$/, function (m) { return 'Edit details of ' + m[1]; }],
-        [/^Restablecer contraseña de (.+)$/, function (m) { return 'Reset password for ' + m[1]; }],
-        [/^Activar a (.+)$/, function (m) { return 'Activate ' + m[1]; }],
-        [/^Desactivar a (.+)$/, function (m) { return 'Deactivate ' + m[1]; }],
-        [/^¿Desactivar a (.+)\? Sus propiedades quedarán sin agente\.$/, function (m) { return 'Deactivate ' + m[1] + '? Their properties will be left without an agent.'; }],
-        [/^¿Cancelar la visita de (.+)\?$/, function (m) { return 'Cancel the visit of ' + m[1] + '?'; }],
-        [/^Contraseña de (.+) restablecida\. Compártela con el agente\.$/, function (m) { return 'Password for ' + m[1] + ' reset. Share it with the agent.'; }],
-        [/^Agente desactivado; (\d+) propiedad\(es\) quedaron sin agente\.$/, function (m) { return 'Agent deactivated; ' + m[1] + ' property(ies) were left without an agent.'; }],
-        [/^Propiedad asignada a (.+)\.$/, function (m) { return 'Property assigned to ' + m[1] + '.'; }],
-        [/^Estado actualizado\. Comisión de (.+): (\$ ?[\d.]+) \((\d+) %\)\.$/, function (m) { return 'Status updated. Commission for ' + m[1] + ': ' + m[2] + ' (' + m[3] + '%).'; }],
-        [/^(Apartamento|Casa|Finca|Local|Lote|Oficina) en ([^·]+)$/i, function (m) { return TIPOS[m[1].toLowerCase()] + ' in ' + m[2]; }],
-        [/^(Nuevo contacto|Contacto asignado|Nueva visita|Visita asignada|Visita próxima|Visita pendiente|Visita confirmada|Visita realizada|Visita cancelada|Venta cerrada|Arriendo cerrado|Pago aprobado|Publicación por vencer|Posicionamiento por vencer): (.+)$/, function (m) {
-            var t = { 'Nuevo contacto': 'New contact', 'Contacto asignado': 'Contact assigned', 'Nueva visita': 'New visit', 'Visita asignada': 'Visit assigned',
-                'Visita próxima': 'Upcoming visit', 'Visita pendiente': 'Visit pending', 'Visita confirmada': 'Visit confirmed', 'Visita realizada': 'Visit done',
-                'Visita cancelada': 'Visit canceled', 'Venta cerrada': 'Sale closed', 'Arriendo cerrado': 'Rental closed', 'Pago aprobado': 'Payment approved',
-                'Publicación por vencer': 'Listing about to expire', 'Posicionamiento por vencer': 'Boost about to expire' }[m[1]];
-            return t + ': ' + traducirTexto(m[2]);
-        }],
-        [/^Comisión de (.+): (\$ ?[\d.]+)$/, function (m) { return 'Commission for ' + m[1] + ': ' + m[2]; }],
-        [/^Ganaste una comisión de (.+)$/, function (m) { return 'You earned a commission of ' + m[1]; }],
-        [/^Te pagaron la comisión de (.+)$/, function (m) { return 'Your commission of ' + m[1] + ' was paid'; }],
-        [/^hasta el (.+)$/, function (m) { return 'until ' + fecha(m[1]); }],
-        [/^vence el (.+)$/, function (m) { return 'expires ' + fecha(m[1]); }],
-        [/^Le quedan (\d+) días?$/, function (m) { return m[1] + ' day' + (m[1] === '1' ? '' : 's') + ' left'; }],
-        [/^Aprobado: (.+)$/, function (m) { return 'Approved: ' + m[1]; }],
-        [/^Falta: (.+)$/, function (m) { return 'Missing: ' + lista(m[1]); }],
-        [/^Para que el invitado la vea completa, falta: (.+)$/, function (m) { return 'For guests to see it complete, it still needs: ' + lista(m[1]); }],
-        [/^Tu paquete (.+)$/, function (m) { return 'Your ' + traducirTexto(m[1]) + ' package'; }],
-        [/^Posicionada · hasta el (.+)$/, function (m) { return 'Boosted · until ' + fecha(m[1]); }],
-        [/^Posicionada hasta el (.+?)\. Si renuevas, los días se suman al final\.$/, function (m) { return 'Boosted until ' + fecha(m[1]) + '. If you renew, the days are added at the end.'; }],
-        [/^Publicada hasta el (.+?)\. Si renuevas, los días se suman al final\.$/, function (m) { return 'Published until ' + fecha(m[1]) + '. If you renew, the days are added at the end.'; }],
-        [/^Posicionada hasta el ([^.]+)$/, function (m) { return 'Boosted until ' + fecha(m[1]); }],
-        [/^Publicada hasta el (.+)$/, function (m) { return 'Published until ' + fecha(m[1]); }],
-        [/^Ya está destacada con el plan (.+) hasta el (.+?)\. Si renuevas, el nuevo plan empieza cuando termine el actual\.$/, function (m) { return 'It is already featured with the ' + traducirTexto(m[1]) + ' plan until ' + fecha(m[2]) + '. If you renew, the new plan starts when the current one ends.'; }],
-        [/^Plan (mensual|quincenal|semanal)$/i, function (m) { return { mensual: 'Monthly', quincenal: 'Biweekly', semanal: 'Weekly' }[m[1].toLowerCase()] + ' plan'; }],
-        [/^(mensual|quincenal|semanal)$/, function (m) { return { mensual: 'monthly', quincenal: 'biweekly', semanal: 'weekly' }[m[1]]; }],
-        [/^Membresía (mensual|quincenal|semanal) de la cuenta activa$/, function (m) { return { mensual: 'Monthly', quincenal: 'Biweekly', semanal: 'Weekly' }[m[1]] + ' account membership active'; }],
-        [/^Vence el (.+?)\. Desde ahora la membresía se compra por publicación en Propiedades\.$/, function (m) { return 'Expires ' + fecha(m[1]) + '. From now on, membership is bought per listing in Properties.'; }],
-        [/^Aparecen primero en el portal\. La próxima vence el (.+?)\.?$/, function (m) { return 'They show first on the portal. The next one expires ' + fecha(m[1]) + '.'; }],
-        [/^Salen primero en el portal mientras su plan esté vigente\.(.*)$/, function (m) { return 'They show first on the portal while their plan is active.' + (m[1] ? ' ' + traducirTexto(m[1].trim()) : ''); }],
-        [/^También tienes una membresía de toda la cuenta \(plan (.+)\) hasta el (.+?)\. Al vencer, ya no se renueva: ahora es por publicación\.$/, function (m) { return 'You also have a whole-account membership (' + traducirTexto(m[1]) + ' plan) until ' + fecha(m[2]) + '. When it expires it is not renewed: it is now per listing.'; }],
-        [/^¿Comprar el paquete (.+) \((\d+) días\) por (.+)\?([\s\S]*)$/, function (m) { return 'Buy the ' + traducirTexto(m[1]) + ' package (' + m[2] + ' days) for ' + m[3] + '?' + m[4].replace('(Pago simulado: el servidor no tiene llaves de Wompi)', '(Simulated payment: the server has no Wompi keys)').replace('Te llevaremos a Wompi para pagar.', 'We will take you to Wompi to pay.'); }],
-        [/^(.+?)(: membresía renovada|: destacada) hasta el (.+) \(pago simulado\)\.$/, function (m) { return traducirTexto(m[1]) + (m[2] === ': destacada' ? ': featured' : ': membership renewed') + ' until ' + m[3] + ' (simulated payment).'; }],
-        [/^(Propiedad publicada|Publicación renovada|Propiedad posicionada|Posicionamiento renovado) hasta el (.+) \(pago simulado\)\.$/, function (m) {
-            return { 'Propiedad publicada': 'Property published', 'Publicación renovada': 'Listing renewed', 'Propiedad posicionada': 'Property boosted', 'Posicionamiento renovado': 'Boost renewed' }[m[1]] + ' until ' + m[2] + ' (simulated payment).';
-        }],
-        [/^Paquete (.+) activo hasta el (.+)$/, function (m) { return traducirTexto(m[1]) + ' package active until ' + m[2]; }],
-        [/^(.+) agregada al paquete (.+) \((\d+) de (\d+)\)\.$/, function (m) { return traducirTexto(m[1]) + ' added to the ' + traducirTexto(m[2]) + ' package (' + m[3] + ' of ' + m[4] + ').'; }],
-        [/^(.+) salió del paquete\. Tienes un cupo libre\.$/, function (m) { return traducirTexto(m[1]) + ' left the package. You have a free slot.'; }],
-        [/^Ya usaste los (\d+) cupos de este paquete\. Quita una publicación para poner otra\.$/, function (m) { return 'You already used the ' + m[1] + ' slots of this package. Remove a listing to add another.'; }],
-        [/^Ubicación marcada: (.+?)\. Puedes arrastrar el pin para ajustarlo\.$/, function (m) { return 'Location marked: ' + m[1] + '. You can drag the pin to adjust it.'; }],
-        [/^Solo caben (\d+) foto\(s\) más\. Se tomaron las primeras\.$/, function (m) { return 'Only ' + m[1] + ' more photo(s) fit. The first ones were taken.'; }],
-        [/^(\d+) foto\(s\) no se pudieron guardar; inténtalo de nuevo desde Editar\.$/, function (m) { return m[1] + ' photo(s) could not be saved; try again from Edit.'; }],
-        [/^No se pueden agregar GIF de más de 8 MB\. “(.+)” (.*)$/, function (m) { return 'GIFs larger than 8 MB cannot be added. “' + m[1] + '” ' + m[2]; }],
-        [/^No se pudo procesar “(.+)”\.?(.*)$/, function (m) { return 'Could not process “' + m[1] + '”.' + m[2]; }],
-        [/^“(.+)” es demasiado pesada\. Prueba con otra foto\.$/, function (m) { return '“' + m[1] + '” is too large. Try another photo.'; }],
-        [/^Periodo: (.+) a (.+)$/, function (m) { return 'Period: ' + (m[1] === 'el inicio' ? 'the beginning' : fecha(m[1])) + ' to ' + (m[2] === 'hoy' ? 'today' : fecha(m[2])); }],
-        [/^Generado el (.+)$/, function (m) { return 'Generated on ' + fecha(m[1]); }],
-        [/^Página (\d+)$/, function (m) { return 'Page ' + m[1]; }],
-        [/^(Creó|Editó|Eliminó|Publicó|Pausó|Pasó a borrador|Marcó como vendida|Marcó como arrendada|Activó al|Desactivó al) ?(la propiedad|el contacto|la visita|el agente|agente|la membresía|la venta|el pago|la comisión|el perfil)?( #\d+)?$/, function (m) {
-            var verbo = { 'Creó': 'Created', 'Editó': 'Edited', 'Eliminó': 'Deleted', 'Publicó': 'Published', 'Pausó': 'Paused', 'Pasó a borrador': 'Moved to draft',
-                'Marcó como vendida': 'Marked as sold', 'Marcó como arrendada': 'Marked as rented', 'Activó al': 'Activated', 'Desactivó al': 'Deactivated' }[m[1]];
-            var ent = m[2] === 'agente' ? 'the agent' : (ENTIDADES[m[2]] || m[2] || '');
-            return verbo + (ent ? ' ' + ent : '') + (m[3] || '');
-        }],
-        [/^Cambió el estado (del|de la) (contacto|visita|propiedad|agente|comisión)( #\d+)? a (.+)$/, function (m) {
-            var ent = { contacto: 'contact', visita: 'visit', propiedad: 'property', agente: 'agent', 'comisión': 'commission' }[m[2]];
-            return 'Changed the status of the ' + ent + (m[3] || '') + ' to ' + (ESTADOS[m[4]] || m[4]);
-        }],
-        [/^Error al (crear|editar|eliminar) (.+?)( #\d+)? \((\d+)\)$/, function (m) {
-            return 'Error trying to ' + { crear: 'create', editar: 'edit', eliminar: 'delete' }[m[1]] + ' ' + (ENTIDADES[m[2]] || m[2]) + (m[3] || '') + ' (' + m[4] + ')';
-        }],
-        [/^(Dom|Lun|Mar|Mié|Jue|Vie|Sáb) (\d+)$/, function (m) { return { Dom: 'Sun', Lun: 'Mon', Mar: 'Tue', 'Mié': 'Wed', Jue: 'Thu', Vie: 'Fri', 'Sáb': 'Sat' }[m[1]] + ' ' + m[2]; }],
-        [/^hace (\d+) (min|h|días?)$/, function (m) { return m[1] + ' ' + (m[2].indexOf('d') === 0 ? (m[1] === '1' ? 'day' : 'days') : m[2]) + ' ago'; }]
-    ];
-
-    function lista(s) {
-        return s.split(/,\s*/).map(function (x) { return DICT[x] || x; }).join(', ');
-    }
-
-    // Fechas, horas y tiempos relativos que van dentro de una frase
-    function enLinea(s) {
-        return s
-            .replace(/\b(\d{1,2}) de (enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre) de (\d{4})/g, function (_, d, m, a) { return MESES[m] + ' ' + d + ', ' + a; })
-            .replace(/\b(\d{1,2}) de (ene|feb|mar|abr|may|jun|jul|ago|sept|sep|oct|nov|dic)\.? de (\d{4})/g, function (_, d, m, a) { return MESES_CORTOS[m] + ' ' + d + ', ' + a; })
-            .replace(/\b(\d{1,2}) de (enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)\b/g, function (_, d, m) { return MESES[m] + ' ' + d; })
-            .replace(/\b(\d{1,2}) de (ene|feb|mar|abr|may|jun|jul|ago|sept|sep|oct|nov|dic)\b\.?/g, function (_, d, m) { return MESES_CORTOS[m] + ' ' + d; })
-            .replace(/(^|[\s(])(lun|mar|mié|jue|vie|sáb|dom)\.?, /g, function (_, a, d) { return a + DIAS[d] + ', '; })
-            .replace(/\s?a\.\s?m\./g, ' AM').replace(/\s?p\.\s?m\./g, ' PM')
-            .replace(/\bhace (\d+) min\b/g, '$1 min ago').replace(/\bhace (\d+) h\b/g, '$1 h ago')
-            .replace(/\bhace 1 día\b/g, '1 day ago').replace(/\bhace (\d+) días\b/g, '$1 days ago')
-            .replace(/(^|\s)ayer(?=$|\s|·)/g, '$1yesterday').replace(/\bjusto ahora\b/g, 'just now')
-            .replace(/\b(\d+) visitas\b/g, '$1 visits').replace(/\b1 visita\b/g, '1 visit')
-            .replace(/(^|\s)(\d+) días(?=$|\s|\))/g, '$1$2 days').replace(/(^|\s)1 día(?=$|\s|\))/g, '$11 day');
-    }
-
-    function unSegmento(s) {
-        if (!s) return s;
-        if (DICT.hasOwnProperty(s)) return DICT[s];
-        for (var i = 0; i < REGLAS.length; i++) {
-            var m = s.match(REGLAS[i][0]);
-            if (m) { var r = REGLAS[i][1](m); if (r) return r; }
-        }
-        return s;
-    }
-
-    // Traduce un texto completo: primero entero; si no, por partes separadas con "·"
-    function traducirTexto(texto) {
-        if (texto == null) return texto;
-        var s = String(texto);
-        if (!/[A-Za-zÁÉÍÓÚáéíóúñÑ¿]{2}/.test(s)) return s;
-        var ini = s.match(/^\s*/)[0], fin = s.match(/\s*$/)[0];
-        var cuerpo = s.trim().replace(/\s+/g, ' ');
-        var r = unSegmento(cuerpo);
-        if (r === cuerpo && cuerpo.indexOf('·') !== -1) {
-            r = cuerpo.split(/(\s*·\s*)/).map(function (p) { return /·/.test(p) ? p : unSegmento(p.trim()); }).join('');
-        }
-        r = enLinea(r);
-        return r === cuerpo ? s : ini + r + fin;
-    }
-
-    /* ---------- Aplicar a la página ---------- */
-    var ATRIBUTOS = ['placeholder', 'title', 'aria-label', 'alt'];
-    var hecho = new WeakMap();
-
-    function traducirNodo(n) {
-        if (n.nodeType === 3) {
-            var p = n.parentNode;
-            if (!p || p.nodeName === 'SCRIPT' || p.nodeName === 'STYLE' || p.nodeName === 'TEXTAREA') return;
-            if (hecho.get(n) === n.nodeValue) return;
-            var nuevo = traducirTexto(n.nodeValue);
-            if (nuevo !== n.nodeValue) n.nodeValue = nuevo;
-            hecho.set(n, n.nodeValue);
-            return;
-        }
-        if (n.nodeType !== 1 || n.nodeName === 'SCRIPT' || n.nodeName === 'STYLE') return;
-        ATRIBUTOS.forEach(function (a) {
-            var v = n.getAttribute(a);
-            if (v) { var t = traducirTexto(v); if (t !== v) n.setAttribute(a, t); }
-        });
-        if (n.nodeName === 'INPUT' && (n.type === 'button' || n.type === 'submit') && n.value) n.value = traducirTexto(n.value);
-        for (var c = n.firstChild; c; c = c.nextSibling) traducirNodo(c);
-    }
-
-    function iniciar() {
-        traducirNodo(document.body);
-        document.title = traducirTexto(document.title);
-        new MutationObserver(function (cambios) {
-            cambios.forEach(function (c) {
-                if (c.type === 'characterData') traducirNodo(c.target);
-                else if (c.type === 'attributes') {
-                    var v = c.target.getAttribute(c.attributeName);
-                    if (v) { var t = traducirTexto(v); if (t !== v) c.target.setAttribute(c.attributeName, t); }
-                } else c.addedNodes.forEach(traducirNodo);
-            });
-        }).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATRIBUTOS });
-        new MutationObserver(function () {
-            var t = traducirTexto(document.title);
-            if (t !== document.title) document.title = t;
-        }).observe(document.querySelector('title') || document.head, { childList: true, characterData: true, subtree: true });
-        document.documentElement.classList.remove('i-traduciendo');
-    }
-
-    // confirm y alert también en inglés
-    var confirmar = window.confirm, avisar = window.alert;
-    window.confirm = function (t) { return confirmar.call(window, traducirTexto(t)); };
-    window.alert = function (t) { return avisar.call(window, traducirTexto(t)); };
-
-    window.UmbralIdioma = { activo: true, t: traducirTexto };
-
-    if (document.body) iniciar();
-    else document.addEventListener('DOMContentLoaded', iniciar);
+    // Se registra para el traductor común (assets/traductor-en.js, lo carga el panel después de este archivo)
+    window.UMBRAL_EN = (window.UMBRAL_EN || []).concat([{ dict: DICT, conteos: CONTEOS, reglas: reglas }]);
 })();

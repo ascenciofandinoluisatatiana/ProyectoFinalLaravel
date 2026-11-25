@@ -296,7 +296,7 @@
         var etiquetas = [], valores = [], hoy = new Date();
         for (var i = 6; i >= 0; i--) {
             var dia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - i);
-            etiquetas.push(dia.toLocaleDateString('es-CO', { weekday: 'short' }));
+            etiquetas.push(dia.toLocaleDateString(document.documentElement.lang === 'en' ? 'en-US' : 'es-CO', { weekday: 'short' }));
             valores.push(deMisInmuebles(datos.contactos).filter(function (c) {
                 var f = new Date(c.fecha);
                 return f.getFullYear() === dia.getFullYear() && f.getMonth() === dia.getMonth() && f.getDate() === dia.getDate();

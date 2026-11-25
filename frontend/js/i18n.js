@@ -1,5 +1,5 @@
 /* =========================================================
-   UMBRAL — Idiomas (ES, EN, AR, FR, PT)
+   UMBRAL — Idiomas (ES, EN, AR, FR, PT, DE, IT, ZH, JA, KO, RU, HI)
    - Los textos viven en frontend/i18n/<codigo>.json
    - En el HTML, cada texto lleva data-i18n="clave"
    - El árabe cambia la página a derecha-a-izquierda (dir="rtl")
@@ -11,7 +11,14 @@
         en: { nombre: 'English',   dir: 'ltr' },
         ar: { nombre: 'العربية',   dir: 'rtl' },
         fr: { nombre: 'Français',  dir: 'ltr' },
-        pt: { nombre: 'Português', dir: 'ltr' }
+        pt: { nombre: 'Português', dir: 'ltr' },
+        de: { nombre: 'Deutsch',   dir: 'ltr' },
+        it: { nombre: 'Italiano',  dir: 'ltr' },
+        zh: { nombre: '中文',       dir: 'ltr' },
+        ja: { nombre: '日本語',     dir: 'ltr' },
+        ko: { nombre: '한국어',     dir: 'ltr' },
+        ru: { nombre: 'Русский',   dir: 'ltr' },
+        hi: { nombre: 'हिन्दी',      dir: 'ltr' }
     };
     var raiz = document.documentElement;
     var textos = {};

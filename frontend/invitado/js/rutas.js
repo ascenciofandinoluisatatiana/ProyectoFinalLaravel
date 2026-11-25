@@ -55,7 +55,7 @@ const RT = (function () {
     var url = location.origin + pathOf(p), rent = p.op === 'arriendo';
     var precio = cop(p.price) + (rent ? ' ' + t('per_month') : '');
     var titulo = title(p) + ' · ' + p.city + ' · ' + precio + ' | UMBRAL';
-    var specs = [p.beds ? p.beds + ' ' + t('f_beds') : '', p.baths ? p.baths + ' ' + (lang === 'es' ? 'baños' : 'bath') : '', (p.area || 0).toLocaleString('es-CO') + ' ' + t('m2')].filter(Boolean).join(' · ');
+    var specs = [p.beds ? p.beds + ' ' + t('f_beds') : '', p.baths ? p.baths + ' ' + ({ es: 'baños', en: 'bath', pt: 'banheiros', fr: 'sdb', ar: 'حمامات', de: 'Bäder', it: 'bagni', zh: '浴室', ja: '浴室', ko: '욕실', ru: 'ванных', hi: 'बाथरूम' }[lang] || 'bath') : '', (p.area || 0).toLocaleString('es-CO') + ' ' + t('m2')].filter(Boolean).join(' · ');
     var resumen = String(p.desc || '').replace(/\s+/g, ' ').trim();
     var desc = (t(rent ? 'rental' : 'sale') + ': ' + title(p) + ', ' + ubic(p) + '. ' + precio + '. ' + specs + '.' + (resumen ? ' ' + resumen : '')).slice(0, 220);
     var foto = (p.fotos && p.fotos[0]) || p.img || '';

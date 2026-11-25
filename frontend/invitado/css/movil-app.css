@@ -42,15 +42,43 @@
 
   /* Filtros plegados: un botón "Filtros" los abre y los cierra */
   #filters.flt-plegado, #filters.flt-plegado.flt-fixed { display: none !important; }
+  /* Botón redondo flotante (igual que el del chat, justo encima de él) que despliega los filtros */
   .btn-filtros-movil {
-    display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
-    margin: 4px 0 10px; padding: 11px 14px; border-radius: 14px; cursor: pointer;
-    background: var(--card); color: var(--primary, #7e22ce); border: 1px solid var(--border);
-    font: 700 14px/1 inherit; font-family: inherit;
+    position: fixed; right: 14px; bottom: 150px; z-index: 89; width: 58px; height: 58px; margin: 0; padding: 0;
+    display: grid; place-items: center; border: 0; border-radius: 50%; cursor: pointer; color: #fff; font-size: 20px;
+    background: linear-gradient(135deg, #a78bfa 0%, #7e22ce 52%, #581c87 100%);
+    box-shadow: 0 14px 32px rgba(126, 34, 206, .5), inset 0 1px 0 rgba(255, 255, 255, .38);
+    transition: transform .2s;
   }
-  .btn-filtros-movil[aria-expanded="true"] { border-color: var(--primary2, #a855f7); }
+  .btn-filtros-movil span:not(.flt-n) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .btn-filtros-movil:active { transform: scale(.94); }
+  .btn-filtros-movil:focus-visible { outline: 3px solid #f1e2b4; outline-offset: 3px; }
+  .btn-filtros-movil .flt-n {
+    position: absolute; top: -3px; right: -3px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px;
+    display: grid; place-items: center; font: 800 12px/1 inherit; font-family: inherit; color: #4c1d95; background: #f1e2b4; border: 2px solid #7e22ce;
+  }
+  .btn-filtros-movil .flt-n[hidden] { display: none; }
+  body:has(.mbg.open) .btn-filtros-movil, body:has(.wl) .btn-filtros-movil, body:has(.sidebar.open) .btn-filtros-movil, body:has(.cb.open) .btn-filtros-movil { display: none; }
+
+  /* Filtros desplegados: hoja que sube sobre los botones, en 2 columnas */
+  .panel#filters.fmodal:not(.flt-plegado) {
+    display: block !important; position: fixed !important; z-index: 95; left: 10px !important; right: 10px !important; top: auto !important;
+    bottom: 220px !important; width: auto !important; max-height: calc(100vh - 300px) !important; overflow-y: auto !important;
+    margin: 0 !important; padding: 14px 14px 10px !important; border-radius: 20px !important; background: var(--card);
+    border: 1.5px solid var(--primary2, #a855f7) !important; box-shadow: 0 18px 50px rgba(10, 4, 40, .55) !important;
+    animation: fltSheet .22s ease;
+  }
+  .panel#filters.fmodal:not(.flt-plegado) .grid-f {
+    display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important;
+    overflow: visible !important; padding: 0 !important; -webkit-mask-image: none !important; mask-image: none !important;
+  }
+  .panel#filters.fmodal:not(.flt-plegado) .field { flex: none !important; }
+  .panel#filters.fmodal:not(.flt-plegado) .field label { font-size: 11px !important; white-space: normal !important; }
+  .panel#filters.fmodal:not(.flt-plegado) .field select, .panel#filters.fmodal:not(.flt-plegado) .field input { height: 38px !important; font-size: 13px !important; border-radius: 10px !important; width: 100%; }
+  .flt-listo { display: block; width: 100%; margin: 12px 0 2px; padding: 11px; border: 0; border-radius: 12px; font: 800 14px/1 inherit; font-family: inherit; color: #fff; cursor: pointer; background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+  @keyframes fltSheet { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 }
-@media (min-width: 701px) { .btn-filtros-movil { display: none; } }
+@media (min-width: 701px) { .flt-listo { display: none; } }
 
 /* Pantallas muy angostas: sigue siendo de a 2 */
 @media (max-width: 360px) {

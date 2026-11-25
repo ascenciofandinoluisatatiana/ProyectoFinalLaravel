@@ -253,7 +253,7 @@ Explorar y buscar
 - Comparador: se pueden comparar hasta 3 propiedades con el botón de comparar de la tarjeta.
 - Compartir: desde la tarjeta se envía por WhatsApp, Facebook, X o se copia el enlace.
 - El menú lateral se puede ocultar con el botón de las tres rayas. Idiomas: Español, English, Português y Français. Hay tema claro y oscuro (botón de la luna/sol arriba).
-- Existe una app para Android (archivo APK) disponible en el sitio.
+- Existe una app instalable (PWA): se instala gratis desde el navegador, en el celular o en el computador.
 
 Agendar visita
 - En "Ver detalles" de cada propiedad está el botón "Agendar visita": el visitante elige fecha y hora, deja su nombre y teléfono o correo y la solicitud le llega al vendedor, la inmobiliaria o el agente, que la confirma o propone otro horario. No se necesita cuenta.

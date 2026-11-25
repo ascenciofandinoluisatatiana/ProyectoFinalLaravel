@@ -1,4 +1,4 @@
-/* UMBRAL · app instalada (PWA). Mismo diseño y mismos textos que la app APK:
+/* UMBRAL · app instalada (PWA). Pantallas de la app instalada:
    Inicio (Continuar explorando) → Idioma (Continuar) → Cómo continuar (invitado o personal).
    - El idioma se guarda con la clave que ya usan Inicio e Invitado (umbral-idioma), solo cuando la persona lo elige.
    - El tema usa la clave de todo el sitio (umbral-tema). Por defecto: oscuro.

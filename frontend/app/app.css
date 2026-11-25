@@ -1,4 +1,4 @@
-/* UMBRAL · app instalada (PWA). Mismas medidas y colores que la app APK (Umbral/App.tsx). */
+/* UMBRAL · app instalada (PWA). Medidas y colores propios de la app instalada. */
 :root {
   --fondo: #140826; --texto: #F5F5F7; --secundario: #C9C3D8; --boton: #1B1B20; --borde: #E3C985; --tarjeta: #141418;
   --sel-fondo: #2A2414; --capa: rgba(9, 9, 11, .38); --oro: #E3C985; --oro-texto: #14110A;

@@ -18,7 +18,7 @@
         ${p.park ? `<span><i class="fa-solid fa-car"></i>${p.park}</span>` : ''}
         <span><i class="fa-solid fa-ruler-combined"></i>${p.area.toLocaleString('es-CO')} ${t('m2')}</span>
       </div>
-      <div class="mini-seller"><div class="avatar">${esc(s.ini)}</div><div><b>${esc(s.name)}</b><small>${t(s.kind === 'agency' ? 'agency' : 'person')}</small></div></div>
+      <div class="mini-seller"><div class="avatar" translate="no">${esc(s.ini)}</div><div><b>${esc(s.name)}</b><small>${t(s.kind === 'agency' ? 'agency' : 'person')}</small></div></div>
       <div class="pactions">
         <button class="btn btn-ghost btn-sm" data-open="${p.id}"><i class="fa-solid fa-eye"></i>${t('details')}</button>
         <button class="btn btn-primary btn-sm" data-contact="${p.id}"><i class="fa-solid fa-comments"></i>${t('contact_cta')}</button>
@@ -113,7 +113,7 @@
     }
     function renderSellers() {
       $('#sellers').innerHTML = SELLERS.map((s, i) => `<div class="scard">
-    <div class="top"><div class="avatar">${esc(s.ini)}</div><div><h4>${esc(s.name)}</h4><small>${t(s.kind === 'agency' ? 'agency' : 'person')} · ${P.filter(p => p.seller === i).length} ${t('props_n')}</small>
+    <div class="top"><div class="avatar" translate="no">${esc(s.ini)}</div><div><h4>${esc(s.name)}</h4><small>${t(s.kind === 'agency' ? 'agency' : 'person')} · ${P.filter(p => p.seller === i).length} ${t('props_n')}</small>
     </div></div>
     <ul><li><i class="fa-solid fa-phone"></i>${esc(s.phone)}</li><li><i class="fa-solid fa-envelope"></i>${esc(s.email)}</li></ul>
     <button class="btn btn-ghost btn-sm" style="width:100%" data-seller="${i}"><i class="fa-solid fa-house"></i>${t('see_props')}</button></div>`).join('');

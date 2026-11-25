@@ -21,7 +21,7 @@
     ${d ? `<h5>${t('description')}</h5><p>${esc(d)}</p>` : ''}    <h5>${t('location')}</h5><div class="mapbox" id="dMap"></div>
   </div><div class="stack">
     <div class="sbox"><h5 style="margin:0 0 12px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">${t('seller_info')}</h5>
-      <div class="top"><div class="avatar" style="width:50px;height:50px">${esc(s.ini)}</div><div><b>${esc(s.name)}</b><br><small style="color:var(--muted)">${t(s.kind === 'agency' ? 'agency' : 'person')}</small>
+      <div class="top"><div class="avatar" translate="no" style="width:50px;height:50px">${esc(s.ini)}</div><div><b>${esc(s.name)}</b><br><small style="color:var(--muted)">${t(s.kind === 'agency' ? 'agency' : 'person')}</small>
       ${s.ver ? `<div class="ver-tag"><i class="fa-solid fa-circle-check"></i> ${t('verified_seller')}</div>` : ''}<div id="rvLine">${RV.lineHTML(s)}</div></div></div>
       <div class="stack" style="font-size:13px;color:var(--muted)"><span><i class="fa-solid fa-phone" style="color:var(--primary);width:18px"></i>${esc(s.phone)}</span><span><i class="fa-solid fa-envelope" style="color:var(--primary);width:18px"></i>${esc(s.email)}</span></div>
       <a class="btn btn-ghost btn-sm" style="width:100%;margin-top:12px" href="tel:${esc(s.phone.replace(/\s/g, ''))}"><i class="fa-solid fa-phone"></i>${t('call')}</a></div>

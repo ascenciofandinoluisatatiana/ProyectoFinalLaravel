@@ -11,8 +11,13 @@ class PropiedadPublicaResource extends JsonResource
     public function toArray(Request $request): array
     {
         $v = $this->vendedor;
-        $partes = preg_split('/\s+/', trim($v->name));
-        $ini = mb_strtoupper(mb_substr($partes[0], 0, 1) . mb_substr($partes[1] ?? '', 0, 1));
+        // Iniciales del vendedor: se saltan las palabras de enlace ("de", "del", "y"...) para que
+        // "Inmobiliaria de Prueba" sea "IP" y no "ID" (que algunos navegadores traducen como "Identificación").
+        $partes = array_values(array_filter(
+            preg_split('/\s+/', trim($v->name)),
+            fn ($w) => $w !== '' && ! in_array(mb_strtolower($w), ['de', 'del', 'la', 'las', 'el', 'los', 'y', 'e', '&', 'of', 'the', 'and'], true)
+        ));
+        $ini = mb_strtoupper(mb_substr($partes[0] ?? '?', 0, 1) . mb_substr($partes[1] ?? '', 0, 1));
 
         return [
             'id'      => $this->id,

@@ -390,7 +390,7 @@
       orden.map(function (i) {
         var s = SELLERS[i];
         var rv = s.reviews > 0 ? '<span class="ft-rv">' + RV.stars(s.rating, 'sm') + '<b>' + Number(s.rating).toFixed(1) + '</b><small>(' + s.reviews + ')</small></span>' : '<span class="ft-rv none">' + X('ft_norv') + '</span>';
-        return '<article class="ft-c"><div class="ft-top"><div class="avatar">' + esc(s.ini || '') + '</div><div><b>' + esc(s.name) + '</b><small>' + t(s.kind === 'agency' ? 'agency' : 'person') + ' · ' + (cnt[i] === 1 ? X('ft_n1') : X('ft_n', { n: cnt[i] })) + '</small></div></div>' +
+        return '<article class="ft-c"><div class="ft-top"><div class="avatar" translate="no">' + esc(s.ini || '') + '</div><div><b>' + esc(s.name) + '</b><small>' + t(s.kind === 'agency' ? 'agency' : 'person') + ' · ' + (cnt[i] === 1 ? X('ft_n1') : X('ft_n', { n: cnt[i] })) + '</small></div></div>' +
           rv + (s.ver ? '<span class="ft-ver"><i class="fa-solid fa-circle-check"></i>' + X('ft_ver') + '</span>' : '') +
           '<button type="button" class="btn btn-ghost btn-sm" data-seller="' + i + '"><i class="fa-solid fa-house"></i>' + X('ft_see') + '</button></article>';
       }).join('') + '</div>';

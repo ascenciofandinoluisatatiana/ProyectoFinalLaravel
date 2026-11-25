@@ -37,7 +37,7 @@
 
   var head = document.createElement('div');
   head.className = 'fm-head';
-  head.innerHTML = '<h3 data-i18n="f_btn">Filtros</h3><button type="button" class="fm-x" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>';
+  head.innerHTML = '<h3 data-i18n="f_btn">Filtros</h3><button type="button" class="fm-x" aria-label="Cerrar" data-i18n-aria="close_x"><i class="fa-solid fa-xmark"></i></button>';
   panel.insertBefore(head, panel.firstChild);
 
   var foot = document.createElement('div');
@@ -56,6 +56,9 @@
   badge.id = 'fBadge';
   badge.hidden = true;
   more.appendChild(badge);
+
+  /* los textos recién creados se traducen al idioma elegido (si no, al recargar quedan en español) */
+  if (typeof applyI18n === 'function') applyI18n();
 
   /* ---------- abrir / cerrar ---------- */
   function abrir() {

@@ -38,7 +38,7 @@
 
   var box = document.createElement('div');
   box.className = 'mbg'; box.id = 'mContact';
-  box.innerHTML = '<div class="modal sm"><button class="mclose" data-close aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button><div class="mbody" id="ctBody"></div></div>';
+  box.innerHTML = '<div class="modal sm"><button class="mclose" data-close data-i18n-aria="close_x" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button><div class="mbody" id="ctBody"></div></div>';
   document.body.appendChild(box);
 
   function abrir(id) {
@@ -57,7 +57,7 @@
       '<h3 class="ct-h">' + X('t') + '</h3>' +
       '<div class="ct-prop"><span class="ct-img" style="' + E(imgStyle(p)) + '">' + (p.img ? '' : icon(p)) + '</span>' +
       '<div><b>' + E(title(p)) + '</b><small>' + E(ubic(p)) + '</small><strong>' + E(cop(p.price)) + (rent ? '<em> ' + E(t('per_month')) + '</em>' : '') + '</strong></div></div>' +
-      '<div class="ct-sel"><div class="avatar">' + E(s.ini || '?') + '</div><div><b>' + E(s.name || '') + '</b>' +
+      '<div class="ct-sel"><div class="avatar" translate="no">' + E(s.ini || '?') + '</div><div><b>' + E(s.name || '') + '</b>' +
       '<small>' + E(t(s.kind === 'agency' ? 'agency' : 'person')) + (s.ver ? ' · <span class="ct-ver"><i class="fa-solid fa-circle-check"></i> ' + E(t('verified_seller')) + '</span>' : '') + '</small></div></div>' +
       (acciones ? '<div class="ct-acts">' + acciones + '</div>' : '') +
       '<p class="ct-or"><span>' + X('or') + '</span></p>' +

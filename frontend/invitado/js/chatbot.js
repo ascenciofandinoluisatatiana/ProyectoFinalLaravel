@@ -206,7 +206,7 @@
   function textos() {
     root.querySelectorAll('[data-cb]').forEach(function (e) { e.textContent = T(e.getAttribute('data-cb')); });
     root.querySelectorAll('[data-cbt]').forEach(function (e) { var t = T(e.getAttribute('data-cbt')); e.title = t; e.setAttribute('aria-label', t); });
-    root.querySelectorAll('[data-cbph]').forEach(function (e) { e.placeholder = T(e.getAttribute('data-cbph')); });
+    root.querySelectorAll('[data-cbph]').forEach(function (e) { e.placeholder = T(e.getAttribute('data-cbph')); e.setAttribute('aria-label', e.placeholder); });
     fab.setAttribute('aria-label', T('open'));
     pintarSug();
   }

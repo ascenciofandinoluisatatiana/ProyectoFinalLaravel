@@ -77,7 +77,7 @@ const RV = (function () {
     return '<span class="rv-stars ' + (extra || '') + '" role="img" aria-label="' + Number(avg).toFixed(1) + ' / 5">' + h + '</span>';
   }
   function initials(name) {
-    var p = String(name || '?').trim().split(/\s+/);
+    var p = String(name || '?').trim().split(/\s+/).filter(function (w) { return !/^(de|del|la|las|el|los|y|e|&|of|the|and)$/i.test(w); });
     return ((p[0] || '?').charAt(0) + (p[1] || '').charAt(0)).toUpperCase();
   }
   function fecha(iso) {
@@ -157,7 +157,7 @@ const RV = (function () {
       return '<div class="rv-bar"><span>' + n + ' <i class="fa-solid fa-star"></i></span><div class="rv-track"><i style="width:' + pct + '%"></i></div><em>' + c + '</em></div>';
     }).join('');
     return '<div class="rv-sum">' +
-      '<div class="rv-who"><div class="avatar">' + esc(s.ini || initials(s.name)) + '</div><div><small>' + L('reviews_of') + '</small><b>' + esc(s.name) + '</b></div></div>' +
+      '<div class="rv-who"><div class="avatar" translate="no">' + esc(s.ini || initials(s.name)) + '</div><div><small>' + L('reviews_of') + '</small><b>' + esc(s.name) + '</b></div></div>' +
       (sum.total
         ? '<div class="rv-score"><div class="rv-big">' + Number(sum.promedio).toFixed(1) + '</div><div>' + stars(sum.promedio) + '<small>' + L('based_on') + ' ' + count(sum.total) + '</small></div></div><div class="rv-bars">' + bars + '</div>'
         : '<div class="rv-empty-sum"><i class="fa-regular fa-star"></i><b>' + L('none_yet') + '</b><small>' + L('none_sub') + '</small></div>') +

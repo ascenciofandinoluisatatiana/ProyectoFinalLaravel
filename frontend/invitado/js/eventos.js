@@ -85,5 +85,5 @@
     $('#menuBtn').setAttribute('aria-expanded', String(!document.documentElement.classList.contains('sb-hidden')));
 
     applyI18n();
-    loadData().then(applyI18n).catch(() => toast('No se pudo conectar con el servidor; se muestran datos de ejemplo')).finally(() => { window.__loadDone = true; window.__loading = false; LOADING = false; applyI18n() });
+    loadData().then(applyI18n).catch(() => toast(t('srv_off'))).finally(() => { window.__loadDone = true; window.__loading = false; LOADING = false; applyI18n() });
   

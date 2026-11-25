@@ -11,13 +11,13 @@
   var etiqueta = { es: 'Filtros', en: 'Filters', pt: 'Filtros', fr: 'Filtres', ar: 'عوامل التصفية', de: 'Filter', it: 'Filtri', zh: '筛选', ja: '絞り込み', ko: '필터', ru: 'Фильтры', hi: 'फ़िल्टर' };
   var idioma = (document.documentElement.lang || 'es').slice(0, 2);
   var boton = document.createElement('button');
-  boton.type = 'button'; boton.className = 'btn-filtros-movil'; boton.setAttribute('aria-expanded', 'false');
+  boton.type = 'button'; boton.className = 'btn-filtros-movil'; boton.setAttribute('aria-expanded', 'false'); boton.setAttribute('data-i18n-aria', 'f_btn');
   boton.innerHTML = '<i class="fa-solid fa-sliders" aria-hidden="true"></i><span>' + (etiqueta[idioma] || etiqueta.es) + '</span><span class="flt-n" hidden></span>';
   var num = boton.querySelector('.flt-n');
   panel.classList.add('flt-plegado');
   panel.parentNode.insertBefore(boton, panel);
   var listo = document.createElement('button');
-  listo.type = 'button'; listo.className = 'flt-listo';
+  listo.type = 'button'; listo.className = 'flt-listo'; listo.setAttribute('data-i18n', 'btn_explore');
   listo.textContent = { es: 'Ver propiedades', en: 'Show properties', pt: 'Ver imóveis', fr: 'Voir les biens', ar: 'عرض العقارات', de: 'Immobilien ansehen', it: 'Vedi immobili', zh: '查看房产', ja: '物件を見る', ko: '매물 보기', ru: 'Смотреть объекты', hi: 'संपत्तियाँ देखें' }[idioma] || 'Ver propiedades';
   panel.appendChild(listo);
   function alternar(abrir) {

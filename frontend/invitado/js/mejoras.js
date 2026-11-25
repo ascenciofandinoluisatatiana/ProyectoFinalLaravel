@@ -54,7 +54,7 @@
       (rank ? '<span class="rank ' + tierCls(p) + '">#' + rank + '</span><span class="tier-chip ' + tierCls(p) + '">' + t('tier_' + (p.tier || 'bronce')) + '</span>' : '') +
       '<button type="button" class="fav ' + (fav ? 'on' : '') + '" data-fav="' + p.id + '" aria-pressed="' + fav + '" aria-label="' + L(fav ? 'favDel' : 'favAdd') + '">' +
       '<i class="' + (fav ? 'fa-solid' : 'fa-regular') + ' fa-heart"></i></button>' +
-      '<button type="button" class="cmp" data-cmp="' + p.id + '" aria-pressed="false" aria-label="Comparar" title="Comparar"><i class="fa-solid fa-code-compare"></i></button>' +
+      '<button type="button" class="cmp" data-cmp="' + p.id + '" aria-pressed="false" aria-label="' + t('cmp_aria') + '" title="' + t('cmp_aria') + '"><i class="fa-solid fa-code-compare"></i></button>' +
       '</div>' +
       '<div class="pbody">' +
       '<div class="price">' + cop(p.price) + (rent ? '<small> ' + t('per_month') + '</small>' : '') + '</div>' +
@@ -67,7 +67,7 @@
       '<span><i class="fa-solid fa-ruler-combined"></i>' + p.area.toLocaleString('es-CO') + ' ' + t('m2') + '</span>' +
       '</div>' +
       '<div class="pfoot">' +
-      '<div class="mini-seller"><div class="avatar">' + esc(s.ini) + '</div><div><b>' + esc(s.name) + '</b><small>' + t(s.kind === 'agency' ? 'agency' : 'person') + RV.mini(s) + '</small></div></div>' +
+      '<div class="mini-seller"><div class="avatar" translate="no">' + esc(s.ini) + '</div><div><b>' + esc(s.name) + '</b><small>' + t(s.kind === 'agency' ? 'agency' : 'person') + RV.mini(s) + '</small></div></div>' +
       '<div class="pshare" role="group" aria-label="' + L('share') + '">' +
       '<button type="button" class="sh-toggle" data-shtoggle aria-haspopup="true" aria-expanded="false" aria-label="' + L('share') + '" title="' + L('share') + '"><i class="fa-solid fa-share-nodes"></i></button>' +
       '<div class="sh-menu">' +

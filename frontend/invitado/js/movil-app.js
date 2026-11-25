@@ -18,7 +18,7 @@
   panel.parentNode.insertBefore(boton, panel);
   var listo = document.createElement('button');
   listo.type = 'button'; listo.className = 'flt-listo';
-  listo.textContent = { es: 'Ver propiedades', en: 'Show properties', pt: 'Ver imóveis', fr: 'Voir les biens' }[idioma] || 'Ver propiedades';
+  listo.textContent = { es: 'Ver propiedades', en: 'Show properties', pt: 'Ver imóveis', fr: 'Voir les biens', ar: 'عرض العقارات', de: 'Immobilien ansehen', it: 'Vedi immobili', zh: '查看房产', ja: '物件を見る', ko: '매물 보기', ru: 'Смотреть объекты', hi: 'संपत्तियाँ देखें' }[idioma] || 'Ver propiedades';
   panel.appendChild(listo);
   function alternar(abrir) {
     var abierto = abrir === undefined ? panel.classList.contains('flt-plegado') : abrir;

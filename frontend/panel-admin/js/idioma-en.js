@@ -7,6 +7,9 @@
     'use strict';
 
     var DICT = {
+        /* ---------- Filtros de notificaciones, perfil y avisos sueltos ---------- */
+        'La imagen debe ser JPG, PNG o WEBP.': 'The image must be JPG, PNG or WEBP.', 'Filtrando por:': 'Filtering by:', 'Panel de administración (con código de verificación)': 'Admin panel (with verification code)', '2FA admin: cuenta bloqueada por códigos incorrectos': '2FA admin: account locked after incorrect codes', 'Inicio de sesión correcto.': 'Signed in successfully.', 'Cuenta desactivada: no se le puede enviar enlace': 'Account deactivated: a link cannot be sent to it', 'Sin rol': 'No role',
+        'Pagos aprobados': 'Approved payments', 'Pagos no completados': 'Incomplete payments', 'Redirigiendo al portal oficial de UMBRAL...': 'Redirecting to the official UMBRAL portal...',
         /* ---------- Títulos, menú y barra ---------- */
         'Panel principal · UMBRAL': 'Dashboard · UMBRAL', 'Gestión de usuarios · UMBRAL': 'User management · UMBRAL', 'Verificaciones · UMBRAL': 'Verifications · UMBRAL',
         'Suscripciones y publicaciones gratis · UMBRAL': 'Subscriptions and free listings · UMBRAL', 'Movimientos · UMBRAL': 'Activity · UMBRAL',
@@ -174,6 +177,8 @@
 
     function reglas(h) {
         var t = h.t;
+        /* traduce una palabra que el servidor escribe en minúscula (nombre, semanal…) */
+        function minus(x) { var c = x.charAt(0).toUpperCase() + x.slice(1), r = t(c); return r === c ? x : r.toLowerCase(); }
         return [
             [/^Mostrando (\d+)[–-](\d+) de (\d+) (accesos|membresías|notificaciones|pagos|registros|usuarios|movimientos|visitantes|contactos|decisiones|compras)$/, function (m) {
                 var en = { accesos: 'logins', 'membresías': 'memberships', notificaciones: 'notifications', pagos: 'payments', registros: 'records', usuarios: 'users', movimientos: 'activities', visitantes: 'visitors', contactos: 'contacts', decisiones: 'decisions', compras: 'purchases' }[m[4]];
@@ -192,7 +197,24 @@
             [/^¿Borrar el paquete «(.+)»\? Esta acción no se puede deshacer\.$/, function (m) { return 'Delete the package «' + m[1] + '»? This action cannot be undone.'; }],
             [/^Vas a rechazar la cuenta de (.+)\. Quedará inactiva y el motivo se guardará en el historial\.$/, function (m) { return 'You are about to reject the account of ' + m[1] + '. It will become inactive and the reason will be saved in the history.'; }],
             [/^Vas a aprobar la cuenta de (.+)\. Quedará activa y la decisión se guardará en el historial\.$/, function (m) { return 'You are about to approve the account of ' + m[1] + '. It will become active and the decision will be saved in the history.'; }],
-            [/^La imagen pesa (.+)$/, function (m) { return 'The image weighs ' + m[1]; }],
+            [/^La imagen pesa (.+) y no puede superar (\d+) MB\.$/, function (m) { return 'The image weighs ' + m[1] + ' and cannot exceed ' + m[2] + ' MB.'; }],
+            /* detalles de movimientos que escribe el servidor (en español) */
+            [/^Contraseña incorrecta \(intento (\d+) de (\d+)\)$/, function (m) { return 'Wrong password (attempt ' + m[1] + ' of ' + m[2] + ')'; }],
+            [/^Contraseña incorrecta en el panel de administración \(intento (\d+) de (\d+)\)$/, function (m) { return 'Wrong password in the admin panel (attempt ' + m[1] + ' of ' + m[2] + ')'; }],
+            [/^Correo no registrado: (.+)$/, function (m) { return 'Email not registered: ' + m[1]; }],
+            [/^Bloqueada (\d+) minutos tras (\d+) (intentos fallidos|contraseñas incorrectas en el panel de administración|códigos de verificación incorrectos)$/, function (m) {
+                var que = { 'intentos fallidos': 'failed attempts', 'contraseñas incorrectas en el panel de administración': 'wrong passwords in the admin panel', 'códigos de verificación incorrectos': 'wrong verification codes' }[m[3]];
+                return 'Locked for ' + m[1] + ' minutes after ' + m[2] + ' ' + que;
+            }],
+            [/^Cuentas nuevas: de (\d+) a (\d+) publicaciones gratis$/, function (m) { return 'New accounts: from ' + m[1] + ' to ' + m[2] + ' free listings'; }],
+            [/^Cambió: (.+)$/, function (m) { return 'Changed: ' + m[1].split(/,\s*/).map(minus).join(', '); }],
+            [/^Enviamos el enlace a (.+)$/, function (m) { return 'We sent the link to ' + m[1]; }],
+            [/^Plan actualizado: (.+)$/, function (m) { return 'Plan updated: ' + minus(m[1]); }],
+            [/^Tipo: (.+)$/, function (m) { return 'Type: ' + t(m[1]); }],
+            [/^Rol: (.+)$/, function (m) { return 'Role: ' + t(m[1]); }],
+            [/^Búsqueda: "(.*)"$/, function (m) { return 'Search: "' + m[1] + '"'; }],
+            [/^Desde (\d{2}\/\d{2}\/\d{4})$/, function (m) { return 'From ' + m[1]; }],
+            [/^Hasta (\d{2}\/\d{2}\/\d{4})$/, function (m) { return 'To ' + m[1]; }],
             [/^No se pudo cargar el perfil: (.*)$/, function (m) { return 'The profile could not be loaded: ' + m[1]; }],
             [/^No se pudieron cargar los (pagos|reportes): (.*)$/, function (m) { return 'The ' + (m[1] === 'pagos' ? 'payments' : 'reports') + ' could not be loaded: ' + m[2]; }],
             [/^Cuántas propiedades puede tener publicadas.*$/, function () { return 'How many properties each seller or agency that signs up from now on can have published without paying. After that, they must buy a plan.'; }],

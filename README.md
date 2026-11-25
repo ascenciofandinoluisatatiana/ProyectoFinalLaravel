@@ -10,9 +10,9 @@ Qué incluye hoy:
 - **Perfiles:** Invitado, Vendedor, Inmobiliaria, Agente y Administrador, cada uno con su
   panel en `frontend/`.
 - **API pública** (`/api/v1/public`) para el catálogo de inmuebles, calificaciones y contacto.
-- **Planes y membresías**, con pagos y avisos de vencimiento por correo.
+- **Planes y membresías**, con avisos de vencimiento por correo. Los pagos funcionan en **modo simulado (pruebas)**; el código de Wompi queda listo y se activa solo si se configuran `WOMPI_PUBLIC_KEY` y `WOMPI_INTEGRITY_SECRET`.
 - **Umbra**, el asistente de chat con DeepSeek, y verificación de documentos de identidad.
-- **Idiomas:** español, inglés, portugués y francés (árabe en el registro).
+- **Idiomas:** 12 en el panel Invitado, el registro y el chatbot (español, inglés, portugués, francés, árabe, alemán, italiano, chino, japonés, coreano, ruso y hindi); el panel de administración está en español e inglés.
 - **Pruebas automáticas** (GitHub Actions, workflow "Pruebas") con PHP 8.4 y PostgreSQL.
 
 ## Por qué esta carpeta está armada así
@@ -125,10 +125,7 @@ Para comprobar que quedaron: `docker exec umbral_backend php artisan schedule:li
 
 - El código de Laravel vive en `backend/` y se monta en el contenedor: puedes
   editarlo desde tu editor de siempre, sin entrar al contenedor.
-- Todavía no incluimos frontend web, app móvil ni el servicio de IA/Python: según el
-  documento de Fase 1, eso llega en fases posteriores. Cuando toque agregarlos, se
-  suman como nuevos servicios en `docker-compose.yml` siguiendo el mismo patrón
-  (nada de valores fijos, todo desde `.env`).
+- El frontend (nginx), el servicio de Python (vigilante de seguridad en `seguridad-python/`) y la PWA ya están incluidos; cualquier servicio nuevo se suma en `docker-compose.yml` con el mismo patrón (nada de valores fijos, todo desde `.env`).
 - Antes de instalar cualquier paquete de Composer, entra al contenedor
   (`make shell`) y corre `composer require ...` ahí adentro, para que quede
   instalado con la misma versión de PHP que usan tus compañeros.

@@ -32,6 +32,8 @@
     alternar(false);
     var r = document.querySelector('.res-head'); if (r) r.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
+  /* "Ver propiedades" del pie de la hoja también la cierra */
+  panel.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('#fmApply')) alternar(false); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !panel.classList.contains('flt-plegado')) alternar(false); });
   function contar() {
     var n = ['#fType', '#fDept', '#fCity', '#fBarrio', '#fMax', '#fBeds'].filter(function (q) { var el = document.querySelector(q); return el && el.value !== ''; }).length;

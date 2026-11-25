@@ -47,6 +47,18 @@ class Propiedad extends Model
         'imagen_meta'     => 'array',
     ];
 
+    /**
+     * Lo que un visitante puede ver y contactar hoy: publicada, no vencida y de una cuenta activa.
+     * Es la misma regla del listado público; la usan también los contactos y las visitas.
+     */
+    public function scopeDisponibleAlPublico($q)
+    {
+        return $q->where('propiedades.estado', 'publicada')
+            ->where(fn ($v) => $v->whereNull('propiedades.publicada_hasta')
+                ->orWhere('propiedades.publicada_hasta', '>', \Illuminate\Support\Carbon::now()->toDateTimeString()))
+            ->whereHas('vendedor', fn ($u) => $u->where('estado', 'activo'));
+    }
+
     public function vendedor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');

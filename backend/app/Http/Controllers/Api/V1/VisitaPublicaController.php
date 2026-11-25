@@ -43,7 +43,7 @@ class VisitaPublicaController extends Controller
             'fecha.date_format' => 'La fecha no es válida.',
         ]);
 
-        $propiedad = Propiedad::where('estado', 'publicada')->find($d['propiedad_id']);
+        $propiedad = Propiedad::disponibleAlPublico()->find($d['propiedad_id']);
         if (! $propiedad) {
             return response()->json(['message' => 'Este inmueble ya no está disponible.'], 404);
         }

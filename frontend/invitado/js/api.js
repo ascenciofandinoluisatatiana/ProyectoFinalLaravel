@@ -1,6 +1,6 @@
     /* ============ API (Laravel) ============ */
     const API = '/api/v1/public';
-    // Si la API no responde, se mantienen los datos de ejemplo de arriba.
+    // Si la API no responde, la lista queda vacía (no hay datos de ejemplo).
     let UBIC = null; // [{nombre, municipios:[...]}] con todos los departamentos y municipios de Colombia
 
     /* Solo datos reales del vendedor */
@@ -34,7 +34,7 @@
       if (uj && uj.data && uj.data.length) UBIC = uj.data;
       if (!res.ok) throw new Error('API ' + res.status);
       const json = await res.json();
-      if (!json.data || !json.data.length) return;
+      if (!json.data || !json.data.length) { P = []; SELLERS = []; return; }
 
       // Se muestran de una vez las primeras 100; el resto se carga por detrás
       P = convertir(json.data);

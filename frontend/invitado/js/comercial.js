@@ -10,12 +10,12 @@
   if (!gc || gc.classList.contains('gc-cta')) return;
 
   var TX = {
-    title: ['Vende o arrienda tu inmueble', 'Sell or rent your property', 'Venda ou alugue seu imóvel', 'Vendez ou louez votre bien'],
-    b1: ['Recibe contactos de interesados', 'Get inquiries from interested buyers', 'Receba contatos de interessados', 'Recevez les contacts des intéressés'],
-    b2: ['Tu propia página en Google', 'Your own page on Google', 'Sua própria página no Google', 'Votre propre page sur Google'],
-    b3: ['Verificación y calificaciones', 'Verification and ratings', 'Verificação e avaliações', 'Vérification et avis'],
-    have: ['¿Ya tienes cuenta?', 'Already have an account?', 'Já tem conta?', 'Déjà un compte ?'],
-    login: ['Inicia sesión', 'Log in', 'Entrar', 'Se connecter']
+    title: ['Vende o arrienda tu inmueble', 'Sell or rent your property', 'Venda ou alugue seu imóvel', 'Vendez ou louez votre bien', 'بِع عقارك أو أجّره', 'Verkaufe oder vermiete deine Immobilie', 'Vendi o affitta il tuo immobile', '出售或出租你的房产', '物件を売る・貸す', '매물을 팔거나 임대하세요', 'Продайте или сдайте свой объект', 'अपनी संपत्ति बेचें या किराये पर दें'],
+    b1: ['Recibe contactos de interesados', 'Get inquiries from interested buyers', 'Receba contatos de interessados', 'Recevez les contacts des intéressés', 'تلقَّ استفسارات من مهتمين', 'Erhalte Anfragen von Interessenten', 'Ricevi contatti da persone interessate', '接收意向客户的咨询', '興味のある人から問い合わせを受け取る', '관심 있는 사람들의 문의 받기', 'Получайте заявки от заинтересованных', 'रुचि रखने वालों से संपर्क पाएँ'],
+    b2: ['Tu propia página en Google', 'Your own page on Google', 'Sua própria página no Google', 'Votre propre page sur Google', 'صفحتك الخاصة على Google', 'Deine eigene Seite bei Google', 'La tua pagina su Google', '在 Google 上拥有自己的页面', 'Google に専用ページ', 'Google에 나만의 페이지', 'Своя страница в Google', 'Google पर आपका अपना पेज'],
+    b3: ['Verificación y calificaciones', 'Verification and ratings', 'Verificação e avaliações', 'Vérification et avis', 'توثيق وتقييمات', 'Prüfung und Bewertungen', 'Verifica e valutazioni', '验证与评价', '本人確認と評価', '인증 및 평가', 'Проверка и оценки', 'सत्यापन और रेटिंग'],
+    have: ['¿Ya tienes cuenta?', 'Already have an account?', 'Já tem conta?', 'Déjà un compte ?', 'لديك حساب بالفعل؟', 'Hast du bereits ein Konto?', 'Hai già un account?', '已有账户？', 'すでにアカウントをお持ちですか？', '이미 계정이 있나요?', 'Уже есть учётная запись?', 'पहले से खाता है?'],
+    login: ['Inicia sesión', 'Log in', 'Entrar', 'Se connecter', 'تسجيل الدخول', 'Anmelden', 'Accedi', '登录', 'ログイン', '로그인', 'Войти', 'लॉग इन करें']
   };
   function X(k) {
     var i = Math.max(0, LANGS.indexOf(lang));

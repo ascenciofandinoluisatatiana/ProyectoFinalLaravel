@@ -1,6 +1,7 @@
     /* ============ i18n aplicar ============ */
     function applyI18n() {
       document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
       $$('[data-i18n]').forEach(e => e.textContent = t(e.dataset.i18n));
       $$('[data-i18n-ph]').forEach(e => e.placeholder = t(e.dataset.i18nPh));
       /* IV7 · nombre accesible de los enlaces e iconos que en celular quedan sin texto visible */

@@ -34,6 +34,27 @@
     /* Menú lateral: en pantallas grandes empieza ABIERTO y se recuerda lo último que
        la persona eligió (clave umbral-admin-menu). En pantallas pequeñas empieza cerrado. */
     var CLAVE_MENU = 'umbral-admin-menu';
+
+    /* ---------- Idioma del panel: español e inglés (botones ES / EN) ----------
+       Misma preferencia que los demás paneles (clave "umbral_lang"). En inglés se carga el
+       diccionario del administrador y el motor común (/assets/traductor-en.js), que traduce toda la página. */
+    var IDIOMAS_PANEL = ['es', 'en'];
+    var idioma = 'es';
+    try { idioma = localStorage.getItem('umbral_lang') || 'es'; } catch (e) {}
+    if (IDIOMAS_PANEL.indexOf(idioma) === -1) idioma = 'es';
+    var traductorListo = Promise.resolve();
+    if (idioma === 'en') {
+        document.documentElement.lang = 'en';
+        traductorListo = new Promise(function (listo) {
+            window.UMBRAL_EN_AVISAR = listo;
+            setTimeout(listo, 3000);
+            ['/inmobiliaria/js/idioma-en.js', '/panel-admin/js/idioma-en.js', '/assets/traductor-en.js'].reduce(function (antes, src) {
+                return antes.then(function () {
+                    return new Promise(function (sig) { var s = document.createElement('script'); s.src = src; s.onload = s.onerror = sig; document.head.appendChild(s); });
+                });
+            }, Promise.resolve());
+        });
+    }
     var raiz = document.documentElement;
     var pantallaGrande = window.matchMedia('(min-width: 1024px)');
     function menuGuardado() {
@@ -226,6 +247,9 @@
                 '</button>' +
                 '<h2 class="barra-titulo">' + esc(titulo) + '</h2>' +
                 '<div class="ml-auto flex shrink-0 items-center gap-2">' +
+                    '<div class="admin-idiomas" id="admin-idioma" role="group" aria-label="Idioma">' +
+                        IDIOMAS_PANEL.map(function (k) { return '<button type="button" data-idioma="' + k + '" aria-pressed="' + (k === idioma ? 'true' : 'false') + '">' + k.toUpperCase() + '</button>'; }).join('') +
+                    '</div>' +
                     '<button type="button" id="boton-tema" class="tema-boton" title="Cambiar entre modo claro y oscuro" aria-label="Cambiar entre modo claro y oscuro">' +
                         '<i class="fa-solid fa-moon icono-luna"></i><i class="fa-solid fa-sun icono-sol"></i>' +
                     '</button>' +
@@ -280,6 +304,12 @@
     }
 
     function activarComportamientos() {
+        document.querySelectorAll('#admin-idioma [data-idioma]').forEach(function (b) {
+            b.addEventListener('click', function () {
+                try { localStorage.setItem('umbral_lang', this.getAttribute('data-idioma')); } catch (e) {}
+                window.location.reload();
+            });
+        });
         var menu = document.getElementById('menu-lateral');
         var fondo = document.getElementById('fondo-menu');
         var botonMenu = document.getElementById('boton-menu');
@@ -380,6 +410,7 @@
     var listo = (async function () {
         var yo = await api('/yo');            // 401 → vuelve al inicio; 403 → no es administrador
         var resumen = await api('/menu');
+        await traductorListo;                 // en inglés, la página se muestra ya traducida
 
         document.getElementById('zona-menu').innerHTML = htmlMenu(resumen);
         document.getElementById('zona-barra').innerHTML = htmlBarra(yo.usuario, resumen);

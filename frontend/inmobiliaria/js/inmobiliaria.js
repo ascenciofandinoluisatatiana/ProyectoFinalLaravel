@@ -294,10 +294,15 @@
     if (idioma === 'en' && !window.UmbralIdioma) {
         document.documentElement.classList.add('i-traduciendo');
         document.documentElement.lang = 'en';
-        var traductor = document.createElement('script');
-        traductor.src = '/inmobiliaria/js/idioma-en.js';
-        document.head.appendChild(traductor);
-        setTimeout(function () { document.documentElement.classList.remove('i-traduciendo'); }, 2500);
+        // El panel espera al traductor antes de dibujar (máximo 3 segundos)
+        window.UMBRAL_EN_LISTO = new Promise(function (listo) { window.UMBRAL_EN_AVISAR = listo; setTimeout(listo, 3000); });
+        // Primero el diccionario y después el motor común (uno tras otro)
+        ['/inmobiliaria/js/idioma-en.js', '/assets/traductor-en.js'].reduce(function (antes, src) {
+            return antes.then(function () {
+                return new Promise(function (listo) { var s = document.createElement('script'); s.src = src; s.onload = s.onerror = listo; document.head.appendChild(s); });
+            });
+        }, Promise.resolve());
+        setTimeout(function () { document.documentElement.classList.remove('i-traduciendo'); }, 3000);
     }
     function tx(clave) { return (TEXTOS[clave] || {})[idioma] || (TEXTOS[clave] || {}).es || clave; }
 
@@ -450,6 +455,7 @@
         try {
             var r = await api('/yo');
             await cargarExtra();
+            if (window.UMBRAL_EN_LISTO) await window.UMBRAL_EN_LISTO;
             barra(r.usuario, seccion);
             return r.usuario;
         } catch (e) {

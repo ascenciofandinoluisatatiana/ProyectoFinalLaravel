@@ -7,15 +7,15 @@
   'use strict';
 
   var TX = {
-    t1: ['{n} inmueble nuevo desde tu última visita', '{n} new property since your last visit', '{n} imóvel novo desde sua última visita', '{n} nouveau bien depuis votre dernière visite'],
-    tn: ['{n} inmuebles nuevos desde tu última visita', '{n} new properties since your last visit', '{n} imóveis novos desde sua última visita', '{n} nouveaux biens depuis votre dernière visite'],
-    ult: ['Tu última visita fue {t}', 'Your last visit was {t}', 'Sua última visita foi {t}', 'Votre dernière visite date de {t}'],
-    ver: ['Verlos', 'See them', 'Ver', 'Les voir'],
-    todos: ['Ver todos', 'Show all', 'Ver todos', 'Tout voir'],
-    badge: ['Nueva para ti', 'New for you', 'Nova para você', 'Nouveau pour vous'],
-    ok: ['Entendido', 'Got it', 'Entendi', 'Compris']
+    t1: ['{n} inmueble nuevo desde tu última visita', '{n} new property since your last visit', '{n} imóvel novo desde sua última visita', '{n} nouveau bien depuis votre dernière visite', '{n} عقار جديد منذ زيارتك الأخيرة', '{n} neue Immobilie seit deinem letzten Besuch', '{n} nuovo immobile dalla tua ultima visita', '自你上次访问以来有 {n} 套新房产', '前回の訪問以降、新しい物件が {n} 件あります', '지난 방문 이후 새 매물 {n}개', '{n} новый объект с вашего последнего визита', 'आपकी पिछली विज़िट के बाद {n} नई संपत्ति'],
+    tn: ['{n} inmuebles nuevos desde tu última visita', '{n} new properties since your last visit', '{n} imóveis novos desde sua última visita', '{n} nouveaux biens depuis votre dernière visite', '{n} عقارات جديدة منذ زيارتك الأخيرة', '{n} neue Immobilien seit deinem letzten Besuch', '{n} nuovi immobili dalla tua ultima visita', '自你上次访问以来有 {n} 套新房产', '前回の訪問以降、新しい物件が {n} 件あります', '지난 방문 이후 새 매물 {n}개', 'Новых объектов с вашего последнего визита: {n}', 'आपकी पिछली विज़िट के बाद {n} नई संपत्तियाँ'],
+    ult: ['Tu última visita fue {t}', 'Your last visit was {t}', 'Sua última visita foi {t}', 'Votre dernière visite date de {t}', 'كانت زيارتك الأخيرة {t}', 'Dein letzter Besuch war {t}', 'La tua ultima visita è stata {t}', '你上次访问是在 {t}', '前回の訪問は {t} です', '마지막 방문: {t}', 'Ваш последний визит: {t}', 'आपकी पिछली विज़िट {t} थी'],
+    ver: ['Verlos', 'See them', 'Ver', 'Les voir', 'عرضها', 'Ansehen', 'Vedi', '查看', '見る', '보기', 'Смотреть', 'देखें'],
+    todos: ['Ver todos', 'Show all', 'Ver todos', 'Tout voir', 'عرض الكل', 'Alle anzeigen', 'Vedi tutti', '查看全部', 'すべて見る', '모두 보기', 'Показать все', 'सभी देखें'],
+    badge: ['Nueva para ti', 'New for you', 'Nova para você', 'Nouveau pour vous', 'جديد لك', 'Neu für dich', 'Nuovo per te', '为你新增', 'あなたへの新着', '새로 올라옴', 'Новое для вас', 'आपके लिए नया'],
+    ok: ['Entendido', 'Got it', 'Entendi', 'Compris', 'فهمت', 'Verstanden', 'Capito', '知道了', '了解', '확인', 'Понятно', 'समझ गया']
   };
-  var LOC = { es: 'es-CO', en: 'en', pt: 'pt-BR', fr: 'fr' };
+  var LOC = { es: 'es-CO', en: 'en', pt: 'pt-BR', fr: 'fr', ar: 'ar', de: 'de', it: 'it', zh: 'zh-CN', ja: 'ja', ko: 'ko', ru: 'ru', hi: 'hi' };
   function X(k, v) {
     var i = Math.max(0, LANGS.indexOf(lang)), a = TX[k], s = a[i] || a[0];
     if (v) for (var n in v) s = s.split('{' + n + '}').join(v[n]);

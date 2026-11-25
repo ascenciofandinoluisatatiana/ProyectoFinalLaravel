@@ -13,12 +13,12 @@
 
   /* ---------- textos (es · en · pt · fr) ---------- */
   var TX = {
-    feat: ['Destacada', 'Featured', 'Destaque', 'En vedette'],
-    view: ['Ver inmueble', 'View property', 'Ver imóvel', 'Voir le bien'],
-    ver: ['{n} verificadas', '{n} verified', '{n} verificados', '{n} vérifiés'],
-    cities: ['en {n} ciudades', 'in {n} cities', 'em {n} cidades', 'dans {n} villes'],
-    day: ['Casa colonial colombiana de día', 'Colombian colonial house by day', 'Casa colonial colombiana de dia', 'Maison coloniale colombienne de jour'],
-    night: ['La misma casa de noche, iluminada', 'The same house at night, lit up', 'A mesma casa à noite, iluminada', 'La même maison la nuit, éclairée']
+    feat: ['Destacada', 'Featured', 'Destaque', 'En vedette', 'مميّز', 'Hervorgehoben', 'In evidenza', '精选', '注目', '추천', 'Рекомендуемое', 'विशेष'],
+    view: ['Ver inmueble', 'View property', 'Ver imóvel', 'Voir le bien', 'عرض العقار', 'Immobilie ansehen', 'Vedi immobile', '查看房产', '物件を見る', '매물 보기', 'Смотреть объект', 'संपत्ति देखें'],
+    ver: ['{n} verificadas', '{n} verified', '{n} verificados', '{n} vérifiés', '{n} موثّق', '{n} geprüft', '{n} verificati', '{n} 套已验证', '{n} 件確認済み', '인증 {n}개', 'Проверено: {n}', '{n} सत्यापित'],
+    cities: ['en {n} ciudades', 'in {n} cities', 'em {n} cidades', 'dans {n} villes', 'في {n} مدن', 'in {n} Städten', 'in {n} città', '分布于 {n} 个城市', '{n} 都市に掲載', '{n}개 도시', 'в {n} городах', '{n} शहरों में'],
+    day: ['Casa colonial colombiana de día', 'Colombian colonial house by day', 'Casa colonial colombiana de dia', 'Maison coloniale colombienne de jour', 'منزل كولومبي استعماري في النهار', 'Kolumbianisches Kolonialhaus bei Tag', 'Casa coloniale colombiana di giorno', '白天的哥伦比亚殖民风格房屋', '昼間のコロンビアのコロニアル様式の家', '낮의 콜롬비아 식민지풍 주택', 'Колумбийский колониальный дом днём', 'दिन में कोलंबियाई औपनिवेशिक घर'],
+    night: ['La misma casa de noche, iluminada', 'The same house at night, lit up', 'A mesma casa à noite, iluminada', 'La même maison la nuit, éclairée', 'المنزل نفسه ليلًا وهو مضاء', 'Dasselbe Haus nachts, beleuchtet', 'La stessa casa di notte, illuminata', '同一栋房屋的夜晚灯光', '夜にライトアップされた同じ家', '조명이 켜진 밤의 같은 주택', 'Тот же дом ночью, с подсветкой', 'वही घर रात में, रोशनी के साथ']
   };
   function X(k, v) {
     var i = Math.max(0, LANGS.indexOf(lang)), s = (TX[k] || [k])[i] || (TX[k] || [k])[0];

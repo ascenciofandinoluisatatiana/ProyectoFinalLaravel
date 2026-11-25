@@ -7,19 +7,19 @@
   'use strict';
 
   var TXT = {
-    share: ['Compartir', 'Share', 'Compartilhar', 'Partager'],
-    wa: ['Compartir por WhatsApp', 'Share on WhatsApp', 'Compartilhar no WhatsApp', 'Partager sur WhatsApp'],
-    fb: ['Compartir en Facebook', 'Share on Facebook', 'Compartilhar no Facebook', 'Partager sur Facebook'],
-    x: ['Compartir en X', 'Share on X', 'Compartilhar no X', 'Partager sur X'],
-    cp: ['Copiar enlace', 'Copy link', 'Copiar link', 'Copier le lien'],
-    copied: ['Enlace copiado', 'Link copied', 'Link copiado', 'Lien copié'],
-    favAdd: ['Guardar en favoritos', 'Save to favorites', 'Salvar nos favoritos', 'Ajouter aux favoris'],
-    favDel: ['Quitar de favoritos', 'Remove from favorites', 'Remover dos favoritos', 'Retirer des favoris'],
-    nuevo: ['Nuevo', 'New', 'Novo', 'Nouveau'],
-    nivel: ['Nivel', 'Level', 'Nível', 'Niveau'],
-    sub_oro: ['Máxima visibilidad: las primeras propiedades del portal', 'Maximum visibility: the first listings in the portal', 'Máxima visibilidade: os primeiros imóveis do portal', 'Visibilité maximale : les premières annonces du portail'],
-    sub_plata: ['Alta visibilidad: propiedades muy destacadas', 'High visibility: highly featured listings', 'Alta visibilidade: imóveis muito destacados', 'Haute visibilité : annonces très mises en avant'],
-    sub_bronce: ['Propiedades destacadas del portal', 'Featured listings', 'Imóveis em destaque', 'Annonces à la une']
+    share: ['Compartir', 'Share', 'Compartilhar', 'Partager', 'مشاركة', 'Teilen', 'Condividi', '分享', '共有', '공유', 'Поделиться', 'साझा करें'],
+    wa: ['Compartir por WhatsApp', 'Share on WhatsApp', 'Compartilhar no WhatsApp', 'Partager sur WhatsApp', 'مشاركة عبر واتساب', 'Auf WhatsApp teilen', 'Condividi su WhatsApp', '分享到 WhatsApp', 'WhatsApp で共有', 'WhatsApp으로 공유', 'Поделиться в WhatsApp', 'WhatsApp पर साझा करें'],
+    fb: ['Compartir en Facebook', 'Share on Facebook', 'Compartilhar no Facebook', 'Partager sur Facebook', 'مشاركة عبر فيسبوك', 'Auf Facebook teilen', 'Condividi su Facebook', '分享到 Facebook', 'Facebook で共有', 'Facebook으로 공유', 'Поделиться в Facebook', 'Facebook पर साझा करें'],
+    x: ['Compartir en X', 'Share on X', 'Compartilhar no X', 'Partager sur X', 'مشاركة عبر X', 'Auf X teilen', 'Condividi su X', '分享到 X', 'X で共有', 'X로 공유', 'Поделиться в X', 'X पर साझा करें'],
+    cp: ['Copiar enlace', 'Copy link', 'Copiar link', 'Copier le lien', 'نسخ الرابط', 'Link kopieren', 'Copia link', '复制链接', 'リンクをコピー', '링크 복사', 'Копировать ссылку', 'लिंक कॉपी करें'],
+    copied: ['Enlace copiado', 'Link copied', 'Link copiado', 'Lien copié', 'تم نسخ الرابط', 'Link kopiert', 'Link copiato', '链接已复制', 'リンクをコピーしました', '링크를 복사했습니다', 'Ссылка скопирована', 'लिंक कॉपी हो गया'],
+    favAdd: ['Guardar en favoritos', 'Save to favorites', 'Salvar nos favoritos', 'Ajouter aux favoris', 'حفظ في المفضلة', 'In Favoriten speichern', 'Salva nei preferiti', '加入收藏', 'お気に入りに保存', '즐겨찾기에 저장', 'Сохранить в избранное', 'पसंदीदा में सहेजें'],
+    favDel: ['Quitar de favoritos', 'Remove from favorites', 'Remover dos favoritos', 'Retirer des favoris', 'إزالة من المفضلة', 'Aus Favoriten entfernen', 'Rimuovi dai preferiti', '从收藏中移除', 'お気に入りから削除', '즐겨찾기에서 삭제', 'Удалить из избранного', 'पसंदीदा से हटाएँ'],
+    nuevo: ['Nuevo', 'New', 'Novo', 'Nouveau', 'جديد', 'Neu', 'Nuovo', '新', '新着', '신규', 'Новое', 'नया'],
+    nivel: ['Nivel', 'Level', 'Nível', 'Niveau', 'المستوى', 'Stufe', 'Livello', '等级', 'レベル', '등급', 'Уровень', 'स्तर'],
+    sub_oro: ['Máxima visibilidad: las primeras propiedades del portal', 'Maximum visibility: the first listings in the portal', 'Máxima visibilidade: os primeiros imóveis do portal', 'Visibilité maximale : les premières annonces du portail', 'أقصى ظهور: أول الإعلانات في البوابة', 'Maximale Sichtbarkeit: die ersten Inserate im Portal', 'Massima visibilità: i primi annunci del portale', '最高曝光：门户中排名最前的房源', '最大の露出：ポータルの最上位掲載', '최대 노출: 포털 최상위 매물', 'Максимальная видимость: первые объявления портала', 'अधिकतम दृश्यता: पोर्टल के शीर्ष विज्ञापन'],
+    sub_plata: ['Alta visibilidad: propiedades muy destacadas', 'High visibility: highly featured listings', 'Alta visibilidade: imóveis muito destacados', 'Haute visibilité : annonces très mises en avant', 'ظهور مرتفع: إعلانات مميّزة جدًا', 'Hohe Sichtbarkeit: stark hervorgehobene Inserate', 'Alta visibilità: annunci molto in evidenza', '高曝光：重点推荐的房源', '高い露出：大きく目立つ掲載', '높은 노출: 크게 강조된 매물', 'Высокая видимость: заметно выделенные объявления', 'उच्च दृश्यता: प्रमुखता से दिखाए गए विज्ञापन'],
+    sub_bronce: ['Propiedades destacadas del portal', 'Featured listings', 'Imóveis em destaque', 'Annonces à la une', 'إعلانات مميّزة', 'Hervorgehobene Inserate', 'Annunci in evidenza', '推荐房源', '注目の掲載', '추천 매물', 'Выделенные объявления', 'विशेष विज्ञापन']
   };
   function L(k) {
     var i = Math.max(0, LANGS.indexOf(lang));

@@ -109,7 +109,7 @@
 
     /* ---------- Idioma del panel ----------
        Misma preferencia que el resto del sitio (clave "umbral_lang").
-       Por ahora se traducen el menú y la barra; el contenido sigue en español. */
+       En inglés se traduce toda la página con /assets/traductor-en.js. */
     var IDIOMAS = { es: 'Español', en: 'English' };   // los paneles solo tienen español e inglés
     var TEXTOS = {
         menu: { es: 'Menú', en: 'Menu', pt: 'Menu', fr: 'Menu' },
@@ -149,6 +149,17 @@
     var idioma = 'es';
     try { idioma = localStorage.getItem('umbral_lang') || 'es'; } catch (e) { }
     if (!IDIOMAS[idioma]) idioma = 'es';
+    // Inglés: diccionarios (común + vendedor) y después el motor común; la página se oculta un instante
+    if (idioma === 'en' && !window.UmbralIdioma) {
+        document.documentElement.classList.add('i-traduciendo');
+        document.documentElement.lang = 'en';
+        ['/inmobiliaria/js/idioma-en.js', '/vendedor/js/idioma-en.js', '/assets/traductor-en.js'].reduce(function (antes, src) {
+            return antes.then(function () {
+                return new Promise(function (listo) { var s = document.createElement('script'); s.src = src; s.onload = s.onerror = listo; document.head.appendChild(s); });
+            });
+        }, Promise.resolve());
+        setTimeout(function () { document.documentElement.classList.remove('i-traduciendo'); }, 3000);
+    }
     function tx(clave) { return (TEXTOS[clave] || {})[idioma] || (TEXTOS[clave] || {}).es || clave; }
 
     // Secciones del panel, agrupadas como en el menú de la inmobiliaria
@@ -240,7 +251,7 @@
                 idioma = this.getAttribute('data-idioma');
                 try { localStorage.setItem('umbral_lang', idioma); } catch (e) { }
                 document.documentElement.lang = idioma;
-                barra(usuarioActual, seccionActual);
+                window.location.reload();
             });
         });
         document.getElementById('i-menu').addEventListener('click', function () {

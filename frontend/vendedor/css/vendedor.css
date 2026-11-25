@@ -385,3 +385,6 @@ dialog.v-ventana::backdrop { background: rgba(6, 10, 30, 0.55); -webkit-backdrop
 /* Captcha de "Registrar inmueble" (Vendedor e Inmobiliaria): centrado; en pantallas grandes mide 300 px y en celular se ajusta al ancho */
 #f-captcha { text-align: center; }
 #f-captcha-widget { max-width: 300px; margin: 0 auto; }
+
+/* Inglés: la página se oculta un instante mientras se traduce (assets/traductor-en.js) */
+.i-traduciendo body { visibility: hidden; }

@@ -2,11 +2,19 @@
 # UMBRAL — Producción (VPS Contabo + Caddy)
 # Sin puertos publicados: Caddy entra por la red "proxy".
 # =============================================================
+# Límite de logs de Docker: cada contenedor guarda máximo 3 archivos de 10 MB (así no llenan el disco)
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   umbral_postgres:
     image: postgres:16-alpine
     container_name: umbral_postgres
     restart: unless-stopped
+    logging: *logging
     environment:
       POSTGRES_DB: ${DB_DATABASE}
       POSTGRES_USER: ${DB_USERNAME}
@@ -26,14 +34,18 @@ services:
     image: redis:7-alpine
     container_name: umbral_redis
     restart: unless-stopped
-    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    logging: *logging
+    # Redis exige clave (REDIS_PASSWORD, definida en el .env de esta carpeta)
+    command: ["sh", "-c", "exec redis-server /usr/local/etc/redis/redis.conf --requirepass \"$$REDIS_PASSWORD\""]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?Falta REDIS_PASSWORD en el .env de la raiz}
     volumes:
       - umbral_redis_data:/data
       - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
     networks:
       - umbral_network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" ping 2>/dev/null | grep -q PONG"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -45,6 +57,7 @@ services:
       dockerfile: Dockerfile.prod
     container_name: umbral_backend
     restart: unless-stopped
+    logging: *logging
     depends_on:
       umbral_postgres:
         condition: service_healthy
@@ -76,6 +89,7 @@ services:
       context: ./docker/backend
     container_name: umbral_queue
     restart: unless-stopped
+    logging: *logging
     depends_on:
       umbral_backend:
         condition: service_started
@@ -104,6 +118,7 @@ services:
     image: nginx:alpine
     container_name: umbral_frontend
     restart: unless-stopped
+    logging: *logging
     depends_on:
       - umbral_backend
     volumes:
@@ -127,6 +142,7 @@ services:
       context: ./seguridad-python
     container_name: umbral_vigilante
     restart: unless-stopped
+    logging: *logging
     depends_on:
       - umbral_frontend
     environment:

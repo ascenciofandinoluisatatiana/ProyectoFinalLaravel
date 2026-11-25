@@ -1,6 +1,7 @@
 # =============================================================
 # UMBRAL — Producción (VPS Contabo + Caddy)
 # Sin puertos publicados: Caddy entra por la red "proxy".
+# Contenedores endurecidos: no-new-privileges + cap_drop ALL (solo se devuelven las capacidades necesarias).
 # =============================================================
 # Límite de logs de Docker: cada contenedor guarda máximo 3 archivos de 10 MB (así no llenan el disco)
 x-logging: &logging
@@ -15,6 +16,17 @@ services:
     container_name: umbral_postgres
     restart: unless-stopped
     logging: *logging
+    # Endurecido: sin permisos extra; solo las capacidades que este contenedor necesita
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETUID
+      - SETGID
     environment:
       POSTGRES_DB: ${DB_DATABASE}
       POSTGRES_USER: ${DB_USERNAME}
@@ -35,6 +47,15 @@ services:
     container_name: umbral_redis
     restart: unless-stopped
     logging: *logging
+    # Endurecido: sin permisos extra; solo las capacidades que este contenedor necesita
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
     # Redis exige clave (REDIS_PASSWORD, definida en el .env de esta carpeta)
     command: ["sh", "-c", "exec redis-server /usr/local/etc/redis/redis.conf --requirepass \"$$REDIS_PASSWORD\""]
     environment:
@@ -58,6 +79,17 @@ services:
     container_name: umbral_backend
     restart: unless-stopped
     logging: *logging
+    # Endurecido: sin permisos extra; solo las capacidades que este contenedor necesita
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETUID
+      - SETGID
     depends_on:
       umbral_postgres:
         condition: service_healthy
@@ -90,6 +122,17 @@ services:
     container_name: umbral_queue
     restart: unless-stopped
     logging: *logging
+    # Endurecido: sin permisos extra; solo las capacidades que este contenedor necesita
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETUID
+      - SETGID
     depends_on:
       umbral_backend:
         condition: service_started
@@ -119,6 +162,17 @@ services:
     container_name: umbral_frontend
     restart: unless-stopped
     logging: *logging
+    # Endurecido: sin permisos extra; solo las capacidades que este contenedor necesita
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - SETUID
+      - SETGID
+      - NET_BIND_SERVICE
     depends_on:
       - umbral_backend
     volumes:
@@ -143,6 +197,13 @@ services:
     container_name: umbral_vigilante
     restart: unless-stopped
     logging: *logging
+    # Endurecido: sin permisos extra; solo las capacidades que este contenedor necesita
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - DAC_OVERRIDE
     depends_on:
       - umbral_frontend
     environment:

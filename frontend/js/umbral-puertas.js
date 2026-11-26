@@ -2,8 +2,8 @@
    UMBRAL · Puertas de entrada + casa de carga
    - Al abrir la página aparece una casa que se dibuja (carga) detrás de dos puertas cerradas.
      Cuando la página terminó de cargar, las puertas se abren y dejan ver el contenido.
-   - Las puertas se abren: al entrar al sitio, al recargar (F5), al abrirlo como app (celular o
-     escritorio) y al iniciar sesión (cuando se pasa de un área a otra: Inicio -> panel, etc.).
+   - Las puertas se abren: al entrar al sitio, al abrirlo como app (celular o escritorio) y al iniciar
+     sesión (cuando se pasa de un área a otra: Inicio -> panel, etc.). Al recargar con F5 NO se repiten.
      Al moverse entre secciones del MISMO panel no se repiten (solo sale la casa si la carga tarda).
    - Se añade solo, desde nginx (sub_filter), igual que ocultar-ruta.js. No hay que editar cada HTML.
    - Para usar la casa de carga en otro momento (por ejemplo mientras llega una respuesta lenta):
@@ -13,9 +13,9 @@
     'use strict';
     if (window.UmbralCarga) return;
 
-    var MINIMO_MS = 1600;     // tiempo mínimo que se ve la casa antes de abrir las puertas
+    var MINIMO_MS = 1000;     // tiempo mínimo que se ve la casa antes de abrir las puertas
     var MAXIMO_MS = 7000;     // si la página tarda demasiado, igual se abren
-    var ABRIR_MS = 1500;      // duración de la apertura (debe coincidir con el CSS)
+    var ABRIR_MS = 1100;      // duración de la apertura (debe coincidir con el CSS)
     var raiz = document.documentElement;
 
     /* ---------- Estilos (van dentro del script: un solo archivo) ---------- */
@@ -140,9 +140,9 @@
     }
     var tipo = 'navigate';
     try { var nav = performance.getEntriesByType('navigation')[0]; if (nav) tipo = nav.type; } catch (e) { }
-    var antes = null, area = areaActual();
-    try { antes = sessionStorage.getItem('umbral-area'); sessionStorage.setItem('umbral-area', area); } catch (e) { }
-    var conPuertas = (tipo === 'reload') || (antes !== area);
+    var antes = null, area = areaActual(), recarga = (tipo === 'reload');
+    try { antes = sessionStorage.getItem('umbral-area'); if (!recarga) sessionStorage.setItem('umbral-area', area); } catch (e) { }
+    var conPuertas = !recarga && (antes !== area);   // al recargar con F5 no se repiten
 
     /* ---------- Con puertas: casa -> puertas se abren ---------- */
     if (conPuertas) {

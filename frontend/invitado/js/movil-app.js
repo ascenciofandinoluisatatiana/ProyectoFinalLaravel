@@ -24,10 +24,28 @@
     var abierto = abrir === undefined ? panel.classList.contains('flt-plegado') : abrir;
     panel.classList.toggle('flt-plegado', !abierto);
     boton.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+    if (typeof bnFiltros !== 'undefined' && bnFiltros) { bnFiltros.classList.toggle('on', abierto); bnFiltros.setAttribute('aria-expanded', abierto ? 'true' : 'false'); var ib = bnFiltros.querySelector('i'); if (ib) ib.className = abierto ? 'fa-solid fa-xmark' : 'fa-solid fa-sliders'; }
     var ic = boton.querySelector('i');
     if (ic) ic.className = abierto ? 'fa-solid fa-xmark' : 'fa-solid fa-sliders';
   }
   boton.addEventListener('click', function () { alternar(); });
+  /* Barra inferior (celular): "Filtros" y "Umbra" van ahí, así ya no hay botones flotantes tapando las tarjetas */
+  var bnav = document.getElementById('bnav'), bnFiltros = null, bnUmbra = null, bnNum = null;
+  if (bnav) {
+    var menu = bnav.querySelector('[data-bn="menu"]');
+    bnFiltros = document.createElement('button');
+    bnFiltros.type = 'button'; bnFiltros.className = 'bn-extra'; bnFiltros.setAttribute('data-bnx', 'filtros');
+    bnFiltros.setAttribute('data-i18n-aria', 'f_btn'); bnFiltros.setAttribute('aria-label', etiqueta[idioma] || etiqueta.es);
+    bnFiltros.setAttribute('aria-expanded', 'false');
+    bnFiltros.innerHTML = '<i class="fa-solid fa-sliders" aria-hidden="true"></i><em hidden></em>';
+    bnNum = bnFiltros.querySelector('em');
+    bnUmbra = document.createElement('button');
+    bnUmbra.type = 'button'; bnUmbra.className = 'bn-extra'; bnUmbra.setAttribute('data-bnx', 'umbra'); bnUmbra.setAttribute('aria-label', 'Umbra');
+    bnUmbra.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>';
+    bnav.insertBefore(bnFiltros, menu); bnav.insertBefore(bnUmbra, menu);
+    bnFiltros.addEventListener('click', function () { alternar(); });
+    bnUmbra.addEventListener('click', function () { var f = document.querySelector('.cb-fab'); if (f) f.click(); });
+  }
   listo.addEventListener('click', function () {
     alternar(false);
     var r = document.querySelector('.res-head'); if (r) r.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -38,16 +56,10 @@
   function contar() {
     var n = ['#fType', '#fDept', '#fCity', '#fBarrio', '#fMax', '#fBeds'].filter(function (q) { var el = document.querySelector(q); return el && el.value !== ''; }).length;
     num.textContent = n; num.hidden = n === 0;
+    if (bnNum) { bnNum.textContent = n; bnNum.hidden = n === 0; }
   }
   panel.addEventListener('change', contar); panel.addEventListener('input', contar);
   var limpiar = document.querySelector('#clearBtn');
   if (limpiar) limpiar.addEventListener('click', function () { setTimeout(contar, 60); });
   contar();
-  /* mientras se hace scroll, los botones flotantes se aclaran; al parar vuelven a verse completos */
-  var parar;
-  window.addEventListener('scroll', function () {
-    document.body.classList.add('fab-scroll');
-    clearTimeout(parar);
-    parar = setTimeout(function () { document.body.classList.remove('fab-scroll'); }, 700);
-  }, { passive: true });
 })();

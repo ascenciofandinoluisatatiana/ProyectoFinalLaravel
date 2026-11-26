@@ -35,6 +35,11 @@
         '#umb-puertas .up-centro{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;',
         'justify-content:center;gap:clamp(14px,3vw,22px);pointer-events:none;transition:opacity .4s ease,transform ' + ABRIR_MS + 'ms cubic-bezier(.76,0,.24,1)}',
         '#umb-puertas.up-abierta .up-centro{opacity:0;transform:translateY(-40vh)}',
+        /* Logo */
+        '#umb-puertas .up-logo{width:clamp(92px,21vw,150px);height:auto;display:block;opacity:0;transform:scale(.85);',
+        'filter:brightness(1.9) saturate(1.15) drop-shadow(0 0 16px rgba(227,201,133,.55));',
+        'animation:up-logo .8s cubic-bezier(.2,.7,.2,1) forwards}',
+        '@keyframes up-logo{to{opacity:1;transform:none}}',
         /* Nombre, letra por letra */
         '#umb-puertas .up-marca{display:flex;font:600 clamp(30px,8vw,64px)/1 "Cormorant Garamond",Georgia,serif;',
         'letter-spacing:.32em;text-indent:.32em;color:#e3c985;text-shadow:0 0 24px rgba(227,201,133,.45)}',
@@ -57,11 +62,13 @@
         '#umb-puertas.up-solo.up-inicial,#umb-puertas.up-solo.up-opaco{background:radial-gradient(ellipse at 50% 42%,#2b1355 0,#1a0a33 45%,#0b0415 100%);-webkit-backdrop-filter:none;backdrop-filter:none}',
         '#umb-puertas.up-solo .up-centro{animation:up-aparece .35s ease .25s both}',
         '#umb-puertas.up-solo .up-marca{font-size:clamp(24px,6vw,44px)}',
+        '#umb-puertas.up-solo .up-logo{width:clamp(60px,14vw,96px)}',
         '#umb-puertas.up-solo .up-barra i{width:40%;animation:up-desliza 1.3s ease-in-out infinite}',
         '@keyframes up-aparece{from{opacity:0}to{opacity:1}}',
         /* Tema claro */
         '#umb-puertas.up-claro .up-telon{background:radial-gradient(ellipse at 50% 42%,#ffffff 0,#f4f1fb 50%,#e1d5f7 100%);',
         'border-bottom-color:#7c3aed;box-shadow:0 6px 40px rgba(124,58,237,.30)}',
+        '#umb-puertas.up-claro .up-logo{filter:drop-shadow(0 0 14px rgba(124,58,237,.30))}',
         '#umb-puertas.up-claro .up-marca{color:#5b21b6;text-shadow:0 0 24px rgba(124,58,237,.25)}',
         '#umb-puertas.up-claro .up-barra{background:rgba(124,58,237,.18)}',
         '#umb-puertas.up-claro .up-barra i{background:linear-gradient(90deg,rgba(124,58,237,.2),#7c3aed 60%,#a78bfa);box-shadow:0 0 10px rgba(124,58,237,.6)}',
@@ -72,7 +79,7 @@
         '#umb-puertas .up-telon,#umb-puertas .up-centro{transition:opacity .5s ease}',
         '#umb-puertas.up-abierta .up-telon{transform:none;opacity:0}',
         '#umb-puertas.up-abierta .up-centro{transform:none}',
-        '#umb-puertas .up-marca span{animation:none;opacity:1;transform:none}',
+        '#umb-puertas .up-marca span,#umb-puertas .up-logo{animation:none;opacity:1;transform:none}',
         '#umb-puertas .up-barra i{animation:none;width:60%}#umb-puertas.up-solo .up-barra i{animation:none}}'
     ].join('');
 
@@ -128,7 +135,7 @@
         }
         capa.innerHTML =
             '<div class="up-telon"></div>' +
-            '<div class="up-centro"><div class="up-marca">' + NOMBRE + '</div><div class="up-barra"><i></i></div></div>';
+            '<div class="up-centro"><img class="up-logo" src="/img/logo-carga.png" alt="" aria-hidden="true"><div class="up-marca">' + NOMBRE + '</div><div class="up-barra"><i></i></div></div>';
         raiz.appendChild(capa);
         raiz.classList.add('up-bloqueado');
         return capa;

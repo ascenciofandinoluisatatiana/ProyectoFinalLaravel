@@ -50,18 +50,19 @@
     }
 
     function fecha(iso) {
-        return new Date(iso).toLocaleString('es-CO', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+        return new Date(iso).toLocaleString(idioma == 'en' ? 'en-US' : 'es-CO', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
     }
 
     function relativo(iso) {
+        var en = idioma === 'en';
         var min = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
-        if (min < 1) return 'justo ahora';
-        if (min < 60) return 'hace ' + min + ' min';
-        if (min < 1440) return 'hace ' + Math.round(min / 60) + ' h';
+        if (min < 1) return en ? 'just now' : 'justo ahora';
+        if (min < 60) return en ? min + ' min ago' : 'hace ' + min + ' min';
+        if (min < 1440) { var h = Math.round(min / 60); return en ? h + ' h ago' : 'hace ' + h + ' h'; }
         var d = Math.round(min / 1440);
-        return d === 1 ? 'ayer' : 'hace ' + d + ' días';
+        if (d === 1) return en ? 'yesterday' : 'ayer';
+        return en ? d + ' days ago' : 'hace ' + d + ' días';
     }
-
     /* ---------- Sesión ---------- */
     function leerUsuario() {
         try {
@@ -112,39 +113,39 @@
        En inglés se traduce toda la página con /assets/traductor-en.js. */
     var IDIOMAS = { es: 'Español', en: 'English' };   // los paneles solo tienen español e inglés
     var TEXTOS = {
-        menu: { es: 'Menú', en: 'Menu', pt: 'Menu', fr: 'Menu' },
-        idioma: { es: 'Idioma', en: 'Language', pt: 'Idioma', fr: 'Langue' },
-        tema: { es: 'Cambiar tema', en: 'Change theme', pt: 'Mudar tema', fr: 'Changer de thème' },
-        salir: { es: 'Salir', en: 'Log out', pt: 'Sair', fr: 'Quitter' },
-        portal: { es: 'Portal público', en: 'Public portal', pt: 'Portal público', fr: 'Portail public' },
-        portal_nota: { es: 'Mira cómo ven los visitantes tus inmuebles.', en: 'See how visitors see your properties.', pt: 'Veja como os visitantes veem seus imóveis.', fr: 'Voyez comment les visiteurs voient vos biens.' },
-        ver_portal: { es: 'Ver el portal', en: 'Open portal', pt: 'Ver o portal', fr: 'Voir le portail' },
-        rol: { es: 'Panel del vendedor', en: 'Seller panel', pt: 'Painel do vendedor', fr: 'Espace vendeur' },
-        g_principal: { es: 'Principal', en: 'Main', pt: 'Principal', fr: 'Principal' },
-        g_operaciones: { es: 'Mis operaciones', en: 'My operations', pt: 'Minhas operações', fr: 'Mes opérations' },
-        inicio: { es: 'Inicio', en: 'Home', pt: 'Início', fr: 'Accueil' },
-        perfil: { es: 'Mi perfil', en: 'My profile', pt: 'Meu perfil', fr: 'Mon profil' },
-        venta: { es: 'Vender', en: 'Sell', pt: 'Vender', fr: 'Vendre' },
-        arriendo: { es: 'Arrendar', en: 'Rent out', pt: 'Alugar', fr: 'Louer' },
-        tipo: { es: 'Vendedor · Persona', en: 'Seller · Individual', pt: 'Vendedor · Pessoa', fr: 'Vendeur · Particulier' },
-        contactos: { es: 'Contactos', en: 'Contacts', pt: 'Contatos', fr: 'Contacts' },
-        historial: { es: 'Historial', en: 'History', pt: 'Histórico', fr: 'Historique' },
-        avisos: { es: 'Notificaciones y alertas', en: 'Notifications and alerts', pt: 'Notificações e alertas', fr: 'Notifications et alertes' },
-        av_todo: { es: 'Todo', en: 'All', pt: 'Tudo', fr: 'Tout' },
-        av_notif: { es: 'Notificaciones', en: 'Notifications', pt: 'Notificações', fr: 'Notifications' },
-        av_alertas: { es: 'Alertas', en: 'Alerts', pt: 'Alertas', fr: 'Alertes' },
-        av_leer: { es: 'Marcar todo como leído', en: 'Mark all as read', pt: 'Marcar tudo como lido', fr: 'Tout marquer comme lu' },
-        av_vacio: { es: 'Estás al día: no hay avisos por ahora.', en: 'You are all caught up: nothing new.', pt: 'Você está em dia: nada novo.', fr: 'Vous êtes à jour : rien de nouveau.' },
-        av_ver: { es: 'Ver todo el historial', en: 'View full history', pt: 'Ver todo o histórico', fr: 'Voir tout l’historique' },
-        av_contacto: { es: '{n} se interesó en tu inmueble', en: '{n} is interested in your property', pt: '{n} se interessou pelo seu imóvel', fr: '{n} s’intéresse à votre bien' },
-        av_visita_pend: { es: 'Visita por confirmar', en: 'Visit to confirm', pt: 'Visita por confirmar', fr: 'Visite à confirmer' },
-        av_visita_pronto: { es: 'Visita en las próximas 24 horas', en: 'Visit within the next 24 hours', pt: 'Visita nas próximas 24 horas', fr: 'Visite dans les 24 prochaines heures' },
-        av_memb: { es: 'Membresía por vencer', en: 'Membership about to expire', pt: 'Assinatura prestes a vencer', fr: 'Abonnement bientôt expiré' },
-        av_memb_hoy: { es: 'vence hoy', en: 'expires today', pt: 'vence hoje', fr: 'expire aujourd’hui' },
-        av_memb_man: { es: 'vence mañana', en: 'expires tomorrow', pt: 'vence amanhã', fr: 'expire demain' },
-        av_memb_dias: { es: 'vence en {n} días', en: 'expires in {n} days', pt: 'vence em {n} dias', fr: 'expire dans {n} jours' },
-        av_sin_resp: { es: 'Contactos sin responder: {n}', en: 'Unanswered contacts: {n}', pt: 'Contatos sem resposta: {n}', fr: 'Contacts sans réponse : {n}' },
-        av_sin_resp_nota: { es: 'Llevan más de 24 horas esperando tu respuesta.', en: 'They have been waiting for your reply for over 24 hours.', pt: 'Aguardam sua resposta há mais de 24 horas.', fr: 'Ils attendent votre réponse depuis plus de 24 heures.' }
+        menu: { es: 'Menú', en: 'Menu' },
+        idioma: { es: 'Idioma', en: 'Language'},
+        tema: { es: 'Cambiar tema', en: 'Change theme' },
+        salir: { es: 'Salir', en: 'Log out' },
+        portal: { es: 'Portal público', en: 'Public portal' },
+        portal_nota: { es: 'Mira cómo ven los visitantes tus inmuebles.', en: 'See how visitors see your properties.' },
+        ver_portal: { es: 'Ver el portal', en: 'Open portal' },
+        rol: { es: 'Panel del vendedor', en: 'Seller panel' },
+        g_principal: { es: 'Principal', en: 'Main' },
+        g_operaciones: { es: 'Mis operaciones', en: 'My operations' },
+        inicio: { es: 'Inicio', en: 'Home' },
+        perfil: { es: 'Mi perfil', en: 'My profile' },
+        venta: { es: 'Vender', en: 'Sell' },
+        arriendo: { es: 'Arrendar', en: 'Rent out' },
+        tipo: { es: 'Vendedor · Persona', en: 'Seller · Individual' },
+        contactos: { es: 'Contactos', en: 'Contacts' },
+        historial: { es: 'Historial', en: 'History' },
+        avisos: { es: 'Notificaciones y alertas', en: 'Notifications and alerts' },
+        av_todo: { es: 'Todo', en: 'All' },
+        av_notif: { es: 'Notificaciones', en: 'Notifications' },
+        av_alertas: { es: 'Alertas', en: 'Alerts' },
+        av_leer: { es: 'Marcar todo como leído', en: 'Mark all as read' },
+        av_vacio: { es: 'Estás al día: no hay avisos por ahora.', en: 'You are all caught up: nothing new.' },
+        av_ver: { es: 'Ver todo el historial', en: 'View full history' },
+        av_contacto: { es: '{n} se interesó en tu inmueble', en: '{n} is interested in your property' },
+        av_visita_pend: { es: 'Visita por confirmar', en: 'Visit to confirm' },
+        av_visita_pronto: { es: 'Visita en las próximas 24 horas', en: 'Visit within the next 24 hours' },
+        av_memb: { es: 'Membresía por vencer', en: 'Membership about to expire' },
+        av_memb_hoy: { es: 'vence hoy', en: 'expires today' },
+        av_memb_man: { es: 'vence mañana', en: 'expires tomorrow' },
+        av_memb_dias: { es: 'vence en {n} días', en: 'expires in {n} days' },
+        av_sin_resp: { es: 'Contactos sin responder: {n}', en: 'Unanswered contacts: {n}' },
+        av_sin_resp_nota: { es: 'Llevan más de 24 horas esperando tu respuesta.', en: 'They have been waiting for your reply for over 24 hours.' }
     };
     var idioma = 'es';
     try { idioma = localStorage.getItem('umbral_lang') || 'es'; } catch (e) { }
@@ -472,7 +473,7 @@
         var json = await r.json().catch(function () { return {}; });
         if (!r.ok) {
             var errores = json.errors ? Object.keys(json.errors).map(function (k) { return json.errors[k][0]; }) : [];
-            throw new Error(errores[0] || json.message || 'No se pudo completar la acción.');
+            throw new Error(errores[0] || json.message || (idioma === 'en' ? 'The action could not be completed.' : 'No se pudo completar la acción.'));
         }
         return json;
     }

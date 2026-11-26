@@ -106,7 +106,17 @@
         'Escribe un teléfono válido (solo números, +, espacios o guiones).': 'Enter a valid phone (only numbers, +, spaces or hyphens).',
         'Esta cuenta no tiene acceso al panel del vendedor.': 'This account has no access to the seller panel.',
         'Elige el inmueble que quieres posicionar.': 'Choose the property you want to boost.', 'Elige un inmueble.': 'Choose a property.',
-        'Ese inmueble no está en ningún paquete.': 'That property is not in any package.', 'Este inmueble ya salió del portal; no se puede posicionar.': 'This property already left the portal; it cannot be boosted.'
+        'Ese inmueble no está en ningún paquete.': 'That property is not in any package.', 'Este inmueble ya salió del portal; no se puede posicionar.': 'This property already left the portal; it cannot be boosted.',
+        /* ---------- Tipos de inmueble, planes y estados ---------- */
+        'Casa': 'House', 'Apartamento': 'Apartment', 'Finca': 'Country estate', 'Local': 'Commercial space',
+        'Lote': 'Lot', 'Oficina': 'Office',
+        'Semanal': 'Weekly', 'Quincenal': 'Biweekly', 'Mensual': 'Monthly',
+        'Oro': 'Gold', 'Plata': 'Silver', 'Bronce': 'Bronze',
+        'Vendida': 'Sold', 'Arrendada': 'Rented',
+
+        /* ---------- Errores ---------- */
+        'No se pudo completar la acción.': 'The action could not be completed.',
+        'Sin acceso': 'No access',
     };
 
     var CONTEOS = { 'inmuebles': 'properties', 'inmueble': 'property', 'contactos sin responder': 'unanswered contacts' };
@@ -131,7 +141,11 @@
             [/^Sube al menos (\d+) fotos?\.?$/, function (m) { return 'Upload at least ' + m[1] + ' photo(s).'; }],
             [/^Máximo (\d+) fotos?\.?$/, function (m) { return 'Up to ' + m[1] + ' photo(s).'; }],
             [/^Ya tienes las (\d+) fotos.*$/, function (m) { return 'You already have the ' + m[1] + ' photos allowed.'; }],
-            [/^(\d+) foto\(s\) no se pudieron guardar\. El inmueble quedó guardado; ábrelo con “Editar” y agrega las que faltan\.$/, function (m) { return m[1] + ' photo(s) could not be saved. The property was saved; open it with “Edit” and add the missing ones.'; }]
+            [/^(\d+) foto\(s\) no se pudieron guardar\. El inmueble quedó guardado; ábrelo con “Editar” y agrega las que faltan\.$/, function (m) { return m[1] + ' photo(s) could not be saved. The property was saved; open it with “Edit” and add the missing ones.'; }],
+            [/^(\d+) inmuebles? (?:está|están) posicionados? en las zonas destacadas\. Los demás aparecen en la zona normal\.$/, function (m) { return m[1] + (m[1] === '1' ? ' property is' : ' properties are') + ' boosted in the featured zones. The rest appear in the standard zone.'; }],
+            [/^Tienes (\d+) publicaci(?:ón|ones) gratis\. Si ya las usaste, el inmueble se guarda como borrador hasta que contrates un plan\.$/, function (m) { return 'You have ' + m[1] + ' free listing' + (m[1] === '1' ? '' : 's') + '. ' + (m[1] === '1' ? 'If you already used it' : 'If you already used them') + ', the property is saved as a draft until you buy a plan.'; }],
+            [/^\((\d+) de (\d+) · mínimo (\d+)\)$/, function (m) { return '(' + m[1] + ' of ' + m[2] + ' · minimum ' + m[3] + ')'; }],
+            [/^Te faltan (\d+) fotos? para llegar al mínimo de (\d+)\. Máximo (\d+)\.$/, function (m) { return 'You need ' + m[1] + ' more photo' + (m[1] === '1' ? '' : 's') + ' to reach the minimum of ' + m[2] + '. Maximum ' + m[3] + '.'; }],
         ];
     }
 

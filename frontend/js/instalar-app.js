@@ -9,9 +9,16 @@
     en: 'To install the app, open your browser menu and choose “Install app” or “Add to Home Screen”.',
     fr: 'Pour installer l’appli, ouvrez le menu de votre navigateur et choisissez « Installer l’application » ou « Ajouter à l’écran d’accueil ».',
     pt: 'Para instalar o app, abra o menu do navegador e escolha “Instalar app” ou “Adicionar à tela inicial”.',
-    ar: 'لتثبيت التطبيق، افتح قائمة المتصفح واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».'
+    ar: 'لتثبيت التطبيق، افتح قائمة المتصفح واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».',
+    de: 'Zum Installieren öffne das Browsermenü und wähle „App installieren“ oder „Zum Startbildschirm“.',
+    it: 'Per installare l’app, apri il menu del browser e scegli “Installa app” o “Aggiungi a schermata Home”.',
+    zh: '要安装应用，请打开浏览器菜单，选择“安装应用”或“添加到主屏幕”。',
+    ja: 'アプリをインストールするには、ブラウザのメニューから「アプリをインストール」または「ホーム画面に追加」を選んでください。',
+    ko: '앱을 설치하려면 브라우저 메뉴에서 “앱 설치” 또는 “홈 화면에 추가”를 선택하세요.',
+    ru: 'Чтобы установить приложение, откройте меню браузера и выберите «Установить приложение» или «Добавить на главный экран».',
+    hi: 'ऐप इंस्टॉल करने के लिए ब्राउज़र का मेनू खोलें और “ऐप इंस्टॉल करें” या “होम स्क्रीन पर जोड़ें” चुनें।'
   };
-  var SELECTOR = '#descargar-app-seccion, #descargarApp';
+  var SELECTOR = '#descargar-app-seccion, #descargarApp, [data-instalar]';
   var diferido = null, aviso = null, temporizador = null;
 
   function instalada() {

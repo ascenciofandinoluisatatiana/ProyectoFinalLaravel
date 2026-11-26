@@ -43,4 +43,11 @@
   var limpiar = document.querySelector('#clearBtn');
   if (limpiar) limpiar.addEventListener('click', function () { setTimeout(contar, 60); });
   contar();
+  /* mientras se hace scroll, los botones flotantes se aclaran; al parar vuelven a verse completos */
+  var parar;
+  window.addEventListener('scroll', function () {
+    document.body.classList.add('fab-scroll');
+    clearTimeout(parar);
+    parar = setTimeout(function () { document.body.classList.remove('fab-scroll'); }, 700);
+  }, { passive: true });
 })();

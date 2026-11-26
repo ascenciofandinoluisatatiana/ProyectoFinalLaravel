@@ -144,3 +144,14 @@
   #detailBody .price { font-size: clamp(22px, 8vw, 30px) !important; white-space: nowrap; }
   #detailBody .price small { white-space: normal; }
 }
+
+/* Botones flotantes más pequeños y pegados al borde: tapan menos las tarjetas; mientras se hace scroll se aclaran para dejar ver el contenido */
+@media (max-width: 700px) {
+  .cb { right: 10px; bottom: 76px; }
+  .cb-fab { width: 48px; height: 48px; }
+  .cb-tip { right: 56px; bottom: 0; max-width: min(240px, calc(100vw - 96px)); }
+  .btn-filtros-movil { width: 48px; height: 48px; right: 10px; bottom: 134px; font-size: 18px; }
+  .panel#filters.fmodal:not(.flt-plegado) { bottom: 192px !important; max-height: calc(100vh - 262px) !important; }
+  .cb-fab, .btn-filtros-movil { transition: opacity .25s, transform .2s; }
+  body.fab-scroll .cb-fab, body.fab-scroll .btn-filtros-movil { opacity: .3; }
+}

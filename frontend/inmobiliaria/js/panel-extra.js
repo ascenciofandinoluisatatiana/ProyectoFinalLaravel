@@ -432,7 +432,7 @@
        3 tipos: destacar (oro/plata/bronce, POST /propiedades/{id}/destacar {plan}),
        publicación normal por tiempo (POST /propiedades/{id}/publicar-normal {plan_id}) y
        posicionamiento (POST /propiedades/{id}/posicionar {plan_id}). En modo simulado se aprueba al instante;
-       con Wompi la API devuelve checkout_url y se lleva a pagar.
+       con PayU o Wompi la API devuelve checkout_url y se lleva a pagar.
        op: { api, propiedades, planes (destacar), pub ({normal, posicionamiento}), tipo, alTerminar } */
     var compra = null;
     var TIPOS_INMUEBLE = { apartamento: 'Apartamento', casa: 'Casa', finca: 'Finca', local: 'Local', lote: 'Lote', oficina: 'Oficina' };
@@ -568,7 +568,7 @@
             var r = compra.tipo === 'destacar'
                 ? await api('/propiedades/' + id + '/destacar', { metodo: 'POST', datos: { plan: valor } })
                 : await api('/propiedades/' + id + (compra.tipo === 'normal' ? '/publicar-normal' : '/posicionar'), { metodo: 'POST', datos: { plan_id: Number(valor) } });
-            if (r.checkout_url) {                 // Wompi: a pagar
+            if (r.checkout_url) {                 // PayU o Wompi: a pagar
                 if (compra.op.toast) compra.op.toast(r.message);
                 window.location.href = r.checkout_url;
                 return;

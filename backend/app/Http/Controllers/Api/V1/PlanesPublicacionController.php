@@ -109,7 +109,7 @@ class PlanesPublicacionController extends Controller
     private function haciaWompi(array $resultado): JsonResponse
     {
         return response()->json([
-            'message' => 'Te llevamos a Wompi para hacer el pago.',
+            'message' => 'Te llevamos a ' . app(\App\Services\Pagos\PagoService::class)->nombrePasarela() . ' para hacer el pago.',
             'checkout_url' => $resultado['url'],
             'referencia' => $resultado['pago']->referencia,
         ]);

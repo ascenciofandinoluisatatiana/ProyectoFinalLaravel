@@ -44,6 +44,21 @@ return [
     ],
 
     /*
+     | Pasarela de pagos PayU Latam. Sin RUT se usan las llaves públicas de PRUEBAS de PayU
+     | (developers-payu-latam.github.io → Probar tu solución). Con estas llaves PayU tiene prioridad
+     | sobre Wompi; si no hay llaves de ninguna pasarela, los pagos quedan en modo SIMULADO.
+     */
+    'payu' => [
+        'merchant_id' => env('PAYU_MERCHANT_ID'),
+        'account_id' => env('PAYU_ACCOUNT_ID'),
+        'api_key' => env('PAYU_API_KEY'),
+        'api_login' => env('PAYU_API_LOGIN'),
+        'checkout_url' => env('PAYU_CHECKOUT_URL', 'https://sandbox.checkout.payulatam.com/ppp-web-gateway-payu/'),
+        'test' => (bool) env('PAYU_TEST', true),
+        'confirmation_url' => env('PAYU_CONFIRMATION_URL'),
+    ],
+
+    /*
      | Captcha Cloudflare Turnstile para el formulario "Registrar inmueble" de la inmobiliaria.
      | Claves gratis en dash.cloudflare.com → Turnstile. Sin claves, el captcha no se pide.
      */

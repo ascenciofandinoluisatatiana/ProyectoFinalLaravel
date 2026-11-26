@@ -3,9 +3,9 @@
    API: /api/v1/inmobiliaria/membresia
    La membresía es POR PUBLICACIÓN: se compra en Propiedades con el botón "Destacar"
    (POST /propiedades/{id}/destacar). Aquí se ven las destacadas, los planes y los pagos.
-   El pago se hace en Wompi (PSE, tarjeta o Nequi): al contratar, la API devuelve
-   "checkout_url" y se lleva a la persona a pagar. Wompi la devuelve a /pago/resultado.html.
-   Sin llaves de Wompi en el servidor, el pago es simulado y la membresía se activa de una vez.
+   El pago se hace en la pasarela del servidor (PayU o Wompi): al contratar, la API devuelve
+   "checkout_url" y se lleva a la persona a pagar. La pasarela la devuelve a /pago/resultado.html.
+   Sin llaves de pasarela en el servidor, el pago es simulado y la membresía se activa de una vez.
    ========================================================= */
 (function () {
     'use strict';
@@ -97,7 +97,7 @@
                 var of = (datos.ofertas || []).filter(function (x) { return String(x.id) === b.getAttribute('data-comprar'); })[0];
                 if (!of) return;
                 if (!window.confirm('¿Comprar el paquete ' + of.nombre + ' (' + of.publicaciones + ' publicaciones, ' + of.dias + ' días) por ' + I.cop(of.precio) + '?' +
-                    (datos.simulado ? '\n(Pago simulado: el servidor no tiene llaves de Wompi)' : '\nTe llevaremos a Wompi para pagar.'))) return;
+                    (datos.simulado ? '\n(Pago simulado: el servidor no tiene llaves de la pasarela de pagos)' : '\nTe llevaremos a ' + (datos.pasarela || 'la pasarela de pagos') + ' para pagar.'))) return;
                 b.disabled = true;
                 var r = await I.api('/membresia/paquete', { metodo: 'POST', datos: { oferta_id: of.id } });
                 if (r.checkout_url) { I.toast(r.message); window.location.href = r.checkout_url; return; }
@@ -172,8 +172,8 @@
         $('d-planes-pos').innerHTML = tarjetasPub(planesPub.posicionamiento || [], 'posicionar', 'De primeras entre las normales');
 
         $('d-modo-pago').textContent = datos.simulado
-            ? 'El servidor no tiene llaves de Wompi: el pago es simulado y la publicación se destaca al instante.'
-            : 'El pago se hace en Wompi con PSE, tarjeta o Nequi. La publicación se destaca cuando el pago queda aprobado.';
+            ? 'El servidor no tiene llaves de la pasarela de pagos: el pago es simulado y la publicación se destaca al instante.'
+            : 'El pago se hace en ' + (datos.pasarela || 'la pasarela de pagos') + ' con tarjeta, PSE o Nequi. La publicación se destaca cuando el pago queda aprobado.';
 
         var h = datos.historial;
         $('d-historial-total').textContent = h.length + (h.length === 1 ? ' membresía' : ' membresías');

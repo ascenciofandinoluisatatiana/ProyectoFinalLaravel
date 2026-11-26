@@ -1,7 +1,8 @@
 /* Antes estaba escrito dentro de las páginas HTML (la política de seguridad ya no permite scripts en línea). */
 /* =========================================================
-   Resultado de un pago (Wompi o simulado).
-   Wompi devuelve aquí con ?id=TRANSACCION; el modo simulado con ?ref=REFERENCIA.
+   Resultado de un pago (PayU, Wompi o simulado).
+   PayU devuelve aquí con ?referenceCode=...&transactionState=...&signature=... (el servidor valida la firma);
+   Wompi con ?id=TRANSACCION; el modo simulado con ?ref=REFERENCIA.
    El estado real SIEMPRE lo consulta el servidor (GET /api/v1/public/pagos/estado),
    nunca se confía en lo que diga la URL.
    ========================================================= */
@@ -11,6 +12,7 @@
     var parametros = new URLSearchParams(window.location.search);
     var id = parametros.get('id');
     var ref = parametros.get('ref');
+    var payu = parametros.has('referenceCode') ? window.location.search.slice(1) : null;
     var intentos = 0;
     var caja = document.getElementById('r-tarjeta');
 
@@ -59,10 +61,10 @@
     }
 
     async function consultar() {
-        if (!id && !ref) { fallo('El enlace no tiene la información del pago.'); return; }
+        if (!id && !ref && !payu) { fallo('El enlace no tiene la información del pago.'); return; }
         intentos++;
         try {
-            var q = id ? 'id=' + encodeURIComponent(id) : 'ref=' + encodeURIComponent(ref);
+            var q = payu || (id ? 'id=' + encodeURIComponent(id) : 'ref=' + encodeURIComponent(ref));
             var r = await fetch('/api/v1/public/pagos/estado?' + q, { headers: { 'Accept': 'application/json' } });
             var json = await r.json().catch(function () { return {}; });
             if (!r.ok) { fallo(json.message || 'Intenta de nuevo en un momento.'); return; }
@@ -70,7 +72,7 @@
             pintar(json.data);
             // Pendiente (por ejemplo PSE esperando al banco): se vuelve a consultar por 2 minutos
             if (json.data.estado === 'pendiente' && intentos < 24) {
-                ref = json.data.referencia; id = null;
+                ref = json.data.referencia; id = null; payu = null;
                 setTimeout(consultar, 5000);
             }
         } catch (e) {

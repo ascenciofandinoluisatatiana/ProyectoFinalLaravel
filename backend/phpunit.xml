@@ -36,5 +36,7 @@
         <env name="NIGHTWATCH_ENABLED" value="false"/>
         <env name="DEEPSEEK_API_KEY" value="" force="true"/>
         <env name="DEEPSEEK_CHATBOT_API_KEY" value="" force="true"/>
+        <env name="PAYU_MERCHANT_ID" value="" force="true"/>
+        <env name="PAYU_API_KEY" value="" force="true"/>
     </php>
 </phpunit>

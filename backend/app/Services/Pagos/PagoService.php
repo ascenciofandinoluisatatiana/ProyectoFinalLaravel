@@ -46,9 +46,28 @@ class PagoService
         'PENDING' => 'pendiente',
     ];
 
+    /** Estados de PayU (transactionState / state_pol) → estados del portal. */
+    private const ESTADOS_PAYU = [
+        '4' => 'aprobado',
+        '6' => 'rechazado',
+        '5' => 'anulado',
+        '104' => 'error',
+        '7' => 'pendiente',
+    ];
+
     public function modo(): string
     {
+        if (config('services.payu.merchant_id') && config('services.payu.account_id') && config('services.payu.api_key')) {
+            return 'payu';
+        }
+
         return config('services.wompi.public_key') && config('services.wompi.integrity_secret') ? 'wompi' : 'simulado';
+    }
+
+    /** Nombre de la pasarela para mostrarlo en pantalla. */
+    public function nombrePasarela(): string
+    {
+        return ['payu' => 'PayU', 'wompi' => 'Wompi'][$this->modo()] ?? 'simulado';
     }
 
     public function simulado(): bool
@@ -187,7 +206,167 @@ class PagoService
             return ['pago' => $pago->fresh(), 'url' => $this->urlResultado() . '?ref=' . urlencode($pago->referencia)];
         }
 
+        if ($pago->proveedor === 'payu') {
+            return ['pago' => $pago, 'url' => rtrim(config('portal.frontend_url'), '/') . '/pago/payu.html?ref=' . urlencode($pago->referencia)];
+        }
+
         return ['pago' => $pago, 'url' => $this->urlCheckout($pago)];
+    }
+
+    /* =================== PayU =================== */
+
+    /**
+     * Datos del formulario que el navegador envía por POST al Web Checkout de PayU.
+     * Firma: MD5("apiKey~merchantId~referencia~valor~moneda").
+     */
+    public function formularioPayu(Pago $pago): array
+    {
+        $valor = $this->valorPayu($pago->monto_centavos);
+        $campos = [
+            'merchantId' => (string) config('services.payu.merchant_id'),
+            'accountId' => (string) config('services.payu.account_id'),
+            'description' => mb_substr($this->descripcionPayu($pago), 0, 255),
+            'referenceCode' => $pago->referencia,
+            'amount' => $valor,
+            'tax' => '0',
+            'taxReturnBase' => '0',
+            'currency' => $pago->moneda,
+            'signature' => $this->firmaPayu($pago->referencia, $valor, $pago->moneda),
+            'algorithmSignature' => 'MD5',
+            'test' => config('services.payu.test') ? '1' : '0',
+            'buyerFullName' => (string) $pago->pagador_nombre,
+            'buyerEmail' => (string) $pago->pagador_correo,
+            'telephone' => (string) ($pago->usuario?->telefono ?? ''),
+            'lng' => 'es',
+            'responseUrl' => $this->urlResultado(),
+            'confirmationUrl' => $this->urlConfirmacionPayu(),
+        ];
+
+        return ['accion' => (string) config('services.payu.checkout_url'), 'campos' => $campos];
+    }
+
+    public function firmaPayu(string $referencia, string $valor, string $moneda): string
+    {
+        return md5(implode('~', [config('services.payu.api_key'), config('services.payu.merchant_id'), $referencia, $valor, $moneda]));
+    }
+
+    public function urlConfirmacionPayu(): string
+    {
+        return config('services.payu.confirmation_url')
+            ?: rtrim(config('portal.frontend_url'), '/') . '/api/v1/pagos/payu/confirmacion';
+    }
+
+    /** COP sin decimales cuando el valor es entero (así lo firma y lo cobra PayU). */
+    private function valorPayu(int $centavos): string
+    {
+        return $centavos % 100 === 0 ? (string) intdiv($centavos, 100) : number_format($centavos / 100, 2, '.', '');
+    }
+
+    private function descripcionPayu(Pago $pago): string
+    {
+        $datos = $pago->oferta_datos ? (json_decode($pago->oferta_datos, true) ?: []) : [];
+        if (($datos['rol'] ?? null) === 'plan_publicacion') {
+            return 'UMBRAL ' . (($datos['tipo'] ?? '') === 'normal' ? 'publicacion' : 'posicionamiento') . ' ' . ($datos['dias'] ?? '') . ' dias';
+        }
+        if ($pago->plan === PaqueteMembresia::PLAN) {
+            return 'UMBRAL paquete ' . ($datos['nombre'] ?? 'de publicaciones');
+        }
+
+        return 'UMBRAL membresia ' . $pago->plan;
+    }
+
+    /**
+     * Vuelta del navegador desde PayU (responseUrl, por GET).
+     * Firma: MD5("apiKey~merchantId~referencia~valor con 1 decimal~moneda~transactionState").
+     */
+    public function confirmarRespuestaPayu(array $datos): ?Pago
+    {
+        $pago = Pago::where('referencia', (string) ($datos['referenceCode'] ?? ''))->where('proveedor', 'payu')->first();
+        if (! $pago || ! isset($datos['TX_VALUE'], $datos['transactionState'], $datos['signature'])) {
+            return $pago;
+        }
+
+        $esperada = md5(implode('~', [
+            config('services.payu.api_key'),
+            config('services.payu.merchant_id'),
+            $pago->referencia,
+            $this->redondeoPar((float) $datos['TX_VALUE']),
+            (string) ($datos['currency'] ?? $pago->moneda),
+            (string) $datos['transactionState'],
+        ]));
+        if (! hash_equals($esperada, strtolower((string) $datos['signature']))) {
+            Log::warning('PayU: firma de respuesta no coincide', ['referencia' => $pago->referencia]);
+
+            return $pago;
+        }
+
+        return $this->actualizar(
+            $pago,
+            self::ESTADOS_PAYU[(string) $datos['transactionState']] ?? 'pendiente',
+            isset($datos['transactionId']) ? (string) $datos['transactionId'] : null,
+            isset($datos['lapPaymentMethod']) ? (string) $datos['lapPaymentMethod'] : null,
+            (int) round(((float) $datos['TX_VALUE']) * 100)
+        );
+    }
+
+    /**
+     * Confirmación servidor a servidor de PayU (confirmationUrl, por POST).
+     * Firma: MD5("apiKey~merchant_id~reference_sale~valor~moneda~state_pol"), donde el valor lleva
+     * 1 decimal si el segundo decimal es cero (150.00 → 150.0) y 2 si no (150.26).
+     */
+    public function procesarConfirmacionPayu(array $datos): bool
+    {
+        $valor = (float) ($datos['value'] ?? 0);
+        $centavos = (int) round($valor * 100);
+        $nuevoValor = $centavos % 10 === 0 ? number_format($valor, 1, '.', '') : number_format($valor, 2, '.', '');
+        $esperada = md5(implode('~', [
+            config('services.payu.api_key'),
+            (string) ($datos['merchant_id'] ?? ''),
+            (string) ($datos['reference_sale'] ?? ''),
+            $nuevoValor,
+            (string) ($datos['currency'] ?? ''),
+            (string) ($datos['state_pol'] ?? ''),
+        ]));
+        $firmaValida = (string) ($datos['merchant_id'] ?? '') === (string) config('services.payu.merchant_id')
+            && hash_equals($esperada, strtolower((string) ($datos['sign'] ?? '')));
+
+        $idEvento = $firmaValida
+            ? mb_substr('PAYU-' . ($datos['transaction_id'] ?? 'sin-id') . '-' . ($datos['state_pol'] ?? ''), 0, 80)
+            : 'INV-' . sha1(json_encode($datos));
+        $pago = $firmaValida ? Pago::where('referencia', (string) ($datos['reference_sale'] ?? ''))->where('proveedor', 'payu')->first() : null;
+
+        DB::table('eventos_webhook_pago')->insertOrIgnore([
+            'id_evento_proveedor' => $idEvento,
+            'pago_id' => $pago?->id,
+            'payload' => json_encode($datos),
+            'firma_valida' => $firmaValida,
+        ]);
+        $registro = DB::table('eventos_webhook_pago')->where('id_evento_proveedor', $idEvento)->first();
+
+        if (! $firmaValida) {
+            return false;
+        }
+        if ($registro->procesado) {
+            return true;
+        }
+        if ($pago) {
+            $this->actualizar(
+                $pago,
+                self::ESTADOS_PAYU[(string) ($datos['state_pol'] ?? '')] ?? 'pendiente',
+                isset($datos['transaction_id']) ? (string) $datos['transaction_id'] : null,
+                isset($datos['payment_method_name']) ? (string) $datos['payment_method_name'] : null,
+                $centavos
+            );
+        }
+        DB::table('eventos_webhook_pago')->where('id', $registro->id)->update(['procesado' => true]);
+
+        return true;
+    }
+
+    /** Redondeo a 1 decimal "mitad al par", como lo pide PayU para la firma de respuesta. */
+    private function redondeoPar(float $valor): string
+    {
+        return number_format(round($valor, 1, PHP_ROUND_HALF_EVEN), 1, '.', '');
     }
 
     /** URL del Web Checkout de Wompi con la firma de integridad. */

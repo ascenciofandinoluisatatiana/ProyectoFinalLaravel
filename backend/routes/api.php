@@ -167,9 +167,13 @@ Route::prefix('v1/public')->group(function () {
     Route::post('vendedores/{vendedor}/calificaciones', [CalificacionVendedorController::class, 'store'])
         ->whereNumber('vendedor')->middleware('throttle:8,1');
 
-    // Pagos con Wompi (compra o arriendo desde el portal y resultado del pago)
+    // Pagos con PayU o Wompi (resultado del pago y formulario para ir a PayU)
     Route::get('pagos/estado', [PagoController::class, 'estado'])->middleware('throttle:30,1');
+    Route::get('pagos/payu/formulario', [PagoController::class, 'formularioPayu'])->middleware('throttle:30,1');
 });
+
+// Confirmación de PayU: avisa el resultado del pago (confirmationUrl, servidor a servidor)
+Route::post('v1/pagos/payu/confirmacion', [PagoController::class, 'confirmacionPayu'])->middleware('throttle:60,1');
 
 // Webhook de Wompi: avisa cuando una transacción cambia de estado (configurar en comercios.wompi.co)
 Route::post('v1/pagos/wompi/eventos', [PagoController::class, 'eventos'])->middleware('throttle:60,1');

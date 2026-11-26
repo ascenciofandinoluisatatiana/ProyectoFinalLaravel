@@ -936,7 +936,7 @@
                 var ruta = '/propiedades/' + inmuebleAPosicionar.id + (modoPlan === 'pos' ? '/posicionar' : '/publicar-normal');
                 r = await V.api(ruta, { metodo: 'POST', datos: { plan_id: planNuevoElegido } });
             }
-            // Con Wompi la API devuelve a dónde ir a pagar (se activa al aprobarse el pago)
+            // Con PayU o Wompi la API devuelve a dónde ir a pagar (se activa al aprobarse el pago)
             if (r.checkout_url) { V.toast(r.message); window.location.href = r.checkout_url; return; }
             ventanaPlanes.close();
             V.toast(r.message || 'Listo.');

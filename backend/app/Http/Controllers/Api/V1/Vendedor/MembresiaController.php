@@ -71,6 +71,7 @@ class MembresiaController extends Controller
                     'fecha' => $p->created_at?->toIso8601String(),
                 ])->all(),
             'simulado' => app(PagoService::class)->simulado(),
+            'pasarela' => app(PagoService::class)->nombrePasarela(),
         ]);
     }
 
@@ -103,7 +104,7 @@ class MembresiaController extends Controller
 
         if (! $pagos->simulado()) {
             return response()->json([
-                'message' => 'Te llevamos a Wompi para hacer el pago.',
+                'message' => 'Te llevamos a ' . app(\App\Services\Pagos\PagoService::class)->nombrePasarela() . ' para hacer el pago.',
                 'checkout_url' => $resultado['url'],
                 'referencia' => $resultado['pago']->referencia,
             ]);

@@ -10,9 +10,11 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * Pagos públicos del portal (Wompi).
- *   GET  /api/v1/public/pagos/estado      → resultado de un pago (página /pago/resultado.html)
- *   POST /api/v1/pagos/wompi/eventos      → webhook: Wompi avisa los cambios de estado
+ * Pagos públicos del portal (PayU o Wompi).
+ *   GET  /api/v1/public/pagos/estado          → resultado de un pago (página /pago/resultado.html)
+ *   GET  /api/v1/public/pagos/payu/formulario → campos firmados para enviar el pago a PayU
+ *   POST /api/v1/pagos/payu/confirmacion      → PayU avisa el resultado del pago
+ *   POST /api/v1/pagos/wompi/eventos          → webhook: Wompi avisa los cambios de estado
  */
 class PagoController extends Controller
 {
@@ -28,13 +30,16 @@ class PagoController extends Controller
     public function estado(Request $request): JsonResponse
     {
         $pago = null;
-        if ($request->filled('id') && ! $this->pagos->simulado()) {
+        if ($request->filled('referenceCode')) {
+            $pago = $this->pagos->confirmarRespuestaPayu($request->query());
+        }
+        if (! $pago && $request->filled('id') && $this->pagos->modo() === 'wompi') {
             $pago = $this->pagos->confirmarTransaccion((string) $request->query('id'));
         }
         if (! $pago && $request->filled('ref')) {
             $pago = Pago::where('referencia', (string) $request->query('ref'))->first();
             // Si sigue pendiente y ya tiene transacción, se vuelve a preguntar a Wompi
-            if ($pago && $pago->estado === 'pendiente' && $pago->transaccion_id && ! $this->pagos->simulado()) {
+            if ($pago && $pago->estado === 'pendiente' && $pago->transaccion_id && $pago->proveedor === 'wompi' && $this->pagos->modo() === 'wompi') {
                 $pago = $this->pagos->confirmarTransaccion($pago->transaccion_id) ?? $pago;
             }
         }
@@ -54,6 +59,31 @@ class PagoController extends Controller
             'simulado' => $pago->proveedor === 'simulado',
             'volver' => $this->volver($pago),
         ]]);
+    }
+
+    /**
+     * GET /public/pagos/payu/formulario?ref=REFERENCIA
+     * Campos firmados para enviar el pago a PayU. Solo pagos de PayU que siguen pendientes.
+     */
+    public function formularioPayu(Request $request): JsonResponse
+    {
+        $pago = Pago::where('referencia', (string) $request->query('ref'))->where('proveedor', 'payu')->first();
+        if (! $pago) {
+            return response()->json(['message' => 'No encontramos ese pago.'], 404);
+        }
+        if ($pago->estado !== 'pendiente') {
+            return response()->json(['message' => 'Este pago ya no está pendiente.', 'estado' => $pago->estado], 409);
+        }
+
+        return response()->json(['data' => $this->pagos->formularioPayu($pago)]);
+    }
+
+    /** POST /pagos/payu/confirmacion — PayU avisa el resultado (servidor a servidor). */
+    public function confirmacionPayu(Request $request): JsonResponse
+    {
+        $valido = $this->pagos->procesarConfirmacionPayu($request->all());
+
+        return response()->json(['ok' => $valido], $valido ? 200 : 400);
     }
 
     /** POST /pagos/wompi/eventos — Wompi solo necesita un 200; si la firma no cuadra se ignora. */

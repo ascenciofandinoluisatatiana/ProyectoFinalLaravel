@@ -37,8 +37,10 @@
         '#umb-puertas.up-abierta .up-centro{opacity:0;transform:translateY(-40vh)}',
         /* Logo */
         '#umb-puertas .up-logo{width:clamp(92px,21vw,150px);height:auto;display:block;opacity:0;transform:scale(.85);',
-        'filter:brightness(1.9) saturate(1.15) drop-shadow(0 0 16px rgba(227,201,133,.55));',
+        'filter:drop-shadow(0 0 16px rgba(227,201,133,.5));',
         'animation:up-logo .8s cubic-bezier(.2,.7,.2,1) forwards}',
+        '#umb-puertas .up-logo-c{display:none}',
+        '#umb-puertas.up-claro .up-logo-c{display:block}#umb-puertas.up-claro .up-logo-o{display:none}',
         '@keyframes up-logo{to{opacity:1;transform:none}}',
         /* Nombre, letra por letra */
         '#umb-puertas .up-marca{display:flex;font:600 clamp(30px,8vw,64px)/1 "Cormorant Garamond",Georgia,serif;',
@@ -68,7 +70,7 @@
         /* Tema claro */
         '#umb-puertas.up-claro .up-telon{background:radial-gradient(ellipse at 50% 42%,#ffffff 0,#f4f1fb 50%,#e1d5f7 100%);',
         'border-bottom-color:#7c3aed;box-shadow:0 6px 40px rgba(124,58,237,.30)}',
-        '#umb-puertas.up-claro .up-logo{filter:drop-shadow(0 0 14px rgba(124,58,237,.30))}',
+        '#umb-puertas.up-claro .up-logo-c{filter:drop-shadow(0 0 14px rgba(124,58,237,.30))}',
         '#umb-puertas.up-claro .up-marca{color:#5b21b6;text-shadow:0 0 24px rgba(124,58,237,.25)}',
         '#umb-puertas.up-claro .up-barra{background:rgba(124,58,237,.18)}',
         '#umb-puertas.up-claro .up-barra i{background:linear-gradient(90deg,rgba(124,58,237,.2),#7c3aed 60%,#a78bfa);box-shadow:0 0 10px rgba(124,58,237,.6)}',
@@ -135,7 +137,7 @@
         }
         capa.innerHTML =
             '<div class="up-telon"></div>' +
-            '<div class="up-centro"><img class="up-logo" src="/img/logo-carga.png" alt="" aria-hidden="true"><div class="up-marca">' + NOMBRE + '</div><div class="up-barra"><i></i></div></div>';
+            '<div class="up-centro"><img class="up-logo up-logo-o" src="/img/logo-carga-dorado.png" alt="" aria-hidden="true"><img class="up-logo up-logo-c" src="/img/logo-carga.png" alt="" aria-hidden="true"><div class="up-marca">' + NOMBRE + '</div><div class="up-barra"><i></i></div></div>';
         raiz.appendChild(capa);
         raiz.classList.add('up-bloqueado');
         return capa;

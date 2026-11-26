@@ -5,7 +5,11 @@
    - Las puertas se abren: al entrar al sitio, al abrirlo como app (celular o escritorio) y al iniciar
      sesión (cuando se pasa de un área a otra: Inicio -> panel, etc.). Al recargar con F5 NO se repiten.
      Al moverse entre secciones del MISMO panel no se repiten (solo sale la casa si la carga tarda).
-   - Se añade solo, desde nginx (sub_filter), igual que ocultar-ruta.js. No hay que editar cada HTML.
+   - Se añade solo, desde nginx (sub_filter) al PRINCIPIO de cada página, para que la casa tape todo desde el primer instante
+     (sin destellos blancos ni recortes). Sigue el tema: claro de día, oscuro de noche (el que la persona eligió).
+   - Al dar clic en un enlace, la casa aparece de una vez, antes de que llegue la página nueva.
+   - Mientras la página espera datos del servidor (fetch) y la respuesta tarda más de 0,45 s, aparece sola la casa de carga.
+     Si la respuesta llega rápido no aparece (no parpadea). No se activa en tareas de fondo (avisos, chatbot, estadísticas de visitas).
    - Para usar la casa de carga en otro momento (por ejemplo mientras llega una respuesta lenta):
          UmbralCarga.mostrar();   ...   UmbralCarga.ocultar();
    ============================================================================ */
@@ -66,6 +70,22 @@
         /* Solo la casa (sin puertas): para esperas cortas dentro de una sección */
         '#umb-puertas.up-solo{background:rgba(11,4,21,.78);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}',
         '#umb-puertas.up-solo .up-puerta,#umb-puertas.up-solo .up-luz{display:none}',
+        '#umb-puertas.up-solo.up-inicial,#umb-puertas.up-solo.up-opaco{background:#0b0415;-webkit-backdrop-filter:none;backdrop-filter:none}',
+        '#umb-puertas.up-solo .up-centro{animation:up-aparece .35s ease .25s both}',
+        '@keyframes up-aparece{from{opacity:0}to{opacity:1}}',
+        /* Tema claro */
+        '#umb-puertas.up-claro .up-puerta{background:linear-gradient(90deg,#ffffff 0,#efe8fb 55%,#e1d5f7 100%);',
+        'box-shadow:inset 0 0 0 2px rgba(124,58,237,.35),inset 0 0 60px rgba(124,58,237,.10)}',
+        '#umb-puertas.up-claro .up-der{background:linear-gradient(270deg,#ffffff 0,#efe8fb 55%,#e1d5f7 100%)}',
+        '#umb-puertas.up-claro .up-puerta::before,#umb-puertas.up-claro .up-puerta::after{border-color:rgba(124,58,237,.35);',
+        'background:linear-gradient(160deg,rgba(255,255,255,.6),rgba(124,58,237,.06))}',
+        '#umb-puertas.up-claro .up-casa{filter:drop-shadow(0 0 10px rgba(124,58,237,.30))}',
+        '#umb-puertas.up-claro .up-trazo{stroke:#7c3aed}',
+        '#umb-puertas.up-claro .up-ventana{fill:#fde9a7;stroke:#7c3aed}',
+        '#umb-puertas.up-claro .up-humo{stroke:rgba(124,58,237,.5)}',
+        '#umb-puertas.up-claro .up-marca{color:#5b21b6}',
+        '#umb-puertas.up-claro.up-solo{background:rgba(244,241,251,.82)}',
+        '#umb-puertas.up-claro.up-solo.up-inicial,#umb-puertas.up-claro.up-solo.up-opaco{background:#f4f1fb}',
         'html.up-bloqueado,html.up-bloqueado body{overflow:hidden!important}',
         '@media (prefers-reduced-motion:reduce){',
         '#umb-puertas .up-puerta{transition:opacity .5s ease}',
@@ -94,7 +114,25 @@
         '<rect class="up-ventana up-v2" x="64" y="52" width="10" height="10" rx="1.5"/>' +
         '</svg>';
 
-    var capa = null;
+    /* UN SOLO TEMA para todo el sitio (Inicio, invitado y todos los paneles), guardado en 'umbral-tema'.
+       - Si la persona nunca eligió: oscuro (así abre el Inicio) y queda guardado, para que todo el sitio coincida.
+       - Si eligió claro u oscuro en cualquier lado, ese mismo se usa en TODO: páginas, puertas y casa de carga.
+       Se aplica aquí, antes de que se pinte nada, para que el Inicio también respete lo que se eligió. */
+    function esValido(v) { return v === 'light' || v === 'dark'; }
+    function temaActual() {
+        var guardado = null, viejo = null;
+        try { guardado = localStorage.getItem('umbral-tema'); viejo = localStorage.getItem('umbral_theme'); } catch (e) { }
+        if (esValido(guardado)) return guardado;
+        if (esValido(viejo)) return viejo;
+        return 'dark';
+    }
+    (function () {
+        var t = temaActual();
+        try { if (!esValido(localStorage.getItem('umbral-tema'))) localStorage.setItem('umbral-tema', t); } catch (e) { }
+        raiz.setAttribute('data-theme', t);
+    })();
+
+    var capa = null, observando = false;
     var contador = 0;     // cuántas esperas manuales hay abiertas (mostrar / ocultar)
 
     function crear(solo) {
@@ -105,6 +143,12 @@
         capa.setAttribute('role', 'status');
         capa.setAttribute('aria-label', 'Cargando');
         if (solo) capa.className = 'up-solo';
+        if (temaActual() === 'light') capa.classList.add('up-claro');
+        if (!observando && window.MutationObserver) {   // si la página cambia de tema, la casa lo sigue
+            observando = true;
+            new MutationObserver(function () { if (capa && esValido(raiz.getAttribute('data-theme'))) capa.classList.toggle('up-claro', raiz.getAttribute('data-theme') === 'light'); })
+                .observe(raiz, { attributes: true, attributeFilter: ['data-theme'] });
+        }
         capa.innerHTML =
             '<div class="up-luz"></div>' +
             '<div class="up-puerta up-izq"><span class="up-pomo"></span></div>' +
@@ -125,10 +169,54 @@
     }
 
     /* ---------- Uso manual: casa de carga en cualquier momento ---------- */
+    var desde = 0, VISIBLE_MIN = 450, seguro = null;
     window.UmbralCarga = {
-        mostrar: function () { contador++; if (!capa) crear(true); },
-        ocultar: function () { contador = Math.max(0, contador - 1); if (contador === 0 && capa && capa.className.indexOf('up-solo') !== -1) quitar(); }
+        mostrar: function (opaco) {
+            contador++;
+            if (!capa) { crear(true); desde = Date.now(); if (opaco) capa.classList.add('up-opaco'); }
+            clearTimeout(seguro);
+            seguro = setTimeout(function () { contador = 0; if (capa && capa.className.indexOf('up-solo') !== -1) quitar(); }, 25000);   // por si algo nunca responde
+        },
+        ocultar: function () {
+            contador = Math.max(0, contador - 1);
+            if (contador !== 0 || !capa || capa.className.indexOf('up-solo') === -1 || capa.className.indexOf('up-inicial') !== -1) return;
+            var falta = Math.max(0, VISIBLE_MIN - (Date.now() - desde));   // que no desaparezca de golpe
+            setTimeout(function () { if (contador === 0 && capa && capa.className.indexOf('up-solo') !== -1) { clearTimeout(seguro); quitar(); } }, falta);
+        }
     };
+
+    /* ---------- Esperas del servidor: si una consulta tarda, sale la casa ---------- */
+    var ESPERA_MS = 450, TEMPRANO_MS = 9000, ENTRADA = Date.now(), pendientes = 0, ultima = Date.now();
+    var OMITIR = /chatbot|\/public\/actividad|\/public\/visitas|notificaciones|avisos|campana|verificar-estado|\.(png|jpe?g|webp|gif|svg|css|js|woff2?)(\?|$)/i;
+    if (window.fetch && !window.fetch.__umbral) {
+        var fetchOriginal = window.fetch;
+        var fetchConCarga = function (entrada, opciones) {
+            var url = '';
+            try { url = typeof entrada === 'string' ? entrada : ((entrada && entrada.url) || String(entrada)); } catch (e) { }
+            if (OMITIR.test(url)) return fetchOriginal.apply(this, arguments);
+            var activo = false;
+            var temprano = (Date.now() - ENTRADA) < TEMPRANO_MS;       // recién entró a la sección: tapa todo de una vez (sin recortes)
+            var temporizador = setTimeout(function () { activo = true; window.UmbralCarga.mostrar(temprano); }, temprano ? 200 : ESPERA_MS);
+            pendientes++; ultima = Date.now();
+            var fin = function () { pendientes = Math.max(0, pendientes - 1); ultima = Date.now(); clearTimeout(temporizador); if (activo) { activo = false; window.UmbralCarga.ocultar(); } };
+            var promesa = fetchOriginal.apply(this, arguments);
+            promesa.then(fin, fin);
+            return promesa;
+        };
+        fetchConCarga.__umbral = true;
+        window.fetch = fetchConCarga;
+    }
+
+    /* ---------- "Todo cargó": la página terminó y ya no quedan consultas al servidor en camino ---------- */
+    function calma(quieto) { return document.readyState === 'complete' && pendientes === 0 && (Date.now() - ultima) > (quieto || 900); }
+    function esperarCalma(cb, tope, quieto) {
+        var t0 = Date.now(), hecho = false;
+        (function ver() {
+            if (hecho) return;
+            if (calma(quieto) || Date.now() - t0 > tope) { hecho = true; cb(); return; }
+            setTimeout(ver, 100);
+        })();
+    }
 
     /* ---------- ¿Esta carga lleva puertas? ---------- */
     function areaActual() {
@@ -157,26 +245,54 @@
             setTimeout(function () { if (capa === c) quitar(); }, ABRIR_MS + 150);
         };
         var listo = function () {
-            var falta = Math.max(0, MINIMO_MS - (Date.now() - inicio));
-            setTimeout(abrir, falta);
+            esperarCalma(function () {                              // las puertas se abren cuando TODO ya cargó
+                var falta = Math.max(0, MINIMO_MS - (Date.now() - inicio));
+                setTimeout(abrir, falta);
+            }, MAXIMO_MS);
         };
-
-        if (document.readyState === 'complete') listo();
-        else window.addEventListener('load', listo);
+        listo();
         setTimeout(abrir, MAXIMO_MS);
 
         // Atrás / adelante del navegador: si volvió una copia guardada, no dejar la capa tapando
         window.addEventListener('pageshow', function (e) { if (e.persisted) { abierto = true; quitar(); } });
     } else {
-        /* ---------- Sin puertas: si la sección tarda en cargar, aparece solo la casa ---------- */
-        if (document.readyState !== 'complete') {
-            var espera = setTimeout(function () {
-                if (document.readyState !== 'complete') {
-                    crear(true);
-                    window.addEventListener('load', function () { if (capa && capa.className.indexOf('up-solo') !== -1 && contador === 0) quitar(); });
-                }
-            }, 700);
-            window.addEventListener('load', function () { clearTimeout(espera); });
-        }
+        /* ---------- Sin puertas (F5 o moverse dentro del panel): la casa tapa la página desde el primer instante ---------- */
+        crear(true);
+        capa.classList.add('up-inicial');
+        desde = Date.now();
+        var t0 = Date.now();
+        esperarCalma(function () {
+            if (!capa || capa.className.indexOf('up-inicial') === -1) return;
+            if (Date.now() - t0 < 500) {                           // cargó casi al instante: se quita sin que se alcance a ver
+                var c = capa; capa = null;
+                raiz.classList.remove('up-bloqueado');
+                if (c.parentNode) c.parentNode.removeChild(c);
+                return;
+            }
+            var falta = Math.max(0, VISIBLE_MIN - (Date.now() - desde));
+            setTimeout(function () { if (capa && capa.className.indexOf('up-inicial') !== -1) quitar(); }, falta);
+        }, 9000, 300);
+        window.addEventListener('pageshow', function (e) { if (e.persisted && capa) quitar(); });
     }
+
+    /* ---------- Al dar clic en un enlace: la casa aparece de una vez (antes de que llegue la página nueva) ---------- */
+    document.addEventListener('click', function (e) {
+        if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+        if (!a || (a.target && a.target !== '_self') || a.hasAttribute('download')) return;
+        var h = a.getAttribute('href') || '';
+        if (!h || h.charAt(0) === '#' || /^(mailto:|tel:|javascript:|whatsapp:|sms:)/i.test(h)) return;
+        var u; try { u = new URL(a.href, location.href); } catch (x) { return; }
+        if (u.origin !== location.origin) return;
+        if (u.pathname === location.pathname && u.search === location.search) return;
+        if (/\.(pdf|zip|rar|docx?|xlsx?|csv|png|jpe?g|webp|gif|mp4)$/i.test(u.pathname)) return;
+        setTimeout(function () {
+            if (e.defaultPrevented || capa) return;               // otro código se encargó del clic (no es un cambio de página)
+            crear(true);
+            capa.classList.add('up-opaco');
+            desde = Date.now();
+            clearTimeout(seguro);
+            seguro = setTimeout(function () { if (capa) quitar(); }, 8000);      // si no cambió de página, se quita sola
+        }, 0);
+    }, false);
 })();

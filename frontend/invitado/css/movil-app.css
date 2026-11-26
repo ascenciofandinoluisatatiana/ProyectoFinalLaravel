@@ -78,6 +78,8 @@
   .flt-listo { display: block; position: sticky; bottom: -2px; z-index: 2; box-shadow: 0 -10px 12px -6px var(--card); width: 100%; margin: 12px 0 2px; padding: 11px; border: 0; border-radius: 12px; font: 800 14px/1 inherit; font-family: inherit; color: #fff; cursor: pointer; background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
   /* El pie de hero.js (Limpiar + Ver propiedades con el número) ya cumple ese papel: queda fijo al fondo de la hoja, en una fila */
   #filters:has(.fm-foot) .flt-listo { display: none; }
+  .panel#filters.fmodal:not(.flt-plegado) .fm-head { display: flex !important; }
+  .panel#filters.fmodal:not(.flt-plegado) .fm-foot { display: flex !important; }
   .panel#filters.fmodal:not(.flt-plegado) .fm-foot {
     position: sticky; bottom: -10px; z-index: 2; flex-direction: row !important; align-items: center; gap: 8px;
     margin: 10px -14px -10px; padding: 8px 14px 10px; background: var(--card);
@@ -145,13 +147,17 @@
   #detailBody .price small { white-space: normal; }
 }
 
-/* Botones flotantes más pequeños y pegados al borde: tapan menos las tarjetas; mientras se hace scroll se aclaran para dejar ver el contenido */
+/* Celular con barra inferior: "Filtros" y "Umbra" viven en la barra (ya no hay botones flotantes que tapen las tarjetas).
+   Los botones redondos originales quedan ocultos pero siguen existiendo: la barra les hace clic. */
 @media (max-width: 700px) {
-  .cb { right: 10px; bottom: 76px; }
-  .cb-fab { width: 48px; height: 48px; }
-  .cb-tip { right: 56px; bottom: 0; max-width: min(240px, calc(100vw - 96px)); }
-  .btn-filtros-movil { width: 48px; height: 48px; right: 10px; bottom: 134px; font-size: 18px; }
-  .panel#filters.fmodal:not(.flt-plegado) { bottom: 192px !important; max-height: calc(100vh - 262px) !important; }
-  .cb-fab, .btn-filtros-movil { transition: opacity .25s, transform .2s; }
-  body.fab-scroll .cb-fab, body.fab-scroll .btn-filtros-movil { opacity: .3; }
+  body:has(#bnav) .btn-filtros-movil { display: none; }
+  body:has(#bnav) .cb:not(.open) .cb-fab { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; overflow: hidden; }
+  body:has(#bnav) .cb { right: 10px; bottom: 74px; }
+  body:has(#bnav) .cb-tip { right: 0; bottom: 0; max-width: min(240px, calc(100vw - 20px)); }
+  #bnav { grid-template-columns: 1fr 1fr 1fr 44px 44px 1fr; padding-left: 4px; padding-right: 4px; }
+  #bnav button span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #bnav .bn-extra { justify-content: center; align-self: center; height: 44px; padding: 0; }
+  #bnav .bn-extra i { font-size: 18px; }
+  #bnav .bn-extra em { top: 3px; left: calc(50% + 4px); }
+  .panel#filters.fmodal:not(.flt-plegado) { bottom: 78px !important; max-height: calc(100vh - 150px) !important; }
 }

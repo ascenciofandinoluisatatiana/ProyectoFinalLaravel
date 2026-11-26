@@ -73,7 +73,7 @@
         '@keyframes ha-luci{0%{opacity:0;translate:0 0}15%{opacity:1}35%{translate:var(--dx) var(--dy);opacity:.25}',
         '55%{opacity:1}80%{translate:calc(var(--dx) * -.6) calc(var(--dy) * 1.4);opacity:.3}100%{opacity:0;translate:0 0}}',
         '.ha-calido{right:4%;top:24%;width:56%;height:52%;border-radius:50%;filter:blur(28px);',
-        'background:radial-gradient(ellipse at 50% 55%,rgba(255,190,90,.40),rgba(255,160,60,.14) 45%,rgba(255,160,60,0) 70%);',
+        'background:radial-gradient(ellipse at 50% 55%,rgba(255,190,90,.20),rgba(255,160,60,.08) 45%,rgba(255,160,60,0) 70%);',
         'animation:ha-respira 5.5s ease-in-out infinite}',
         '@keyframes ha-respira{0%,100%{opacity:.35;scale:.96}50%{opacity:1;scale:1.05}}',
 

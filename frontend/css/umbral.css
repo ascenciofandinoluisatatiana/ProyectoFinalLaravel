@@ -3336,3 +3336,18 @@ html::-webkit-scrollbar-thumb:active,
     text-align: center;
 }
 .app-texto p { margin-inline: auto; }
+/* =========================================================
+   Hero oscuro — la casa se ve: el velo oscuro queda a la izquierda (detrás del texto)
+   y casi desaparece sobre la casa. Antes el velo se hacía MÁS oscuro hacia la derecha y apagaba la foto.
+   ========================================================= */
+@media (min-width: 701px) {
+    [data-theme="dark"] .hero-inicio::before {
+        background-image:
+            linear-gradient(90deg, rgba(9, 9, 11, .80) 0%, rgba(9, 9, 11, .64) 30%, rgba(9, 9, 11, .20) 54%, rgba(9, 9, 11, 0) 76%, rgba(9, 9, 11, .10) 100%),
+            linear-gradient(180deg, rgba(9, 9, 11, .10) 45%, rgba(9, 9, 11, .68) 100%),
+            var(--foto-casa);
+        background-size: cover, cover, cover;
+        background-position: center, center, left center;
+        background-repeat: no-repeat;
+    }
+}

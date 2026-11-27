@@ -1,0 +1,167 @@
+/* =========================================================
+   UMBRAL — Banner de inicio de la inmobiliaria
+   Ciudad hecha con CSS: edificios que crecen, ventanas que se
+   encienden, grúa, carros, nubes y sol o luna según el tema.
+   Paleta: morado, negro, blanco y dorado.
+   ========================================================= */
+.ib-banner {
+    --ib-oro: #f5c542;
+    --ib-oro-2: #fde68a;
+    position: relative; overflow: hidden; isolation: isolate; color: #fff;
+    min-height: clamp(500px, calc(100vh - 180px), 780px);
+    border-radius: 24px;
+    background: linear-gradient(120deg, #4c1d95 0%, #7e22ce 55%, #c084fc 100%);
+    box-shadow: 0 18px 50px rgba(88, 28, 135, 0.3);
+    animation: ib-aparece 0.7s ease both;
+}
+[data-theme="dark"] .ib-banner {
+    background: linear-gradient(120deg, #0d0a12 0%, #2a0a4a 55%, #4c0580 100%);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
+}
+@keyframes ib-aparece { from { opacity: 0; transform: translateY(14px) scale(0.985); } to { opacity: 1; transform: none; } }
+
+/* ---------- Texto ---------- */
+.ib-texto {
+    position: relative; z-index: 3; max-width: min(480px, 52%);
+    padding: clamp(24px, 4vw, 44px); display: flex; flex-direction: column; justify-content: center; min-height: inherit; gap: 6px;
+}
+.ib-saludo, .ib-texto h1, .ib-frase, .ib-cifras, .ib-pildoras, .ib-accesos { animation: ib-izq 0.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.ib-saludo { animation-delay: 0.25s; }
+.ib-texto h1 { animation-delay: 0.38s; }
+.ib-frase { animation-delay: 0.5s; }
+.ib-cifras { animation-delay: 0.65s; }
+.ib-pildoras { animation-delay: 0.78s; }
+.ib-accesos { animation-delay: 0.9s; }
+@keyframes ib-izq { from { opacity: 0; transform: translateX(-34px); } to { opacity: 1; transform: none; } }
+
+.ib-saludo { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 6px 14px; border-radius: 999px;
+    font-size: 0.78rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ib-oro-2);
+    background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.18); backdrop-filter: blur(6px); }
+.ib-texto h1 { margin: 6px 0 2px; font-size: clamp(1.9rem, 4.2vw, 3rem); line-height: 1.08; color: #fff; overflow-wrap: anywhere; }
+.ib-frase { margin: 0 0 14px; font-size: clamp(1rem, 1.6vw, 1.15rem); color: rgba(255, 255, 255, 0.86); }
+
+.ib-cifras { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; max-width: 410px; }
+.ib-cifra { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 16px;
+    background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.16); backdrop-filter: blur(8px);
+    transition: transform 0.25s ease, background 0.25s ease; }
+.ib-cifra:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.16); }
+.ib-cifra i { flex: none; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 12px; font-size: 1rem;
+    color: #2e1065; background: linear-gradient(135deg, var(--ib-oro-2), var(--ib-oro)); box-shadow: 0 0 16px rgba(245, 197, 66, 0.45); }
+.ib-cifra b { display: block; font-size: 1.45rem; line-height: 1; color: #fff; font-variant-numeric: tabular-nums; }
+.ib-cifra span { display: block; margin-top: 3px; font-size: 0.76rem; color: rgba(255, 255, 255, 0.8); line-height: 1.2; }
+
+/* Datos extra y accesos rápidos */
+.ib-pildoras { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.ib-pildoras span { padding: 5px 12px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; color: #fff;
+    background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.16); }
+.ib-pildoras b { color: var(--ib-oro-2); margin-right: 4px; font-variant-numeric: tabular-nums; }
+.ib-accesos { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.ib-accesos a { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 12px; font-size: 0.86rem; font-weight: 800; text-decoration: none;
+    color: #fff; background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.2); transition: transform 0.2s ease, background 0.2s ease; }
+.ib-accesos a:first-child { color: #2e1065; border-color: transparent; background: linear-gradient(135deg, var(--ib-oro-2), var(--ib-oro)); box-shadow: 0 8px 22px rgba(245, 197, 66, 0.35); }
+.ib-accesos a:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.2); }
+.ib-accesos a:first-child:hover { background: linear-gradient(135deg, #fff3b0, var(--ib-oro)); }
+
+/* Tarjetas de hoy, debajo del banner */
+.ib-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+.ib-card { display: flex; flex-direction: column; gap: 6px; padding: 20px; min-width: 0; animation: ib-sube 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; transition: transform 0.25s ease; }
+.ib-card:hover { transform: translateY(-4px); }
+@keyframes ib-sube { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+.ib-card-cab { display: flex; align-items: center; gap: 10px; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--texto-suave); }
+.ib-card-cab i { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 11px; font-size: 0.95rem; color: #2e1065; background: linear-gradient(135deg, var(--ib-oro-2, #fde68a), var(--ib-oro, #f5c542)); }
+.ib-card b.principal { font-size: 1.15rem; line-height: 1.25; overflow-wrap: anywhere; }
+.ib-card p { margin: 0; color: var(--texto-suave); font-size: 0.9rem; overflow-wrap: anywhere; }
+.ib-card small { color: var(--op-texto); font-weight: 700; }
+.ib-card a.mas { margin-top: auto; padding-top: 8px; font-size: 0.85rem; font-weight: 800; color: var(--op-texto); text-decoration: none; }
+.ib-card a.mas:hover { text-decoration: underline; }
+
+/* ---------- Escena ---------- */
+.ib-escena { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.ib-astro { position: absolute; top: 9%; right: 9%; width: 62px; height: 62px; border-radius: 50%; }
+/* luna (tema oscuro) */
+[data-theme="dark"] .ib-astro { background: #fff7dc; box-shadow: 0 0 36px 10px rgba(255, 247, 220, 0.35), inset -14px -6px 0 0 #e6d9a8; animation: ib-flota 7s ease-in-out infinite; }
+/* sol (tema claro) */
+.ib-astro { background: radial-gradient(circle, #fff3b0 0%, var(--ib-oro) 70%); box-shadow: 0 0 60px 18px rgba(253, 230, 138, 0.55); animation: ib-pulso 4.5s ease-in-out infinite; }
+.ib-astro::before { content: ''; position: absolute; inset: -34px; border-radius: 50%; animation: ib-gira 24s linear infinite;
+    background: repeating-conic-gradient(from 0deg, rgba(253, 230, 138, 0.5) 0 6deg, transparent 6deg 30deg);
+    -webkit-mask: radial-gradient(circle, transparent 36%, #000 38%, #000 60%, transparent 62%); mask: radial-gradient(circle, transparent 36%, #000 38%, #000 60%, transparent 62%); }
+[data-theme="dark"] .ib-astro::before { display: none; }
+@keyframes ib-gira { to { transform: rotate(360deg); } }
+@keyframes ib-pulso { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.07); } }
+@keyframes ib-flota { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
+
+.ib-estrella { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #fff; opacity: 0; display: none; animation: ib-titila 3s ease-in-out infinite; }
+[data-theme="dark"] .ib-estrella { display: block; }
+@keyframes ib-titila { 0%, 100% { opacity: 0.15; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.5); } }
+
+.ib-nube { position: absolute; height: 22px; border-radius: 999px; background: rgba(255, 255, 255, 0.22); animation: ib-nube linear infinite; }
+.ib-nube::before, .ib-nube::after { content: ''; position: absolute; background: inherit; border-radius: 50%; }
+.ib-nube::before { width: 34px; height: 34px; left: 14px; bottom: 6px; }
+.ib-nube::after { width: 24px; height: 24px; right: 16px; bottom: 6px; }
+[data-theme="dark"] .ib-nube { background: rgba(192, 132, 252, 0.16); }
+@keyframes ib-nube { from { transform: translateX(-160px); } to { transform: translateX(calc(100vw + 160px)); } }
+
+/* ---------- Ciudad ---------- */
+.ib-ciudad { position: absolute; right: 0; bottom: 0; width: min(50%, 600px); height: 100%; }
+.ib-calle { position: absolute; left: 0; right: 0; bottom: 0; height: 34px; z-index: 0; background: linear-gradient(90deg, rgba(20, 8, 31, 0.15), #14081f 45%); border-top: 2px solid rgba(245, 197, 66, 0.45); }
+.ib-calle::after { content: ''; position: absolute; left: 0; right: 0; top: 15px; height: 3px;
+    background: repeating-linear-gradient(90deg, var(--ib-oro) 0 22px, transparent 22px 44px); opacity: 0.7; animation: ib-raya 2.4s linear infinite; }
+@keyframes ib-raya { to { background-position: -44px 0; } }
+
+.ib-edificio { position: absolute; bottom: 34px; transform-origin: 50% 100%; border-radius: 4px 4px 0 0;
+    background: linear-gradient(180deg, #3b1d6e 0%, #1c0c36 100%); border: 1px solid rgba(255, 255, 255, 0.14); border-bottom: 0;
+    padding: 10px 8px 8px; display: grid; gap: 6px 5px; align-content: start;
+    animation: ib-crece 1s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.ib-edificio.fondo { background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05)); border-color: rgba(255, 255, 255, 0.1); }
+[data-theme="dark"] .ib-edificio.fondo { background: linear-gradient(180deg, rgba(168, 85, 247, 0.28), rgba(76, 29, 149, 0.12)); }
+.ib-edificio.fondo .ib-v.on { opacity: 0.6; box-shadow: none; }
+@keyframes ib-crece { from { transform: scaleY(0); opacity: 0; } to { transform: scaleY(1); opacity: 1; } }
+.ib-edificio::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: linear-gradient(90deg, transparent, rgba(245, 197, 66, 0.7), transparent); }
+.ib-antena { position: absolute; left: 50%; bottom: 100%; width: 2px; height: 22px; background: rgba(255, 255, 255, 0.45); }
+.ib-antena::after { content: ''; position: absolute; top: -4px; left: -2px; width: 6px; height: 6px; border-radius: 50%; background: var(--ib-oro); box-shadow: 0 0 10px var(--ib-oro); animation: ib-parpadea 1.6s ease-in-out infinite; }
+@keyframes ib-parpadea { 0%, 100% { opacity: 1; } 50% { opacity: 0.15; } }
+
+.ib-v { height: 9px; border-radius: 2px; background: rgba(255, 255, 255, 0.08); transition: background 0.5s ease, box-shadow 0.5s ease, opacity 0.5s ease; }
+.ib-v.on { background: linear-gradient(180deg, #fff3b0, var(--ib-oro)); box-shadow: 0 0 8px rgba(245, 197, 66, 0.7); }
+
+/* Grúa */
+.ib-grua { position: absolute; bottom: 100%; left: 50%; width: 0; height: 0; }
+.ib-grua .mastil { position: absolute; left: -2px; bottom: 0; width: 4px; height: 78px; background: var(--ib-oro); border-radius: 2px; }
+.ib-grua .brazo { position: absolute; left: -26px; bottom: 74px; width: 120px; height: 4px; background: var(--ib-oro); border-radius: 2px; transform-origin: 26px 50%; animation: ib-brazo 7s ease-in-out infinite; }
+.ib-grua .cable { position: absolute; left: 96px; top: 4px; width: 1px; height: 34px; background: rgba(255, 255, 255, 0.7); transform-origin: top; animation: ib-cable 3.5s ease-in-out infinite; }
+.ib-grua .cable::after { content: ''; position: absolute; left: -7px; bottom: -10px; width: 15px; height: 10px; background: #fff; border-radius: 2px; }
+@keyframes ib-brazo { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
+@keyframes ib-cable { 0%, 100% { transform: rotate(5deg); } 50% { transform: rotate(-5deg); } }
+
+/* Letrero «Se vende» */
+.ib-letrero { position: absolute; bottom: 34px; width: 74px; height: 56px; transform-origin: 50% 100%; animation: ib-mece 4s ease-in-out infinite; }
+.ib-letrero::before { content: ''; position: absolute; left: 50%; bottom: 0; width: 4px; height: 36px; margin-left: -2px; background: #fff; border-radius: 2px; }
+.ib-letrero span { position: absolute; left: 0; top: 0; width: 100%; padding: 5px 0; text-align: center; font-size: 0.66rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;
+    color: #2e1065; background: linear-gradient(135deg, var(--ib-oro-2), var(--ib-oro)); border-radius: 6px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35); }
+@keyframes ib-mece { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+
+/* Carros */
+.ib-carro { position: absolute; left: 0; bottom: 12px; width: 30px; height: 11px; border-radius: 5px 7px 3px 3px; background: #fff; animation: ib-carro 13s linear infinite; }
+.ib-carro::before { content: ''; position: absolute; left: 7px; top: -6px; width: 15px; height: 8px; border-radius: 5px 5px 0 0; background: inherit; }
+.ib-carro::after { content: ''; position: absolute; right: -2px; top: 3px; width: 6px; height: 4px; border-radius: 2px; background: #fde68a; box-shadow: 0 0 12px 4px rgba(253, 230, 138, 0.75); }
+.ib-carro.oro { background: var(--ib-oro); z-index: 1; animation-duration: 17s; animation-delay: -6s; animation-direction: reverse; bottom: 4px; }
+.ib-carro.oro::after { right: auto; left: -2px; }
+@keyframes ib-carro { from { transform: translateX(-60px); } to { transform: translateX(calc(100vw + 60px)); } }
+
+/* ---------- Pantallas pequeñas ---------- */
+@media (max-width: 760px) {
+    .ib-banner { min-height: 640px; }
+    .ib-texto { max-width: 100%; padding-bottom: 200px; }
+    .ib-ciudad { width: 100%; height: 36%; opacity: 0.95; }
+    .ib-cifras { max-width: none; }
+    .ib-astro { top: 5%; width: 46px; height: 46px; }
+    .ib-edificio { padding: 6px 5px; gap: 4px 3px; overflow: hidden; }
+    .ib-v { height: 6px; }
+    .ib-edificio:has(.ib-grua), .ib-edificio:has(.ib-antena) { overflow: visible; }
+}
+
+/* Si la persona pidió menos movimiento: todo queda quieto y visible */
+@media (prefers-reduced-motion: reduce) {
+    .ib-banner, .ib-banner * { animation: none !important; transition: none !important; }
+    .ib-estrella { opacity: 0.8; }
+}

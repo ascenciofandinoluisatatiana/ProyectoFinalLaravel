@@ -16,6 +16,7 @@
 
     // Secciones del panel, agrupadas como en el menú lateral del invitado
     var SECCIONES = [
+        { id: 'inicio', grupo: 'g_principal', href: '/agente/inicio.html', icono: 'fa-house-chimney' },
         { id: 'dashboard', grupo: 'g_principal', href: '/agente/dashboard.html', icono: 'fa-chart-line' },
         { id: 'propiedades', grupo: 'g_principal', href: '/agente/propiedades.html', icono: 'fa-house' },
         { id: 'contactos', grupo: 'g_trabajo', href: '/agente/contactos.html', icono: 'fa-comments' },
@@ -217,6 +218,12 @@
                     "pt": "Conta",
                     "fr": "Compte"
             },
+            "inicio": {
+                    "es": "Inicio",
+                    "en": "Home",
+                    "pt": "Início",
+                    "fr": "Accueil"
+            },
             "dashboard": {
                     "es": "Mi día",
                     "en": "My day",
@@ -313,7 +320,7 @@
         var actual = SECCIONES.filter(function (s) { return s.id === activo; })[0];
 
         // Menú lateral agrupado
-        var html = '<a class="i-marca" href="/agente/dashboard.html"><span class="i-logo-marca"><img src="/img/icono.png" alt=""></span>' +
+        var html = '<a class="i-marca" href="/agente/inicio.html"><span class="i-logo-marca"><img src="/img/icono.png" alt=""></span>' +
             '<span><b>UMBRAL</b><small>' + esc(tx('rol_agente')) + '</small></span></a>';
         ['g_principal', 'g_trabajo', 'g_cuenta'].forEach(function (g) {
             html += '<div class="i-grupo">' + esc(tx(g)) + '</div><nav class="i-nav">' +

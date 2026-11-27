@@ -11,8 +11,6 @@
 
     function pintar(usuario, d) {
         var k = d.kpis;
-        $('d-titulo').textContent = 'Hola, ' + usuario.nombre.split(' ')[0];
-        if (usuario.inmobiliaria) $('d-subtitulo').textContent = 'Agente de ' + usuario.inmobiliaria.nombre + '. Tus visitas, tus contactos nuevos y las propiedades que tienes a cargo.';
 
         function kpi(i, icono, valor, texto, detalle) {
             return '<div class="v-kpi k-' + (i + 1) + '" style="--i:' + i + '"><div class="v-kpi-icono"><i class="fa-solid ' + icono + '"></i></div>' +

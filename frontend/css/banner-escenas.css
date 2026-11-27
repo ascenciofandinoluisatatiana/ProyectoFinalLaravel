@@ -1,0 +1,173 @@
+/* =========================================================
+   UMBRAL — Escenas de los banners de inicio
+   Agente (puerta y llave) · Vendedor (casa y apartamento) · Administrador (torre de control)
+   Se usa junto con /inmobiliaria/css/banner-inmobiliaria.css (textos, cifras y cielo).
+   ========================================================= */
+
+/* ====================== AGENTE ====================== */
+/* Un agente de traje con maletín que entrega una llave; mapa con ruta, celular con aviso y calendario */
+.ie-mapa { position: absolute; left: 2%; top: 12%; width: 50%; height: 34%; padding: 6px; border-radius: 16px; overflow: hidden;
+    background: linear-gradient(160deg, #3b1d6e, #1c0c36); border: 2px solid rgba(245, 197, 66, 0.55); box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
+    animation: ie-aparece 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both; }
+.ie-mapa svg { width: 100%; height: 100%; display: block; }
+.ie-calle-mapa { stroke: rgba(255, 255, 255, 0.14); stroke-width: 5; fill: none; stroke-linecap: round; }
+.ie-ruta { stroke: var(--ib-oro); stroke-width: 3; fill: none; stroke-linecap: round; stroke-dasharray: 7 7; animation: ie-ruta 1.6s linear infinite; }
+.ie-chincheta { transform-box: fill-box; transform-origin: 50% 100%; animation: ie-salta 2.4s ease-in-out infinite; }
+.ie-chincheta.c2 { animation-delay: 0.5s; } .ie-chincheta.c3 { animation-delay: 1s; }
+@keyframes ie-ruta { to { stroke-dashoffset: -28; } }
+@keyframes ie-salta { 0%, 60%, 100% { transform: translateY(0); } 25% { transform: translateY(-9px); } }
+@keyframes ie-aparece { from { opacity: 0; transform: translateY(18px) scale(0.96); } to { opacity: 1; transform: none; } }
+
+.ie-agente { position: absolute; left: 42%; bottom: 34px; height: 74%; aspect-ratio: 160 / 290; animation: ie-aparece 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.45s both; }
+.ie-agente svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.35)); }
+.ie-cuerpo { animation: ie-respira 3.4s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes ie-respira { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+.ie-brazo { transform-box: view-box; transform-origin: 108px 108px; animation: ie-saluda 2.8s ease-in-out infinite; }
+@keyframes ie-saluda { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(10deg); } }
+.ie-llave2 { transform-box: fill-box; transform-origin: 50% 0; animation: ib-mece 2.2s ease-in-out infinite; }
+.ie-ojos { transform-box: fill-box; transform-origin: 50% 50%; animation: ie-parpadeo 4.5s infinite; }
+@keyframes ie-parpadeo { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
+
+.ie-burbuja { position: absolute; left: 22%; top: 50%; padding: 8px 14px; border-radius: 14px 14px 14px 2px; font-size: 0.78rem; font-weight: 800; color: #2e1065;
+    background: #fff; box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35); animation: ie-burbuja 6s ease-in-out infinite; z-index: 3; white-space: nowrap; }
+.ie-burbuja i { color: #16a34a; margin-right: 4px; }
+@keyframes ie-burbuja { 0%, 8% { opacity: 0; transform: translateY(10px) scale(0.8); } 16%, 78% { opacity: 1; transform: none; } 88%, 100% { opacity: 0; transform: translateY(-6px) scale(0.9); } }
+
+.ie-movil { position: absolute; right: 4%; top: 20%; width: 15%; min-width: 54px; aspect-ratio: 9 / 17; border-radius: 12px; padding: 5px;
+    background: linear-gradient(180deg, #1c0c36, #0f0620); border: 2px solid var(--ib-oro); box-shadow: 0 14px 30px rgba(0, 0, 0, 0.4); animation: ie-timbra 4s ease-in-out infinite; }
+.ie-movil .pant { height: 100%; border-radius: 7px; background: linear-gradient(180deg, #4c1d95, #2e1065); display: grid; align-content: start; gap: 5px; padding: 8px 5px; }
+.ie-movil .pant i { display: block; height: 7px; border-radius: 3px; background: rgba(255, 255, 255, 0.28); }
+.ie-movil .pant i:first-child { width: 60%; background: rgba(245, 197, 66, 0.8); }
+.ie-aviso { position: absolute; right: 70%; top: 28%; white-space: nowrap; padding: 6px 8px; border-radius: 10px; text-align: center; font-size: 0.62rem; font-weight: 800; color: #2e1065;
+    background: linear-gradient(135deg, #fde68a, #f5c542); box-shadow: 0 8px 18px rgba(0, 0, 0, 0.4); animation: ie-aviso 4s ease-in-out infinite; }
+@keyframes ie-aviso { 0%, 18% { opacity: 0; transform: translateY(-14px) scale(0.8); } 26%, 70% { opacity: 1; transform: none; } 82%, 100% { opacity: 0; transform: translateY(8px); } }
+@keyframes ie-timbra { 0%, 22%, 100% { transform: rotate(0); } 26% { transform: rotate(-5deg); } 30% { transform: rotate(5deg); } 34% { transform: rotate(-4deg); } 38% { transform: rotate(3deg); } 42% { transform: rotate(0); } }
+.ie-ring { position: absolute; left: 50%; top: 50%; width: 100%; aspect-ratio: 1; margin: -50% 0 0 -50%; border: 2px solid rgba(245, 197, 66, 0.7); border-radius: 50%; opacity: 0; animation: ie-ring 4s ease-out infinite; }
+.ie-ring.r2 { animation-delay: 0.3s; }
+@keyframes ie-ring { 0%, 20% { transform: scale(0.6); opacity: 0; } 26% { opacity: 0.8; } 60%, 100% { transform: scale(2.6); opacity: 0; } }
+
+.ie-cal { position: absolute; right: 24%; top: 40%; width: 56px; background: #fff; border-radius: 10px; text-align: center; box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35); animation: ie-flota 5s ease-in-out infinite; }
+.ie-cal span { display: block; padding: 3px 0; font-size: 0.56rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #2e1065; background: linear-gradient(135deg, #fde68a, #f5c542); border-radius: 10px 10px 0 0; }
+.ie-cal b { display: block; padding: 6px 0 4px; font-size: 1.4rem; line-height: 1; color: #2e1065; }
+.ie-cal em { position: absolute; right: -9px; bottom: -9px; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; font-size: 0.65rem; color: #fff; background: #16a34a; animation: iv-pop 3s ease-in-out infinite; }
+@keyframes ie-flota { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-10px) rotate(3deg); } }
+@keyframes iv-pop { 0%, 40% { transform: scale(0); } 55%, 90% { transform: scale(1); } 100% { transform: scale(0); } }
+
+/* ====================== VENDEDOR ====================== */
+.iv-casa { position: absolute; left: 17%; bottom: 34px; width: 28%; height: 20%; transform-origin: 50% 100%;
+    background: linear-gradient(180deg, #4c1d95, #240f4a); border: 1px solid rgba(255, 255, 255, 0.16); border-bottom: 0;
+    animation: ib-crece 1s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both; }
+.iv-techo { position: absolute; left: -10%; right: -10%; bottom: 100%; height: 66%; clip-path: polygon(50% 0, 0 100%, 100% 100%);
+    background: linear-gradient(180deg, #a855f7, #5b21b6); }
+.iv-chimenea { position: absolute; right: 16%; bottom: 100%; width: 11%; height: 56%; background: linear-gradient(180deg, #5b21b6, #2e1065); border-top: 3px solid var(--ib-oro); }
+.iv-humo { position: absolute; left: 50%; bottom: 100%; width: 11px; height: 11px; margin-left: -5px; border-radius: 50%; background: rgba(255, 255, 255, 0.55); animation: iv-humo 3.6s ease-out infinite; }
+.iv-humo:nth-child(2) { animation-delay: 1.2s; } .iv-humo:nth-child(3) { animation-delay: 2.4s; }
+@keyframes iv-humo { 0% { transform: translate(0, 0) scale(0.6); opacity: 0.7; } 100% { transform: translate(16px, -60px) scale(2.2); opacity: 0; } }
+.iv-vent { position: absolute; top: 24%; width: 22%; height: 38%; border-radius: 3px; }
+.iv-vent.izq { left: 9%; } .iv-vent.der { right: 9%; }
+.iv-casa .iv-vent.ib-v { height: 38%; }
+.iv-puerta { position: absolute; left: 50%; bottom: 0; width: 16%; height: 62%; margin-left: -8%; border-radius: 4px 4px 0 0; background: linear-gradient(135deg, #fde68a, #f5c542); }
+.iv-puerta::after { content: ''; position: absolute; right: 14%; top: 52%; width: 4px; height: 4px; border-radius: 50%; background: #2e1065; }
+
+.iv-apto { border-radius: 4px 4px 0 0; }
+.iv-apto::after { content: ''; position: absolute; left: -3px; right: -3px; top: -4px; height: 5px; border-radius: 3px; background: linear-gradient(90deg, #5b21b6, var(--ib-oro), #5b21b6); }
+
+/* Jardín: árboles de varios tamaños, arbustos con flores, cerca y farol */
+.iv-arbol { position: absolute; bottom: 34px; width: 34px; height: 70px; transform-origin: 50% 100%; animation: ib-mece 5s ease-in-out infinite; }
+.iv-arbol .tronco { position: absolute; left: 14px; bottom: 0; width: 7px; height: 26px; border-radius: 2px; background: #6b4a2b; }
+.iv-arbol .copa { position: absolute; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #c4b5fd, #7c3aed); }
+.iv-arbol .c1 { left: 0; bottom: 20px; width: 34px; height: 34px; }
+.iv-arbol .c2 { left: 5px; bottom: 38px; width: 28px; height: 28px; }
+.iv-arbol .c3 { left: 14px; bottom: 28px; width: 24px; height: 24px; opacity: 0.9; }
+.iv-arbol.grande { transform: scale(1.5); } .iv-arbol.pequeno { transform: scale(0.8); animation-duration: 4s; }
+.iv-arbol.pino .copa { border-radius: 50% 50% 8px 8px; background: linear-gradient(180deg, #a78bfa, #5b21b6); }
+.iv-arbusto { position: absolute; bottom: 34px; width: 38px; height: 22px; border-radius: 22px 22px 4px 4px; transform-origin: 50% 100%; animation: ib-mece 4.5s ease-in-out infinite;
+    background: radial-gradient(circle at 30% 30%, #c4b5fd, #6d28d9); }
+.iv-arbusto::after { content: ''; position: absolute; left: 22%; top: 30%; width: 5px; height: 5px; border-radius: 50%; background: var(--ib-oro-2); box-shadow: 14px 5px 0 var(--ib-oro-2), 22px -3px 0 var(--ib-oro); }
+.iv-arbusto.ancho { width: 56px; height: 26px; }
+.iv-cerca { position: absolute; bottom: 34px; height: 18px; border-top: 2px solid rgba(255, 255, 255, 0.7);
+    background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.75) 0 4px, transparent 4px 11px); }
+.iv-farol { position: absolute; bottom: 34px; width: 4px; height: 54px; background: #d8b4fe; border-radius: 2px; }
+.iv-farol::before { content: ''; position: absolute; left: -7px; top: -8px; width: 18px; height: 18px; border-radius: 50%; background: radial-gradient(circle, #fff3b0, var(--ib-oro)); box-shadow: 0 0 22px 6px rgba(245, 197, 66, 0.6); animation: ib-parpadea 3s ease-in-out infinite; }
+
+.iv-moneda { position: absolute; left: 46%; top: 22%; width: 44px; height: 44px; perspective: 400px; animation: ie-flota 4.5s ease-in-out infinite; }
+.iv-moneda b { position: absolute; inset: 0; display: grid; place-items: center; border-radius: 50%; font-size: 1.4rem; color: #2e1065;
+    background: radial-gradient(circle at 35% 30%, #fff3b0, #f5c542 70%, #b45309); box-shadow: 0 0 22px rgba(245, 197, 66, 0.65); animation: iv-gira 3.2s linear infinite; }
+@keyframes iv-gira { to { transform: rotateY(360deg); } }
+
+/* ====================== ADMINISTRADOR ====================== */
+/* Centro de mando: panel con gráficas que se dibujan, engranajes, candado, escudo y fichas de verificación */
+.ia-panel { position: absolute; left: 16%; top: 20%; width: 80%; height: 42%; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column;
+    background: linear-gradient(160deg, #2e1065, #170a30); border: 2px solid rgba(245, 197, 66, 0.6); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+    animation: ie-aparece 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both; }
+.ia-panel .barra { display: flex; gap: 5px; padding: 7px 10px; background: rgba(255, 255, 255, 0.08); }
+.ia-panel .barra i { width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, 0.4); }
+.ia-panel .barra i:first-child { background: var(--ib-oro); }
+.ia-panel .cuerpo { flex: 1; min-height: 0; display: grid; grid-template-columns: 1.5fr 1fr; gap: 8px; padding: 8px 10px 10px; }
+.ia-panel svg { width: 100%; height: 100%; display: block; }
+.ia-linea { fill: none; stroke: var(--ib-oro); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 400; stroke-dashoffset: 400; animation: ia-dibuja 5s ease-in-out infinite; }
+.ia-area { fill: rgba(245, 197, 66, 0.18); opacity: 0; animation: ia-area 5s ease-in-out infinite; }
+.ia-punto-g { fill: #fff3b0; opacity: 0; animation: ia-area 5s ease-in-out infinite; }
+@keyframes ia-dibuja { 0% { stroke-dashoffset: 400; } 55%, 90% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 400; } }
+@keyframes ia-area { 0%, 40% { opacity: 0; } 60%, 90% { opacity: 1; } 100% { opacity: 0; } }
+.ia-rejilla { stroke: rgba(255, 255, 255, 0.12); stroke-width: 1; }
+.ia-dona-fondo { fill: none; stroke: rgba(255, 255, 255, 0.14); stroke-width: 9; }
+.ia-dona { fill: none; stroke: var(--ib-oro); stroke-width: 9; stroke-linecap: round; stroke-dasharray: 88 138; transform-origin: 50% 50%; animation: ia-gira-dona 6s linear infinite; }
+@keyframes ia-gira-dona { to { transform: rotate(360deg); } }
+.ia-barra { transform-box: fill-box; transform-origin: 50% 100%; fill: #fde68a; animation: ia-barra 2.6s ease-in-out infinite alternate; }
+.ia-barra:nth-child(2) { animation-delay: -0.8s; } .ia-barra:nth-child(3) { animation-delay: -1.6s; } .ia-barra:nth-child(4) { animation-delay: -2.2s; }
+@keyframes ia-barra { from { transform: scaleY(0.3); } to { transform: scaleY(1); } }
+
+.ia-escudo { position: absolute; left: 4%; top: 6%; width: 62px; height: 74px; display: grid; place-items: center; font-size: 1.5rem; color: #2e1065; z-index: 3;
+    background: linear-gradient(160deg, #fff3b0, #f5c542 60%, #b45309); clip-path: polygon(50% 0, 100% 14%, 100% 55%, 50% 100%, 0 55%, 0 14%);
+    filter: drop-shadow(0 0 14px rgba(245, 197, 66, 0.8)); animation: ia-escudo 3s ease-in-out infinite; }
+@keyframes ia-escudo { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-8px) scale(1.07); } }
+
+.ia-engranaje { position: absolute; color: var(--ib-oro); filter: drop-shadow(0 0 10px rgba(245, 197, 66, 0.5)); animation: ia-engr 9s linear infinite; }
+.ia-engranaje.g1 { left: 2%; top: 46%; font-size: 3.2rem; }
+.ia-engranaje.g2 { left: 11%; top: 58%; font-size: 1.9rem; color: #fde68a; animation-direction: reverse; animation-duration: 6s; }
+@keyframes ia-engr { to { transform: rotate(360deg); } }
+
+.ia-candado { position: absolute; left: 3%; bottom: calc(34px + 2%); width: 40px; height: 44px; }
+.ia-candado::before { content: ''; position: absolute; left: 50%; top: 0; width: 22px; height: 22px; margin-left: -11px; border: 4px solid #e9d5ff; border-bottom: 0; border-radius: 12px 12px 0 0; transform-origin: 100% 100%; animation: ia-grillete 6s ease-in-out infinite; }
+.ia-candado::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 26px; border-radius: 6px; background: linear-gradient(135deg, #fde68a, #f5c542); box-shadow: 0 0 16px rgba(245, 197, 66, 0.5); }
+@keyframes ia-grillete { 0%, 40% { transform: translateY(0) rotate(0); } 50%, 80% { transform: translateY(-7px) rotateY(160deg); } 90%, 100% { transform: translateY(0) rotate(0); } }
+
+.ia-ficha { position: absolute; bottom: calc(34px + 3%); width: 22%; max-width: 128px; aspect-ratio: 1.7; padding: 8px; border-radius: 10px; display: flex; gap: 7px; align-items: center;
+    background: linear-gradient(135deg, #5b21b6, #2e1065); border: 1px solid rgba(255, 255, 255, 0.25); box-shadow: 0 10px 22px rgba(0, 0, 0, 0.4); animation: ia-ficha 6s ease-in-out infinite; }
+.ia-ficha .foto { flex: none; width: 30%; aspect-ratio: 1; border-radius: 50%; background: linear-gradient(135deg, #fde68a, #f5c542); }
+.ia-ficha .lineas { flex: 1; display: grid; gap: 5px; }
+.ia-ficha .lineas i { height: 5px; border-radius: 3px; background: rgba(255, 255, 255, 0.35); }
+.ia-ficha .lineas i:first-child { width: 80%; background: rgba(255, 255, 255, 0.7); }
+.ia-ficha em { position: absolute; right: -8px; top: -8px; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; font-size: 0.62rem; color: #fff; background: #16a34a; animation: iv-pop 6s ease-in-out infinite; }
+.ia-ficha.f1 { left: 32%; } .ia-ficha.f2 { left: 52%; animation-delay: 0.5s; } .ia-ficha.f3 { left: 72%; animation-delay: 1s; }
+.ia-ficha.f2 em { animation-delay: 0.5s; } .ia-ficha.f3 em { animation-delay: 1s; }
+@keyframes ia-ficha { 0%, 8% { opacity: 0; transform: translateY(30px) rotate(-4deg); } 20%, 88% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-14px); } }
+
+/* ---------- Pantallas pequeñas ---------- */
+@media (max-width: 760px) {
+    .ib-banner { min-height: 720px; }
+    .ib-texto { padding-bottom: 250px; }
+    .ib-ciudad { height: 33%; }
+        .ie-cal { width: 44px; } .ie-cal b { font-size: 1.05rem; }
+    .ie-burbuja { font-size: 0.66rem; left: 8%; top: 48%; }
+    .iv-moneda { width: 34px; height: 34px; } .iv-moneda b { font-size: 1.1rem; }
+    .ia-escudo { width: 40px; height: 48px; font-size: 1rem; }
+    .ia-engranaje.g1 { font-size: 2rem; } .ia-engranaje.g2 { font-size: 1.2rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ia-linea { stroke-dashoffset: 0; } .ia-area, .ia-punto-g { opacity: 1; }
+    .ia-ficha { opacity: 1; } .ia-barra { transform: scaleY(0.7); }
+}
+
+/* ====================== Ajustes del banner del administrador (usa Tailwind) ====================== */
+.ib-admin .ib-texto h1 { font-weight: 800; }
+.ib-admin .ib-frase { font-weight: 400; }
+.ib-admin .ib-cifra b, .ib-admin .ib-saludo { font-weight: 800; }
+
+.ib-pildoras span span { padding: 0; background: none; border: 0; border-radius: 0; }
+.ib-cifra b { white-space: nowrap; }
+
+.ia-panel .der { display: grid; grid-template-rows: 1fr 1fr; gap: 6px; min-height: 0; justify-items: center; }
+.ia-panel .der svg { max-height: 100%; }

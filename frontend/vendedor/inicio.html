@@ -19,6 +19,8 @@
     <link rel="stylesheet" href="/css/panel-violeta.css">
     <link rel="stylesheet" href="/vendedor/css/vendedor-responsivo.css">
     <link rel="stylesheet" href="/vendedor/css/vendedor-tarjetas.css">
+    <link rel="stylesheet" href="/inmobiliaria/css/banner-inmobiliaria.css?v=2">
+    <link rel="stylesheet" href="/css/banner-escenas.css?v=2">
 
     <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
     <script src="/assets/inline/tema-claro-oscuro.js"></script>
@@ -28,19 +30,9 @@
         <header class="v-topbar" id="v-topbar"></header>
 
         <main class="v-contenido">
-            <!-- Bienvenida -->
-            <section class="v-tarjeta v-hero">
-                <div>
-                    <p class="v-etiqueta"><i class="fa-solid fa-user-check"></i> Perfil de vendedor</p>
-                    <h1 class="titulo-serif">Hola, <span id="p-nombre"></span></h1>
-                    <p>Desde aquí administras todo lo que publicas en Umbral. Elige qué quieres hacer hoy y entra a tu panel.</p>
-                    <div class="v-chips">
-                        <span class="v-chip"><i class="fa-solid fa-location-dot"></i> Colombia</span>
-                        <span class="v-chip"><i class="fa-solid fa-user"></i> Cuenta persona</span>
-                        <span class="v-chip"><i class="fa-solid fa-envelope"></i> <span id="p-correo-chip"></span></span>
-                    </div>
-                </div>
-            </section>
+            <!-- Banner de bienvenida: lo dibuja js/banner-rol.js con los datos de vendedor/js/inicio.js -->
+            <section class="ib-banner" id="ib-banner" aria-live="polite"></section>
+            <section class="ib-grid" id="ib-grid"></section>
 
             <!-- Las dos opciones: cada una lleva a su propio dashboard -->
             <div>
@@ -84,6 +76,7 @@
     </div>
 
     <script src="/vendedor/js/vendedor.js"></script>
-    <script src="/vendedor/js/inicio.js"></script>
+    <script src="/js/banner-rol.js?v=2"></script>
+    <script src="/vendedor/js/inicio.js?v=1"></script>
 </body>
 </html>

@@ -58,7 +58,7 @@
         'Agentes · Inmobiliaria · Umbral': 'Agents · Agency · Umbral', 'Contactos · Inmobiliaria · Umbral': 'Contacts · Agency · Umbral',
         'Visitas · Inmobiliaria · Umbral': 'Visits · Agency · Umbral', 'Ventas · Inmobiliaria · Umbral': 'Sales · Agency · Umbral',
         'Suscripción · Inmobiliaria · Umbral': 'Subscription · Agency · Umbral', 'Empresa · Inmobiliaria · Umbral': 'Company · Agency · Umbral',
-        'Inmobiliaria · Umbral': 'Agency · Umbral',
+        'Inmobiliaria · Umbral': 'Agency · Umbral', 'Inicio · Inmobiliaria · Umbral': 'Home · Agency · Umbral', 'Inicio · Agente · Umbral': 'Home · Agent · Umbral', 'Inicio': 'Home',
         'Mi día · Agente · Umbral': 'My day · Agent · Umbral', 'Mis propiedades · Agente · Umbral': 'My properties · Agent · Umbral',
         'Mis contactos · Agente · Umbral': 'My contacts · Agent · Umbral', 'Mi agenda · Agente · Umbral': 'My schedule · Agent · Umbral',
         'Mis ventas · Agente · Umbral': 'My sales · Agent · Umbral', 'Mi cuenta · Agente · Umbral': 'My account · Agent · Umbral',

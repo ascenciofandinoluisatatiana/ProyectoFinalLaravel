@@ -154,7 +154,6 @@
             return;
         }
 
-        $('d-titulo').textContent = 'Hola, ' + usuario.nombre;
         $('d-cargando').hidden = true;
         $('d-panel').hidden = false;
 

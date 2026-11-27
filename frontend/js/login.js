@@ -14,17 +14,17 @@
     var RUTAS_POR_ROL = {
         administrador: '/panel-admin/dashboard.html',
         soporte: 'panel.html',
-        vendedor: '/vendedor/perfil.html',
-        inmobiliaria: '/inmobiliaria/dashboard.html',
-        agente: '/agente/dashboard.html'
+        vendedor: '/vendedor/inicio.html',
+        inmobiliaria: '/inmobiliaria/inicio.html',
+        agente: '/agente/inicio.html'
     };
 
     // Los paneles de la inmobiliaria y del agente usan la sesión web de Laravel
     // (igual que el admin): primero se pide la cookie XSRF-TOKEN y luego se inicia la sesión.
     var PANELES_CON_SESION = {
-        inmobiliaria: { api: '/api/v1/inmobiliaria', destino: '/inmobiliaria/dashboard.html' },
-        agente: { api: '/api/v1/agente', destino: '/agente/dashboard.html' },
-        vendedor: { api: '/api/v1/vendedor', destino: '/vendedor/perfil.html', guardarUsuario: true },
+        inmobiliaria: { api: '/api/v1/inmobiliaria', destino: '/inmobiliaria/inicio.html' },
+        agente: { api: '/api/v1/agente', destino: '/agente/inicio.html' },
+        vendedor: { api: '/api/v1/vendedor', destino: '/vendedor/inicio.html', guardarUsuario: true },
     };
 
     async function entrarAlPanelConSesion(panel, email, password, recordar) {

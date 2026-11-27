@@ -8,6 +8,12 @@
       $$('[data-i18n-aria]').forEach(e => { const n = t(e.dataset.i18nAria); e.setAttribute('aria-label', n); if (e.tagName === 'A') e.title = n; });
       const fp = $('#filters'); if (fp) fp.setAttribute('aria-label', t('f_btn'));
       $('#lang').value = lang;
+      const si = $('#si-invitado');
+      if (si && window.SelectorIdioma) {
+        if (!si._si) SelectorIdioma.montar(si, { idiomas: LANGS, actual: lang, compacto: true, etiqueta: 'Idioma / Language',
+          alElegir: c => { const s = $('#lang'); s.value = c; s.dispatchEvent(new Event('change', { bubbles: true })); } });
+        else SelectorIdioma.actualizar(si, lang);
+      }
       $('#langPill').textContent = LANG_NAMES[lang];
       buildFilters(); updateBanner(); renderSellers(); render();
     }

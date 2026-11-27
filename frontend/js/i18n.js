@@ -65,12 +65,7 @@
         var claveTitulo = pagina ? 'meta.titulo_' + pagina : 'meta.titulo';
         document.title = window.t(claveTitulo);
 
-        var nombre = document.getElementById('idioma-actual');
-        if (nombre) nombre.textContent = IDIOMAS[actual].nombre;
-
-        document.querySelectorAll('[data-idioma]').forEach(function (op) {
-            op.setAttribute('aria-selected', op.getAttribute('data-idioma') === actual ? 'true' : 'false');
-        });
+        if (window.SelectorIdioma) SelectorIdioma.actualizar(document.getElementById('si-idioma'), actual);
 
         document.dispatchEvent(new CustomEvent('umbral:idioma'));
     }
@@ -115,30 +110,11 @@
 
     // 5) Menú desplegable del selector
     function iniciarMenu() {
-        var boton = document.getElementById('idioma-boton');
-        var menu = document.getElementById('idioma-menu');
-        if (!boton || !menu) return;
-
-        function abrir(si) {
-            menu.hidden = !si;
-            boton.setAttribute('aria-expanded', si ? 'true' : 'false');
-        }
-
-        boton.addEventListener('click', function (e) {
-            e.stopPropagation();
-            abrir(menu.hidden);
-        });
-
-        menu.addEventListener('click', function (e) {
-            var opcion = e.target.closest('[data-idioma]');
-            if (!opcion) return;
-            cambiar(opcion.getAttribute('data-idioma'), true);
-            abrir(false);
-        });
-
-        document.addEventListener('click', function () { abrir(false); });
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') { abrir(false); boton.focus(); }
+        var raiz = document.getElementById('si-idioma');
+        if (!raiz || !window.SelectorIdioma) return;
+        SelectorIdioma.montar(raiz, {
+            idiomas: Object.keys(IDIOMAS), actual: actual, etiqueta: 'Idioma',
+            alElegir: function (c) { cambiar(c, true); }
         });
     }
 

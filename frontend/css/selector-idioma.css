@@ -1,0 +1,68 @@
+/* ============================================================
+   UMBRAL — Selector de idioma con banderas (js/selector-idioma.js)
+   Paleta: morado, negro, blanco y dorado. Claro y oscuro.
+   ============================================================ */
+:root {
+    --si-fondo: #ffffff;
+    --si-boton: rgba(255, 255, 255, 0.9);
+    --si-texto: #2b1b4d;
+    --si-suave: #7a6b99;
+    --si-borde: rgba(124, 58, 237, 0.28);
+    --si-hover: rgba(124, 58, 237, 0.09);
+    --si-sel: #efe7ff;
+    --si-acento: #7c3aed;
+}
+:root[data-theme="dark"], html.dark {
+    --si-fondo: #1c1426;
+    --si-boton: rgba(255, 255, 255, 0.06);
+    --si-texto: #f5f1ff;
+    --si-suave: #b9aad8;
+    --si-borde: rgba(183, 158, 255, 0.32);
+    --si-hover: rgba(174, 145, 255, 0.14);
+    --si-sel: rgba(245, 197, 66, 0.14);
+    --si-acento: #f5c542;
+}
+
+.si { position: relative; display: inline-block; flex: 0 0 auto; }
+
+.si-boton {
+    min-height: 44px; display: inline-flex; align-items: center; gap: 9px; padding: 0 12px;
+    border: 1px solid var(--si-borde); border-radius: 999px; background: var(--si-boton); color: var(--si-texto);
+    font-family: inherit; font-size: 0.84rem; font-weight: 600; line-height: 1; cursor: pointer; white-space: nowrap;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.si-boton:hover { border-color: var(--si-acento); transform: translateY(-1px); }
+.si-boton:focus-visible, .si-opcion:focus-visible { outline: 2px solid var(--si-acento); outline-offset: 2px; }
+.si-flecha { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s ease; }
+.si-boton[aria-expanded="true"] .si-flecha { transform: rotate(180deg); }
+
+.si-bandera { display: inline-block; width: 28px; flex: 0 0 auto; line-height: 0; }
+.si-bandera svg { display: block; width: 100%; height: auto; border-radius: 4px; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.18); }
+
+/* Versión compacta (barras de los paneles y el invitado): en pantallas pequeñas solo bandera y flecha */
+.si-compacto .si-boton { min-height: 42px; padding: 0 10px; }
+@media (max-width: 560px) {
+    .si-compacto .si-nombre { display: none; }
+}
+
+/* El menú vive en <body> y se coloca con JavaScript dentro de la pantalla */
+.si-menu {
+    position: fixed; z-index: 100000; box-sizing: border-box; padding: 8px; overflow-y: auto; overscroll-behavior: contain;
+    display: flex; flex-direction: column; gap: 2px;
+    border: 1px solid var(--si-borde); border-radius: 16px; background: var(--si-fondo); color: var(--si-texto);
+    box-shadow: 0 18px 46px rgba(20, 12, 45, 0.26);
+}
+.si-menu[hidden] { display: none; }
+
+.si-opcion {
+    display: grid; grid-template-columns: 34px minmax(0, 1fr) 18px; align-items: center; gap: 12px; width: 100%; min-height: 52px; box-sizing: border-box;
+    padding: 8px 12px; border: 0; border-radius: 12px; background: transparent; color: var(--si-texto);
+    font-family: inherit; text-align: start; cursor: pointer;
+}
+.si-opcion .si-bandera { width: 34px; }
+.si-opcion:hover, .si-opcion:focus-visible { background: var(--si-hover); }
+.si-opcion[aria-selected="true"] { background: var(--si-sel); box-shadow: inset 0 0 0 1px var(--si-borde); }
+.si-textos { display: grid; gap: 2px; min-width: 0; }
+.si-textos b { font-size: 0.95rem; font-weight: 700; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.si-textos small { font-size: 0.74rem; font-weight: 500; line-height: 1.2; color: var(--si-suave); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.si-opcion[aria-selected="true"] .si-marca::after { content: "✓"; font-size: 0.95rem; font-weight: 800; color: var(--si-acento); }

@@ -247,9 +247,7 @@
                 '</button>' +
                 '<h2 class="barra-titulo">' + esc(titulo) + '</h2>' +
                 '<div class="ml-auto flex shrink-0 items-center gap-2">' +
-                    '<div class="admin-idiomas" id="admin-idioma" role="group" aria-label="Idioma">' +
-                        IDIOMAS_PANEL.map(function (k) { return '<button type="button" data-idioma="' + k + '" aria-pressed="' + (k === idioma ? 'true' : 'false') + '">' + k.toUpperCase() + '</button>'; }).join('') +
-                    '</div>' +
+                    '<div class="si si-compacto" id="admin-idioma">' + SelectorIdioma.html({ idiomas: IDIOMAS_PANEL, actual: idioma, etiqueta: 'Idioma' }) + '</div>' +
                     '<button type="button" id="boton-tema" class="tema-boton" title="Cambiar entre modo claro y oscuro" aria-label="Cambiar entre modo claro y oscuro">' +
                         '<i class="fa-solid fa-moon icono-luna"></i><i class="fa-solid fa-sun icono-sol"></i>' +
                     '</button>' +
@@ -304,6 +302,7 @@
     }
 
     function activarComportamientos() {
+        SelectorIdioma.activar(document.getElementById('admin-idioma'));
         document.querySelectorAll('#admin-idioma [data-idioma]').forEach(function (b) {
             b.addEventListener('click', function () {
                 try { localStorage.setItem('umbral_lang', this.getAttribute('data-idioma')); } catch (e) {}

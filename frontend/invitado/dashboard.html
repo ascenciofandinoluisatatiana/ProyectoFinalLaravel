@@ -63,7 +63,7 @@
         <h1 data-i18n="page_title"></h1>
         <div class="search"><i class="fa-solid fa-magnifying-glass" style="color:var(--muted)"></i><input id="q"
             data-i18n-ph="search_ph"></div>
-        <select class="lang" id="lang" aria-label="Idioma">
+        <select class="lang" id="lang" aria-label="Idioma" hidden>
           <option value="es">Español</option>
           <option value="en">English</option>
           <option value="pt">Português</option>
@@ -77,6 +77,7 @@
           <option value="ru">Русский</option>
           <option value="hi">हिन्दी</option>
         </select>
+        <div class="si si-compacto" id="si-invitado"></div>
         <button class="icon-btn" id="themeBtn" title="Tema"><i class="fa-solid fa-moon"></i></button>
         <div class="user-chip">
           <div class="avatar">IN</div>
@@ -216,7 +217,8 @@
   <script src="/invitado/js/datos-demo.js"></script>
   <script src="/invitado/js/api.js"></script>
   <script src="/invitado/js/estado.js"></script>
-  <script src="/invitado/js/idioma.js"></script>
+  <script src="/js/selector-idioma.js?v=1"></script>
+  <script src="/invitado/js/idioma.js?v=2"></script>
   <script src="/invitado/js/filtros.js"></script>
   <script src="/invitado/js/tarjetas.js"></script>
   <script src="/invitado/js/mapa.js"></script>
@@ -241,6 +243,7 @@
   <script src="/js/vendedores.js"></script>
   <script src="/js/pwa.js"></script>
   <script src="/js/instalar-app.js"></script>
+    <script src="/js/marca-umbral.js?v=1"></script>
 </body>
 
 </html>

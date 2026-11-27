@@ -377,9 +377,7 @@
         cont.innerHTML =
             '<button type="button" class="i-icono" id="i-menu" aria-label="' + esc(tx('menu')) + '"><i class="fa-solid fa-bars"></i></button>' +
             '<h1 class="i-titulo">' + esc(actual ? tx(actual.id) : '') + '</h1>' +
-            '<div class="i-idiomas" id="i-idioma" role="group" aria-label="' + esc(tx('idioma')) + '">' +
-            Object.keys(IDIOMAS).map(function (k) { return '<button type="button" data-idioma="' + k + '" aria-pressed="' + (k === idioma ? 'true' : 'false') + '">' + k.toUpperCase() + '</button>'; }).join('') +
-            '</div>' +
+            '<div class="si si-compacto" id="i-idioma">' + SelectorIdioma.html({ idiomas: Object.keys(IDIOMAS), actual: idioma, etiqueta: tx('idioma') }) + '</div>' +
             '<div class="i-campana" id="i-campana"></div>' +
             '<button type="button" class="i-icono" id="i-tema" aria-label="' + esc(tx('tema')) + '" title="' + esc(tx('tema')) + '">' +
                 '<i class="fa-solid ' + (tema === 'dark' ? 'fa-sun' : 'fa-moon') + '"></i></button>' +
@@ -390,7 +388,8 @@
         document.getElementById('i-tema').addEventListener('click', function () {
             aplicarTema(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
         });
-        document.querySelectorAll('#i-idioma button').forEach(function (b) {
+        SelectorIdioma.activar(document.getElementById('i-idioma'));
+        document.querySelectorAll('#i-idioma [data-idioma]').forEach(function (b) {
             b.addEventListener('click', function () {
             idioma = this.getAttribute('data-idioma');
             try { localStorage.setItem('umbral_lang', idioma); } catch (e) {}

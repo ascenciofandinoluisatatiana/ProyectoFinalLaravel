@@ -43,7 +43,7 @@
         '#umb-puertas.up-claro .up-logo-c{display:block}#umb-puertas.up-claro .up-logo-o{display:none}',
         '@keyframes up-logo{to{opacity:1;transform:none}}',
         /* Nombre, letra por letra */
-        '#umb-puertas .up-marca{display:flex;font:600 clamp(30px,8vw,64px)/1 "Cormorant Garamond",Georgia,serif;',
+        '#umb-puertas .up-marca{display:flex;direction:ltr;unicode-bidi:isolate;font:600 clamp(30px,8vw,64px)/1 "Cormorant Garamond",Georgia,serif;',
         'letter-spacing:.32em;text-indent:.32em;color:#e3c985;text-shadow:0 0 24px rgba(227,201,133,.45)}',
         '#umb-puertas .up-marca span{display:inline-block;opacity:0;transform:translateY(10px);',
         'animation:up-letra .7s cubic-bezier(.2,.7,.2,1) forwards,up-pulso 2.2s ease-in-out 1.4s infinite}',
@@ -128,6 +128,8 @@
         capa.id = 'umb-puertas';
         capa.setAttribute('role', 'status');
         capa.setAttribute('aria-label', 'Cargando');
+        capa.setAttribute('translate', 'no');   // el nombre UMBRAL nunca se traduce (el traductor del navegador desordenaba las letras)
+        capa.classList.add('notranslate');
         if (solo) capa.className = 'up-solo';
         if (temaActual() === 'light') capa.classList.add('up-claro');
         if (!observando && window.MutationObserver) {   // si la página cambia de tema, la casa lo sigue

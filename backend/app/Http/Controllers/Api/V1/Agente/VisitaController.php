@@ -13,7 +13,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
-/** Agenda del agente (RF-085): sus visitas, programar, confirmar, reprogramar y cancelar. */
 class VisitaController extends Controller
 {
     use ManejaVisitas;
@@ -25,7 +24,6 @@ class VisitaController extends Controller
         return Visita::where('agente_id', $request->user()->id);
     }
 
-    /** GET /api/v1/agente/visitas?periodo=proximas|pasadas|todas&estado=&desde=&hasta=&q= */
     public function index(Request $request): JsonResponse
     {
         $consulta = $this->mias($request)->with(['propiedad:id,tipo,barrio,ciudad,direccion', 'agente:id,name']);
@@ -46,7 +44,6 @@ class VisitaController extends Controller
         return response()->json($this->listado($consulta->orderBy('id'), $request, fn (Visita $v) => $this->formatoVisita($v)));
     }
 
-    /** POST /api/v1/agente/visitas  { lead_id } o { propiedad_id, nombre, contacto } + fecha, nota */
     public function store(Request $request): JsonResponse
     {
         $yo = $request->user();
@@ -90,7 +87,6 @@ class VisitaController extends Controller
         return response()->json(['message' => 'Visita programada.', 'data' => $this->formatoVisita($visita->load(['propiedad', 'agente']))], 201);
     }
 
-    /** PATCH /api/v1/agente/visitas/{id}  { estado?, fecha?, nota? } */
     public function update(Request $request, $id): JsonResponse
     {
         $visita = $this->mias($request)->findOrFail($id);

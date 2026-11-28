@@ -13,14 +13,8 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 
-/**
- * Agentes y equipo de la inmobiliaria (RF-079).
- * Un agente es un usuario con rol "agente" y inmobiliaria_id = esta inmobiliaria.
- * No se borran: se desactivan, para conservar el historial de contactos y visitas.
- */
 class AgenteController extends BaseInmobiliariaController
 {
-    /** GET /agentes */
     public function index(Request $request): JsonResponse
     {
         $ids = $this->idsPropiedades($request);
@@ -37,7 +31,6 @@ class AgenteController extends BaseInmobiliariaController
                 'contactos' => Lead::whereIn('propiedad_id', $ids)->where('agente_id', $a->id)->count(),
                 'visitas' => Visita::whereIn('propiedad_id', $ids)->where('agente_id', $a->id)
                     ->where('fecha', '>=', $ahora)->whereIn('estado', ['pendiente', 'confirmada'])->count(),
-                // Seguimiento: cierres y comisiones (4 %)
                 'cierres' => $comisiones[$a->id]['cierres'] ?? 0,
                 'comision_pendiente' => $comisiones[$a->id]['comision_pendiente'] ?? 0,
                 'comision_pagada' => $comisiones[$a->id]['comision_pagada'] ?? 0,
@@ -46,7 +39,6 @@ class AgenteController extends BaseInmobiliariaController
         return response()->json(['data' => $agentes->all()]);
     }
 
-    /** POST /agentes — dar de alta un agente con su contraseña inicial */
     public function store(Request $request): JsonResponse
     {
         $datos = $request->validate([
@@ -81,7 +73,6 @@ class AgenteController extends BaseInmobiliariaController
         return response()->json(['message' => 'Agente agregado al equipo.', 'data' => $this->formato($agente)], 201);
     }
 
-    /** PUT /agentes/{id} — datos de contacto */
     public function update(Request $request, $id): JsonResponse
     {
         $agente = $this->agentePropio($request, $id);
@@ -95,11 +86,6 @@ class AgenteController extends BaseInmobiliariaController
         return response()->json(['message' => 'Datos del agente actualizados.', 'data' => $this->formato($agente)]);
     }
 
-    /**
-     * POST /agentes/{id}/clave  { password, password_confirmation } (IN6)
-     * El agente no puede cambiar sus datos ni recuperar la contraseña por correo:
-     * su inmobiliaria le asigna una nueva.
-     */
     public function clave(Request $request, $id): JsonResponse
     {
         $agente = $this->agentePropio($request, $id);
@@ -119,7 +105,6 @@ class AgenteController extends BaseInmobiliariaController
         return response()->json(['message' => 'Contraseña de ' . $agente->name . ' restablecida. Compártela con el agente.']);
     }
 
-    /** PATCH /agentes/{id}/estado  { estado: activo | inactivo } */
     public function estado(Request $request, $id): JsonResponse
     {
         $agente = $this->agentePropio($request, $id);
@@ -127,7 +112,6 @@ class AgenteController extends BaseInmobiliariaController
 
         $agente->update(['estado' => $datos['estado']]);
 
-        // Un agente inactivo deja libres sus propiedades para reasignarlas
         $liberadas = 0;
         if ($datos['estado'] === 'inactivo') {
             $liberadas = Propiedad::whereIn('id', $this->idsPropiedades($request))

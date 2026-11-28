@@ -7,13 +7,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
-/**
- * Contactos (leads) que dejan los invitados en las propiedades de la inmobiliaria
- * (RF-082, RF-083): clasificarlos por estado y asignarlos a un agente.
- */
 class ContactoController extends BaseInmobiliariaController
 {
-    /** GET /contactos?estado=&agente_id=&desde=&hasta=&q= */
     public function index(Request $request): JsonResponse
     {
         $consulta = Lead::with(['propiedad:id,tipo,barrio,ciudad,operacion,agente_id', 'agente:id,name'])
@@ -33,14 +28,12 @@ class ContactoController extends BaseInmobiliariaController
 
         $listado = $this->listado($consulta->latest()->latest('id'), $request, fn (Lead $l) => $this->formato($l));
 
-        // Totales por estado para las pestañas del filtro
         $totales = Lead::whereIn('propiedad_id', $this->idsPropiedades($request))
             ->selectRaw('estado, COUNT(*) as total')->groupBy('estado')->pluck('total', 'estado');
 
         return response()->json($listado + ['totales' => $totales]);
     }
 
-    /** PATCH /contactos/{id}  { estado?, agente_id? } */
     public function update(Request $request, $id): JsonResponse
     {
         $lead = $this->leadPropio($request, $id);

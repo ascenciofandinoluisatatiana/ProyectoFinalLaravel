@@ -8,10 +8,8 @@ use App\Models\Comision;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-/** El agente ve sus propias comisiones (solo lectura). */
 class ComisionController extends Controller
 {
-    /** GET /api/v1/agente/comisiones */
     public function index(Request $request): JsonResponse
     {
         $mias = Comision::where('agente_id', $request->user()->id)

@@ -12,25 +12,18 @@ use App\Models\Visita;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-/**
- * Panel del agente (RF-080, RF-083 a RF-085): solo ve lo que su inmobiliaria le asignó.
- *  - propiedades con agente_id = el agente (y de su inmobiliaria)
- *  - contactos y visitas asignados a él
- */
 class PanelController extends Controller
 {
     use ManejaVisitas;
     use Paginacion;
     use FiltrosListado;
 
-    /** Propiedades asignadas al agente dentro de SU inmobiliaria. */
     private function misPropiedades(Request $request)
     {
         return Propiedad::where('agente_id', $request->user()->id)
             ->where('user_id', $request->user()->inmobiliaria_id);
     }
 
-    /** GET /api/v1/agente/resumen */
     public function resumen(Request $request): JsonResponse
     {
         $yo = $request->user();
@@ -66,7 +59,6 @@ class PanelController extends Controller
         ]);
     }
 
-    /** GET /api/v1/agente/propiedades — solo lectura */
     public function propiedades(Request $request): JsonResponse
     {
         $formato = fn (Propiedad $p) => [
@@ -91,7 +83,6 @@ class PanelController extends Controller
                 'visitas' => (int) $p->visitas_count,
             ];
 
-        // AG3: filtros opcionales (operación, estado, texto). El agente no cambia el estado: solo lo ve.
         $consulta = $this->misPropiedades($request)->withCount(['leads', 'visitas']);
         if (in_array($request->query('operacion'), ['venta', 'arriendo'], true)) {
             $consulta->where('operacion', $request->query('operacion'));

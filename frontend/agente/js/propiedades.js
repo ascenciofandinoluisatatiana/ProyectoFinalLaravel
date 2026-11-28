@@ -1,9 +1,3 @@
-/* =========================================================
-   UMBRAL — Propiedades a cargo del agente (solo lectura, RF-080)
-   API: GET /api/v1/agente/propiedades?operacion=&estado=&q=
-   AG3: filtros y propiedades agrupadas por estado. El agente ve el estado pero no lo cambia:
-   eso lo decide la inmobiliaria.
-   ========================================================= */
 (function () {
     'use strict';
 
@@ -25,7 +19,6 @@
         return (p.estado === 'vendida' || p.estado === 'arrendada') ? 'cerrada' : p.estado;
     }
 
-    // Misma tarjeta del panel de la inmobiliaria, sin botones de estado
     function tarjeta(p) {
         var renta = p.operacion === 'arriendo';
         var mapa = (p.lat != null && p.lng != null)

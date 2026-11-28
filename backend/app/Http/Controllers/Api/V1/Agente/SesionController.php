@@ -10,16 +10,13 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
-/** Sesión del panel del agente (sesión web de Laravel, igual que la inmobiliaria). */
 class SesionController extends Controller
 {
-    /** GET /api/v1/agente/csrf — deja la cookie XSRF-TOKEN */
     public function csrf(): Response
     {
         return response()->noContent();
     }
 
-    /** POST /api/v1/agente/sesion  { email, password, recordar } */
     public function entrar(Request $request): JsonResponse
     {
         $datos = $request->validate([
@@ -42,13 +39,11 @@ class SesionController extends Controller
         return response()->json(['message' => 'Sesión iniciada.', 'usuario' => self::datos(Auth::user())]);
     }
 
-    /** GET /api/v1/agente/yo */
     public function yo(Request $request): JsonResponse
     {
         return response()->json(['usuario' => self::datos($request->user())]);
     }
 
-    /** POST /api/v1/agente/salir */
     public function salir(Request $request): JsonResponse
     {
         $this->cerrar($request);

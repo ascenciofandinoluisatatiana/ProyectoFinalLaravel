@@ -1,11 +1,3 @@
-/* =========================================================
-   UMBRAL — Panel de la inmobiliaria: código compartido
-   - Habla con la API (/api/v1/inmobiliaria/...) usando la sesión de Laravel
-     (mismo origen: nginx reenvía /api a Laravel, la cookie viaja sola)
-   - Revisa la sesión con /yo antes de mostrar la pantalla
-   - Dibuja la barra superior (mismo diseño del panel del vendedor)
-   Las pantallas (dashboard.js, ...) usan window.Inmobiliaria.
-   ========================================================= */
 (function () {
     'use strict';
 
@@ -13,7 +5,6 @@
     var INICIO = '/index.html';
     var CLAVE_TEMA = 'umbral-tema';
 
-    // Secciones del panel, agrupadas como en el menú lateral del invitado
     var SECCIONES = [
         { id: 'inicio', grupo: 'g_principal', href: '/inmobiliaria/inicio.html', icono: 'fa-house-chimney' },
         { id: 'dashboard', grupo: 'g_principal', href: '/inmobiliaria/dashboard.html', icono: 'fa-chart-line' },
@@ -22,7 +13,6 @@
         { id: 'contactos', grupo: 'g_gestion', href: '/inmobiliaria/contactos.html', icono: 'fa-comments' },
         { id: 'visitas', grupo: 'g_gestion', href: '/inmobiliaria/visitas.html', icono: 'fa-calendar-check' },
         { id: 'ventas', grupo: 'g_gestion', href: '/inmobiliaria/ventas.html', icono: 'fa-file-invoice-dollar' },
-        // IN8: "Suscripción" con submenú (cada opción lleva a su parte de la página)
         { id: 'membresia', grupo: 'g_cuenta', href: '/inmobiliaria/membresia.html', icono: 'fa-credit-card', sub: [
             { id: 'sub_vigente', href: '/inmobiliaria/membresia.html#d-vigente', icono: 'fa-star' },
             { id: 'sub_planes', href: '/inmobiliaria/membresia.html#planes', icono: 'fa-crown' },
@@ -39,7 +29,6 @@
     var ESTADOS_LEAD = { nuevo: 'Nuevo', en_seguimiento: 'En seguimiento', cerrado: 'Cerrado', descartado: 'Descartado' };
     var ESTADOS_VISITA = { pendiente: 'Pendiente', confirmada: 'Confirmada', realizada: 'Realizada', cancelada: 'Cancelada' };
 
-    /* ---------- Utilidades ---------- */
     function esc(t) {
         return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) {
             return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -51,7 +40,6 @@
         return ((p[0] || '?')[0] + (p.length > 1 ? p[1][0] : '')).toUpperCase();
     }
 
-    // Las fechas llegan en UTC; se muestran en hora de Colombia
     function fecha(iso) {
         return new Date(iso).toLocaleString('es-CO', {
             timeZone: 'America/Bogota', weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit'
@@ -75,7 +63,6 @@
         return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(Number(n) || 0);
     }
 
-    // Foto de una propiedad: las subidas viven en /storage; las de ejemplo, en /img
     function foto(url) {
         return url ? '<img src="' + esc(url) + '" alt="" loading="lazy">' : '';
     }
@@ -97,9 +84,6 @@
         window.location.replace(INICIO);
     }
 
-    /* ---------- Llamadas a la API ----------
-       api('/resumen')                        → GET
-       api('/salir', { metodo: 'POST' })      → POST con protección CSRF */
     async function api(ruta, opciones) {
         opciones = opciones || {};
         var metodo = opciones.metodo || 'GET';
@@ -110,7 +94,6 @@
             var xsrf = leerCookie('XSRF-TOKEN');
             if (xsrf) cabeceras['X-XSRF-TOKEN'] = xsrf;
         }
-        // FormData (formularios con foto) viaja tal cual; lo demás como JSON
         if (opciones.formulario) {
             cuerpo = opciones.formulario;
         } else if (opciones.datos) {
@@ -125,7 +108,6 @@
             body: cuerpo
         });
 
-        // Sin sesión o sin permiso: de vuelta al inicio
         if (respuesta.status === 401 || respuesta.status === 403) {
             irAlInicio();
             throw new Error('Sin acceso');
@@ -133,7 +115,6 @@
 
         var json = await respuesta.json().catch(function () { return {}; });
         if (!respuesta.ok) {
-            // 422: se muestra el primer error de validación (los mensajes en inglés de Laravel se pasan al español)
             var errores = json.errors ? Object.keys(json.errors).map(function (k) { return json.errors[k][0]; }) : [];
             if (respuesta.status === 419) errores = ['Tu sesión expiró. Recarga la página.'];
             var mensaje = errores[0] || json.message || 'No se pudo completar la acción.';
@@ -142,7 +123,6 @@
         return json;
     }
 
-    /* ---------- Tema claro / oscuro (misma clave que el resto del sitio) ---------- */
     function aplicarTema(tema) {
         document.documentElement.setAttribute('data-theme', tema);
         try { localStorage.setItem(CLAVE_TEMA, tema); } catch (e) {}
@@ -156,10 +136,7 @@
         irAlInicio();
     }
 
-    /* ---------- Idioma del panel ----------
-       Misma preferencia que la página del invitado (clave "umbral_lang").
-       Por ahora se traducen el menú y la barra; el contenido sigue en español. */
-    var IDIOMAS = { es: 'Español', en: 'English' };   // los paneles solo tienen español e inglés
+    var IDIOMAS = { es: 'Español', en: 'English' };
     var TEXTOS = {
             "menu": {
                     "es": "Menú",
@@ -297,13 +274,10 @@
     var idioma = 'es';
     try { idioma = localStorage.getItem('umbral_lang') || 'es'; } catch (e) {}
     if (!IDIOMAS[idioma]) idioma = 'es';
-    // Inglés: se carga el traductor de la página (idioma-en.js) y se oculta un instante para no ver el español
     if (idioma === 'en' && !window.UmbralIdioma) {
         document.documentElement.classList.add('i-traduciendo');
         document.documentElement.lang = 'en';
-        // El panel espera al traductor antes de dibujar (máximo 3 segundos)
         window.UMBRAL_EN_LISTO = new Promise(function (listo) { window.UMBRAL_EN_AVISAR = listo; setTimeout(listo, 3000); });
-        // Primero el diccionario y después el motor común (uno tras otro)
         ['/inmobiliaria/js/idioma-en.js', '/assets/traductor-en.js'].reduce(function (antes, src) {
             return antes.then(function () {
                 return new Promise(function (listo) { var s = document.createElement('script'); s.src = src; s.onload = s.onerror = listo; document.head.appendChild(s); });
@@ -313,10 +287,6 @@
     }
     function tx(clave) { return (TEXTOS[clave] || {})[idioma] || (TEXTOS[clave] || {}).es || clave; }
 
-    /* ---------- Estructura: menú lateral + barra superior ----------
-       Las páginas solo traen <header id="v-topbar"> y <main>; aquí se arma
-       el mismo esquema del perfil de invitado: menú a la izquierda (se desplaza
-       aparte) y arriba el título, el idioma, el tema y la sesión. */
     var usuarioActual = null, seccionActual = null;
 
     function estructura() {
@@ -338,7 +308,6 @@
         pagina.appendChild(lateral);
         pagina.appendChild(principal);
         velo.addEventListener('click', function () { lateral.classList.remove('abierto'); velo.classList.remove('abierto'); });
-        // IN8: al tocar una opción del submenú (misma página) se cierra el menú en el celular
         lateral.addEventListener('click', function (e) { if (e.target.closest('.i-subnav a')) { lateral.classList.remove('abierto'); velo.classList.remove('abierto'); } });
     }
 
@@ -348,7 +317,6 @@
         var tema = document.documentElement.getAttribute('data-theme') || 'light';
         var actual = SECCIONES.filter(function (s) { return s.id === activo; })[0];
 
-        // Menú lateral agrupado
         var html = '<a class="i-marca" href="/inmobiliaria/inicio.html"><span class="i-logo-marca"><img src="/img/icono.png" alt=""></span>' +
             '<span><b>UMBRAL</b><small>' + esc(tx('rol_inmo')) + '</small></span></a>';
         ['g_principal', 'g_gestion', 'g_cuenta'].forEach(function (g) {
@@ -357,7 +325,6 @@
                     var enlace = '<a href="' + s.href + '"' + (s.id === activo ? ' class="activo" aria-current="page"' : '') +
                         '><i class="fa-solid ' + s.icono + '"></i><span>' + esc(tx(s.id)) + '</span>' +
                         (s.sub ? '<i class="fa-solid fa-chevron-' + (s.id === activo ? 'up' : 'down') + ' i-nav-flecha" aria-hidden="true"></i>' : '') + '</a>';
-                    // El submenú se muestra en su propia página
                     if (s.sub && s.id === activo) {
                         enlace += '<div class="i-subnav">' + s.sub.map(function (x) {
                             return '<a href="' + x.href + '"><i class="fa-solid ' + x.icono + '"></i><span>' + esc(tx(x.id)) + '</span></a>';
@@ -371,7 +338,6 @@
             '<a class="v-btn v-btn-principal v-btn-mini" href="/inmuebles" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i>' + esc(tx('ver_portal')) + '</a></div>';
         document.getElementById('i-lateral').innerHTML = html;
 
-        // Barra superior: título, idioma, tema y sesión
         var cont = document.getElementById('v-topbar');
         cont.className = 'i-barra';
         cont.innerHTML =
@@ -405,7 +371,6 @@
         if (window.PanelExtra) window.PanelExtra.montarCampana(document.getElementById('i-campana'), api);
     }
 
-    /* ---------- Aviso emergente ---------- */
     var temporizador;
     function toast(mensaje) {
         var t = document.getElementById('v-toast');
@@ -418,19 +383,16 @@
         t.textContent = mensaje;
         t.classList.add('visible');
         clearTimeout(temporizador);
-        // Entre más largo el mensaje, más tiempo se queda en pantalla (mínimo 3,2 s, máximo 14 s)
         var duracion = Math.min(14000, Math.max(3200, 2500 + String(mensaje).length * 70));
         temporizador = setTimeout(function () { t.classList.remove('visible'); }, duracion);
     }
 
-    // Cierra una ventana <dialog> con la X, con "Cancelar" o al tocar fuera.
     function prepararVentana(dialogo) {
         dialogo.addEventListener('click', function (e) {
             if (e.target === dialogo || e.target.closest('[data-cerrar]')) dialogo.close();
         });
     }
 
-    // Opciones <option> con los agentes ACTIVOS de la inmobiliaria
     function opcionesAgentes(agentes, elegido, textoVacio) {
         return '<option value="">' + esc(textoVacio || 'Sin agente') + '</option>' +
             agentes.filter(function (a) { return a.estado === 'activo' || a.id === elegido; }).map(function (a) {
@@ -438,11 +400,6 @@
             }).join('');
     }
 
-    /* ---------- Arranque de cada pantalla ----------
-       Revisa la sesión con el servidor y dibuja la barra.
-       Devuelve los datos de la inmobiliaria o null (si no hay sesión ya redirigió). */
-    /* ---------- Piezas extra (campana, paginador, PDF) ----------
-       Se cargan una sola vez desde /inmobiliaria/js/panel-extra.js antes de dibujar la pantalla. */
     var extra = null;
     function cargarExtra() {
         if (window.PanelExtra) return Promise.resolve();

@@ -15,19 +15,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
-/**
- * Propiedades de la inmobiliaria (RF-040 a RF-046, RF-061 a RF-063, RF-080).
- * Las rutas de guardar usan POST (multipart) para poder subir la foto principal.
- * Las fotos adicionales (galería) se suben de a una con POST /propiedades/{id}/fotos:
- * así cada petición es pequeña y no choca con el límite de tamaño del servidor.
- */
 class PropiedadController extends BaseInmobiliariaController
 {
     public const TIPOS = ['apartamento', 'casa', 'finca', 'local', 'lote', 'oficina'];
 
     public const ESTADOS = ['borrador', 'publicada', 'pausada', 'vendida', 'arrendada'];
 
-    /** GET /propiedades?operacion=&estado=&agente_id=&q= */
     public function index(Request $request): JsonResponse
     {
         $consulta = Propiedad::with(['agente:id,name', 'fotos'])
@@ -54,33 +47,26 @@ class PropiedadController extends BaseInmobiliariaController
             });
         }
 
-        // ?pagina=N → paginado (12 por página); sin pagina → lista completa (la usa el vendedor)
         $listado = $this->listado($consulta->latest()->latest('id'), $request,
             fn (Propiedad $p) => $this->formato($p),
             fn ($pagina) => $this->conDestacados($pagina));
 
         return response()->json($listado + [
-            // Captcha del formulario "Registrar inmueble" (null = desactivado)
             'captcha_site_key' => app(CaptchaService::class)->claveSitio(),
-            // Planes para destacar una publicación (precio vigente del administrador)
             'planes' => collect(\App\Models\PlanMembresia::precios())->map(fn ($precio, $plan) => [
                 'plan' => $plan,
                 'nombre' => \App\Models\Membresia::NOMBRES_PLAN[$plan] ?? $plan,
                 'precio' => $precio,
                 'dias' => ['semanal' => 7, 'quincenal' => 15, 'mensual' => 30][$plan] ?? null,
             ])->values()->all(),
-            // Catálogo para pintar las casillas del formulario
             'caracteristicas' => Propiedad::CARACTERISTICAS,
             'max_fotos' => Propiedad::MAX_FOTOS,
-            // Publicaciones que esta cuenta puede tener publicadas sin pagar
             'publicaciones_gratis' => (int) $this->inmobiliaria($request)->publicaciones_gratis,
         ]);
     }
 
-    /** POST /propiedades */
     public function store(Request $request): JsonResponse
     {
-        // Captcha anti-bots, solo en el formulario de la inmobiliaria (el vendedor reutiliza este método)
         if ($request->is('api/v1/inmobiliaria/*')) {
             app(CaptchaService::class)->validar($request);
         }
@@ -88,8 +74,6 @@ class PropiedadController extends BaseInmobiliariaController
         $datos['user_id'] = $this->inmobiliaria($request)->id;
         $datos['verificada'] = false;
 
-        // Publicaciones gratis: si la cuenta ya usó las suyas, la propiedad se guarda como borrador
-        // "en espera de pago" y se publica sola cuando se contrate un plan.
         $enEspera = false;
         if ($datos['estado'] === 'publicada' && ! app(LimiteGratisService::class)->puedePublicar($datos['user_id'])) {
             $datos['estado'] = 'borrador';
@@ -106,7 +90,6 @@ class PropiedadController extends BaseInmobiliariaController
         try {
             $propiedad = Propiedad::create($datos);
         } catch (\Throwable $e) {
-            // Si no se pudo guardar el registro, no se deja la foto huérfana en el bucket
             if ($subida) {
                 $this->imagenes()->borrar($subida['ruta']);
             }
@@ -120,7 +103,6 @@ class PropiedadController extends BaseInmobiliariaController
         ], 201);
     }
 
-    /** POST /propiedades/{id} (actualizar) */
     public function update(Request $request, $id): JsonResponse
     {
         $propiedad = $this->propiedadPropia($request, $id);
@@ -131,7 +113,6 @@ class PropiedadController extends BaseInmobiliariaController
         if ($request->hasFile('imagen') || $request->boolean('quitar_imagen')) {
             $anterior = $propiedad->imagen;
             if ($request->hasFile('imagen')) {
-                // Primero se sube la nueva; la anterior solo se borra si todo salió bien
                 $subida = $this->imagenes()->subir($request->file('imagen'), 'propiedades', 'imagen');
                 $datos['imagen'] = $subida['ruta'];
                 $datos['imagen_meta'] = $this->imagenes()->metadatos($subida);
@@ -160,7 +141,6 @@ class PropiedadController extends BaseInmobiliariaController
         ]);
     }
 
-    /** PATCH /propiedades/{id}/estado  { estado } */
     public function estado(Request $request, $id): JsonResponse
     {
         $propiedad = $this->propiedadPropia($request, $id);
@@ -177,8 +157,6 @@ class PropiedadController extends BaseInmobiliariaController
         $enEspera = false;
         $cambios = ['estado' => $datos['estado'], 'en_espera_pago' => false];
 
-        // Publicaciones gratis: al publicar (o volver a publicar) se revisa el límite de la cuenta
-        // Si la propiedad ya tiene un plan vigente (membresía o publicación normal por tiempo), no se cobra de nuevo
         if ($datos['estado'] === 'publicada' && $antes !== 'publicada'
             && ! $this->tienePlanVigente($propiedad)
             && ! app(LimiteGratisService::class)->puedePublicar($propiedad->user_id, $propiedad->id)) {
@@ -187,7 +165,6 @@ class PropiedadController extends BaseInmobiliariaController
         }
         $propiedad->update($cambios);
 
-        // Comisión del agente (4 %): se crea al cerrar y se anula si se vuelve a abrir
         $comisiones = app(ComisionService::class);
         $comision = null;
         if (in_array($propiedad->estado, ['vendida', 'arrendada'], true)) {
@@ -205,7 +182,6 @@ class PropiedadController extends BaseInmobiliariaController
         ]);
     }
 
-    /** ¿Ya pagó un plan que sigue vigente? (membresía oro/plata/bronce o publicación normal por tiempo) */
     private function tienePlanVigente(Propiedad $propiedad): bool
     {
         if ($propiedad->publicada_hasta && \Carbon\Carbon::parse($propiedad->publicada_hasta)->isFuture()) {
@@ -218,7 +194,6 @@ class PropiedadController extends BaseInmobiliariaController
             ->exists();
     }
 
-    /** PATCH /propiedades/{id}/agente  { agente_id | null } */
     public function asignar(Request $request, $id): JsonResponse
     {
         $propiedad = $this->propiedadPropia($request, $id);
@@ -233,11 +208,9 @@ class PropiedadController extends BaseInmobiliariaController
         ]);
     }
 
-    /** POST /propiedades/{id}/fotos  (multipart: foto) — agrega una foto a la galería */
     public function agregarFoto(Request $request, $id): JsonResponse
     {
         $propiedad = $this->propiedadPropia($request, $id);
-        // El tipo real (JPG, PNG, WebP o GIF) y el peso exacto (fotos 4 MB, GIF 8 MB) los revisa ImagenService
         $request->validate([
             'foto' => ['required', 'file', 'max:8192'],
         ], [
@@ -266,7 +239,6 @@ class PropiedadController extends BaseInmobiliariaController
         return response()->json(['message' => 'Foto agregada.', 'data' => ['id' => $foto->id, 'url' => $foto->url]], 201);
     }
 
-    /** DELETE /propiedades/{id}/fotos/{foto} */
     public function quitarFoto(Request $request, $id, $fotoId): JsonResponse
     {
         $propiedad = $this->propiedadPropia($request, $id);
@@ -274,19 +246,18 @@ class PropiedadController extends BaseInmobiliariaController
 
         $ruta = $foto->ruta;
         $foto->delete();
-        $this->borrarArchivo($ruta); // después de borrar el registro: solo se borra si nadie más la usa
+        $this->borrarArchivo($ruta);
 
         return response()->json(['message' => 'Foto eliminada.']);
     }
 
-    /** DELETE /propiedades/{id} */
     public function destroy(Request $request, $id): JsonResponse
     {
         $propiedad = $this->propiedadPropia($request, $id);
         $rutas = $propiedad->fotos->pluck('ruta')->push($propiedad->imagen)->filter()->all();
-        $propiedad->delete(); // sus fotos, contactos y visitas se borran en cascada
+        $propiedad->delete();
         foreach ($rutas as $ruta) {
-            $this->borrarArchivo($ruta); // solo se borra del bucket si ningún otro registro la usa
+            $this->borrarArchivo($ruta);
         }
 
         return response()->json(['message' => 'Propiedad eliminada.']);
@@ -302,7 +273,6 @@ class PropiedadController extends BaseInmobiliariaController
             'ciudad' => ['required', 'string', 'max:80'],
             'barrio' => ['required', 'string', 'max:80'],
             'direccion' => ['required', 'string', 'max:150'],
-            // Solo Colombia (RF-030): el punto debe caer dentro del territorio
             'lat' => ['required', 'numeric', 'between:-4.3,13.5'],
             'lng' => ['required', 'numeric', 'between:-82,-66.8'],
             'habitaciones' => ['nullable', 'integer', 'min:0', 'max:50'],
@@ -313,7 +283,6 @@ class PropiedadController extends BaseInmobiliariaController
             'agente_id' => ['nullable', 'integer', $this->reglaAgente($request)],
             'estado' => [$nueva ? 'nullable' : 'prohibited', Rule::in(['borrador', 'publicada'])],
             'imagen' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
-            // Ficha completa (RF-040, RF-042, RF-043, RF-044). Todo opcional.
             'descripcion' => ['nullable', 'string', 'max:3000'],
             'pisos' => ['nullable', 'integer', 'min:1', 'max:200'],
             'antiguedad' => ['nullable', 'integer', 'min:0', 'max:300'],
@@ -329,7 +298,6 @@ class PropiedadController extends BaseInmobiliariaController
             'caracteristicas.*.in' => 'Hay una característica que no es válida.',
         ]);
 
-        // El municipio debe existir dentro del departamento elegido (catálogo oficial)
         $existe = DB::table('municipios as m')
             ->join('departamentos as d', 'd.id', '=', 'm.departamento_id')
             ->where('d.nombre', $datos['departamento'])
@@ -348,7 +316,6 @@ class PropiedadController extends BaseInmobiliariaController
         if (array_key_exists('descripcion', $datos)) {
             $datos['descripcion'] = $datos['descripcion'] !== null ? trim($datos['descripcion']) : null;
         }
-        // Se guardan sin repetir y en el orden del catálogo
         if (array_key_exists('caracteristicas', $datos)) {
             $datos['caracteristicas'] = array_values(array_intersect(
                 array_keys(Propiedad::CARACTERISTICAS),
@@ -360,7 +327,6 @@ class PropiedadController extends BaseInmobiliariaController
         return $datos;
     }
 
-    /** Borra la foto del bucket (no toca las imágenes de ejemplo del frontend). */
     private function borrarArchivo(?string $ruta): void
     {
         $this->imagenes()->borrar($ruta);
@@ -371,7 +337,6 @@ class PropiedadController extends BaseInmobiliariaController
         return app(ImagenService::class);
     }
 
-    /** Membresías vigentes de las propiedades del listado (una sola consulta). */
     private ?array $destacadosCache = null;
 
     private function conDestacados($propiedades)
@@ -402,7 +367,6 @@ class PropiedadController extends BaseInmobiliariaController
             'verificada' => (bool) $p->verificada,
             'estado' => $p->estado,
             'en_espera_pago' => (bool) $p->en_espera_pago,
-            // Planes nuevos: hasta cuándo está publicada (normal por tiempo) y hasta cuándo está posicionada
             'publicada_hasta' => $p->publicada_hasta ? \Illuminate\Support\Carbon::parse($p->publicada_hasta)->toIso8601String() : null,
             'posicionada_hasta' => $p->posicionada_hasta ? \Illuminate\Support\Carbon::parse($p->posicionada_hasta)->toIso8601String() : null,
             'pos' => (bool) ($p->posicionada_hasta && \Illuminate\Support\Carbon::parse($p->posicionada_hasta)->isFuture()),
@@ -418,7 +382,6 @@ class PropiedadController extends BaseInmobiliariaController
             'contactos' => (int) ($p->leads_count ?? 0),
             'visitas' => (int) ($p->visitas_count ?? 0),
             'creada' => $p->created_at?->toIso8601String(),
-            // Membresía vigente de esta publicación (null = no destacada)
             'destacado' => $this->destacadosCache[$p->id] ?? ($this->destacadosCache === null ? ($this->destacados([$p->id])[$p->id] ?? null) : null),
         ];
     }

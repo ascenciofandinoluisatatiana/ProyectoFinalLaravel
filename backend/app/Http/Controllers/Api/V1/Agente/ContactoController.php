@@ -11,7 +11,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
-/** Contactos asignados al agente (RF-083, RF-084): ver y cambiar su estado. */
 class ContactoController extends Controller
 {
     use ManejaVisitas;
@@ -26,7 +25,6 @@ class ContactoController extends Controller
             ->whereHas('propiedad', fn ($q) => $q->where('user_id', $yo->inmobiliaria_id));
     }
 
-    /** GET /api/v1/agente/contactos?estado=&desde=&hasta=&q= */
     public function index(Request $request): JsonResponse
     {
         $consulta = $this->mios($request)->with('propiedad:id,tipo,barrio,ciudad,operacion')->withCount('visitas');
@@ -43,7 +41,6 @@ class ContactoController extends Controller
         ] + $this->listado($consulta->latest()->latest('id'), $request, fn (Lead $l) => $this->formato($l)));
     }
 
-    /** PATCH /api/v1/agente/contactos/{id}  { estado } */
     public function update(Request $request, $id): JsonResponse
     {
         $lead = $this->mios($request)->findOrFail($id);

@@ -1,8 +1,3 @@
-/* =========================================================
-   UMBRAL — Mis ventas (agente): cierres con su comisión, tabla paginada y PDF
-   API: /api/v1/agente/ventas  (?desde=&hasta=&operacion=&pagina=)
-   El PDF pide los mismos filtros sin "pagina" (todos los cierres).
-   ========================================================= */
 (function () {
     'use strict';
 
@@ -61,7 +56,6 @@
             kpi(3, 'fa-percent', '4 %', 'Mi comisión', 'De cada venta o canon de arriendo');
     }
 
-    // Ganado = todas las comisiones; Pagado = ya las pagó la inmobiliaria; Me deben = la diferencia
     function pintarGanancias(t) {
         var ganado = Number(t.comisiones) || 0;
         var pagado = Number(t.comisiones_pagadas) || 0;
@@ -102,7 +96,6 @@
             }).join('') + '</tbody></table>';
     }
 
-    // Cambiar un filtro vuelve a la página 1
     $('d-filtros').addEventListener('change', function () { cargar(1).catch(function (err) { P.toast(err.message); }); });
     $('d-filtros').addEventListener('submit', function (e) { e.preventDefault(); });
     var esperaQ = null;
@@ -124,7 +117,7 @@
         b.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando…';
         try {
             if (!window.PanelExtra) throw new Error('No se pudo cargar el generador de PDF.');
-            var r = await P.api(consulta(f, false));   // todos los cierres del filtro
+            var r = await P.api(consulta(f, false));
             await window.PanelExtra.pdfVentas(r, {
                 titulo: 'Mis ventas y comisiones',
                 subtitulo: 'Agente: ' + r.agente.nombre + (f.operacion ? ' · ' + (f.operacion === 'venta' ? 'Solo ventas' : 'Solo arriendos') : ''),

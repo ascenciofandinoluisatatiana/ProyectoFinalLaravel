@@ -13,11 +13,6 @@ use App\Models\Visita;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
-/**
- * Utilidades compartidas por los controladores del panel de la inmobiliaria.
- * Todo se busca SIEMPRE dentro de la inmobiliaria que tiene la sesión,
- * así una inmobiliaria nunca puede ver ni tocar datos de otra (responde 404).
- */
 abstract class BaseInmobiliariaController extends Controller
 {
     use Paginacion;
@@ -28,7 +23,6 @@ abstract class BaseInmobiliariaController extends Controller
         return $request->user();
     }
 
-    /** IDs de las propiedades de la inmobiliaria. */
     protected function idsPropiedades(Request $request)
     {
         return Propiedad::where('user_id', $this->inmobiliaria($request)->id)->pluck('id');
@@ -56,7 +50,6 @@ abstract class BaseInmobiliariaController extends Controller
         return Visita::whereIn('propiedad_id', $this->idsPropiedades($request))->findOrFail($id);
     }
 
-    /** Regla de validación: el agente debe ser de esta inmobiliaria y estar activo. */
     protected function reglaAgente(Request $request): \Closure
     {
         $inmobiliariaId = $this->inmobiliaria($request)->id;
@@ -81,10 +74,6 @@ abstract class BaseInmobiliariaController extends Controller
         return $p ? ucfirst($p->tipo) . ' en ' . $p->barrio . ', ' . $p->ciudad : 'Propiedad eliminada';
     }
 
-    /**
-     * Membresía vigente HOY de cada publicación: [propiedad_id => datos].
-     * Si una publicación tiene varias (renovó antes de vencer), cuenta la que vence más tarde.
-     */
     protected function destacados(array $idsPropiedades): array
     {
         if (! $idsPropiedades) {
@@ -99,14 +88,12 @@ abstract class BaseInmobiliariaController extends Controller
             ->get()
             ->groupBy('propiedad_id')
             ->map(function ($membresias) use ($hoy) {
-                // El nivel lo da el plan más caro vigente; la fecha, la que vence más tarde
                 $mejor = $membresias->sortByDesc(fn (Membresia $m) => (float) $m->precio)->first();
                 $fin = $membresias->max(fn (Membresia $m) => $m->fecha_fin->toDateString());
 
                 return [
                     'plan' => $mejor->plan,
                     'nombre_plan' => Membresia::NOMBRES_PLAN[$mejor->plan] ?? $mejor->plan,
-                    // true si está destacada por el paquete de 10 publicaciones
                     'en_paquete' => $membresias->contains(fn (Membresia $m) => $m->paquete_id !== null),
                     'fecha_fin' => $fin,
                     'dias_restantes' => (int) $hoy->diffInDays(Carbon::parse($fin, 'America/Bogota')),

@@ -1,7 +1,3 @@
-/* =========================================================
-   UMBRAL — Cuenta del agente: datos de solo lectura y cambio de contraseña (AG5)
-   API: /api/v1/agente/yo, POST /perfil/clave
-   ========================================================= */
 (function () {
     'use strict';
 
@@ -25,7 +21,6 @@
             tarjeta('fa-user-tie', 'Rol', 'Agente inmobiliario');
     }
 
-    // Una tarjeta por dato: ícono, título y valor
     function tarjeta(icono, titulo, valor) {
         return '<article class="v-tarjeta i-dato"><i class="fa-solid ' + icono + '"></i><div><small>' + A.esc(titulo) + '</small>' +
             (valor ? '<b>' + A.esc(valor) + '</b>' : '<b class="vacio">Sin registrar</b>') + '</div></article>';

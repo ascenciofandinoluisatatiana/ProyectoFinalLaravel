@@ -1,7 +1,3 @@
-/* =========================================================
-   UMBRAL — Inicio del agente (banner con puerta, llave y calendario)
-   Datos reales: GET /api/v1/agente/resumen y /comisiones
-   ========================================================= */
 (function () {
     'use strict';
 

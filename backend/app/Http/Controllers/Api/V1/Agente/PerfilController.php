@@ -9,10 +9,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
-/** Cuenta del agente (AG5): solo cambia su contraseña. Sus datos los edita la inmobiliaria. */
 class PerfilController extends Controller
 {
-    /** PUT /api/v1/agente/perfil — la cuenta del agente es de solo lectura (AG5) */
     public function update(Request $request): JsonResponse
     {
         return response()->json([
@@ -20,7 +18,6 @@ class PerfilController extends Controller
         ], 403);
     }
 
-    /** POST /api/v1/agente/perfil/clave  { actual, password, password_confirmation } */
     public function cambiarClave(Request $request): JsonResponse
     {
         $usuario = $request->user();

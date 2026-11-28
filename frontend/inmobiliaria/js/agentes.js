@@ -1,7 +1,3 @@
-/* =========================================================
-   UMBRAL — Agentes de la inmobiliaria (RF-079)
-   API: /api/v1/inmobiliaria/agentes y /api/v1/inmobiliaria/comisiones
-   ========================================================= */
 (function () {
     'use strict';
 
@@ -22,7 +18,6 @@
         await Promise.all([cargarComisiones(), cargarMovimientos(1)]);
     }
 
-    /* ---------- IN7: movimientos de los agentes (GET /agentes/movimientos) ---------- */
     async function cargarMovimientos(n) {
         var P = window.PanelExtra, lista = $('m-lista');
         if (!P) return;
@@ -38,9 +33,7 @@
         }
     }
 
-    /* ---------- Comisiones ---------- */
     var paginaComision = 1;
-    // nueva: número de página (al cambiar un filtro se vuelve a la 1)
     async function cargarComisiones(nueva) {
         if (nueva) paginaComision = nueva;
         var q = ['pagina=' + paginaComision, 'por_pagina=12'];

@@ -1,8 +1,3 @@
-/* =========================================================
-   UMBRAL — Reporte de ventas de la inmobiliaria (filtros, tabla paginada y PDF)
-   API: /api/v1/inmobiliaria/ventas  (?desde=&hasta=&operacion=&agente_id=&pagina=)
-   El PDF pide los mismos filtros sin "pagina" (todos los cierres).
-   ========================================================= */
 (function () {
     'use strict';
 
@@ -42,7 +37,6 @@
         if (!r.data.length && pagina > 1) return cargar(pagina - 1);
         ultimo = r;
         pintarKpis(r.totales);
-        // Lista de agentes del filtro (se llena una vez)
         var sel = $('f-agente');
         if (sel.options.length <= 2 && r.agentes && r.agentes.length) {
             sel.insertAdjacentHTML('beforeend', r.agentes.map(function (a) {
@@ -89,7 +83,6 @@
             }).join('') + '</tbody></table>';
     }
 
-    // Cambiar un filtro vuelve a la página 1
     $('d-filtros').addEventListener('change', function () { cargar(1).catch(function (err) { P.toast(err.message); }); });
     $('d-filtros').addEventListener('submit', function (e) { e.preventDefault(); });
     var esperaTexto;
@@ -111,7 +104,7 @@
         b.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando…';
         try {
             if (!window.PanelExtra) throw new Error('No se pudo cargar el generador de PDF.');
-            var r = await P.api(consulta(f, false));   // todos los cierres del filtro
+            var r = await P.api(consulta(f, false));
             var sel = $('f-agente');
             await window.PanelExtra.pdfVentas(r, {
                 titulo: 'Reporte de ventas y arriendos',

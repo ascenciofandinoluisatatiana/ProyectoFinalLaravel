@@ -1,9 +1,3 @@
-/* =========================================================
-   UMBRAL — Propiedades de la inmobiliaria
-   API: /api/v1/inmobiliaria/propiedades (+ /agentes para los selectores)
-        /api/v1/inmobiliaria/propiedades/{id}/fotos (galería, de a una foto)
-        /api/v1/public/ubicaciones (departamentos y municipios oficiales)
-   ========================================================= */
 (function () {
     'use strict';
 
@@ -13,21 +7,19 @@
     var ubicaciones = [];
     var form = document.getElementById('d-form-campos');
     var ventana = document.getElementById('d-form');
-    var editando = null;      // propiedad que se edita (null = nueva)
+    var editando = null;
     var quitarFoto = false;
-    var fotoPrincipal = null; // foto principal ya reducida (Blob)
-    var catalogo = {};        // características: { clave: 'Texto' }
-    var planes = [];          // planes para destacar una publicación (precio del administrador)
+    var fotoPrincipal = null;
+    var catalogo = {};
+    var planes = [];
 
-    var captchaClave = null;  // clave de sitio de Cloudflare Turnstile (null = sin captcha)
+    var captchaClave = null;
     var captchaWidget = null, captchaToken = '';
     var maxFotos = 9;
-    // Galería del formulario: fotos que ya existen, nuevas por subir y las que se van a borrar
     var galeria = { existentes: [], nuevas: [], quitar: [] };
 
     function $(id) { return document.getElementById(id); }
 
-    /* ---------- Carga de datos ---------- */
     function filtros() {
         var p = [];
         if ($('filtro-operacion').value) p.push('operacion=' + encodeURIComponent($('filtro-operacion').value));
@@ -38,7 +30,6 @@
     }
 
     var totalPropiedades = 0;
-    // Se traen todas las del filtro para agruparlas por secciones (IN3)
     async function cargarPropiedades() {
         var r = await I.api('/propiedades' + filtros());
         propiedades = r.data;
@@ -50,7 +41,6 @@
         pintar();
     }
 
-    /* ---------- Secciones por estado (IN3): ícono y texto, sin colores en la tarjeta ---------- */
     var SECCIONES = [
         { id: 'publicadas', titulo: 'Publicadas', icono: 'fa-circle-check', vacio: '' },
         { id: 'espera', titulo: 'En espera de pago', icono: 'fa-circle-xmark' },
@@ -58,8 +48,8 @@
         { id: 'cerradas', titulo: 'Vendidas / arrendadas', icono: 'fa-handshake' },
         { id: 'borradores', titulo: 'Borradores', icono: 'fa-file-pen' }
     ];
-    var POR_SECCION = 8;            // tarjetas visibles antes de "Ver todas"
-    var abiertas = {};              // secciones con "Ver todas" abierto
+    var POR_SECCION = 8;
+    var abiertas = {};
 
     function seccionDe(p) {
         if (p.estado === 'publicada') return 'publicadas';
@@ -68,7 +58,6 @@
         return 'cerradas';
     }
 
-    // Estado con ícono y texto (nunca solo color)
     function estadoTexto(p) {
         var espera = p.estado === 'borrador' && !!p.en_espera_pago;
         var iconos = { publicada: 'fa-circle-check', pausada: 'fa-circle-pause', vendida: 'fa-handshake', arrendada: 'fa-key', borrador: 'fa-file-pen' };
@@ -77,7 +66,6 @@
             : { icono: iconos[p.estado] || 'fa-circle', texto: I.ESTADOS_PROPIEDAD[p.estado] || p.estado };
     }
 
-    /* ---------- Tarjetas (mismo diseño de las tarjetas del portal del invitado) ---------- */
     function tarjeta(p) {
         var cierre = p.operacion === 'venta' ? 'vendida' : 'arrendada';
         var cerrada = p.estado === cierre;
@@ -89,7 +77,6 @@
                 '<i class="fa-solid ' + icono + '"></i>' + (texto ? '<span>' + texto + '</span>' : '') + '</button>';
         }
 
-        // Acciones: primero la del estado, luego editar y destacar; eliminar va solo con ícono
         var botones = '';
         var espera = p.estado === 'borrador' && !!p.en_espera_pago;
         if (p.estado === 'borrador') botones += espera ? boton('destacar', 'fa-credit-card', 'Pagar y publicar', 'principal') : boton('estado:publicada', 'fa-bullhorn', 'Publicar', 'principal');
@@ -101,19 +88,16 @@
         if (!cerrada && !espera && !(d && d.en_paquete)) botones += boton('destacar', d ? 'fa-rotate' : 'fa-star', d ? 'Renovar' : 'Planes', 'oro');
         botones += boton('eliminar', 'fa-trash', '', 'peligro');
 
-        // Línea corta de la membresía de esta publicación
         var destacado = d
             ? '<div class="i-pdestacado activo"><i class="fa-solid ' + (d.en_paquete ? 'fa-layer-group' : 'fa-star') + '"></i>' +
                 (d.en_paquete ? 'En tu paquete' : 'Plan ' + I.esc(d.nombre_plan.toLowerCase())) + ' · hasta el ' + I.esc(I.fechaLarga(d.fecha_fin)) + '</div>'
             : (cerrada ? '' : p.pos
                 ? '<div class="i-pdestacado activo"><i class="fa-solid fa-arrow-up-wide-short"></i>Posicionada · hasta el ' + I.esc(fechaIso(p.posicionada_hasta)) + '</div>'
                 : '<div class="i-pdestacado" title="Sale en el portal después de las destacadas"><i class="fa-regular fa-star"></i>Sin destacar</div>');
-        // Publicación normal por tiempo (B3): hasta cuándo se ve
         if (p.estado === 'publicada' && p.publicada_hasta) {
             destacado += '<div class="i-pdestacado"><i class="fa-regular fa-calendar"></i>Publicada hasta el ' + I.esc(fechaIso(p.publicada_hasta)) + '</div>';
         }
 
-        // Lo que le falta a la ficha para verse completa en el portal
         var falta = [];
         if (!p.imagen) falta.push('foto principal');
         if (!p.descripcion) falta.push('descripción');
@@ -165,7 +149,6 @@
         }
         var grupos = {};
         propiedades.forEach(function (p) { (grupos[seccionDe(p)] = grupos[seccionDe(p)] || []).push(p); });
-        // Una sección vacía no se muestra
         $('d-propiedades').innerHTML = SECCIONES.filter(function (s) { return grupos[s.id]; }).map(function (s) {
             var lista = grupos[s.id];
             var visibles = abiertas[s.id] ? lista : lista.slice(0, POR_SECCION);
@@ -186,7 +169,6 @@
             agentes.map(function (a) { return '<option value="' + a.id + '">' + I.esc(a.nombre) + (a.estado !== 'activo' ? ' (inactivo)' : '') + '</option>'; }).join('');
     }
 
-    /* ---------- Acciones de las tarjetas ---------- */
     $('d-propiedades').addEventListener('click', async function (e) {
         var mas = e.target.closest('[data-seccion]');
         if (mas) { abiertas[mas.getAttribute('data-seccion')] = !abiertas[mas.getAttribute('data-seccion')]; pintar(); return; }
@@ -232,7 +214,6 @@
         espera = setTimeout(function () { cargarPropiedades().catch(function (e) { I.toast(e.message); }); }, 350);
     });
 
-    /* ---------- Formulario: listas ---------- */
     form.tipo.innerHTML = Object.keys(I.TIPOS).map(function (k) { return '<option value="' + k + '">' + I.TIPOS[k] + '</option>'; }).join('');
 
     function pintarDepartamentos(elegido) {
@@ -250,7 +231,6 @@
         $('f-precio-etiqueta').textContent = form.operacion.value === 'arriendo' ? 'Canon mensual (COP)' : 'Precio (COP)';
     });
 
-    /* ---------- Formulario: descripción y características ---------- */
     form.descripcion.addEventListener('input', function () {
         $('f-descripcion-cuenta').textContent = form.descripcion.value.length;
     });
@@ -263,13 +243,10 @@
         }).join('');
     }
 
-    /* ---------- Reducir fotos antes de subirlas ----------
-       Una foto de celular pesa 3-8 MB; se lleva a máximo 1600 px en JPEG
-       para que cada envío sea liviano (el servidor limita el tamaño de cada petición). */
     var LADO_MAX = 1600;
     var PESO_MAX = 900 * 1024;
     var TIPOS_FOTO = ['image/jpeg', 'image/png', 'image/webp'];
-    var GIF_MAX = 8 * 1024 * 1024;   // los GIF se suben tal cual (no se reducen) y pesan hasta 8 MB
+    var GIF_MAX = 8 * 1024 * 1024;
 
     function cargarImagen(archivo) {
         return new Promise(function (ok, falla) {
@@ -281,7 +258,6 @@
         });
     }
 
-    /* ---------- Alerta roja debajo del botón de fotos (se quita al elegir otro archivo) ---------- */
     function alerta(idCaja, ancla, texto) {
         var el = $(idCaja);
         if (!texto) { if (el) el.hidden = true; return; }
@@ -297,25 +273,23 @@
         el.hidden = false;
     }
 
-    // permitirGif: solo la galería acepta GIF; la foto principal no
     async function reducir(archivo, permitirGif) {
         if (archivo.type === 'image/gif') {
             if (!permitirGif) throw new Error('La foto principal no puede ser un GIF. Agrégalo en “Más fotos”.');
             if (archivo.size > GIF_MAX) throw new Error('No se pueden agregar GIF de más de 8 MB. “' + archivo.name + '” pesa ' + (archivo.size / 1048576).toFixed(1) + ' MB.');
-            return archivo;   // sin reducir: así conserva la animación
+            return archivo;
         }
         if (TIPOS_FOTO.indexOf(archivo.type) === -1) throw new Error('“' + archivo.name + '” no es JPG, PNG, WebP o GIF.');
         var img = await cargarImagen(archivo);
         var lado = Math.min(LADO_MAX, Math.max(img.naturalWidth, img.naturalHeight));
 
-        // Primero baja la calidad; si aún pesa mucho, reduce el tamaño y vuelve a intentar
         for (var intento = 0; intento < 6; intento++) {
             var escala = lado / Math.max(img.naturalWidth, img.naturalHeight);
             var lienzo = document.createElement('canvas');
             lienzo.width = Math.round(img.naturalWidth * escala);
             lienzo.height = Math.round(img.naturalHeight * escala);
             var ctx = lienzo.getContext('2d');
-            ctx.fillStyle = '#fff';                 // fondo blanco para PNG con transparencia
+            ctx.fillStyle = '#fff';
             ctx.fillRect(0, 0, lienzo.width, lienzo.height);
             ctx.drawImage(img, 0, 0, lienzo.width, lienzo.height);
 
@@ -329,7 +303,6 @@
         throw new Error('“' + archivo.name + '” es demasiado pesada. Prueba con otra foto.');
     }
 
-    /* ---------- Formulario: foto principal ---------- */
     function pintarFoto(url) {
         $('f-foto-vista').hidden = !url;
         $('f-foto-vacio').hidden = !!url;
@@ -356,7 +329,6 @@
         pintarFoto(null);
     });
 
-    /* ---------- Formulario: galería ---------- */
     function totalGaleria() { return galeria.existentes.length + galeria.nuevas.length; }
 
     function pintarGaleria() {
@@ -406,15 +378,12 @@
         pintarGaleria();
     });
 
-    // Después de guardar el inmueble: borra y sube las fotos de la galería, de a una.
-    // Devuelve cuántas no se pudieron subir.
     async function sincronizarGaleria(id) {
         var fallas = 0;
         for (var i = 0; i < galeria.quitar.length; i++) {
             try { await I.api('/propiedades/' + id + '/fotos/' + galeria.quitar[i], { metodo: 'DELETE' }); }
             catch (err) { fallas++; }
         }
-        // Las fotos nuevas se suben de a 3 a la vez
         var siguiente = 0;
         async function subirFotos() {
             while (siguiente < galeria.nuevas.length) {
@@ -430,7 +399,6 @@
         return fallas;
     }
 
-    /* ---------- Formulario: mapa (Leaflet, igual que el vendedor) ---------- */
     var mapa = null, pin = null;
     var CENTRO_COLOMBIA = [4.5709, -74.2973];
 
@@ -470,11 +438,6 @@
             else { quitarPunto(); mapa.setView(CENTRO_COLOMBIA, 5); }
         }, 80);
     }
-    // Busca la dirección escrita con la API del portal (/api/v1/public/geocodificar, la misma del vendedor).
-    // Si no encuentra el número exacto, la API prueba con la calle, el barrio o el municipio
-    // y responde "aproximado": se avisa para que el usuario ajuste el pin.
-    // IN13: cuando hay municipio y dirección, el mapa va solo a la dirección escrita.
-    // Busca al dejar de escribir (1 segundo) o al salir del campo; nunca con cada tecla (la API permite 30 por minuto).
     var ultimaConsulta = '';
     var esperaDireccion;
     var buscando = false;
@@ -525,7 +488,6 @@
         }
     }
 
-    // El botón queda como respaldo (busca aunque la dirección no haya cambiado)
     $('f-buscar').addEventListener('click', function () { buscarDireccion(false); });
     form.direccion.addEventListener('input', function () {
         clearTimeout(esperaDireccion);
@@ -544,7 +506,6 @@
         );
     });
 
-    /* ---------- Abrir / guardar ---------- */
     function abrirForm(p) {
         editando = p || null;
         quitarFoto = false;
@@ -556,7 +517,7 @@
         alerta('f-galeria-alerta', $('f-galeria-agregar'), '');
         alerta('f-foto-alerta', $('f-foto-quitar'), '');
         $('d-form-titulo').textContent = p ? 'Editar publicación' : 'Registrar inmueble';
-        $('f-estado-caja').hidden = !!p;   // el estado se cambia desde la tarjeta
+        $('f-estado-caja').hidden = !!p;
         form.agente_id.innerHTML = I.opcionesAgentes(agentes, p && p.agente ? p.agente.id : null);
 
         if (p) {
@@ -574,7 +535,6 @@
         pintarGaleria();
         $('f-descripcion-cuenta').textContent = form.descripcion.value.length;
 
-        // Al editar, la dirección guardada no se vuelve a buscar: solo si la persona la cambia
         ultimaConsulta = p ? consultaDireccion() : '';
         ventana.showModal();
         iniciarMapa(p ? p.lat : null, p ? p.lng : null);
@@ -583,7 +543,6 @@
 
     $('d-registrar').addEventListener('click', function () { abrirForm(null); });
 
-    /* ---------- Captcha (Cloudflare Turnstile) solo al registrar un inmueble nuevo ---------- */
     function cargarScriptCaptcha() {
         return new Promise(function (ok, falla) {
             if (window.turnstile) return ok();
@@ -606,7 +565,7 @@
             if (captchaWidget !== null) { window.turnstile.reset(captchaWidget); return; }
             captchaWidget = window.turnstile.render('#f-captcha-widget', {
                 sitekey: captchaClave,
-                size: 'flexible',   // se ajusta al ancho disponible; el CSS lo limita y lo centra en pantallas grandes
+                size: 'flexible',
                 language: 'es',
                 theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light',
                 callback: function (token) { captchaToken = token; },
@@ -636,14 +595,12 @@
 
         var datos = new FormData(form);
         datos.delete('imagen');
-        datos.delete('cf-turnstile-response');                 // el widget agrega su propio campo
+        datos.delete('cf-turnstile-response');
         if (!editando && captchaClave) datos.append('captcha', captchaToken);
         if (fotoPrincipal) datos.append('imagen', fotoPrincipal, 'principal.jpg');
         if (editando) datos.delete('estado');
         if (editando && quitarFoto && !fotoPrincipal) datos.append('quitar_imagen', '1');
-        // Vacíos se envían igual (llegan como null) para poder borrarlos al editar
         if (!datos.get('agente_id')) datos.delete('agente_id');
-        // Sin casillas marcadas se envía vacío para que al editar se puedan quitar todas
         if (!datos.getAll('caracteristicas[]').length) datos.append('caracteristicas', '');
 
         var boton = $('d-form-guardar');
@@ -661,7 +618,6 @@
         } catch (err) {
             error.textContent = err.message;
             error.hidden = false;
-            // Un token del captcha solo sirve una vez: se pide de nuevo
             if (!editando && captchaWidget !== null && window.turnstile) { window.turnstile.reset(captchaWidget); captchaToken = ''; }
         } finally {
             boton.disabled = false;
@@ -671,7 +627,6 @@
 
     I.prepararVentana(ventana);
 
-    /* ---------- IN10: planes de la publicación (destacar, publicación normal y posicionar) ---------- */
     var planesPub = { normal: [], posicionamiento: [] };
     var pagoSimulado = false;
     function fechaIso(iso) { return new Date(iso).toLocaleDateString('es-CO', { timeZone: 'America/Bogota', day: 'numeric', month: 'long', year: 'numeric' }); }
@@ -681,7 +636,6 @@
         window.PanelExtra.ventanaPlanes({ api: I.api, toast: I.toast, propiedades: [p], planes: planes, pub: planesPub, tipo: tipo, simulado: pagoSimulado, alTerminar: cargarPropiedades });
     }
 
-    /* ---------- Arranque ---------- */
     async function iniciar() {
         if (!await I.iniciar('propiedades')) return;
         try {
@@ -692,7 +646,6 @@
             agentes = res[0].data;
             ubicaciones = res[1].data || [];
             pintarFiltroAgentes();
-            // Planes nuevos (B1): si falla, solo se ofrece destacar
             I.api('/planes-publicacion').then(function (r) { planesPub = r; }).catch(function () {});
             I.api('/membresia').then(function (r) { pagoSimulado = !!r.simulado; }).catch(function () {});
             await cargarPropiedades();

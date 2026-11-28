@@ -9,20 +9,13 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
-/**
- * Perfil de la empresa (RF-011, RF-018).
- * El NIT y el correo no se cambian aquí: el NIT fue verificado por soporte
- * y el correo es el usuario de inicio de sesión.
- */
 class PerfilController extends BaseInmobiliariaController
 {
-    /** GET /perfil */
     public function show(Request $request): JsonResponse
     {
         return response()->json(['data' => $this->formato($this->inmobiliaria($request))]);
     }
 
-    /** POST /perfil  (multipart: name, representante_legal, telefono, logo?) */
     public function update(Request $request): JsonResponse
     {
         $usuario = $this->inmobiliaria($request);
@@ -41,7 +34,6 @@ class PerfilController extends BaseInmobiliariaController
         $anterior = null;
         $subida = null;
         if ($request->hasFile('logo')) {
-            // Primero se sube el logo nuevo; el anterior se borra solo si todo salió bien
             $subida = $imagenes->subir($request->file('logo'), 'usuarios', 'logo');
             $anterior = $usuario->avatar;
             $usuario->avatar = $subida['ruta'];
@@ -67,7 +59,6 @@ class PerfilController extends BaseInmobiliariaController
         return response()->json(['message' => 'Datos de la empresa actualizados.', 'data' => $this->formato($usuario)]);
     }
 
-    /** POST /perfil/clave  { actual, password, password_confirmation } */
     public function cambiarClave(Request $request): JsonResponse
     {
         $usuario = $this->inmobiliaria($request);

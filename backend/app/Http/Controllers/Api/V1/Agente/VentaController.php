@@ -11,11 +11,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
-/**
- * Ventas y arriendos que cerró el agente, con su comisión (para la tabla y el PDF).
- * GET /api/v1/agente/ventas?desde=&hasta=&operacion=&pagina=
- * Salen de sus comisiones: cada cierre con agente asignado genera una.
- */
 class VentaController extends Controller
 {
     use Paginacion;

@@ -8,22 +8,13 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
-/**
- * Sesión del panel de la inmobiliaria (sesión web de Laravel, igual que el panel de administración).
- * El frontend vive en el mismo origen (nginx reenvía /api a Laravel), así la cookie viaja sola.
- */
 class SesionController extends Controller
 {
-    /**
-     * GET /api/v1/inmobiliaria/csrf
-     * Solo deja la cookie XSRF-TOKEN para que el frontend pueda hacer POST.
-     */
     public function csrf(): Response
     {
         return response()->noContent();
     }
 
-    /** POST /api/v1/inmobiliaria/sesion  { email, password, recordar } */
     public function entrar(Request $request): JsonResponse
     {
         $datos = $request->validate([
@@ -38,7 +29,6 @@ class SesionController extends Controller
         $request->session()->regenerate();
         $usuario = Auth::user();
 
-        // Una cuenta bloqueada, sin verificar o de otro rol no entra al panel
         $motivo = null;
         if (in_array($usuario->estado, ['inactivo', 'pendiente'], true)) {
             $motivo = 'Tu cuenta está inactiva o pendiente de verificación.';
@@ -55,13 +45,11 @@ class SesionController extends Controller
         return response()->json(['message' => 'Sesión iniciada.', 'usuario' => $this->datosUsuario($usuario)]);
     }
 
-    /** GET /api/v1/inmobiliaria/yo — datos de la inmobiliaria que tiene la sesión */
     public function yo(Request $request): JsonResponse
     {
         return response()->json(['usuario' => $this->datosUsuario($request->user())]);
     }
 
-    /** POST /api/v1/inmobiliaria/salir */
     public function salir(Request $request): JsonResponse
     {
         $this->cerrar($request);

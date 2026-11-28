@@ -6,19 +6,16 @@
     <title>Agentes · Inmobiliaria · Umbral</title>
     <link rel="icon" type="image/png" href="/img/icono.png">
 
-    <!-- Fuentes del diseño (las mismas del inicio y el login) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Mismo diseño del panel del vendedor + iconos (los entrega Laravel en /assets) -->
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
     <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
     <link rel="stylesheet" href="/vendedor/css/vendedor.css">
     <link rel="stylesheet" href="/inmobiliaria/css/inmobiliaria.css">
 
-    <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
     <script src="/assets/inline/tema-claro-oscuro.js"></script>
 </head>
 <body class="vendedor op-venta" data-pagina="inmobiliaria-agentes">
@@ -44,7 +41,6 @@
                     <div class="v-tarjeta-cabeza"><h2>Agentes</h2><small id="d-total"></small></div>
                     <div class="i-tabla-caja i-tabla-scroll" id="d-agentes"></div>
                 </section>
-                <!-- IN7: lo que hace cada agente en el panel (B9) -->
                 <section class="v-tarjeta" id="movimientos">
                     <div class="v-tarjeta-cabeza"><h2>Movimientos de tus agentes</h2><small id="m-resumen"></small></div>
                     <form class="i-filtros-compactos" id="m-filtros" novalidate role="search" aria-label="Filtrar movimientos">
@@ -62,7 +58,6 @@
 
                 <p class="v-nota"><i class="fa-solid fa-circle-info"></i> Al desactivar un agente, sus propiedades quedan sin agente para que las asignes a otro. Su historial de contactos y visitas se conserva.</p>
 
-                <!-- Comisiones: se generan solas al marcar una propiedad como vendida o arrendada -->
                 <section class="v-tarjeta">
                     <div class="v-tarjeta-cabeza"><h2>Comisiones</h2><small id="d-comisiones-nota"></small></div>
                     <div class="i-comision-totales" id="d-comisiones-totales"></div>
@@ -79,7 +74,6 @@
         </main>
     </div>
 
-    <!-- Ventana: agregar agente -->
     <dialog class="v-ventana" id="d-alta">
         <div class="v-ventana-cabeza">
             <h2 class="titulo-serif">Agregar agente</h2>
@@ -105,7 +99,6 @@
         </form>
     </dialog>
 
-    <!-- Ventana: editar agente -->
     <dialog class="v-ventana" id="d-editar">
         <div class="v-ventana-cabeza">
             <h2 class="titulo-serif">Editar agente</h2>
@@ -125,7 +118,6 @@
         </form>
     </dialog>
 
-    <!-- Ventana: restablecer la contraseña de un agente (IN6) -->
     <dialog class="v-ventana" id="d-clave">
         <div class="v-ventana-cabeza">
             <h2 class="titulo-serif">Restablecer contraseña</h2>

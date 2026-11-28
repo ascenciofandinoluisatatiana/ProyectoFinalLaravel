@@ -8,16 +8,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
-/**
- * Visitas a las propiedades (RF-085): programar, confirmar, reprogramar,
- * cancelar y marcar como realizada.
- * La fecha llega en hora de Colombia ("2026-10-20T10:00") y se guarda en UTC.
- */
 class VisitaController extends BaseInmobiliariaController
 {
     use ManejaVisitas;
 
-    /** GET /visitas?periodo=proximas|pasadas|todas&estado=&agente_id=&desde=&hasta=&q= */
     public function index(Request $request): JsonResponse
     {
         $consulta = Visita::with(['propiedad:id,tipo,barrio,ciudad,direccion', 'agente:id,name'])
@@ -45,7 +39,6 @@ class VisitaController extends BaseInmobiliariaController
         return response()->json($this->listado($consulta->orderBy('id'), $request, fn (Visita $v) => $this->formatoVisita($v)));
     }
 
-    /** POST /visitas */
     public function store(Request $request): JsonResponse
     {
         $datos = $request->validate([
@@ -63,7 +56,6 @@ class VisitaController extends BaseInmobiliariaController
 
         $propiedad = $this->propiedadPropia($request, $datos['propiedad_id']);
 
-        // Si la visita nace de un contacto, se toman sus datos y pasa a "en seguimiento"
         $lead = null;
         if (! empty($datos['lead_id'])) {
             $lead = $this->leadPropio($request, $datos['lead_id']);
@@ -88,7 +80,6 @@ class VisitaController extends BaseInmobiliariaController
         return response()->json(['message' => 'Visita programada.', 'data' => $this->formatoVisita($visita->load(['propiedad', 'agente']))], 201);
     }
 
-    /** PATCH /visitas/{id}  { estado?, fecha?, agente_id?, nota? } */
     public function update(Request $request, $id): JsonResponse
     {
         $visita = $this->visitaPropia($request, $id);
@@ -101,7 +92,6 @@ class VisitaController extends BaseInmobiliariaController
 
         if (isset($datos['fecha'])) {
             $datos['fecha'] = $this->aUtc($datos['fecha']);
-            // Reprogramar deja la visita pendiente de confirmar otra vez
             $datos['estado'] = $datos['estado'] ?? 'pendiente';
         }
 

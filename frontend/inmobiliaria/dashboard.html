@@ -6,19 +6,16 @@
     <title>Inmobiliaria · Umbral</title>
     <link rel="icon" type="image/png" href="/img/icono.png">
 
-    <!-- Fuentes del diseño (las mismas del inicio y el login) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Mismo diseño del panel del vendedor + iconos (los entrega Laravel en /assets) -->
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
     <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
     <link rel="stylesheet" href="/vendedor/css/vendedor.css">
     <link rel="stylesheet" href="/inmobiliaria/css/inmobiliaria.css">
 
-    <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
     <script src="/assets/inline/tema-claro-oscuro.js"></script>
 </head>
 <body class="vendedor op-venta" data-pagina="inmobiliaria-dashboard">
@@ -29,13 +26,10 @@
             <div class="i-estado-carga" id="d-cargando"><i class="fa-solid fa-spinner fa-spin"></i>Cargando el panel…</div>
 
             <div id="d-panel" class="i-panel" hidden>
-                <!-- Membresía -->
                 <section class="v-tarjeta v-membresia" id="d-membresia"></section>
 
-                <!-- Cifras -->
                 <section class="v-kpis" id="d-kpis"></section>
 
-                <!-- Gráfica y agentes -->
                 <div class="v-rejilla">
                     <section class="v-tarjeta">
                         <div class="v-tarjeta-cabeza"><h2>Rendimiento por agente</h2><small id="d-agentes-total"></small></div>
@@ -47,7 +41,6 @@
                     </section>
                 </div>
 
-                <!-- Contactos y visitas -->
                 <div class="v-rejilla">
                     <section class="v-tarjeta">
                         <div class="v-tarjeta-cabeza"><h2>Contactos recientes</h2><small>Personas interesadas en tus propiedades</small></div>
@@ -62,7 +55,6 @@
         </main>
     </div>
 
-    <!-- Chart.js ya viene con el panel de administración (lo entrega Laravel en /assets) -->
     <script src="/assets/admin/chart.umd.min.js"></script>
     <script src="/js/selector-idioma.js?v=1"></script>
     <script src="/inmobiliaria/js/inmobiliaria.js?v=2"></script>

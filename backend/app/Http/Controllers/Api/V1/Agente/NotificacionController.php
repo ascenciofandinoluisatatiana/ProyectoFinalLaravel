@@ -9,16 +9,13 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
-/** Campana e historial de notificaciones del panel del agente (guardadas en la base de datos). */
 class NotificacionController extends Controller
 {
-    /** GET /api/v1/agente/notificaciones */
     public function index(Request $request, NotificacionGuardadaService $notificaciones): JsonResponse
     {
         return response()->json($notificaciones->listar($request->user()));
     }
 
-    /** POST /api/v1/agente/notificaciones/leidas */
     public function leidas(Request $request, NotificacionGuardadaService $notificaciones): JsonResponse
     {
         $notificaciones->marcarLeidas($request->user());
@@ -26,7 +23,6 @@ class NotificacionController extends Controller
         return response()->json(['message' => 'Notificaciones marcadas como leídas.']);
     }
 
-    /** GET /api/v1/agente/notificaciones/historial (mismos filtros que la inmobiliaria) */
     public function historial(Request $request, NotificacionGuardadaService $notificaciones): JsonResponse
     {
         $filtros = $request->validate([

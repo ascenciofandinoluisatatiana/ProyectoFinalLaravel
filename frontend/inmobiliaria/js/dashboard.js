@@ -1,7 +1,3 @@
-/* =========================================================
-   UMBRAL — Dashboard de la inmobiliaria (RF-081)
-   Los datos vienen de GET /api/v1/inmobiliaria/resumen
-   ========================================================= */
 (function () {
     'use strict';
 
@@ -11,11 +7,9 @@
 
     function $(id) { return document.getElementById(id); }
 
-    /* ---------- Membresía ---------- */
-    // La membresía es por publicación: se muestra cuántas están destacadas hoy
     function pintarMembresia() {
         var d = datos.destacadas || { total: 0 };
-        var m = datos.membresia;   // membresía de toda la cuenta (solo si quedó una de antes)
+        var m = datos.membresia;
         var texto;
         if (d.total) {
             texto = '<b>' + d.total + (d.total === 1 ? ' publicación destacada' : ' publicaciones destacadas') + '</b>' +
@@ -31,7 +25,6 @@
             (d.total || m ? 'fa-star' : 'fa-credit-card') + '"></i><div>' + texto + '</div></div>';
     }
 
-    /* ---------- Cifras ---------- */
     function pintarKpis() {
         var k = datos.kpis;
 
@@ -51,7 +44,6 @@
                 k.venta + ' en venta · ' + k.arriendo + ' en arriendo');
     }
 
-    /* ---------- Agentes ---------- */
     function pintarAgentes() {
         var lista = datos.agentes;
         $('d-agentes-total').textContent = lista.length + (lista.length === 1 ? ' agente' : ' agentes');
@@ -78,7 +70,6 @@
             '</tbody></table>';
     }
 
-    /* ---------- Contactos recientes ---------- */
     function pintarContactos() {
         var lista = datos.ultimos_contactos;
         $('d-contactos').innerHTML = lista.length
@@ -94,7 +85,6 @@
             : '<div class="v-vacio"><i class="fa-solid fa-inbox"></i>Todavía no has recibido contactos.</div>';
     }
 
-    /* ---------- Próximas visitas ---------- */
     function pintarVisitas() {
         var lista = datos.proximas_visitas;
         $('d-visitas').innerHTML = lista.length
@@ -110,7 +100,6 @@
             : '<div class="v-vacio"><i class="fa-solid fa-calendar-xmark"></i>No hay visitas programadas.</div>';
     }
 
-    /* ---------- Gráfica ---------- */
     function pintarGrafica() {
         var lienzo = $('d-grafica');
         if (!window.Chart) { lienzo.parentNode.innerHTML = '<div class="v-vacio">No se pudo cargar la gráfica.</div>'; return; }
@@ -142,7 +131,6 @@
         });
     }
 
-    /* ---------- Arranque ---------- */
     async function cargar() {
         var usuario = await I.iniciar('dashboard');
         if (!usuario) return;
@@ -165,7 +153,6 @@
         pintarGrafica();
     }
 
-    // Al cambiar el tema, la gráfica toma los colores nuevos
     document.addEventListener('umbral:tema', function () { if (datos) pintarGrafica(); });
 
     cargar();

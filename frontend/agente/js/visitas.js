@@ -1,7 +1,3 @@
-/* =========================================================
-   UMBRAL — Agenda del agente (RF-085)
-   API: /api/v1/agente/visitas, /propiedades
-   ========================================================= */
 (function () {
     'use strict';
 
@@ -14,7 +10,6 @@
 
     function $(id) { return document.getElementById(id); }
 
-    // nueva: número de página (al cambiar de periodo se vuelve a la 1)
     async function cargar(nueva) {
         if (nueva) pagina = nueva;
         var extra = window.PanelExtra ? window.PanelExtra.filtrosQuery($('d-filtros')) : [];
@@ -101,7 +96,6 @@
         } catch (err) { error.textContent = err.message; error.hidden = false; }
     });
 
-    /* ---------- Nueva visita (sin contacto previo) ---------- */
     function mananaALas(hora) {
         var f = new Date(); f.setDate(f.getDate() + 1);
         var p = function (n) { return String(n).padStart(2, '0'); };

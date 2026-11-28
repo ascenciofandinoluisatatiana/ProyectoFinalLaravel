@@ -8,14 +8,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
-/**
- * Comisiones de los agentes de la inmobiliaria (RF-081, RF-091).
- * Se generan solas al marcar un inmueble como vendido o arrendado (4 % del precio).
- * La inmobiliaria las ve por agente y las marca como pagadas.
- */
 class ComisionController extends BaseInmobiliariaController
 {
-    /** GET /comisiones?estado=&agente_id= */
     public function index(Request $request): JsonResponse
     {
         $inmobiliaria = $this->inmobiliaria($request);
@@ -40,7 +34,6 @@ class ComisionController extends BaseInmobiliariaController
         ]);
     }
 
-    /** PATCH /comisiones/{id}  { estado: pagada | pendiente } */
     public function update(Request $request, $id): JsonResponse
     {
         $comision = Comision::where('inmobiliaria_id', $this->inmobiliaria($request)->id)
@@ -77,7 +70,6 @@ class ComisionController extends BaseInmobiliariaController
         ];
     }
 
-    /** Totales por agente para la tabla de Agentes: [agente_id => [...]] */
     public static function resumenPorAgente(User $inmobiliaria): array
     {
         return Comision::where('inmobiliaria_id', $inmobiliaria->id)

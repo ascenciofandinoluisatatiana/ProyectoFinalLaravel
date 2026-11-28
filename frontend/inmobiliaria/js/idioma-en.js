@@ -1,16 +1,7 @@
-/* =========================================================
-   UMBRAL — Diccionario de inglés de los paneles de Inmobiliaria y Agente
-   (también lo usa el Vendedor como base). Solo se carga cuando el idioma es "en" (botones ES / EN).
-   El motor que traduce la página está en /assets/traductor-en.js.
-   Traduce todo lo que se ve en la página: textos, botones, ventanas, avisos,
-   placeholders, títulos y confirmaciones, también lo que se dibuja después.
-   Los datos que escribe la gente (nombres, direcciones, mensajes) no se tocan.
-   ========================================================= */
 (function () {
     'use strict';
 
     var DICT = {
-        /* ---------- Menú, barra y comunes ---------- */
         'Menú': 'Menu', 'Idioma': 'Language', 'Cambiar tema': 'Change theme', 'Salir': 'Log out', 'Cerrar': 'Close',
         'Principal': 'Main', 'Gestión comercial': 'Sales', 'Mi trabajo': 'My work', 'Cuenta': 'Account',
         'Panel de la inmobiliaria': 'Real estate agency panel', 'Panel del agente': 'Agent panel',
@@ -53,7 +44,6 @@
         'Filtros de propiedades': 'Property filters',
         'UMBRAL · El paso hacia un nuevo hogar': 'UMBRAL · The step toward a new home',
 
-        /* ---------- Títulos de pestaña ---------- */
         'Resumen · Inmobiliaria · Umbral': 'Overview · Agency · Umbral', 'Propiedades · Inmobiliaria · Umbral': 'Properties · Agency · Umbral',
         'Agentes · Inmobiliaria · Umbral': 'Agents · Agency · Umbral', 'Contactos · Inmobiliaria · Umbral': 'Contacts · Agency · Umbral',
         'Visitas · Inmobiliaria · Umbral': 'Visits · Agency · Umbral', 'Ventas · Inmobiliaria · Umbral': 'Sales · Agency · Umbral',
@@ -63,7 +53,6 @@
         'Mis contactos · Agente · Umbral': 'My contacts · Agent · Umbral', 'Mi agenda · Agente · Umbral': 'My schedule · Agent · Umbral',
         'Mis ventas · Agente · Umbral': 'My sales · Agent · Umbral', 'Mi cuenta · Agente · Umbral': 'My account · Agent · Umbral',
 
-        /* ---------- Resumen (inmobiliaria) ---------- */
         'Resumen': 'Overview', 'Empresa': 'Company', 'Suscripción': 'Subscription',
         'Así van tus propiedades, tus agentes y las personas interesadas.': 'How your properties, agents and interested people are doing.',
         'Propiedades publicadas': 'Published properties', 'Agentes activos': 'Active agents', 'Contactos recibidos': 'Contacts received',
@@ -77,7 +66,6 @@
         'Membresía semanal de la cuenta activa': 'Weekly account membership active',
         'Salen primero en el portal mientras su plan esté vigente.': 'They show first on the portal while their plan is active.',
 
-        /* ---------- Propiedades ---------- */
         'Inmuebles de la inmobiliaria': 'The agency’s properties', 'Registra tus inmuebles, publícalos y asigna cada uno a un agente.': 'Register your properties, publish them and assign each one to an agent.',
         'Registrar inmueble': 'Register property', 'Editar publicación': 'Edit listing', 'Barrio, ciudad o dirección': 'Neighborhood, city or address',
         'Publicadas': 'Published', 'En espera de pago': 'Awaiting payment', 'Canceladas / pausadas': 'Canceled / paused', 'Vendidas / arrendadas': 'Sold / rented',
@@ -134,7 +122,6 @@
         'Tu propiedad se guardó como borrador. Para publicarla y posicionarla debes contratar un plan.': 'Your property was saved as a draft. To publish and boost it you must buy a plan.',
         'Posicionada': 'Boosted', 'Programadas': 'Scheduled',
 
-        /* ---------- Planes y pagos ---------- */
         'Planes de publicación': 'Listing plans', 'Publicación normal': 'Standard listing', 'Publicación normal por tiempo': 'Standard listing for a period',
         'Posicionamiento': 'Boost', 'Posicionamiento de tus propiedades': 'Boosting your properties', 'Elige una publicación…': 'Choose a listing…',
         'Elige una publicación.': 'Choose a listing.', 'Tipo de plan': 'Plan type',
@@ -161,7 +148,6 @@
         'plan mensual': 'monthly plan', 'plan quincenal': 'biweekly plan', 'plan semanal': 'weekly plan',
         'Plan mensual': 'Monthly plan', 'Plan quincenal': 'Biweekly plan', 'Plan semanal': 'Weekly plan',
 
-        /* ---------- Suscripción ---------- */
         'Mi suscripción': 'My subscription', 'Oro, Plata y Bronce': 'Gold, Silver and Bronze', 'Paquetes disponibles': 'Available packages',
         'Comprar paquete': 'Buy package', 'Destacar una publicación': 'Feature a listing', 'Publicaciones destacadas hoy': 'Listings featured today',
         'Planes por publicación': 'Per-listing plans', 'Historial de pagos': 'Payment history', 'Historial de membresías': 'Membership history',
@@ -181,7 +167,6 @@
         'Ese paquete no está vigente.': 'That package is not active.', 'Ese paquete ya no está disponible.': 'That package is no longer available.',
         'Esta publicación ya está en un paquete vigente.': 'This listing is already in an active package.', 'Las que elijas': 'The ones you choose',
 
-        /* ---------- Agentes ---------- */
         'Agentes y equipo': 'Agents and team', 'Tu equipo de agentes': 'Your agent team', 'Agregar agente': 'Add agent', 'Editar agente': 'Edit agent',
         'Da de alta a tus agentes, sigue sus resultados y paga sus comisiones (4 % de cada venta o arriendo que cierran).': 'Add your agents, follow their results and pay their commissions (4% of each sale or rental they close).',
         'Al desactivar un agente, sus propiedades quedan sin agente para que las asignes a otro. Su historial de contactos y visitas se conserva.': 'When you deactivate an agent, their properties are left without an agent so you can assign them to another. Their contact and visit history is kept.',
@@ -199,7 +184,6 @@
         'Valor base': 'Base amount', 'Comisión': 'Commission', 'Cierre': 'Closing', '· pago en el portal': '· paid on the portal', 'pago en el portal': 'paid on the portal',
         'Las contraseñas no coinciden.': 'The passwords do not match.',
 
-        /* ---------- Contactos y visitas ---------- */
         'Personas interesadas': 'Interested people', 'Personas interesadas en tus propiedades': 'People interested in your properties',
         'Mensajes que dejaron los visitantes en tus propiedades. Asígnalos a un agente y haz seguimiento.': 'Messages visitors left on your properties. Assign them to an agent and follow up.',
         'Nuevo': 'New', 'En seguimiento': 'Following up', 'Cerrado': 'Closed', 'Descartado': 'Discarded', 'Estado del contacto': 'Contact status',
@@ -215,7 +199,6 @@
         'pendientes y confirmadas': 'pending and confirmed', 'Contacto actualizado.': 'Contact updated.', 'Visita actualizada.': 'Visit updated.', 'Visita programada.': 'Visit scheduled.',
         'Aún no tienes propiedades asignadas.': 'You have no assigned properties yet.',
 
-        /* ---------- Ventas ---------- */
         'Reporte': 'Report', 'Inmueble o barrio': 'Property or neighborhood', 'En el periodo elegido': 'In the chosen period', 'Según los filtros de abajo': 'According to the filters below',
         'Todos los cierres de tu inmobiliaria con su comisión. Filtra por fechas y descarga el reporte en PDF.': 'All your agency’s closings with their commission. Filter by dates and download the PDF report.',
         'No hay ventas ni arriendos con estos filtros. Aparecen al marcar una propiedad como vendida o arrendada.': 'No sales or rentals match these filters. They appear when a property is marked as sold or rented.',
@@ -228,7 +211,6 @@
         'Mis ventas y comisiones': 'My sales and commissions', 'Estado comisión': 'Commission status', '(pago en línea)': '(online payment)',
         'No hay cierres en este periodo.': 'There are no closings in this period.', 'Periodo: todos los cierres': 'Period: all closings',
 
-        /* ---------- Empresa / perfil ---------- */
         'Datos de la empresa': 'Company details', 'Información legal y de contacto de la inmobiliaria.': 'Legal and contact information of the agency.',
         'Razón social': 'Company name', 'NIT': 'Tax ID (NIT)', 'Representante legal': 'Legal representative', 'Correo de la cuenta': 'Account email',
         'Cuenta verificada': 'Verified account', 'En UMBRAL desde': 'On UMBRAL since', 'Cambiar logo': 'Change logo', 'Editar datos': 'Edit details',
@@ -240,7 +222,6 @@
         'Contraseña actualizada.': 'Password updated.', 'La contraseña actual no es correcta.': 'The current password is incorrect.',
         'Las contraseñas nuevas no coinciden.': 'The new passwords do not match.',
 
-        /* ---------- Agente ---------- */
         'Mi día': 'My day', 'Mis propiedades': 'My properties', 'Mis contactos': 'My contacts', 'Mi agenda': 'My schedule', 'Mis ventas': 'My sales', 'Mi cuenta': 'My account',
         'Hola, Agente': 'Hello, Agent', 'Visitas hoy': 'Visits today', 'Contactos nuevos': 'New contacts', 'No tienes visitas programadas.': 'You have no scheduled visits.',
         'No tienes contactos nuevos.': 'You have no new contacts.', 'Propiedades a tu cargo': 'Properties in your charge',
@@ -256,7 +237,6 @@
         'Tus datos los administra tu inmobiliaria. Aquí solo puedes cambiar tu contraseña.': 'Your agency manages your details. Here you can only change your password.',
         '¿Algún dato está mal? Pídele a tu inmobiliaria que lo corrija desde su panel.': 'Is any detail wrong? Ask your agency to fix it from their panel.',
 
-        /* ---------- Notificaciones (títulos fijos) ---------- */
         'Se te asignó una propiedad': 'A property was assigned to you', 'Pago aprobado': 'Payment approved', 'Pago rechazado': 'Payment rejected',
         'Pago no completado': 'Payment not completed', 'Publicación activa': 'Listing active', 'Posicionamiento activo': 'Boost active',
         'La publicación venció': 'The listing expired', 'El posicionamiento terminó': 'The boost ended', 'Notificaciones marcadas como leídas.': 'Notifications marked as read.',
@@ -264,14 +244,12 @@
         'La propiedad fue marcada como vendida': 'The property was marked as sold', 'La propiedad fue marcada como arrendada': 'The property was marked as rented',
         'Sesión cerrada.': 'Logged out.', 'Sesión iniciada.': 'Logged in.',
 
-        /* ---------- Textos del formulario y avisos largos ---------- */
         '0 = nuevo': '0 = new', '/ 3000 caracteres': '/ 3000 characters',
         'Cuenta lo que hace especial al inmueble: distribución, acabados, vista, cercanía a transporte, colegios o comercio…': 'Tell what makes the property special: layout, finishes, view, nearby transport, schools or shops…',
         'Las fotos se reducen automáticamente antes de subirlas. Los GIF (máximo 8 MB) se suben sin reducir, para que se sigan moviendo.': 'Photos are resized automatically before uploading. GIFs (max 8 MB) are uploaded without resizing, so they keep moving.',
         'El NIT y el correo no se pueden cambiar aquí porque fueron verificados. Si hay un error, escribe a soporte.': 'The tax ID and email cannot be changed here because they were verified. If there is a mistake, write to support.',
         'Aún no tienes cierres. Cuando tu inmobiliaria marque como vendida o arrendada una propiedad a tu cargo, aquí verás tu comisión.': 'You have no closings yet. When your agency marks a property in your charge as sold or rented, you will see your commission here.',
 
-        /* ---------- Mensajes del servidor ---------- */
         'Agente activado.': 'Agent activated.', 'Agente desactivado.': 'Agent deactivated.', 'Categoría de imagen no permitida.': 'Image category not allowed.',
         'Comisión marcada como pagada.': 'Commission marked as paid.', 'Comisión marcada como pendiente.': 'Commission marked as pending.',
         'Correo o contraseña incorrectos.': 'Incorrect email or password.', 'El GIF no puede superar 8 MB.': 'The GIF cannot exceed 8 MB.',
@@ -291,7 +269,6 @@
         'Ya existe una cuenta con ese correo.': 'An account with that email already exists.', 'Ya existe una cuenta con ese documento.': 'An account with that ID already exists.'
     };
 
-    /* Pedazos que acompañan a un número: "4 agentes", "7 en total"... */
     var CONTEOS = {
         'resultado': 'result', 'resultados': 'results', 'agente': 'agent', 'agentes': 'agents', 'inmueble': 'property', 'inmuebles': 'properties',
         'membresía': 'membership', 'membresías': 'memberships', 'visita': 'visit', 'visitas': 'visits', 'pago': 'payment', 'pagos': 'payments',
@@ -310,9 +287,7 @@
         'la venta': 'the sale', 'el pago': 'the payment', 'la comisión': 'the commission', 'el perfil': 'the profile', 'el panel': 'the panel' };
     var TIPOS = { apartamento: 'Apartment', casa: 'House', finca: 'Farm', local: 'Retail space', lote: 'Lot', oficina: 'Office' };
 
-
-    // Reglas para textos con números, nombres o fechas. h trae las ayudas del traductor común.
-    function reglas(h) {
+function reglas(h) {
         var traducirTexto = h.t, fecha = h.fecha, lista = h.lista, conteo = h.conteo;
         return [
             [/^(\d+) (.+)$/, function (m) { return conteo(m[1], m[2]); }],
@@ -331,7 +306,6 @@
             [/^(\d+)° lugar$/, function (m) { return ['', '1st', '2nd', '3rd'][m[1]] ? ['', '1st', '2nd', '3rd'][m[1]] + ' place' : m[1] + 'th place'; }],
             [/^Ver todas \((\d+)\)$/, function (m) { return 'View all (' + m[1] + ')'; }],
             [/^Notificaciones \((\d+) nuevas?\)$/, function (m) { return 'Notifications (' + m[1] + ' new)'; }],
-            // Solo el saludo del panel ("Hola, Nombre"); un mensaje de un cliente que empiece con "Hola," no se toca
             [/^Hola, ([A-ZÁÉÍÓÚÑ][^¿?.!,:]{0,60})$/, function (m) { return 'Hello, ' + m[1]; }],
             [/^Agente de (.+)\. Tus visitas, tus contactos nuevos y las propiedades que tienes a cargo\.$/, function (m) { return 'Agent at ' + m[1] + '. Your visits, your new contacts and the properties in your charge.'; }],
             [/^Agente: (.+)$/, function (m) { return 'Agent: ' + m[1]; }],
@@ -413,6 +387,5 @@
         ];
     }
 
-    // Se registra para el traductor común (assets/traductor-en.js, lo carga el panel después de este archivo)
     window.UMBRAL_EN = (window.UMBRAL_EN || []).concat([{ dict: DICT, conteos: CONTEOS, reglas: reglas }]);
 })();

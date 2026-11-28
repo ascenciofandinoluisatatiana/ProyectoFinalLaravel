@@ -1,7 +1,3 @@
-/* =========================================================
-   UMBRAL — Visitas de la inmobiliaria (RF-085)
-   API: /api/v1/inmobiliaria/visitas, /propiedades, /agentes
-   ========================================================= */
 (function () {
     'use strict';
 
@@ -15,7 +11,6 @@
 
     function $(id) { return document.getElementById(id); }
 
-    // nueva: número de página (al cambiar de periodo se vuelve a la 1)
     async function cargar(nueva) {
         if (nueva) pagina = nueva;
         var extra = window.PanelExtra ? window.PanelExtra.filtrosQuery($('d-filtros')) : [];
@@ -61,8 +56,7 @@
         }).join('');
     }
 
-
-    $('d-periodos').addEventListener('click', function (e) {
+$('d-periodos').addEventListener('click', function (e) {
         var b = e.target.closest('[data-periodo]');
         if (!b) return;
         periodo = b.getAttribute('data-periodo');
@@ -115,7 +109,6 @@
         } catch (err) { error.textContent = err.message; error.hidden = false; }
     });
 
-    /* ---------- Nueva visita (sin contacto previo) ---------- */
     function mananaALas(hora) {
         var f = new Date(); f.setDate(f.getDate() + 1);
         var p = function (n) { return String(n).padStart(2, '0'); };

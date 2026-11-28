@@ -1,12 +1,3 @@
-/* =========================================================
-   UMBRAL — Membresía de la inmobiliaria (RF-048 a RF-056)
-   API: /api/v1/inmobiliaria/membresia
-   La membresía es POR PUBLICACIÓN: se compra en Propiedades con el botón "Destacar"
-   (POST /propiedades/{id}/destacar). Aquí se ven las destacadas, los planes y los pagos.
-   El pago se hace en la pasarela del servidor (PayU o Wompi): al contratar, la API devuelve
-   "checkout_url" y se lleva a la persona a pagar. La pasarela la devuelve a /pago/resultado.html.
-   Sin llaves de pasarela en el servidor, el pago es simulado y la membresía se activa de una vez.
-   ========================================================= */
 (function () {
     'use strict';
 
@@ -21,8 +12,6 @@
 
     var ESTADOS_PAGO = { aprobado: ['Aprobado', 'activo'], pendiente: ['Pendiente', 'pendiente'], rechazado: ['Rechazado', 'inactivo'], anulado: ['Anulado', 'inactivo'], error: ['Error', 'inactivo'] };
 
-    /* ---------- Paquetes de publicaciones ---------- */
-    // Publicaciones que ya están en algún paquete vigente (una publicación va en un solo paquete)
     function enPaquetes() {
         var ids = [];
         (datos.paquetes || []).forEach(function (pq) { pq.publicaciones.forEach(function (x) { ids.push(x.id); }); });
@@ -77,7 +66,6 @@
             : '<div class="v-vacio"><i class="fa-solid fa-layer-group"></i>Por ahora no hay paquetes disponibles.</div>';
     }
 
-    // IN10: comprar un plan eligiendo la publicación (mismos pagos que en Propiedades)
     document.querySelector('.v-contenido').addEventListener('click', async function (e) {
         var b = e.target.closest('[data-comprar-plan]');
         if (!b || !window.PanelExtra) return;
@@ -121,7 +109,6 @@
     function pintar() {
         pintarPaquetes();
         pintarOfertas();
-        // Resumen: publicaciones destacadas (y la membresía de cuenta, si quedó una de antes)
         var lista = datos.destacadas || [];
         var m = datos.vigente;
         $('d-vigente').innerHTML =
@@ -144,7 +131,6 @@
             : '<div class="v-vacio"><i class="fa-solid fa-star"></i>Aún no has destacado publicaciones. Hazlo desde ' +
               '<a href="/inmobiliaria/propiedades.html">Propiedades</a> con el botón “Destacar”.</div>';
 
-        // Planes Oro, Plata y Bronce, del más caro (más arriba) al más barato. IN10: se compran aquí o desde cada publicación.
         var pago = datos.simulado ? 'Pago simulado (modo pruebas)' : 'Pago con PSE, tarjeta o Nequi';
         function botonComprar(tipo) {
             return '<button type="button" class="v-btn v-btn-principal v-btn-mini" data-comprar-plan="' + tipo + '"><i class="fa-solid fa-cart-shopping"></i>Comprar</button>';
@@ -198,10 +184,8 @@
         await cargarPagos();
     }
 
-    /* ---------- Historial de pagos: filtros + paginación (GET /membresia/pagos) ---------- */
     var paginaPagos = 1;
 
-    // nueva: número de página (al cambiar un filtro se vuelve a la 1)
     async function cargarPagos(nueva) {
         if (nueva) paginaPagos = nueva;
         var f = $('d-pagos-filtros');
@@ -219,7 +203,6 @@
         var r = await I.api('/membresia/pagos?' + q.join('&'));
         if (!r.data.length && paginaPagos > 1) return cargarPagos(paginaPagos - 1);
 
-        // Publicaciones del filtro (se llena una vez)
         var sel = f.propiedad_id;
         if (sel.options.length <= 2 && r.publicaciones.length) {
             sel.insertAdjacentHTML('beforeend', r.publicaciones.map(function (p) {
@@ -259,7 +242,6 @@
             await cargar();
             $('d-cargando').hidden = true;
             $('d-panel').hidden = false;
-            // IN8: si se llegó desde el submenú (#paquetes, #planes, #pagos…), ir a esa parte
             var destino = location.hash && document.getElementById(location.hash.slice(1));
             if (destino) destino.scrollIntoView({ block: 'start' });
         } catch (err) {

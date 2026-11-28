@@ -1,7 +1,3 @@
-/* =========================================================
-   UMBRAL — Contactos (leads) de la inmobiliaria (RF-082, RF-083)
-   API: /api/v1/inmobiliaria/contactos, /agentes, /visitas
-   ========================================================= */
 (function () {
     'use strict';
 
@@ -15,7 +11,6 @@
 
     function $(id) { return document.getElementById(id); }
 
-    // nueva: número de página (al cambiar un filtro se vuelve a la 1)
     async function cargar(nueva) {
         if (nueva) pagina = nueva;
         var q = ['pagina=' + pagina, 'por_pagina=12'];
@@ -44,7 +39,6 @@
         }).join('');
     }
 
-    // Enlace para llamar o escribir, según lo que dejó la persona
     function enlaceContacto(c) {
         var t = String(c || '');
         if (t.indexOf('@') > 0) return '<a class="v-enlace" href="mailto:' + I.esc(t) + '">' + I.esc(t) + '</a>';
@@ -98,7 +92,6 @@
         await cargar();
     });
 
-    /* ---------- Programar visita ---------- */
     function mananaALas(hora) {
         var f = new Date(); f.setDate(f.getDate() + 1); f.setHours(hora, 0, 0, 0);
         var p = function (n) { return String(n).padStart(2, '0'); };

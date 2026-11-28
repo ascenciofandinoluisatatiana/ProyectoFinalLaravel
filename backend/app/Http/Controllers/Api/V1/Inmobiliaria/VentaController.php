@@ -10,12 +10,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
-/**
- * Reporte de ventas y arriendos de la inmobiliaria (RF-081, RF-101, RF-102).
- * GET /ventas?desde=AAAA-MM-DD&hasta=AAAA-MM-DD&agente_id=&operacion=&pagina=
- *   - Sin "pagina" devuelve todos los cierres del filtro (es lo que usa el PDF).
- *   - Las fechas del filtro son de Colombia y se comparan en UTC.
- */
 class VentaController extends BaseInmobiliariaController
 {
     private const ZONA = 'America/Bogota';
@@ -36,12 +30,10 @@ class VentaController extends BaseInmobiliariaController
         $filtrada = fn () => $this->filtrarTexto(
             $this->filtro(Propiedad::query()->where('user_id', $inmobiliaria->id), $datos), $request, ['barrio', 'ciudad', 'direccion', 'tipo']);
 
-        // Comisión (no anulada) de cada cierre de la página
         $comisiones = [];
         $listado = $this->listado(
             $filtrada()->with('agente:id,name')->orderByDesc('cerrada_en')->orderByDesc('id'),
             $request,
-            // closure con referencia: $comisiones se llena después, en "preparar"
             function (Propiedad $p) use (&$comisiones) { return $this->formato($p, $comisiones[$p->id] ?? null); },
             function ($pagina) use (&$comisiones) {
                 $comisiones = Comision::whereIn('propiedad_id', $pagina->pluck('id'))
@@ -75,7 +67,6 @@ class VentaController extends BaseInmobiliariaController
         ]);
     }
 
-    /** Solo cierres (vendida / arrendada con fecha) y los filtros pedidos. */
     private function filtro(Builder $consulta, array $datos): Builder
     {
         $consulta->whereIn('estado', ['vendida', 'arrendada'])->whereNotNull('cerrada_en');

@@ -1,10 +1,3 @@
-/* =========================================================
-   UMBRAL — Piezas comunes de los paneles de inmobiliaria y agente
-   - Campana de notificaciones (barra superior)
-   - Paginador de listados (?pagina=N en la API)
-   - Exportar el reporte de ventas a PDF (jsPDF, se carga solo al usarlo)
-   Se usa como window.PanelExtra desde inmobiliaria.js, agente.js y cada pantalla.
-   ========================================================= */
 (function () {
     'use strict';
 
@@ -23,8 +16,6 @@
         return d === 1 ? 'ayer' : 'hace ' + d + ' días';
     }
 
-    /* =================== Campana de notificaciones ===================
-       contenedor: elemento de la barra; api: función api() del panel (ya con su ruta base) */
     var campana = { datos: null, api: null, cont: null, temporizador: null };
 
     function pintarCampana() {
@@ -56,7 +47,7 @@
         try {
             campana.datos = await campana.api('/notificaciones');
             pintarCampana();
-        } catch (e) { /* sin campana si falla; el panel sigue funcionando */ }
+        } catch (e) { }
     }
 
     function montarCampana(cont, api) {
@@ -66,7 +57,6 @@
         cont.classList.remove('abierta');
         pintarCampana();
         cargarCampana();
-        // Se actualiza sola cada 2 minutos
         clearInterval(campana.temporizador);
         campana.temporizador = setInterval(cargarCampana, 120000);
 
@@ -75,14 +65,13 @@
                 var abriendo = !cont.classList.contains('abierta');
                 cont.classList.toggle('abierta');
                 pintarCampana();
-                // IN11/AG6: al abrir la campana las notificaciones quedan leídas (se siguen viendo resaltadas esta vez)
                 if (abriendo && campana.datos && campana.datos.sin_leer) {
                     try {
                         await campana.api('/notificaciones/leidas', { metodo: 'POST' });
                         campana.datos.sin_leer = 0;
                         var num = cont.querySelector('.i-campana-num');
                         if (num) num.remove();
-                    } catch (err) { /* se intenta la próxima vez */ }
+                    } catch (err) { }
                 }
                 return;
             }
@@ -93,7 +82,6 @@
             }
         });
     }
-    /* ---------- "Ver todas": historial de notificaciones con filtros (B11) ---------- */
     var TIPOS_NOTIF = [['contacto', 'Contactos'], ['visita', 'Visitas'], ['propiedad', 'Propiedades'], ['pago', 'Pagos'],
         ['plan', 'Planes'], ['comision', 'Comisiones'], ['cierre', 'Cierres'], ['vencimiento', 'Vencimientos']];
 
@@ -148,9 +136,7 @@
         }
     }
 
-    // Cerrar al tocar fuera o con Escape
     document.addEventListener('click', function (e) {
-        // e.target puede ya no estar en la página (la campana se vuelve a dibujar al abrirla)
         if (!e.target.isConnected) return;
         if (campana.cont && campana.cont.classList.contains('abierta') && !campana.cont.contains(e.target)) {
             campana.cont.classList.remove('abierta');
@@ -164,15 +150,12 @@
         }
     });
 
-    /* =================== Paginador ===================
-       meta: { pagina, por_pagina, total, paginas } de la API; alCambiar(numeroDePagina) */
     function paginador(cont, meta, alCambiar) {
         if (!cont) return;
         if (!meta || meta.total === 0) { cont.innerHTML = ''; return; }
         var p = meta.pagina, n = meta.paginas;
         var desde = (p - 1) * meta.por_pagina + 1, hasta = Math.min(p * meta.por_pagina, meta.total);
 
-        // Números visibles: primera, última y dos alrededor de la actual
         var numeros = [];
         for (var i = 1; i <= n; i++) {
             if (i === 1 || i === n || Math.abs(i - p) <= 1) numeros.push(i);
@@ -198,7 +181,6 @@
         };
     }
 
-    /* =================== PDF del reporte de ventas =================== */
     var JSPDF = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
     var AUTOTABLE = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js';
 
@@ -213,14 +195,12 @@
         });
     }
 
-    // Imagen → dataURL (para el logo); si falla, se usa el ícono de UMBRAL
     function imagenComoDatos(url) {
         return new Promise(function (ok) {
             if (!url) return ok(null);
             var img = new Image();
             img.onload = function () {
                 try {
-                    // Se reduce a 160 px de alto como máximo para que el PDF quede liviano
                     var escala = Math.min(1, 160 / img.naturalHeight);
                     var c = document.createElement('canvas');
                     c.width = Math.max(1, Math.round(img.naturalWidth * escala));
@@ -244,16 +224,11 @@
         return new Date(texto + 'T12:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
     }
 
-    /**
-     * r: respuesta de /ventas sin paginar (data, totales, empresa, agente?)
-     * opciones: { titulo, subtitulo, filtros: {desde, hasta, operacion, agente}, columnaAgente: bool, archivo }
-     */
     async function pdfVentas(r, opciones) {
         await cargarScript(JSPDF);
         await cargarScript(AUTOTABLE);
         var jsPDF = window.jspdf.jsPDF;
         var doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'letter', compress: true });
-        // En inglés, todo lo que se escribe en el PDF pasa por el traductor
         var T = window.UmbralIdioma ? window.UmbralIdioma.t : function (x) { return x; };
         var escribir = doc.text.bind(doc);
         doc.text = function (texto) {
@@ -264,7 +239,6 @@
         var morado = [126, 34, 206];
         var empresa = r.empresa || {};
 
-        // Encabezado: logo de la empresa (o de UMBRAL), nombre y datos del reporte
         var logo = (await imagenComoDatos(empresa.logo)) || (await imagenComoDatos('/img/icono.png'));
         var x = 14;
         if (logo) {
@@ -287,7 +261,6 @@
         doc.text([opciones.subtitulo || '', periodo, 'Generado el ' + new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' })].filter(Boolean), ancho - 14, 21, { align: 'right' });
         doc.setDrawColor(morado[0], morado[1], morado[2]); doc.setLineWidth(0.6); doc.line(14, 33, ancho - 14, 33);
 
-        // Resumen
         var t = r.totales;
         var resumen = [
             ['Cierres', String(t.cierres)],
@@ -304,7 +277,6 @@
             doc.setFont('helvetica', 'normal');
         });
 
-        // Tabla
         var columnas = ['Fecha', 'Inmueble', 'Operación'];
         if (opciones.columnaAgente) columnas.push('Agente');
         columnas.push('Valor', 'Comisión', 'Estado comisión');
@@ -340,9 +312,6 @@
         doc.save(opciones.archivo || 'reporte-ventas.pdf');
     }
 
-    /* =================== Filtros compactos (IN4, AG4) ===================
-       form: <form class="i-filtros-compactos"> con campos de nombre q, desde, hasta, estado, agente_id...
-       alCambiar(): se llama al cambiar un filtro (el texto espera a que dejen de escribir). */
     function filtrosQuery(form) {
         var q = [];
         if (!form) return q;
@@ -378,7 +347,6 @@
         if (limpiar) limpiar.addEventListener('click', function () { form.reset(); avisar(); });
     }
 
-    /* =================== Movimientos (B10: historial de un contacto) =================== */
     var ENTIDADES = { propiedad: 'fa-house', visita: 'fa-calendar-check', contacto: 'fa-comments', venta: 'fa-handshake',
         comision: 'fa-hand-holding-dollar', agente: 'fa-user-tie', pago: 'fa-credit-card', membresia: 'fa-crown' };
 
@@ -386,7 +354,6 @@
         return iso ? new Date(iso).toLocaleString('es-CO', { timeZone: 'America/Bogota', day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
     }
 
-    // Una fila de movimiento: ícono de la entidad, título, quién y cuándo, y el resultado con ícono y texto
     function filaMovimiento(m, conQuien) {
         var bien = m.resultado !== 'error';
         return '<li class="i-mov">' +
@@ -398,7 +365,6 @@
         '</li>';
     }
 
-    // Ventana con el historial de un contacto: api('/contactos/ID/movimientos?pagina=N')
     function historialContacto(api, id, titulo) {
         var v = document.getElementById('i-historial');
         if (!v) {
@@ -428,12 +394,6 @@
         cargar(1);
     }
 
-    /* =================== IN8 / IN10: comprar planes de una publicación (B1 a B3) ===================
-       3 tipos: destacar (oro/plata/bronce, POST /propiedades/{id}/destacar {plan}),
-       publicación normal por tiempo (POST /propiedades/{id}/publicar-normal {plan_id}) y
-       posicionamiento (POST /propiedades/{id}/posicionar {plan_id}). En modo simulado se aprueba al instante;
-       con PayU o Wompi la API devuelve checkout_url y se lleva a pagar.
-       op: { api, propiedades, planes (destacar), pub ({normal, posicionamiento}), tipo, alTerminar } */
     var compra = null;
     var TIPOS_INMUEBLE = { apartamento: 'Apartamento', casa: 'Casa', finca: 'Finca', local: 'Local', lote: 'Lote', oficina: 'Oficina' };
     var PESTANAS_PLAN = [
@@ -445,7 +405,6 @@
     function tituloPropiedad(p) { return (TIPOS_INMUEBLE[p.tipo] || p.tipo) + ' en ' + p.barrio + ', ' + p.ciudad; }
     function fechaDia(iso) { return new Date(iso).toLocaleDateString('es-CO', { timeZone: 'America/Bogota', day: 'numeric', month: 'long', year: 'numeric' }); }
 
-    // ¿Se puede comprar este tipo de plan para la propiedad? Devuelve '' si sí, o el motivo si no.
     function motivoPlan(tipo, p) {
         if (!p) return 'Elige una publicación.';
         var cerrada = p.estado === 'vendida' || p.estado === 'arrendada';
@@ -568,7 +527,7 @@
             var r = compra.tipo === 'destacar'
                 ? await api('/propiedades/' + id + '/destacar', { metodo: 'POST', datos: { plan: valor } })
                 : await api('/propiedades/' + id + (compra.tipo === 'normal' ? '/publicar-normal' : '/posicionar'), { metodo: 'POST', datos: { plan_id: Number(valor) } });
-            if (r.checkout_url) {                 // PayU o Wompi: a pagar
+            if (r.checkout_url) {
                 if (compra.op.toast) compra.op.toast(r.message);
                 window.location.href = r.checkout_url;
                 return;
@@ -582,9 +541,6 @@
         }
     }
 
-    /* =================== Errores del servidor en español ===================
-       Laravel está en inglés (APP_LOCALE=en) y sus mensajes por defecto llegan así:
-       "The email has already been taken." Con el panel en español se pasan aquí. */
     var CAMPOS = {
         name: 'nombre', email: 'correo', password: 'contraseña', 'password confirmation': 'confirmación de la contraseña', actual: 'contraseña actual',
         telefono: 'teléfono', 'tipo documento': 'tipo de documento', 'numero documento': 'número de documento', estado: 'estado', 'agente id': 'agente',
@@ -622,7 +578,7 @@
         [/^The given data was invalid\.$/, 'Revisa los datos del formulario.']
     ];
     function mensajeError(texto) {
-        if (!texto || window.UmbralIdioma) return texto;   // en inglés se deja como llega
+        if (!texto || window.UmbralIdioma) return texto;
         for (var i = 0; i < FRASES_ERROR.length; i++) {
             var m = String(texto).match(FRASES_ERROR[i][0]);
             if (m) return FRASES_ERROR[i][1].replace(/\$(\d)/g, function (_, n) { var v = m[n] || ''; return n === '1' ? (CAMPOS[v] || v) : v; });

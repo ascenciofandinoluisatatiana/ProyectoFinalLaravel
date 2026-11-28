@@ -15,31 +15,15 @@ use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
-/**
- * Membresía de la inmobiliaria (RF-048 a RF-056).
- * La membresía se compra POR PUBLICACIÓN (POST /propiedades/{id}/destacar): solo esa
- * propiedad sube en el portal, según el plan (mensual > quincenal > semanal) (RF-053).
- * Las publicaciones sin membresía siguen visibles, después de las destacadas.
- * "contratar" (membresía de toda la cuenta) se conserva para el vendedor y para las
- * membresías que ya existían.
- *
- * El cobro se hace con la pasarela Wompi (PSE, tarjeta, Nequi) a través de PagoService:
- * "contratar" crea el pago y devuelve la URL del checkout; la membresía se activa SOLO
- * cuando Wompi confirma el pago como aprobado. Sin llaves de Wompi el pago es simulado
- * y la membresía se activa de una vez (como antes).
- * El vendedor usa este mismo controlador (rutas /api/v1/vendedor/membresia).
- */
 class MembresiaController extends BaseInmobiliariaController
 {
     private const ZONA = 'America/Bogota';
 
-    /** GET /membresia — vigente, historial y planes disponibles */
     public function show(Request $request): JsonResponse
     {
         $usuario = $this->inmobiliaria($request);
         $hoy = Carbon::now(self::ZONA)->toDateString();
 
-        // Membresía de toda la cuenta (la del vendedor o las que existían antes)
         $vigente = Membresia::where('user_id', $usuario->id)
             ->whereNull('propiedad_id')
             ->where('estado', 'activa')
@@ -55,7 +39,6 @@ class MembresiaController extends BaseInmobiliariaController
             ->get()
             ->map(fn (Membresia $m) => $this->formato($m, $titulos));
 
-        // Publicaciones destacadas hoy, de la que vence más tarde a la que vence primero
         $destacados = $this->destacados($propias->pluck('id')->all());
         $destacadas = $propias->filter(fn ($p) => isset($destacados[$p->id]))
             ->map(fn ($p) => ['id' => $p->id, 'titulo' => $titulos[$p->id], 'estado' => $p->estado] + $destacados[$p->id])
@@ -74,16 +57,13 @@ class MembresiaController extends BaseInmobiliariaController
             ] : null,
             'historial' => $historial->all(),
             'destacadas' => $destacadas->all(),
-            // Paquetes comprados y vigentes (puede haber varios a la vez) y los que se pueden comprar
             'paquetes' => PaqueteMembresia::vigentesDe($usuario->id)
                 ->map(fn (PaqueteMembresia $p) => $this->datosPaquete($p, $titulos))->values()->all(),
             'ofertas' => $this->ofertas(),
             'publicaciones' => $propias->count(),
-            // Para elegir qué publicaciones van en el paquete (las cerradas no se pueden destacar)
             'mis_publicaciones' => $propias->reject(fn ($p) => in_array($p->estado, ['vendida', 'arrendada'], true))
                 ->map(fn ($p) => ['id' => $p->id, 'titulo' => $titulos[$p->id], 'estado' => $p->estado])->values()->all(),
             'planes' => $planes->all(),
-            // Últimos intentos de pago, con su resultado (RF-051)
             'pagos' => Pago::where('user_id', $usuario->id)->where('concepto', 'membresia')
                 ->latest('id')->take(10)->get()
                 ->map(fn (Pago $p) => $this->formatoPago($p))->all(),
@@ -92,10 +72,6 @@ class MembresiaController extends BaseInmobiliariaController
         ]);
     }
 
-    /**
-     * GET /membresia/pagos?estado=&desde=&hasta=&propiedad_id=&pagina=
-     * Historial de pagos de membresías con filtros y paginación (RF-051, RF-056).
-     */
     public function pagos(Request $request): JsonResponse
     {
         $datos = $request->validate([
@@ -152,11 +128,6 @@ class MembresiaController extends BaseInmobiliariaController
         ];
     }
 
-    /**
-     * POST /membresia  { plan } — contrata o renueva.
-     * Con Wompi responde 200 con "checkout_url" (el frontend lleva a la persona a pagar).
-     * En modo simulado responde 201 con la membresía ya activa.
-     */
     public function contratar(Request $request, PagoService $pagos): JsonResponse
     {
         $datos = $request->validate(['plan' => ['required', Rule::in(array_keys(PlanMembresia::precios()))]]);
@@ -187,10 +158,6 @@ class MembresiaController extends BaseInmobiliariaController
         ], 201);
     }
 
-    /**
-     * POST /propiedades/{id}/destacar  { plan } — membresía para UNA publicación.
-     * Con Wompi devuelve "checkout_url"; en modo simulado queda activa de una vez (201).
-     */
     public function destacar(Request $request, PagoService $pagos, $id): JsonResponse
     {
         $datos = $request->validate(['plan' => ['required', Rule::in(array_keys(PlanMembresia::precios()))]]);
@@ -223,9 +190,6 @@ class MembresiaController extends BaseInmobiliariaController
         ], 201);
     }
 
-    /* =================== Paquetes de publicaciones =================== */
-
-    /** POST /membresia/paquete  { oferta_id } — compra el paquete que el administrador ofrece. */
     public function comprarPaquete(Request $request, PagoService $pagos): JsonResponse
     {
         $datos = $request->validate(['oferta_id' => ['required', 'integer']], [
@@ -257,7 +221,6 @@ class MembresiaController extends BaseInmobiliariaController
         ], 201);
     }
 
-    /** POST /membresia/paquete/publicaciones  { paquete_id, propiedad_id } — usa un cupo de ese paquete. */
     public function agregarAlPaquete(Request $request): JsonResponse
     {
         $datos = $request->validate([
@@ -275,7 +238,6 @@ class MembresiaController extends BaseInmobiliariaController
         if (in_array($propiedad->estado, ['vendida', 'arrendada'], true)) {
             throw ValidationException::withMessages(['propiedad_id' => 'Esta propiedad ya está cerrada; no se puede destacar.']);
         }
-        // Una publicación va en un solo paquete a la vez
         $yaEnPaquete = Membresia::where('propiedad_id', $propiedad->id)
             ->whereNotNull('paquete_id')->where('estado', 'activa')
             ->whereDate('fecha_fin', '>=', $hoy)->exists();
@@ -286,13 +248,12 @@ class MembresiaController extends BaseInmobiliariaController
             throw ValidationException::withMessages(['propiedad_id' => 'Ya usaste los ' . $paquete->cupos . ' cupos de este paquete. Quita una publicación para poner otra.']);
         }
 
-        // forceCreate: propiedad_id y paquete_id no están en el $fillable del modelo (que es de otro módulo)
         Membresia::forceCreate([
             'user_id' => $usuario->id,
             'propiedad_id' => $propiedad->id,
             'paquete_id' => $paquete->id,
-            'plan' => $paquete->planPortal(),          // se posiciona según el plan del paquete
-            'precio' => 0,                             // lo pagado está en el paquete
+            'plan' => $paquete->planPortal(),
+            'precio' => 0,
             'estado' => 'activa',
             'fecha_inicio' => $hoy,
             'fecha_fin' => $paquete->fecha_fin->toDateString(),
@@ -306,7 +267,6 @@ class MembresiaController extends BaseInmobiliariaController
         ], 201);
     }
 
-    /** DELETE /membresia/paquete/publicaciones/{propiedad} — libera el cupo para otra publicación. */
     public function quitarDelPaquete(Request $request, $propiedadId): JsonResponse
     {
         $usuario = $this->inmobiliaria($request);
@@ -333,7 +293,6 @@ class MembresiaController extends BaseInmobiliariaController
         return $paquete;
     }
 
-    /** Paquetes que el administrador ofrece hoy a las inmobiliarias. */
     private function ofertas(): array
     {
         $precios = PlanMembresia::precios();
@@ -379,7 +338,6 @@ class MembresiaController extends BaseInmobiliariaController
         return [
             'id' => $m->id,
             'en_paquete' => $m->paquete_id !== null,
-            // null = membresía de toda la cuenta
             'propiedad' => $m->propiedad_id
                 ? ['id' => $m->propiedad_id, 'titulo' => $titulos[$m->propiedad_id] ?? 'Propiedad']
                 : null,

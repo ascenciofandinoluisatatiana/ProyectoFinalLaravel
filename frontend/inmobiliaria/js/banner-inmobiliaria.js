@@ -1,8 +1,3 @@
-/* =========================================================
-   UMBRAL — Banner de inicio de la inmobiliaria
-   Dibuja la ciudad (edificios, ventanas, grúa, carros, nubes) y
-   muestra el saludo con las cifras reales de GET /api/v1/inmobiliaria/resumen
-   ========================================================= */
 (function () {
     'use strict';
 
@@ -44,7 +39,6 @@
 
     function $(id) { return document.getElementById(id); }
 
-    /* Número pseudo-aleatorio repetible: la ciudad se ve igual en cada visita */
     var semilla = 7;
     function azar() { semilla = (semilla * 9301 + 49297) % 233280; return semilla / 233280; }
 
@@ -53,7 +47,6 @@
         return h < 12 ? [T.dia, 'fa-sun'] : (h < 19 ? [T.tarde, 'fa-cloud-sun'] : [T.noche, 'fa-moon']);
     }
 
-    /* ---------- Edificios: [izquierda %, ancho px, alto %, columnas, filas, capa, antena/grúa] ---------- */
     var EDIFICIOS = [
         [2, 70, 40, 4, 6, 'fondo'], [14, 84, 54, 5, 8, 'fondo'], [30, 66, 46, 4, 7, 'fondo'],
         [44, 92, 60, 5, 9, 'fondo'], [60, 70, 50, 4, 7, 'fondo'], [75, 80, 44, 5, 6, 'fondo'],
@@ -85,7 +78,6 @@
         return h;
     }
 
-    /* Las ventanas se encienden y se apagan solas */
     function luces(banner) {
         if (calma) return;
         if (temporizador) clearInterval(temporizador);
@@ -99,7 +91,6 @@
         }, 650);
     }
 
-    /* Las cifras suben desde cero */
     function contar(el, meta) {
         if (calma || meta === 0) { el.textContent = meta; return; }
         var ini = performance.now(), dur = 1100;
@@ -156,7 +147,6 @@
             '<a class="mas" href="' + enlace + '">' + I.esc(textoEnlace) + '</a></article>';
     }
 
-    /* Tarjetas de hoy: próxima visita, último contacto, mejor agente y destacadas */
     function pintarTarjetas(datos) {
         var visita = (datos.proximas_visitas || [])[0];
         var contacto = (datos.ultimos_contactos || [])[0];

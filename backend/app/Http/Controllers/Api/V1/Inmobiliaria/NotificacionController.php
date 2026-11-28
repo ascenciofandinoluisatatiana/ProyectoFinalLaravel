@@ -7,19 +7,15 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
-/** Campana e historial de notificaciones del panel de la inmobiliaria (guardadas en la base de datos). */
 class NotificacionController extends BaseInmobiliariaController
 {
-    /** Tipos que se pueden filtrar en el historial. */
     public const TIPOS = ['contacto', 'visita', 'propiedad', 'pago', 'plan', 'comision', 'cierre', 'vencimiento'];
 
-    /** GET /notificaciones */
     public function index(Request $request, NotificacionGuardadaService $notificaciones): JsonResponse
     {
         return response()->json($notificaciones->listar($this->inmobiliaria($request)));
     }
 
-    /** POST /notificaciones/leidas */
     public function leidas(Request $request, NotificacionGuardadaService $notificaciones): JsonResponse
     {
         $notificaciones->marcarLeidas($this->inmobiliaria($request));
@@ -27,10 +23,6 @@ class NotificacionController extends BaseInmobiliariaController
         return response()->json(['message' => 'Notificaciones marcadas como leídas.']);
     }
 
-    /**
-     * GET /notificaciones/historial
-     *   ?estado=todas|sin_leer|leidas &tipo=... &desde=2026-11-01 &hasta=2026-11-30 &q=texto &pagina=1 &por_pagina=15
-     */
     public function historial(Request $request, NotificacionGuardadaService $notificaciones): JsonResponse
     {
         $filtros = $request->validate([

@@ -1,7 +1,3 @@
-/* =========================================================
-   UMBRAL — Perfil de la empresa (RF-011, RF-018)
-   API: /api/v1/inmobiliaria/perfil, /perfil/clave
-   ========================================================= */
 (function () {
     'use strict';
 
@@ -15,7 +11,6 @@
             : I.esc(I.iniciales(nombre));
     }
 
-    // Una tarjeta por dato: ícono, título y valor
     function tarjeta(icono, titulo, valor) {
         return '<article class="v-tarjeta i-dato"><i class="fa-solid ' + icono + '"></i><div><small>' + I.esc(titulo) + '</small>' +
             (valor ? '<b>' + I.esc(valor) + '</b>' : '<b class="vacio">Sin registrar</b>') + '</div></article>';
@@ -68,7 +63,6 @@
             pintar(r.data);
             $('p-logo').value = '';
             I.toast(r.message);
-            // La barra superior muestra el nombre: se vuelve a dibujar
             await I.iniciar('perfil');
         } catch (err) { error.textContent = err.message; error.hidden = false; }
     });

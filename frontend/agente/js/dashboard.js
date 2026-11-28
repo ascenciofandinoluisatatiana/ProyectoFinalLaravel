@@ -1,7 +1,3 @@
-/* =========================================================
-   UMBRAL — Panel del agente: "Mi día"
-   API: GET /api/v1/agente/resumen y GET /api/v1/agente/comisiones
-   ========================================================= */
 (function () {
     'use strict';
 
@@ -41,7 +37,6 @@
             : '<div class="v-vacio"><i class="fa-solid fa-inbox"></i>No tienes contactos nuevos.</div>';
     }
 
-    // Comisiones: 4 % de cada venta o arriendo cerrado; la inmobiliaria las marca como pagadas
     function pintarComisiones(c) {
         $('d-comisiones-nota').textContent = c.porcentaje + ' % de cada venta o canon de arriendo';
         $('d-comisiones-totales').innerHTML =

@@ -1,12 +1,5 @@
-/* IN1/AG1: misma fuente del panel de administración (Plus Jakarta Sans) */
 :root { --fuente-serif: 'Plus Jakarta Sans', system-ui, sans-serif; --fuente-sans: 'Plus Jakarta Sans', system-ui, sans-serif; }
-/* =========================================================
-   UMBRAL — Panel de la inmobiliaria
-   Se apoya en /vendedor/css/vendedor.css (mismo diseño del vendedor).
-   Aquí solo van las piezas que el vendedor no tiene.
-   ========================================================= */
 
-/* Tabla de agentes */
 .i-tabla-caja { overflow-x: auto; padding: 4px 18px 18px; }
 .i-tabla { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
 .i-tabla th {
@@ -20,19 +13,15 @@
 .i-agente { display: flex; align-items: center; gap: 10px; }
 .i-agente small { display: block; color: var(--texto-suave); font-size: 0.75rem; }
 
-/* Estados que el vendedor no tiene */
 .v-insignia.en_seguimiento { color: #9333ea; background: rgba(147, 51, 234, 0.12); }
 .v-insignia.cerrado, .v-insignia.realizada, .v-insignia.activo { color: var(--ok); background: var(--ok-fondo); }
 .v-insignia.descartado, .v-insignia.cancelada, .v-insignia.inactivo { color: var(--peligro); background: var(--peligro-fondo); }
 
-/* Resumen corto debajo de cada cifra */
 .v-kpi small { display: block; margin-top: 4px; font-size: 0.75rem; color: var(--texto-suave); }
 
-/* Mensaje de carga / error */
 .i-estado-carga { padding: 60px 20px; text-align: center; color: var(--texto-suave); }
 .i-estado-carga i { display: block; font-size: 1.8rem; margin-bottom: 12px; color: var(--op-texto); }
 
-/* Contenido del panel (se muestra cuando la sesión es válida) */
 .i-panel { display: grid; gap: 24px; grid-template-columns: minmax(0, 1fr); }
 .i-panel[hidden], .i-estado-carga[hidden] { display: none; }
 .i-panel .v-lista { grid-template-columns: minmax(0, 1fr); }
@@ -42,7 +31,6 @@
     .i-panel .v-fila-texto b { overflow-wrap: anywhere; }
 }
 
-/* ---------- Piezas de las pantallas de gestión ---------- */
 .i-filtros { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; padding: 18px 22px; }
 .i-asignar { margin-top: 12px; }
 .i-asignar select, .i-select-mini { padding: 8px 11px; font-size: 0.85rem; }
@@ -56,7 +44,6 @@
 }
 .v-campo input[readonly] { opacity: 0.7; cursor: not-allowed; }
 
-/* Pestañas de filtro (contactos y visitas) */
 .i-pestanas { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 22px 0; }
 .i-pestana {
     display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; cursor: pointer;
@@ -67,20 +54,17 @@
 .i-pestana[aria-pressed="true"] { color: #fff; border-color: transparent; background: linear-gradient(135deg, var(--op-1), var(--op-2)); }
 .i-pestana[aria-pressed="true"] b { background: rgba(255, 255, 255, 0.22); color: #fff; }
 
-/* Filas con acciones (contactos, visitas, agentes) */
 .i-fila { flex-wrap: wrap; align-items: flex-start; }
 .i-fila .v-fila-texto span { white-space: normal; }
 .i-fila-acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; width: 100%; padding-left: 52px; }
 .i-fila-acciones select { width: auto; max-width: 220px; padding: 7px 10px; border-radius: 10px; border: 1px solid var(--campo-borde); background: var(--campo); color: var(--texto); font: inherit; font-size: 0.82rem; }
 .i-mensaje { margin-top: 6px; font-size: 0.85rem; color: var(--texto); white-space: pre-line; }
 
-/* Planes de membresía */
 .i-planes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
 .i-plan { display: grid; gap: 10px; padding: 24px; text-align: left; }
 .i-plan b.i-precio { font-size: 1.7rem; font-weight: 800; }
 .i-plan ul { margin: 0; padding-left: 18px; color: var(--texto-suave); font-size: 0.86rem; display: grid; gap: 4px; }
 
-/* Logo de la empresa */
 .i-logo { width: 96px; height: 96px; border-radius: 24px; object-fit: cover; border: 1px solid var(--campo-borde); background: var(--campo); display: grid; place-items: center; font-size: 1.8rem; font-weight: 800; color: var(--op-texto); }
 
 @media (max-width: 960px) {
@@ -92,11 +76,6 @@
     .i-fila-acciones { padding-left: 0; }
 }
 
-/* =========================================================
-   Estructura igual al perfil del invitado:
-   menú lateral fijo (se desplaza aparte) + barra superior con
-   título, idioma, tema y sesión. El contenido se desplaza solo.
-   ========================================================= */
 .v-pagina.i-app { flex-direction: row; align-items: stretch; }
 .i-lateral {
     width: 270px; flex: none; position: sticky; top: 0; height: 100vh; overflow-y: auto; z-index: 60;
@@ -138,7 +117,6 @@
 .i-icono:hover { background: var(--neutro-fondo); }
 #i-menu { display: none; }
 .i-idioma { height: 44px; padding: 0 10px; border-radius: 12px; border: 1px solid var(--campo-borde); background: var(--campo); color: var(--texto); font: inherit; font-weight: 700; cursor: pointer; }
-/* Idioma: dos botones (ES / EN), como el botón de tema */
 .i-idiomas { display: inline-flex; align-items: center; gap: 2px; height: 44px; padding: 3px; border-radius: 12px; border: 1px solid var(--campo-borde); background: var(--campo); }
 .i-idiomas button { height: 100%; padding: 0 12px; border: 0; border-radius: 9px; background: transparent; color: var(--texto); font: inherit; font-size: 0.82rem; font-weight: 800; cursor: pointer; }
 .i-idiomas button:hover { background: var(--neutro-fondo, rgba(128, 128, 128, 0.15)); }
@@ -170,7 +148,6 @@
 }
 [dir="rtl"] .i-lateral { border-right: 0; border-left: 1px solid var(--campo-borde); }
 
-/* ---------- Ficha completa del inmueble ---------- */
 .i-caja-campos { margin: 0; padding: 0; border: 0; min-width: 0; }
 .i-caja-campos legend { padding: 0; margin-bottom: 8px; font-size: 0.82rem; font-weight: 700; color: var(--texto); }
 .i-caracteristicas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
@@ -198,11 +175,9 @@
     display: grid; place-items: center; font-size: 0.75rem; color: #fff; background: rgba(0, 0, 0, 0.6);
 }
 .i-galeria button:hover { background: var(--peligro); }
-/* Es un <label> dentro de .v-campo: se le devuelve el aspecto de botón */
 .v-campo label#f-galeria-agregar { display: inline-flex; align-items: center; gap: 8px; margin: 0; font-size: 0.82rem; color: inherit; cursor: pointer; }
 #f-galeria-agregar[aria-disabled="true"] { opacity: 0.5; pointer-events: none; }
 
-/* Aviso de ficha incompleta en la tarjeta */
 .i-incompleta { display: flex; gap: 6px; align-items: flex-start; margin-top: 10px; font-size: 0.78rem; color: var(--texto-suave); }
 .i-incompleta i { color: #d4b062; margin-top: 2px; }
 
@@ -210,15 +185,8 @@
 @media (max-width: 520px) { .i-caracteristicas label { padding: 8px 9px; font-size: 0.8rem; } }
 @media (max-width: 340px) { .i-caracteristicas { grid-template-columns: minmax(0, 1fr); } }
 
-/* La vista previa de la foto y el aviso "sube una foto" no deben verse a la vez */
 .v-foto img[hidden], .v-foto-vacio[hidden], .v-btn[hidden] { display: none; }
 
-/* =========================================================
-   Paleta del portal (la misma de la página del invitado):
-   morado como color principal y fondos casi negros en el tema oscuro.
-   Solo cambia variables, así que aplica a la inmobiliaria y al agente
-   sin tocar vendedor.css ni base.css.
-   ========================================================= */
 [data-theme="light"] body.vendedor {
     --fondo: #faf7ff;
     --fondo-degradado: linear-gradient(180deg, #f3e8ff 0%, #faf7ff 55%, #ffffff 100%);
@@ -259,7 +227,6 @@
     --op-sombra: rgba(126, 34, 206, 0.4);
     --neutro-fondo: #1c142b;
 }
-/* Detalles con color fijo en vendedor.css */
 body.vendedor .v-campo input:focus, body.vendedor .v-campo select:focus, body.vendedor .v-campo textarea:focus { box-shadow: 0 0 0 3px var(--op-glow); }
 [data-theme="light"] body.vendedor .v-toast { background: #2e1065; }
 [data-theme="dark"] body.vendedor .v-toast { background: #1c142b; border: 1px solid #2a2433; }
@@ -268,7 +235,6 @@ body.vendedor::after { background: var(--op-glow); }
 .v-estado.vendida, .v-estado.arrendada { background: rgba(126, 34, 206, 0.92); }
 [data-theme="dark"] body.vendedor .k-1 { --k: #a855f7; }
 
-/* ---------- Marca igual a la del invitado: logo sin recuadro + frase en cursiva ---------- */
 .i-marca { gap: 12px; }
 .i-logo-marca { width: auto; height: auto; border-radius: 0; background: none; box-shadow: none; }
 .i-logo-marca img { width: auto; height: 44px; filter: none; }
@@ -283,7 +249,6 @@ body.vendedor::after { background: var(--op-glow); }
     .i-marca small { font-size: 0.85rem; }
 }
 
-/* ---------- Encabezado de cada sección con el degradado del invitado ---------- */
 body.vendedor .v-hero {
     color: #fff; border: 0;
     background: linear-gradient(120deg, #2e1065 0%, #6b21a8 55%, #9333ea 100%);
@@ -293,7 +258,6 @@ body.vendedor .v-hero {
     background: linear-gradient(120deg, #0d0a12 0%, #2a0a4a 55%, #4c0580 100%);
     box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
 }
-/* Luces difuminadas, como en el invitado */
 body.vendedor .v-hero::before,
 body.vendedor .v-hero::after {
     content: ''; position: absolute; inset: auto; border-radius: 50%;
@@ -309,7 +273,6 @@ body.vendedor .v-hero p { color: rgba(255, 255, 255, 0.82); }
 body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
 [data-theme="dark"] body.vendedor .v-hero .v-etiqueta { color: #c084fc; }
 
-/* ---------- Membresía por publicación ---------- */
 .i-destacado {
     display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; padding: 10px 12px;
     border-radius: 14px; border: 1px dashed var(--campo-borde); font-size: 0.8rem; color: var(--texto-suave);
@@ -347,7 +310,6 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
 .i-plan-opcion:first-child .i-plan-puesto { color: #140826; background: linear-gradient(135deg, #e3c985, #d4b062); }
 .i-plan-precio { font-size: 1.05rem; white-space: nowrap; }
 
-/* ---------- Comisiones de los agentes ---------- */
 .i-comision-totales { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 14px 22px 0; }
 .i-comision-totales div { padding: 12px 14px; border-radius: 14px; background: var(--neutro-fondo); }
 .i-comision-totales span { display: block; font-size: 0.75rem; color: var(--texto-suave); }
@@ -356,7 +318,6 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
 #d-comisiones-filtro { align-items: center; }
 #d-comisiones-filtro select { margin-left: auto; width: auto; padding: 7px 10px; border-radius: 10px; border: 1px solid var(--campo-borde); background: var(--campo); color: var(--texto); font: inherit; font-size: 0.82rem; }
 
-/* ---------- Paquete mensual de 10 publicaciones ---------- */
 .i-paquete { padding: 22px; display: grid; gap: 12px; }
 .i-paquete-oferta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px; }
 .i-paquete-oferta > div:first-child { flex: 1 1 320px; min-width: 0; }
@@ -383,9 +344,6 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
     .i-paquete-precio { justify-items: start; text-align: left; }
 }
 
-/* =========================================================
-   Campana de notificaciones (barra superior)
-   ========================================================= */
 .i-campana { position: relative; flex: none; }
 .i-campana-btn { position: relative; }
 .i-campana-num {
@@ -418,9 +376,6 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
 .i-campana-vacio { margin: 0; padding: 30px 16px; text-align: center; color: var(--texto-suave); font-size: 0.88rem; }
 .i-campana-vacio i { display: block; font-size: 1.5rem; margin-bottom: 8px; }
 
-/* =========================================================
-   Paginador de listados
-   ========================================================= */
 .i-paginador { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 22px 20px; }
 .i-paginador:empty { display: none; }
 .i-pag-info { margin: 0; font-size: 0.82rem; color: var(--texto-suave); }
@@ -434,9 +389,6 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
 .i-pag button:disabled { opacity: 0.4; cursor: not-allowed; }
 .i-pag span { padding: 0 4px; color: var(--texto-suave); }
 
-/* =========================================================
-   Reporte de ventas / historial de pagos
-   ========================================================= */
 .i-filtros-cabeza { display: flex; flex-wrap: wrap; align-items: end; gap: 14px; padding: 18px 22px; }
 .i-filtros-cabeza .v-campo { flex: 1 1 160px; margin: 0; }
 .i-filtros-cabeza .i-filtros-botones { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -447,9 +399,6 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
 .v-insignia.pagada, .v-insignia.aprobado { color: var(--ok); background: var(--ok-fondo); }
 .v-insignia.rechazado, .v-insignia.error, .v-insignia.anulado { color: var(--peligro); background: var(--peligro-fondo); }
 
-/* =========================================================
-   Empresa: datos en tarjetas
-   ========================================================= */
 .i-empresa-cabeza { display: flex; flex-wrap: wrap; align-items: center; gap: 22px; }
 .i-empresa-cabeza h1 { margin: 0; }
 .i-empresa-cabeza p { margin: 4px 0 0; color: var(--texto-suave); }
@@ -471,21 +420,14 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
 @media (max-width: 640px) {
     .i-campana-panel { position: fixed; top: 74px; left: 16px; right: 16px; width: auto; }
 }
-/* Cifras en pesos: letra más pequeña para que no se salgan de la tarjeta */
 .i-kpis-dinero .v-kpi b { font-size: clamp(1.15rem, 1.7vw, 1.55rem); overflow-wrap: anywhere; }
 .i-tabla td.fecha { white-space: nowrap; }
-/* Barra superior en celulares: con la campana hay un botón más */
 @media (max-width: 420px) {
     .i-barra { gap: 8px; }
     .i-barra .i-icono { width: 40px; height: 40px; }
     .i-usuario { display: none; }
 }
 
-/* =========================================================
-   Ajustes de diseño (inmobiliaria y agente)
-   ========================================================= */
-
-/* Botones del encabezado morado: fondo blanco para que resalten */
 .i-app .v-hero .v-btn-principal {
     background: #ffffff; color: #6b21a8; border: 0;
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
@@ -493,7 +435,6 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
 .i-app .v-hero .v-btn-principal:hover { background: #f3e8ff; color: #581c87; }
 .i-app .v-hero .v-btn-principal:disabled { opacity: 0.75; }
 
-/* Cifras (KPI): ícono a la izquierda y número + texto al lado (tarjeta más baja) */
 .i-app .v-kpi {
     display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto auto;
     column-gap: 14px; row-gap: 0; align-items: center; padding: 16px 18px;
@@ -508,7 +449,6 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
     .i-app .v-kpi-icono { width: 38px; height: 38px; border-radius: 12px; }
 }
 
-/* Tarjetas de propiedades: mismo tamaño que las del portal del invitado */
 .i-app .v-propiedades {
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 235px), 1fr));
     gap: 16px; padding: 14px 20px 20px;
@@ -518,12 +458,10 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
 .i-app .v-prop-cuerpo { padding: 14px; }
 .i-app .v-prop h3 { font-size: 0.95rem; }
 
-/* Tabla de agentes: barra para bajar (además de la de los lados) y títulos fijos */
 .i-tabla-scroll { max-height: 440px; overflow: auto; }
 .i-tabla-scroll thead th { position: sticky; top: 0; z-index: 1; background: var(--campo); }
 .i-tabla td.i-nowrap { white-space: nowrap; }
 
-/* Barra superior en pantallas medianas: el nombre ocupa espacio, se deja solo la inicial */
 @media (max-width: 1240px) {
     .i-usuario div { display: none; }
     .i-usuario { padding: 5px; }
@@ -540,7 +478,6 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
     .i-idiomas button { padding: 0 9px; }
 }
 
-/* Mis ganancias (agente) */
 .i-ganancias { display: grid; gap: 16px; }
 .i-ganancias-cifras { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
 .i-ganancia { padding: 16px 18px; border-radius: 16px; border: 1px solid var(--campo-borde); background: var(--campo); display: grid; gap: 4px; }
@@ -555,16 +492,12 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
 .i-progreso span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #7e22ce, #9333ea); transition: width 0.5s; }
 .i-progreso-texto { display: flex; justify-content: space-between; gap: 10px; font-size: 0.82rem; color: var(--texto-suave); }
 @media (max-width: 760px) { .i-ganancias-cifras { grid-template-columns: minmax(0, 1fr); } }
-/* Cifras: 2 por fila en pantallas medianas para que el texto no se apriete */
 @media (max-width: 1180px) and (min-width: 421px) {
     .i-app .v-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 .i-panel .v-rejilla > * { min-width: 0; }
 .i-tabla-scroll .i-agente b { white-space: nowrap; }
 
-/* =========================================================
-   Tarjeta de propiedad de la inmobiliaria (mismo diseño del portal del invitado)
-   ========================================================= */
 .i-pcard {
     display: flex; flex-direction: column; min-width: 0; overflow: hidden;
     border-radius: 16px; background: var(--tarjeta); border: 1px solid var(--campo-borde); box-shadow: var(--sombra);
@@ -620,7 +553,6 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
 [data-theme="dark"] .i-pbtn.oro { color: #e3c985; }
 .i-pbtn.peligro { flex: 0 0 34px; padding: 0; color: var(--peligro); }
 .i-pbtn.peligro:hover { background: var(--peligro-fondo); }
-/* Cifras (KPI) en tonos morados, igual que los paneles del vendedor y el administrador */
 .i-app .k-1 { --k: #9333ea; }
 .i-app .k-2 { --k: #7e22ce; }
 .i-app .k-3 { --k: #a855f7; }
@@ -630,9 +562,6 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
 [data-theme="dark"] .i-app .k-3 { --k: #d8b4fe; }
 [data-theme="dark"] .i-app .k-4 { --k: #9333ea; }
 
-/* =========================================================
-   IN3 · Propiedades agrupadas por estado (ícono + texto, tarjetas sin color)
-   ========================================================= */
 .i-secciones { display: grid; gap: 8px; padding-bottom: 8px; }
 .i-seccion { display: grid; gap: 4px; }
 .i-seccion + .i-seccion { border-top: 1px solid var(--campo-borde); padding-top: 8px; }
@@ -640,18 +569,15 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
 .i-seccion-titulo i { color: var(--op-texto); }
 .i-seccion-cantidad { min-width: 26px; height: 22px; padding: 0 8px; border-radius: 999px; display: inline-grid; place-items: center; font-size: 0.75rem; font-weight: 800; background: var(--neutro-fondo); color: var(--op-texto); }
 .i-seccion-mas { justify-self: center; margin: 0 0 10px; }
-/* Estado de la propiedad: siempre ícono y texto, sin color de fondo llamativo */
 .i-app .i-b.estado, .i-app .i-b.estado.publicada, .i-app .i-b.estado.pausada, .i-app .i-b.estado.borrador,
 .i-app .i-b.estado.vendida, .i-app .i-b.estado.arrendada { background: rgba(20, 8, 38, 0.72); color: #fff; }
 
-/* IN5 · Formulario de propiedad con más aire entre campos y secciones */
 #d-form-campos { display: grid; gap: 22px; }
 #d-form-campos .v-form-rejilla { gap: 16px 18px; }
 #d-form-campos > .v-campo, #d-form-campos > fieldset { padding-top: 18px; border-top: 1px solid var(--campo-borde); }
 #d-form-campos .v-campo label, #d-form-campos legend { margin-bottom: 6px; }
 #d-form-campos .v-form-pie { padding-top: 6px; }
 
-/* IN6 · Acciones del agente con ícono (editar, contraseña, activar/desactivar) */
 .i-acciones-icono { display: flex; gap: 6px; flex-wrap: nowrap; }
 .i-icono-mini {
     width: 36px; height: 36px; flex: none; display: grid; place-items: center; border-radius: 10px; cursor: pointer;
@@ -659,7 +585,6 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
 }
 .i-icono-mini:hover { background: var(--neutro-fondo); }
 
-/* IN4 · Filtros compactos de los listados (contactos, visitas) */
 .i-filtros-compactos { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 22px 4px; }
 .i-filtros-compactos .i-fc, .i-filtros-compactos .i-fc-buscar {
     display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 10px; border-radius: 10px;
@@ -681,7 +606,6 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
     .i-filtros-compactos .i-fc input[type="date"], .i-filtros-compactos .i-fc select { width: auto; max-width: none; flex: 1; }
 }
 
-/* ---------- AG4 / IN7: lista de movimientos (historial de un contacto) ---------- */
 .i-historial-cuerpo { padding: 10px 26px 26px; }
 .i-movs { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; max-height: 60vh; overflow-y: auto; }
 .i-mov { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--borde, rgba(20,8,38,.12)); border-radius: 12px; }
@@ -700,11 +624,9 @@ body.vendedor .v-hero .v-etiqueta { color: #e9d5ff; }
     .i-mov-estado { margin-left: 46px; }
 }
 
-/* ---------- IN2 / AG2: paleta sin azul, verde ni rojo (morado y dorado del panel de administración) ---------- */
 body.vendedor.op-venta, body.vendedor.op-arriendo { --op-1: #7e22ce; --op-2: #9333ea; --op-texto: #7e22ce; --op-glow: rgba(126, 34, 206, 0.16); --op-sombra: rgba(126, 34, 206, 0.35); }
 [data-theme="dark"] body.vendedor.op-venta, [data-theme="dark"] body.vendedor.op-arriendo { --op-texto: #c997f6; --op-glow: rgba(147, 51, 234, 0.22); }
 
-/* ---------- IN11 / AG6: "Ver todas" las notificaciones ---------- */
 .i-campana-todas { display: inline-flex; align-items: center; gap: 6px; }
 dialog.v-ventana.i-ventana-ancha { width: min(860px, calc(100vw - 32px)); }
 .i-notifs-lista { margin-top: 10px; border: 1px solid var(--campo-borde); border-radius: 14px; max-height: 55vh; }
@@ -714,20 +636,17 @@ dialog.v-ventana.i-ventana-ancha { width: min(860px, calc(100vw - 32px)); }
 .i-movs.i-movs-seccion { max-height: none; overflow: visible; margin: 10px 22px 0; }
 @media (max-width: 640px) { .i-movs.i-movs-seccion { margin: 10px 0 0; } }
 
-/* ---------- IN8: submenú de Suscripción ---------- */
 .i-nav-flecha { margin-left: auto; font-size: 0.7rem; opacity: 0.6; }
 .i-subnav { display: grid; gap: 2px; margin: 2px 0 6px 22px; padding-left: 10px; border-left: 2px solid var(--campo-borde); }
 .i-subnav a { padding: 7px 10px; font-size: 0.86rem; }
 .i-panel section[id], .i-panel .v-tarjeta[id] { scroll-margin-top: 90px; }
 
-/* ---------- IN10: ventana para comprar planes ---------- */
 #i-comprar [hidden] { display: none !important; }
 #i-comprar .i-pestanas { padding: 0; margin: 12px 0 8px; }
 #i-comprar .i-destacar-de { margin: 0; }
 #i-comprar .i-plan-opcion[disabled] { opacity: 0.55; cursor: not-allowed; }
 .i-plan .v-btn { justify-self: start; }
 
-/* ---------- IN12 / AG7: barra superior y menú en celular (Inmobiliaria y Agente) ---------- */
 .i-salir, .i-idiomas { flex: none; }
 @media (max-width: 400px) {
     .i-barra { gap: 6px; padding: 12px; }
@@ -739,9 +658,7 @@ dialog.v-ventana.i-ventana-ancha { width: min(860px, calc(100vw - 32px)); }
     .i-campana-panel { top: 66px; left: 12px; right: 12px; }
 }
 
-/* Inglés: la página se oculta un instante mientras se traduce (idioma-en.js) */
 .i-traduciendo body { visibility: hidden; }
 
-/* IN14: distintivo "Posicionada" en la foto de la tarjeta (morado oscuro con borde, como .b-pos del Invitado; el dorado es solo de Oro/Plata/Bronce) */
 .i-pcorona.i-ppos { background: #4c1d95; color: #ede9fe; border: 1px solid #a78bfa; }
 [data-theme="light"] .i-pcorona.i-ppos { background: #ede9fe; color: #5b21b6; border-color: #7c3aed; }

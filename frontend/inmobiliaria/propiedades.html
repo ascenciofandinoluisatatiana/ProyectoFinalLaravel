@@ -6,12 +6,10 @@
     <title>Propiedades · Inmobiliaria · Umbral</title>
     <link rel="icon" type="image/png" href="/img/icono.png">
 
-    <!-- Fuentes del diseño (las mismas del inicio y el login) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Mismo diseño del panel del vendedor + iconos (los entrega Laravel en /assets) -->
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/assets/admin/fontawesome/css/fontawesome.min.css">
     <link rel="stylesheet" href="/assets/admin/fontawesome/css/solid.min.css">
@@ -19,7 +17,6 @@
     <link rel="stylesheet" href="/vendedor/css/vendedor.css">
     <link rel="stylesheet" href="/inmobiliaria/css/inmobiliaria.css">
 
-    <!-- Recuerda el tema elegido ANTES de pintar la página (evita el parpadeo) -->
     <script src="/assets/inline/tema-claro-oscuro.js"></script>
 </head>
 <body class="vendedor op-venta" data-pagina="inmobiliaria-propiedades">
@@ -41,7 +38,6 @@
                     </div>
                 </section>
 
-                <!-- Filtros -->
                 <section class="v-tarjeta i-filtros">
                     <div class="v-campo"><label for="filtro-operacion">Operación</label>
                         <select id="filtro-operacion"><option value="">Venta y arriendo</option><option value="venta">Venta</option><option value="arriendo">Arriendo</option></select></div>
@@ -59,7 +55,6 @@
         </main>
     </div>
 
-    <!-- Ventana: registrar / editar inmueble -->
     <dialog class="v-ventana" id="d-form">
         <div class="v-ventana-cabeza">
             <h2 class="titulo-serif" id="d-form-titulo">Registrar inmueble</h2>
@@ -88,20 +83,17 @@
                     <select id="f-estado" name="estado"><option value="publicada">Publicar de una vez</option><option value="borrador">Guardar como borrador</option></select></div>
             </div>
 
-            <!-- Descripción que verá el invitado -->
             <div class="v-campo ancho">
                 <label for="f-descripcion">Descripción</label>
                 <textarea id="f-descripcion" name="descripcion" maxlength="3000" rows="5" placeholder="Cuenta lo que hace especial al inmueble: distribución, acabados, vista, cercanía a transporte, colegios o comercio…"></textarea>
                 <p class="v-nota"><span id="f-descripcion-cuenta">0</span> / 3000 caracteres</p>
             </div>
 
-            <!-- Características y servicios -->
             <fieldset class="v-campo ancho i-caja-campos">
                 <legend>Características y servicios</legend>
                 <div class="i-caracteristicas" id="f-caracteristicas"></div>
             </fieldset>
 
-            <!-- Foto principal -->
             <div class="v-campo ancho">
                 <label for="f-foto">Foto principal</label>
                 <label class="v-foto" for="f-foto">
@@ -113,7 +105,6 @@
                 <p class="v-nota">Es la que aparece en la tarjeta del portal.</p>
             </div>
 
-            <!-- Galería: fotos adicionales -->
             <div class="v-campo ancho">
                 <label for="f-galeria">Más fotos <small id="f-galeria-cuenta"></small></label>
                 <div class="i-galeria" id="f-galeria-lista"></div>
@@ -124,7 +115,6 @@
                 <p class="v-nota">Las fotos se reducen automáticamente antes de subirlas. Los GIF (máximo 8 MB) se suben sin reducir, para que se sigan moviendo.</p>
             </div>
 
-            <!-- Ubicación en el mapa -->
             <div class="v-campo ancho">
                 <label>Ubicación en el mapa</label>
                 <div class="v-ubic-acciones">
@@ -136,7 +126,6 @@
                 <input type="hidden" name="lng">
                 <p class="v-nota" id="f-coords">Haz clic en el mapa para marcar dónde está el inmueble. Puedes arrastrar el pin para ajustarlo.</p>
             </div>
-            <!-- Captcha anti-bots (solo al registrar un inmueble nuevo) -->
             <div class="v-campo ancho" id="f-captcha" hidden>
                 <label>Verificación</label>
                 <div id="f-captcha-widget"></div>
@@ -149,8 +138,7 @@
         </form>
     </dialog>
 
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <script src="/js/selector-idioma.js?v=1"></script>
     <script src="/inmobiliaria/js/inmobiliaria.js?v=2"></script>
     <script src="/inmobiliaria/js/propiedades.js"></script>
